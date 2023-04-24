@@ -57,7 +57,7 @@ spec:
         ingressClassName: nginx
         annotations:
           external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
-          hajimari.io/icon: cib:visual-studio-code
+          hajimari.io/icon: video-input-antenna
         hosts:
           - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
             paths:
