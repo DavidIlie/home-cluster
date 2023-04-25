@@ -53,7 +53,7 @@ spec:
               - *host
     resources:
       requests:
-        cpu: 5m
-        memory: 10Mi
+        cpu: 10m
+        memory: 100Mi
       limits:
-        memory: 50Mi
+        memory: 750Mi
