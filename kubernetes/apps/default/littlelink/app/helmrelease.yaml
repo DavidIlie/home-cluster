@@ -42,10 +42,9 @@ spec:
       AVATAR_2X_URL: "https://avatars.githubusercontent.com/u/47594764?v=4"
       AVATAR_ALT: "David Ilie"
       NAME: "David Ilie"
-      BIO: "16 year old passionate web developer, Dev Ops Nerd."
+      BIO: "16 year old passionate web developer | Dev Ops Nerd | Gamer | Photo & Video Editor | 🇷🇴"
       GITHUB: "https://github.com/davidilie"
       TWITTER: "https://twitter.com/mrdavidilie"
-      EMAIL: "david@davidilie.com"
       YOUTUBE: "https://www.youtube.com/channel/UC92hn9Y8WcY_5LribMDW8uA"
       FOOTER: "David Ilie Apps Platform © 2023"
     service:
