@@ -47,6 +47,12 @@ spec:
       TWITTER: "https://twitter.com/mrdavidilie"
       YOUTUBE: "https://www.youtube.com/channel/UC92hn9Y8WcY_5LribMDW8uA"
       FOOTER: "David Ilie Apps Platform © 2023"
+      CUSTOM_BUTTON_TEXT: "Website"
+      CUSTOM_BUTTON_URL: "https://davidilie.com"
+      CUSTOM_BUTTON_COLOR: "#000000"
+      CUSTOM_BUTTON_ALT_TEXT: "Personal Website"
+      CUSTOM_BUTTON_NAME: "WEBSITE"
+      CUSTOM_BUTTON_ICON: "fas browser"
     service:
       main:
         ports:
