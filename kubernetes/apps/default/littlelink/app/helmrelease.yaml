@@ -43,16 +43,16 @@ spec:
       AVATAR_ALT: "David Ilie"
       NAME: "David Ilie"
       BIO: "16 year old passionate web developer | Dev Ops Nerd | Gamer | Photo & Video Editor | 🇷🇴"
-      GITHUB: "https://github.com/davidilie"
-      TWITTER: "https://twitter.com/mrdavidilie"
-      YOUTUBE: "https://www.youtube.com/channel/UC92hn9Y8WcY_5LribMDW8uA"
-      FOOTER: "David Ilie Apps Platform © 2023"
       CUSTOM_BUTTON_TEXT: "Website"
       CUSTOM_BUTTON_URL: "https://davidilie.com"
       CUSTOM_BUTTON_COLOR: "#000000"
       CUSTOM_BUTTON_ALT_TEXT: "Personal Website"
       CUSTOM_BUTTON_NAME: "WEBSITE"
-      CUSTOM_BUTTON_ICON: "fas browser"
+      CUSTOM_BUTTON_ICON: "fas file-alt"
+      GITHUB: "https://github.com/davidilie"
+      TWITTER: "https://twitter.com/mrdavidilie"
+      YOUTUBE: "https://www.youtube.com/channel/UC92hn9Y8WcY_5LribMDW8uA"
+      FOOTER: "David Ilie Apps Platform © 2023"
     service:
       main:
         ports:
