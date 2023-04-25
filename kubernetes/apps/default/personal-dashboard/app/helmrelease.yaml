@@ -31,22 +31,9 @@ spec:
     image:
       repository: ghcr.io/davidilie/personal-dashboard
       tag: kubernetes
-    # env:
-    #   - name: NEWS_API_KEY
-    #     valueFrom:
-    #       secretKeyRef:
-    #         key: personal-dashboard-env
-    #         name: NEWS_API_KEY
-    #   - name: WEATHER_API_KEY
-    #     valueFrom:
-    #       secretKeyRef:
-    #         key: personal-dashboard-env
-    #         name: WEATHER_API_KEY
-    #   - name: IP_LOCATOR_KEY
-    #     valueFrom:
-    #       secretKeyRef:
-    #         key: personal-dashboard-env
-    #         name: IP_LOCATOR_KEY
+    envFrom:
+      - secretRef:
+          name: personal-dashboard-secret
     service:
       main:
         ports:
