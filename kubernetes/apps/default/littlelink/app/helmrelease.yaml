@@ -74,7 +74,7 @@ spec:
         ingressClassName: nginx
         annotations:
           external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
-          hajimari.io/icon: mdi:view-dashboard
+          hajimari.io/icon: mdi:link
         hosts:
           - host: &host "${SECRET_DOMAIN}"
             paths:
