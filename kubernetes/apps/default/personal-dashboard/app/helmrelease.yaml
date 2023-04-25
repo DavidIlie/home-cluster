@@ -30,7 +30,7 @@ spec:
       strategy: RollingUpdate
     image:
       repository: ghcr.io/davidilie/personal-dashboard
-      tag: test-docker
+      tag: kubernetes
     service:
       main:
         ports:
