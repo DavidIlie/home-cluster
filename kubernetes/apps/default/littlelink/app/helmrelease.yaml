@@ -54,7 +54,6 @@ spec:
       TWITTER: "https://twitter.com/mrdavidilie"
       YOUTUBE: "https://www.youtube.com/channel/UC92hn9Y8WcY_5LribMDW8uA"
       FOOTER: "David Ilie Apps Platform © 2023"
-      EMAIL: "david@davidilie.com"
     service:
       main:
         ports:
