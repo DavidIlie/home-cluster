@@ -86,6 +86,10 @@ spec:
             paths:
               - path: /
                 pathType: Prefix
+          - host: &host "davidapps.dev"
+            paths:
+              - path: /
+                pathType: Prefix
         tls:
           - hosts:
               - *host
