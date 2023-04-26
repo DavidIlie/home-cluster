@@ -51,10 +51,6 @@ spec:
             paths:
               - path: /
                 pathType: Prefix
-          - host: &host "dash.davidilie.com"
-            paths:
-              - path: /
-                pathType: Prefix
         tls:
           - hosts:
               - *host
