@@ -82,10 +82,6 @@ spec:
           external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
           hajimari.io/icon: mdi:file-link-outline
         hosts:
-          - host: &host "links.davidilie.com"
-            paths:
-              - path: /
-                pathType: Prefix
           - host: &host "davidapps.dev"
             paths:
               - path: /
