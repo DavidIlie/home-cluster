@@ -4,4 +4,3 @@ kind: Kustomization
 resources:
   - ./automation.yaml
   - ./personal-dashboard/deployment.yaml
-  - ./secret.sops.yaml
