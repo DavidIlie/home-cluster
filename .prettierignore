@@ -1,2 +1,3 @@
 .github/renovate-bot.json5
 .github/renovate.json5
+.github/renovate/autoMerge.json5

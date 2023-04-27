@@ -1,6 +1,0 @@
-{
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "username": "david-bot[bot]",
-  "gitAuthor": "david-bot <david@davidilie.com>",
-  "repositories": ["davidilie/home-cluster"]
-}
