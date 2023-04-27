@@ -1,4 +1,3 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -29,7 +28,7 @@ spec:
     controller:
       strategy: RollingUpdate
     image:
-      repository: ghcr.io/davidilie/personal-dashboard:master-d13810f9-1682628482 # {"$imagepolicy": "flux-system:personal-dashboard"}
+      repository: ghcr.io/davidilie/personal-dashboard:master-d552095f-1682635425 # {"$imagepolicy": "flux-system:personal-dashboard"}
     envFrom:
       - secretRef:
           name: personal-dashboard-secret
