@@ -30,7 +30,7 @@ spec:
       strategy: RollingUpdate
     image:
       repository: ghcr.io/davidilie/personal-dashboard
-      tag: master-b6de9802-1682616462
+      tag: 1.0.0@sha256:ec0d1cc30ce0e9b923a074fcbe51db02ff702b166b98f256944184fcb6b8d7e1
     envFrom:
       - secretRef:
           name: personal-dashboard-secret
