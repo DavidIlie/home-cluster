@@ -30,7 +30,7 @@ spec:
       strategy: RollingUpdate
     image:
       repository: ghcr.io/davidilie/personal-dashboard
-      tag: kubernetes@sha256:c7270a8ac331f703bffdd8d3454eb326f6a04215dc3614641903841c9d507d09
+      tag: master-b6de9802-1682616462
     envFrom:
       - secretRef:
           name: personal-dashboard-secret
