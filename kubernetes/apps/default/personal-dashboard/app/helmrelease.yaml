@@ -54,6 +54,8 @@ spec:
         tls:
           - hosts:
               - *host
+    podAnnotations:
+      secret.reloader.stakater.com/reload: personal-dashboard-secret
     resources:
       requests:
         cpu: 10m
