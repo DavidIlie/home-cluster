@@ -1,8 +1,8 @@
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageUpdateAutomation
 metadata:
-  name: flux-system
-  namespace: flux-system
+  name: davidautomation
+  namespace: default
 spec:
   interval: 1m0s
   sourceRef:
