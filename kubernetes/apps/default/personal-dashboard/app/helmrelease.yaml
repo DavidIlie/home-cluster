@@ -28,7 +28,7 @@ spec:
     controller:
       strategy: RollingUpdate
     image:
-      repository: ghcr.io/davidilie/personal-dashboard:master-d552095f-1682635425 # {"$imagepolicy": "flux-system:personal-dashboard"}
+      repository: ghcr.io/davidilie/personal-dashboard:master-9d346f01-1682638501 # {"$imagepolicy": "flux-system:personal-dashboard"}
     envFrom:
       - secretRef:
           name: personal-dashboard-secret
