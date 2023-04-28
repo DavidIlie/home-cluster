@@ -114,7 +114,6 @@ spec:
       supplementalGroups:
         - 100
         - 101
-        - 0
     persistence:
       config:
         enabled: true
