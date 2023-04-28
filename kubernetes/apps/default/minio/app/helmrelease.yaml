@@ -33,9 +33,8 @@ spec:
       repository: quay.io/minio/minio
       tag: RELEASE.2023-04-28T18-11-17Z
     env:
-      TZ: Europe/Bucharest
+      TZ: "${BOOTSTRAP_TIMEZONE}"
       MINIO_UPDATE: "off"
-      MINIO_PROMETHEUS_JOB_ID: minio
       MINIO_BROWSER_REDIRECT_URL: https://minio.davidapps.dev
       MINIO_SERVER_URL: https://cdn.davidapps.dev
       MINIO_API_CORS_ALLOW_ORIGIN: https://minio.davidapps.dev,https://cdn.davidapps.dev
@@ -106,13 +105,20 @@ spec:
         tls:
           - hosts:
               - *api-host
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+    podSecurityContext:
+      fsGroup: 1000
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 100
+        - 101
+        - 0
     persistence:
       config:
         enabled: true
-        type: nfs
-        server: 192.168.100.63
-        path: /mnt/data/minio
-        readOnly: false
+        existingClaim: minio-nfs
         mountPath: /data
     resources:
       requests:
