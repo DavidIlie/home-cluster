@@ -114,7 +114,10 @@ spec:
     persistence:
       config:
         enabled: true
-        existingClaim: minio-nfs
+        type: nfs
+        server: 192.168.100.63
+        path: /mnt/data/minio
+        readOnly: false
         mountPath: /data
     resources:
       requests:
