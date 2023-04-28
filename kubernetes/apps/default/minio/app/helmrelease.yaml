@@ -26,9 +26,9 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    # controller:
-    #   annotations:
-    #     reloader.stakater.com/auto: "true"
+    controller:
+      annotations:
+        reloader.stakater.com/auto: "true"
     image:
       repository: quay.io/minio/minio
       tag: RELEASE.2023-04-28T18-11-17Z
