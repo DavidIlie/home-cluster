@@ -30,7 +30,8 @@ spec:
       annotations:
         reloader.stakater.com/auto: "true"
     image:
-      repository: quay.io/minio/minio:RELEASE.2023-04-28T18-11-17Z
+      repository: quay.io/minio/minio
+      tag: RELEASE.2023-04-28T18-11-17Z
     env:
       TZ: Europe/Bucharest
       MINIO_UPDATE: "off"
