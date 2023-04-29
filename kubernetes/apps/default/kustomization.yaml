@@ -8,3 +8,4 @@ resources:
   - ./personal-dashboard/ks.yaml
   - ./littlelink/ks.yaml
   - ./minio/ks.yaml
+  - ./pterodactyl/ks.yaml
