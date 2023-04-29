@@ -45,8 +45,8 @@ spec:
       APP_ENV: "production"
       APP_ENVIRONMENT_ONLY: "false"
       APP_SERVICE_AUTHOR: "david@davidilie.com"
-      APP_TIMEZONE: "Europe/Bucharest"
       TRUSTED_PROXIES: "*"
+      APP_TIMEZONE: "Europe/Bucharest"
     service:
       main:
         ports:
