@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-mariadb
+  name: cluster-apps-mariadb-bitbami
   namespace: flux-system
 spec:
   dependsOn:
