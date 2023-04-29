@@ -35,8 +35,8 @@ spec:
         memory: 256Mi
       limits:
         memory: 512Mi
-    initdbScripts:
-      create-pterodactyl.sql: |
-        CREATE DATABASE IF NOT EXISTS panel;
-        CREATE USER IF NOT EXISTS 'pterodactyl'@'%' IDENTIFIED BY 'pizza';
-        GRANT ALL PRIVILEGES ON panel.* to 'pterodactyl'@'%';
+    # initdbScripts:
+    #   create-pterodactyl.sql: |
+    #     CREATE DATABASE IF NOT EXISTS panel;
+    #     CREATE USER IF NOT EXISTS 'pterodactyl'@'%' IDENTIFIED BY 'pizza';
+    #     GRANT ALL PRIVILEGES ON panel.* to 'pterodactyl'@'%';
