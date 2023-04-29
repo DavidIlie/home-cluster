@@ -12,7 +12,7 @@ spec:
   externalName: 192.168.100.83
   ports:
     - name: http
-      port: &port 8080
+      port: &port 443
       protocol: TCP
       targetPort: *port
 ---
@@ -38,7 +38,7 @@ spec:
               service:
                 name: *app
                 port:
-                  number: 8080
+                  number: 443
   tls:
     - hosts:
         - *host
