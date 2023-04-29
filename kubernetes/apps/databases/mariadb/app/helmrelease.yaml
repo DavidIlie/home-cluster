@@ -25,18 +25,18 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    auth:
-      rootPassword: "pizza"
     global:
-      storageClass: ceph-block
+      storageClass: rook-ceph
+    auth:
+      rootPassword: "test"
     resources:
       requests:
         cpu: 200m
         memory: 256Mi
       limits:
         memory: 512Mi
-    # initdbScripts:
-    #   create-pterodactyl.sql: |
-    #     CREATE DATABASE IF NOT EXISTS panel;
-    #     CREATE USER IF NOT EXISTS 'pterodactyl'@'%' IDENTIFIED BY 'pizza';
-    #     GRANT ALL PRIVILEGES ON panel.* to 'pterodactyl'@'%';
+    initdbScripts:
+      create-pterodactyl.sql: |
+        CREATE DATABASE IF NOT EXISTS panel;
+        CREATE USER IF NOT EXISTS 'pterodactyl'@'%' IDENTIFIED BY '${PTERODACTYL_MARIADB_PASSWORD}';
+        GRANT ALL PRIVILEGES ON panel.* to 'pterodactyl'@'%';
