@@ -13,7 +13,7 @@ spec:
     storageClass: local-path
   postgresql:
     parameters:
-      max_connections: "300"
+      max_connections: "600"
       shared_buffers: 512MB
   # backup:
   #   retentionPolicy: 30d
