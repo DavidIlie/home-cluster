@@ -13,8 +13,6 @@ spec:
     storageClass: rook-ceph
   superuserSecret:
     name: cloudnative-pg
-  monitoring:
-    enablePodMonitor: true
   postgresql:
     parameters:
       max_connections: "600"
