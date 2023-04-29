@@ -33,7 +33,7 @@ spec:
       repository: quay.io/minio/minio
       tag: RELEASE.2023-04-28T18-11-17Z
     env:
-      TZ: "${BOOTSTRAP_TIMEZONE}"
+      TZ: "Europe/Bucharest"
       MINIO_UPDATE: "off"
       MINIO_BROWSER_REDIRECT_URL: https://minio.davidapps.dev
       MINIO_SERVER_URL: https://cdn.davidapps.dev
