@@ -4,7 +4,3 @@ kind: Kustomization
 namespace: databases
 resources:
   - ./helmrelease.yaml
-labels:
-  - pairs:
-      app.kubernetes.io/name: mariadb
-      app.kubernetes.io/instance: mariadb
