@@ -25,10 +25,11 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    envFrom:
+      - secretRef:
+          name: mariadb-secret
     global:
-      storageClass: rook-ceph
-    auth:
-      rootPassword: "test"
+      storageClass: ceph-block
     resources:
       requests:
         cpu: 200m
@@ -38,5 +39,5 @@ spec:
     initdbScripts:
       create-pterodactyl.sql: |
         CREATE DATABASE IF NOT EXISTS panel;
-        CREATE USER IF NOT EXISTS 'pterodactyl'@'%' IDENTIFIED BY '${PTERODACTYL_MARIADB_PASSWORD}';
+        CREATE USER IF NOT EXISTS 'pterodactyl'@'%' IDENTIFIED BY 'pizza';
         GRANT ALL PRIVILEGES ON panel.* to 'pterodactyl'@'%';
