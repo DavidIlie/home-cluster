@@ -36,7 +36,7 @@ spec:
       DB_PORT: 3306
       DB_DATABASE: "panel"
       DB_USERNAME: "pterodactyl"
-      # DB_PASSWORD: ${PTERODACTYL_MARIADB_PASSWORD}
+      DB_PASSWORD: "pizza"
       REDIS_HOST: "redis.databases.svc.cluster.local"
       CACHE_DRIVER: "redis"
       SESSION_DRIVER: "redis"
@@ -46,9 +46,7 @@ spec:
       APP_ENVIRONMENT_ONLY: "false"
       APP_SERVICE_AUTHOR: "david@davidilie.com"
       TRUSTED_PROXIES: "*"
-    envFrom:
-      - secretRef:
-          name: personal-dashboard-secret
+      APP_TIMEZONE: "Europe/Buchreat"
     service:
       main:
         ports:
