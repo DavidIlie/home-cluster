@@ -24,10 +24,9 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  envFrom:
-    - secretRef:
-        name: mariadb-secret
   values:
+    auth:
+      rootPassword: "pizza"
     global:
       storageClass: ceph-block
     resources:
