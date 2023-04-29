@@ -5,3 +5,5 @@ namespace: databases
 resources:
   - ./cluster.yaml
   - ./service.yaml
+  - ./cnpg.secret.sops.yaml
+  - ./secret.sops.yaml
