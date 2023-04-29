@@ -16,3 +16,4 @@ resources:
   - ./weave-gitops.yaml
   - ./rook-ceph.yaml
   - ./csi-driver-nfs.yaml
+  - ./cloudnative-pg.yaml
