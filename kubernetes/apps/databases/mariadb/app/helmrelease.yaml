@@ -24,10 +24,10 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  envFrom:
+    - secretRef:
+        name: mariadb-secret
   values:
-    envFrom:
-      - secretRef:
-          name: mariadb-secret
     global:
       storageClass: ceph-block
     resources:
