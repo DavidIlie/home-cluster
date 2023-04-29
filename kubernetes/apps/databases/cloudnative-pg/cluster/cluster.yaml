@@ -9,25 +9,25 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:15.2
   primaryUpdateStrategy: unsupervised
   storage:
-    size: 50Gi
+    size: 10Gi
     storageClass: local-path
   postgresql:
     parameters:
       max_connections: "300"
       shared_buffers: 512MB
-  backup:
-    retentionPolicy: 30d
-    barmanObjectStore:
-      wal:
-        compression: bzip2
-        maxParallel: 8
-      destinationPath: s3://postgres/
-      endpointURL: "https://minio.davidapps.dev"
-      serverName: postgres
-      s3Credentials:
-        accessKeyId:
-          name: cloudnative-pg-minio
-          key: aws-access-key-id
-        secretAccessKey:
-          name: cloudnative-pg-minio
-          key: aws-secret-access-key
+  # backup:
+  #   retentionPolicy: 30d
+  #   barmanObjectStore:
+  #     wal:
+  #       compression: bzip2
+  #       maxParallel: 8
+  #     destinationPath: s3://postgres/
+  #     endpointURL: "https://minio.davidapps.dev"
+  #     serverName: postgres
+  #     s3Credentials:
+  #       accessKeyId:
+  #         name: cloudnative-pg-minio
+  #         key: aws-access-key-id
+  #       secretAccessKey:
+  #         name: cloudnative-pg-minio
+  #         key: aws-secret-access-key
