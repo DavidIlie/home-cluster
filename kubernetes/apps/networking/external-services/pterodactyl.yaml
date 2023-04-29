@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app pterodactyl
+  namespace: networking
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.83
+  ports:
+    - name: http
+      port: &port 8080
+      protocol: TCP
+      targetPort: *port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &app pterodactyl
+  namespace: networking
+  annotations:
+    external-dns.alpha.kubernetes.io/target: ipv4.${SECRET_DOMAIN}
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: &host wings-ro.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - *host
