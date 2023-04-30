@@ -15,6 +15,14 @@ spec:
       port: &port 443
       protocol: TCP
       targetPort: *port
+    - name: apiuber
+      port: &port 4567
+      protocol: TCP
+      targetPort: *port
+    - name: dynmap
+      port: &port 8123
+      protocol: TCP
+      targetPort: *port
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -39,6 +47,26 @@ spec:
                 name: *app
                 port:
                   number: 443
+    - host: &host uber.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: 4567
+    - host: &host map.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: 8123
   tls:
     - hosts:
         - *host
