@@ -39,7 +39,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: *app
+                name: wstunnel
                 port:
                   number: 443
   tls:
