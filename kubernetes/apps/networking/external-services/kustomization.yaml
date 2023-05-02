@@ -5,4 +5,3 @@ resources:
   - ./proxmox.yaml
   - ./truenas.yaml
   - ./pterodactyl.yaml
-  - ./wstunnel.yaml
