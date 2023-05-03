@@ -37,7 +37,7 @@ spec:
       TZ: Europe/Madrid
       RADARR__INSTANCE_NAME: Radarr
       RADARR__PORT: &port 80
-      RADARR__APPLICATION_URL: &host "https://{{ .Release.Name }}.${SECRET_DOMAIN}"
+      RADARR__APPLICATION_URL: &host "radarr.${SECRET_DOMAIN}"
       RADARR__LOG_LEVEL: info
     service:
       main:
@@ -68,7 +68,7 @@ spec:
             10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
           hajimari.io/icon: mdi:filmstrip
         hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: "radarr.${SECRET_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
