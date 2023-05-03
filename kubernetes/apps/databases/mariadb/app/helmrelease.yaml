@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: mariadb
-      version: 11.5.6
+      version: 11.5.7
       sourceRef:
         kind: HelmRepository
         name: bitnami
@@ -31,6 +31,8 @@ spec:
       tag: 10.11.2
     auth:
       rootPassword: "${MARIADB_ROOT_PASSWORD}"
+    env:
+      mariadb-password: "${MARIADB_ROOT_PASSWORD}"
     primary:
       persistence:
         enabled: true
