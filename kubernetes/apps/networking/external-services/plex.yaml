@@ -7,6 +7,8 @@ metadata:
   labels:
     app.kubernetes.io/name: *app
     app.kubernetes.io/instance: *app
+  annotations:
+    coredns.io/hostname: "plex.davidapps.local"
 spec:
   type: ExternalName
   externalName: 192.168.100.64
@@ -15,32 +17,3 @@ spec:
       port: &port 32400
       protocol: TCP
       targetPort: *port
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: &app plex
-  namespace: networking
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    nginx.ingress.kubernetes.io/whitelist-source-range: |
-      10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
-  labels:
-    app.kubernetes.io/name: *app
-    app.kubernetes.io/instance: *app
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: &host plex.${SECRET_DOMAIN}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: *app
-                port:
-                  number: 32400
-  tls:
-    - hosts:
-        - *host
