@@ -51,6 +51,11 @@ spec:
             paths:
               - path: /
                 pathType: Prefix
+                backend:
+                  service:
+                    name: xteve
+                    port:
+                      number: 34400
         tls:
           - hosts:
               - *host
