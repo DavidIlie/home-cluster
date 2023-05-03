@@ -93,8 +93,8 @@ spec:
         enabled: true
         type: nfs
         server: ${TRUENAS_IP}
-        path: /mnt/data/storage/share/Movies
-        mountPath: /media
+        path: /mnt/data/storage/share
+        mountPath: /storage
     resources:
       requests:
         cpu: 10m
