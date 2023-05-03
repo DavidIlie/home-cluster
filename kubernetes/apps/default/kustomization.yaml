@@ -9,3 +9,4 @@ resources:
   - ./littlelink/ks.yaml
   - ./minio/ks.yaml
   - ./pterodactyl/ks.yaml
+  - ./excalidraw/ks.yaml
