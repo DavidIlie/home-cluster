@@ -10,3 +10,4 @@ resources:
   - ./minio/ks.yaml
   - ./pterodactyl/ks.yaml
   - ./excalidraw/ks.yaml
+  - ./qbittorrent/ks.yaml
