@@ -94,7 +94,7 @@ spec:
         type: nfs
         server: ${TRUENAS_IP}
         path: /mnt/data/storage/share
-        mountPath: /srv/storage
+        mountPath: /storage
     resources:
       requests:
         cpu: 10m
