@@ -101,8 +101,8 @@ spec:
         enabled: true
         type: nfs
         server: ${TRUENAS_IP}
-        path: /mnt/data/share/TV
-        mountPath: /media
+        path: /mnt/data/share
+        mountPath: /share
       incomplete:
         enabled: true
         type: emptyDir
