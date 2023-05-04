@@ -52,6 +52,11 @@ spec:
             port: *port-bt
             protocol: TCP
             targetPort: *port-bt
+          http:
+            enabled: true
+            port: *port
+            protocol: TCP
+            targetPort: *port
         externalTrafficPolicy: Local
     ingress:
       main:
