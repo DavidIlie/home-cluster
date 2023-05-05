@@ -2,8 +2,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: qbittorrent
-  namespace: default
+  name: tautulli
+  namespace: media
 spec:
   interval: 15m
   chart:
@@ -28,46 +28,28 @@ spec:
   values:
     controller:
       type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
     image:
-      repository: ghcr.io/onedr0p/qbittorrent
-      tag: 4.5.2@sha256:4fb6a9dc178ce58716283ca849d3f5cc34ddf4cc21740793b142448df911cdf0
+      repository: ghcr.io/onedr0p/tautulli
+      tag: 2.12.3@sha256:873832cec51b99d5fbcf179bad9a7bbe609518d821eb982dab0b297b8c0cfc6a
     env:
-      TZ: Europe/Madrid
-      QBITTORRENT__PORT: &port 80
-      QBITTORRENT__BT_PORT: &port-bt 50413
+      TZ: Europe/Bucharest
     service:
       main:
         ports:
           http:
-            port: *port
-        bittorrent:
-          enabled: true
-          type: LoadBalancer
-          externalIPs: ["192.168.100.105"]
-          ports:
-            bittorrent:
-              enabled: true
-              port: *port-bt
-              protocol: TCP
-              targetPort: *port-bt
-        externalTrafficPolicy: Local
+            port: 8181
     ingress:
       main:
         enabled: true
         ingressClassName: nginx
         annotations:
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-            proxy_hide_header "x-webkit-csp";
-            proxy_hide_header "content-security-policy";
-            proxy_hide_header "X-Frame-Options";
-            proxy_set_header Accept-Encoding "";
           nginx.ingress.kubernetes.io/whitelist-source-range: |
             10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
-          hajimari.io/icon: mdi:download
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+          hajimari.io/icon: mdi:chart-bar
         hosts:
-          - host: &host "qb.${SECRET_DOMAIN}"
+          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
@@ -87,21 +69,11 @@ spec:
       - name: config
         mountPath: /config
         accessMode: ReadWriteOnce
-        size: 1Gi
+        size: 5Gi
         storageClass: ceph-block
-    persistence:
-      media:
-        enabled: true
-        type: nfs
-        server: ${TRUENAS_IP}
-        path: /mnt/data/share
-        mountPath: /srv/storage
-      incomplete:
-        enabled: true
-        type: emptyDir
     resources:
       requests:
         cpu: 10m
         memory: 250Mi
       limits:
-        memory: 6000Mi
+        memory: 500Mi
