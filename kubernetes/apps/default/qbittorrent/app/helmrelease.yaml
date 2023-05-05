@@ -52,7 +52,7 @@ spec:
               port: *port-bt
               protocol: TCP
               targetPort: *port-bt
-        externalTrafficPolicy: Local
+        # externalTrafficPolicy: Local
     ingress:
       main:
         enabled: true
