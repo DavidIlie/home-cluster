@@ -24,8 +24,6 @@ spec:
           imagePullPolicy: IfNotPresent
           args: ["manager"]
           env:
-            # - name: vip_inteface
-            #   value: "enp6s18"
             - name: vip_arp
               value: "true"
             - name: port
