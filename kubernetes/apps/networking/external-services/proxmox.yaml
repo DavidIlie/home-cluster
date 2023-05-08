@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   type: ExternalName
-  externalName: ${SERVICES_EXTERNAL_PROXMOX_IP}
+  externalName: ${PROXMOX_IP}
   ports:
     - name: http
       port: &port 8006

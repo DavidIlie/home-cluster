@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   type: ExternalName
-  externalName: ${SERVICES_EXTERNAL_PDAEMON_IP}
+  externalName: ${PTERODACTYL_DAEMON_IP}
   ports:
     - name: http
       port: &port 443
