@@ -5,12 +5,10 @@ metadata:
   name: home-kubernetes
   namespace: flux-system
 spec:
-  interval: 10m
+  interval: 30m
   ref:
     branch: main
-  url: "ssh://git@github.com/davidilie/home-cluster"
-  secretRef:
-    name: github-deploy-key
+  url: "https://github.com/davidilie/home-cluster"
   ignore: |
     # exclude all
     /*

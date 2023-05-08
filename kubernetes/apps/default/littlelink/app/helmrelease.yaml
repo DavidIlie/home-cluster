@@ -32,7 +32,7 @@ spec:
       repository: ghcr.io/techno-tim/littlelink-server
       tag: latest
     env:
-      TZ: "Europe/Bucharest"
+      TZ: ${TIMEZONE}
       META_TITLE: "David Ilie"
       META_DESCRIPTION: "David Ilie Link Page"
       META_AUTHOR: "David Ilie"
@@ -79,7 +79,7 @@ spec:
         enabled: true
         ingressClassName: nginx
         annotations:
-          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
           hajimari.io/icon: mdi:file-link-outline
         hosts:
           - host: &host "links.davidilie.com"

@@ -1,3 +1,5 @@
 .github/renovate-bot.json5
 .github/renovate.json5
 .github/renovate/autoMerge.json5
+.github/renovate/labels.json5
+.github/renovate/semanticCommits.json5

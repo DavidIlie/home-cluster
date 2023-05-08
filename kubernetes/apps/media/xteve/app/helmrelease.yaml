@@ -23,7 +23,7 @@ spec:
       tag: master
       pullPolicy: Always
     env:
-      TZ: "Europe/Bucharest"
+      TZ: ${TIMEZONE}
     podSecurityContext:
       runAsUser: 1000
       runAsGroup: 1000

@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   type: ExternalName
-  externalName: 192.168.100.63
+  externalName: ${SERVICES_EXTERNAL_TRUENAS_IP}
   ports:
     - name: http
       port: &port 80
