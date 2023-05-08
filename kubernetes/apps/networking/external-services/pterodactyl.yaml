@@ -30,7 +30,7 @@ metadata:
   name: &app pterodactyl
   namespace: networking
   annotations:
-    external-dns.alpha.kubernetes.io/target: ipv4.${SECRET_DOMAIN}
+    external-dns.alpha.kubernetes.io/target: ingress.${SECRET_DOMAIN}
   labels:
     app.kubernetes.io/name: *app
     app.kubernetes.io/instance: *app
