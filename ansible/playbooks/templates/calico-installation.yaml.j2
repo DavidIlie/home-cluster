@@ -7,9 +7,10 @@ spec:
   registry: quay.io
   imagePath: calico
   calicoNetwork:
+    # https://docs.k3s.io/installation/network-options#custom-cni
+    containerIPForwarding: "Enabled"
     # https://projectcalico.docs.tigera.io/networking/ip-autodetection
     nodeAddressAutodetectionV4:
-      # interface: "enp6s18"
       cidrs:
         - "{{ (ansible_default_ipv4.network + '/' + ansible_default_ipv4.netmask) | ansible.utils.ipaddr('network/prefix') }}"
     # Note: The ipPools section cannot be modified post-install.
