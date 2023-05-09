@@ -70,13 +70,16 @@ spec:
         nodes:
           - name: worker-01
             devices:
-              - name: "vdb"
+              - name: "sda"
           - name: worker-02
             devices:
-              - name: "vdb"
+              - name: "sda"
           - name: worker-03
             devices:
-              - name: "vdb"
+              - name: "sda"
+          - name: worker-04
+            devices:
+              - name: "sda"
     cephBlockPools:
       - name: ceph-blockpool
         spec:
