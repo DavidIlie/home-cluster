@@ -30,9 +30,10 @@ spec:
       title: Home
       darkTheme: blackboard
       alwaysTargetBlank: true
-      showGreeting: false
+      name: David
+      showGreeting: true
       showAppGroups: false
-      showAppStatus: true
+      showAppStatus: false
       showBookmarkGroups: false
       showGlobalBookmarks: false
       showAppUrls: false
