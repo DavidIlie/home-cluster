@@ -5,9 +5,9 @@ resources:
   - ./namespace.yaml
   - ./echo-server/ks.yaml
   - ./hajimari/ks.yaml
-  # - ./personal-dashboard/ks.yaml
-  # - ./littlelink/ks.yaml
+  - ./personal-dashboard/ks.yaml
+  - ./littlelink/ks.yaml
   # - ./minio/ks.yaml
   # - ./pterodactyl/ks.yaml
-  # - ./excalidraw/ks.yaml
+  - ./excalidraw/ks.yaml
   # - ./qbittorrent/ks.yaml

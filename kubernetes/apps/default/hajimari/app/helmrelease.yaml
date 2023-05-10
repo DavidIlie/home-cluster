@@ -42,6 +42,7 @@ spec:
           - default
           - media
           - networking
+          - rook-ceph
     ingress:
       main:
         enabled: true
