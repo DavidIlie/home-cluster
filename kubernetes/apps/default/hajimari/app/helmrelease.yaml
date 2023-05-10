@@ -37,6 +37,7 @@ spec:
       showBookmarkGroups: false
       showGlobalBookmarks: false
       showAppUrls: false
+      showAppInfo: true
       defaultEnable: true
       namespaceSelector:
         matchNames:
