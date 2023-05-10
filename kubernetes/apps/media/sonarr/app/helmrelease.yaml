@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: prowlarr
+  name: sonarr
   namespace: media
 spec:
   interval: 15m
@@ -31,14 +31,14 @@ spec:
       annotations:
         reloader.stakater.com/auto: "true"
     image:
-      repository: ghcr.io/onedr0p/prowlarr-develop
-      tag: 1.4.1.3258@sha256:21ca1fee60b279a3633e744c16f778ee21c0d1202dcdbea4112791cd1ae36eae
+      repository: ghcr.io/onedr0p/sonarr-develop
+      tag: 4.0.0.485@sha256:e89261035ededa4baa9566ad3fbecca70364f64c76779fd1777ffb4da97d415d
     env:
       TZ: ${TIMEZONE}
-      PROWLARR__INSTANCE_NAME: Prowlarr
-      PROWLARR__PORT: &port 80
-      PROWLARR__LOG_LEVEL: info
-      PROWLARR__AUTHENTICATION_METHOD: External
+      PUSHOVER_DEBUG: "false"
+      SONARR__INSTANCE_NAME: Sonarr
+      SONARR__PORT: &port 80
+      SONARR__LOG_LEVEL: info
     service:
       main:
         ports:
@@ -66,9 +66,9 @@ spec:
         annotations:
           nginx.ingress.kubernetes.io/whitelist-source-range: |
             10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
-          hajimari.io/icon: mdi:movie-search
+          hajimari.io/icon: mdi:television-classic
         hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: &host "sonarr.${SECRET_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
@@ -88,11 +88,18 @@ spec:
       - name: config
         mountPath: /config
         accessMode: ReadWriteOnce
-        size: 2Gi
+        size: 5Gi
         storageClass: ceph-block
+    persistence:
+      media:
+        enabled: true
+        type: nfs
+        server: ${TRUENAS_IP}
+        path: /mnt/data/share/TV
+        mountPath: /media
     resources:
       requests:
         cpu: 10m
-        memory: 100Mi
+        memory: 250Mi
       limits:
-        memory: 500Mi
+        memory: 2000Mi
