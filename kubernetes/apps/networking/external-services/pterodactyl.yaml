@@ -31,6 +31,7 @@ metadata:
   namespace: networking
   annotations:
     external-dns.alpha.kubernetes.io/target: ingress.${SECRET_DOMAIN}
+    hajimari.io/enable: "false"
   labels:
     app.kubernetes.io/name: *app
     app.kubernetes.io/instance: *app
