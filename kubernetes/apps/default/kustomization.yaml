@@ -7,7 +7,7 @@ resources:
   - ./hajimari/ks.yaml
   - ./personal-dashboard/ks.yaml
   - ./littlelink/ks.yaml
-  # - ./minio/ks.yaml
-  # - ./pterodactyl/ks.yaml
+  - ./minio/ks.yaml
+  - ./pterodactyl/ks.yaml
   - ./excalidraw/ks.yaml
-  # - ./qbittorrent/ks.yaml
+  - ./qbittorrent/ks.yaml
