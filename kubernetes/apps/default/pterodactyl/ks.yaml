@@ -19,7 +19,6 @@ spec:
       kind: HelmRelease
       name: pterodactyl
       namespace: default
-  wait: true
   interval: 15m
   retryInterval: 1m
-  timeout: 30s
+  timeout: 2m
