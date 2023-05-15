@@ -56,7 +56,7 @@ spec:
               - *host
     resources:
       requests:
-        cpu: 50m
-        memory: 100Mi
+        cpu: 100m
+        memory: 200Mi
       limits:
         memory: 1024Mi
