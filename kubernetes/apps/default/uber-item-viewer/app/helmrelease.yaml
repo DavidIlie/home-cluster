@@ -27,7 +27,7 @@ spec:
   values:
     controller:
       strategy: RollingUpdate
-    imagePullSecrets: ghcr-io-creds
+    imagePullSecret: docker-regcred
     image:
       repository: ghcr.io/davidilie/uber-item-viewer
       tag: latest
