@@ -30,6 +30,8 @@ spec:
     image:
       repository: ghcr.io/davidilie/uber-item-viewer
       tag: latest
+      pullSecrets:
+        - ghcr-io-creds
     env:
       UBER_ENDPOINT: "https://uberapi.davidapps.dev"
       NEXT_PUBLIC_APP_URL: "https://uber.davidapps.dev"
