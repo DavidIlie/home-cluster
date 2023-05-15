@@ -30,11 +30,11 @@ spec:
     imagePullSecrets:
       - name: docker-regcred
     image:
-      repository: ghcr.io/davidilie/uber-item-viewer
-      tag: latest
+      repository: ghcr.io/davidilie/uber-item-viewer # {"$imagepolicy": "flux-system:uber-item-viewer:name"}
+      tag: master-32920d58-1684144569 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
     env:
       UBER_ENDPOINT: "https://uberapi.davidapps.dev"
-      NEXT_PUBLIC_APP_URL: "https://uber.davidapps.dev"
+      APP_URL: "https://uber.davidapps.dev"
     service:
       main:
         ports:
