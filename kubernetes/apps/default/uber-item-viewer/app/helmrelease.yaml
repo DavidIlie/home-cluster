@@ -44,7 +44,7 @@ spec:
         ingressClassName: nginx
         annotations:
           external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
-          hajimari.io/icon: mdi:view-dashboard
+          hajimari.io/icon: mdi:minecraft
         hosts:
           - host: &host "uber.${SECRET_DOMAIN}"
             paths:

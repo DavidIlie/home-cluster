@@ -9,6 +9,6 @@ resources:
   - ./littlelink/ks.yaml
   - ./minio/ks.yaml
   - ./pterodactyl/ks.yaml
-  # - ./uber-item-viewer/ks.yaml
+  - ./uber-item-viewer/ks.yaml
   - ./excalidraw/ks.yaml
   - ./qbittorrent/ks.yaml
