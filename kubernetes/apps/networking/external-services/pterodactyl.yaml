@@ -48,7 +48,7 @@ spec:
                 name: *app
                 port:
                   number: 443
-    - host: &host uber.${SECRET_DOMAIN}
+    - host: &host uberapi.${SECRET_DOMAIN}
       http:
         paths:
           - path: /
