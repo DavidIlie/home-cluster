@@ -31,7 +31,7 @@ spec:
       - name: docker-regcred
     image:
       repository: ghcr.io/davidilie/uber-item-viewer # {"$imagepolicy": "flux-system:uber-item-viewer:name"}
-      tag: master-89b457f4-1684229106 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
+      tag: master-f4726e47-1684229375 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
     env:
       UBER_ENDPOINT: "https://uberapi.davidapps.dev"
       APP_URL: "https://uber.davidapps.dev"
