@@ -5,3 +5,5 @@ resources:
   - ./proxmox.yaml
   - ./truenas.yaml
   - ./pterodactyl.yaml
+  - ./router.yaml
+  - ./idrac.yaml
