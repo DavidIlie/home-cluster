@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-nfs
+spec:
+  capacity:
+    storage: 1Mi
+  accessModes: ["ReadWriteMany"]
+  storageClassName: immich-nfs
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: ${TRUENAS_IP}
+    path: /mnt/data/immich
+  mountOptions: ["hard", "noatime"]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-nfs
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  storageClassName: immich-nfs
+  resources:
+    requests:
+      storage: 1Mi
