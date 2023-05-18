@@ -18,5 +18,18 @@
   "editor.guides.highlightActiveBracketPair": true,
   "editor.hover.delay": 1500,
   "files.trimTrailingWhitespace": true,
-  "ansible.python.interpreterPath": "/opt/homebrew/bin/python3"
+  "ansible.python.interpreterPath": "/opt/homebrew/bin/python3",
+  "material-icon-theme.folders.associations": {
+    ".taskfiles": "utils",
+    "bootstrap": "import",
+    "charts": "kubernetes",
+    "hack": "scripts",
+    "repositories": "database",
+    "cert-manager": "guard",
+    "external-secrets": "keys",
+    "kube-system": "kubernetes",
+    "monitoring": "event",
+    "networking": "connection",
+    "rook-ceph": "dump"
+  }
 }
