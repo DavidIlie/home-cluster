@@ -10,6 +10,6 @@ data:
   IMMICH_SERVER_URL: http://immich-server.default.svc.cluster.local:3001
   IMMICH_WEB_URL: http://immich-web.default.svc.cluster.local:3000
   LOG_LEVEL: verbose
-  REDIS_URL: ioredis://redis-lb.databases.svc.cluster.local
+  REDIS_HOSTNAME: redis-lb.databases.svc.cluster.local
   TYPESENSE_DATA_DIR: /config
   TYPESENSE_HOST: immich-typesense.default.svc.cluster.local
