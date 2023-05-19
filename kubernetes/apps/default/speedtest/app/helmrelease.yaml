@@ -44,6 +44,7 @@ spec:
       PUID: 1000
       PGID: 1000
       DB_CONNECTION: pgsql
+      DB_PORT: 5432
     envFrom:
       - secretRef:
           name: speedtest-secret
