@@ -43,6 +43,8 @@ spec:
     image:
       repository: plausible/analytics
       tag: v1.5
+    env:
+      SMTP_HOST_POST: 465
     envFrom:
       - secretRef:
           name: *secret
