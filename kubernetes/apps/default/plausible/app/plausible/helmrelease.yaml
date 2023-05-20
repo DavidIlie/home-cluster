@@ -42,7 +42,7 @@ spec:
         secret.reloader.stakater.com/reload: &secret plausible-secret
     image:
       repository: plausible/analytics
-      tag: v1.5
+      tag: v2.0.0-rc.0
     env:
       SMTP_HOST_POST: 465
     envFrom:
@@ -85,8 +85,8 @@ spec:
             app.kubernetes.io/name: *app
     resources:
       limits:
-        memory: 2Gi
-        cpu: 1500m
+        memory: 3Gi
+        cpu: 2000m
       requests:
         memory: 50Mi
         cpu: 10m
