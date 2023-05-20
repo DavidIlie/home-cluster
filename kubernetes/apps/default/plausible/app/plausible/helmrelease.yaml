@@ -1,0 +1,94 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: &app plausible
+  namespace: default
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: plausible-clickhouse
+  values:
+    initContainers:
+      plausible-init:
+        image: plausible/analytics
+        tag: latest
+        imagePullPolicy: IfNotPresent
+        command:
+          - "/bin/sh"
+          - "-c"
+        args:
+          - /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh db init-admin
+        envFrom:
+          - secretRef:
+              name: plausible-secret
+    controller:
+      replicas: 1
+      strategy: RollingUpdate
+      annotations:
+        secret.reloader.stakater.com/reload: &secret plausible-secret
+    image:
+      repository: plausible/analytics
+      tag: latest
+    envFrom:
+      - secretRef:
+          name: *secret
+    command:
+      - sh
+      - -c
+      - >-
+        sleep 10 &&
+        /entrypoint.sh run
+    service:
+      main:
+        ports:
+          http:
+            port: &port 8000
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
+          hajimari.io/icon: mdi:poll
+        hosts:
+          - host: &host "plausible.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: *app
+    resources:
+      limits:
+        memory: 2Gi
+        cpu: 1500m
+      requests:
+        memory: 50Mi
+        cpu: 10m
