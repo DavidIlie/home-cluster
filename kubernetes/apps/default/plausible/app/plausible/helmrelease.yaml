@@ -28,19 +28,6 @@ spec:
   dependsOn:
     - name: plausible-clickhouse
   values:
-    initContainers:
-      plausible-init:
-        image: plausible/analytics
-        tag: latest
-        imagePullPolicy: IfNotPresent
-        command:
-          - "/bin/sh"
-          - "-c"
-        args:
-          - /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh db init-admin
-        envFrom:
-          - secretRef:
-              name: plausible-secret
     controller:
       replicas: 1
       strategy: RollingUpdate
@@ -57,6 +44,9 @@ spec:
       - -c
       - >-
         sleep 10 &&
+        /entrypoint.sh db createdb &&
+        /entrypoint.sh db migrate &&
+        /entrypoint.sh db init-admin &&
         /entrypoint.sh run
     service:
       main:
