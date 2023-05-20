@@ -44,17 +44,17 @@ spec:
         size: 10Gi
         storageClass: ceph-block
     persistence:
-      config:
-        enabled: true
-        type: configMap
-        name: plausible-events-db-config
-        mountPath: /etc/clickhouse-server/config.d/logging.xml
-        subPath: clickhouse-config.xml
-        readOnly: true
       configuser:
         enabled: true
         type: configMap
         name: plausible-events-db-config
         mountPath: /etc/clickhouse-server/users.d/logging.xml
         subPath: clickhouse-user-config.xml
+        readOnly: true
+      config:
+        enabled: true
+        type: configMap
+        name: plausible-events-db-config
+        mountPath: /etc/clickhouse-server/config.d/logging.xml
+        subPath: clickhouse-config.xml
         readOnly: true
