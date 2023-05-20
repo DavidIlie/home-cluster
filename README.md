@@ -7,9 +7,10 @@ cute description will be written soon
 not in order, just things i want to do
 
 - [x] configure apps using postgres to auto init user and database (works but not with user)
-- [ ] backups for both postgres and overall PVC
+- [ ] backups for PV
   - [ ] to local S3 server
   - [ ] to spain truenas server
+- [ ] postgres backups ^^
 - [ ] jupyter server running on VM with rx 580 for AI
 - [ ] github actions runner
 - [ ] plausible
