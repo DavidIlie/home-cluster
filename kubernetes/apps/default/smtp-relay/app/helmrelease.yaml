@@ -48,9 +48,6 @@ spec:
         ports:
           http:
             port: 2525
-          metrics:
-            enabled: true
-            port: 9749
     serviceMonitor:
       main:
         enabled: true
