@@ -8,7 +8,6 @@ spec:
   dependsOn:
     - name: cluster-apps-cloudnative-pg-cluster
     - name: cluster-apps-rook-ceph
-    - name: cluster-apps-smtp-relay
   path: ./kubernetes/apps/default/plausible/app
   prune: true
   sourceRef:
