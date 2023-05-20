@@ -48,6 +48,8 @@ spec:
         ports:
           http:
             port: 2525
+          smtp:
+            port: 25
     serviceMonitor:
       main:
         enabled: true
