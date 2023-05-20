@@ -14,4 +14,3 @@ resources:
   - ./qbittorrent/ks.yaml
   - ./immich/ks.yaml
   - ./plausible/ks.yaml
-  - ./smtp-relay/ks.yaml
