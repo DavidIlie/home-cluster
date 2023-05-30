@@ -37,7 +37,7 @@ spec:
       MINIO_UPDATE: "off"
       MINIO_BROWSER_REDIRECT_URL: https://minio.${SECRET_DOMAIN}
       MINIO_SERVER_URL: https://cdn.${SECRET_DOMAIN}
-      MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${SECRET_DOMAIN},https://cdn.${SECRET_DOMAIN}
+      MINIO_API_CORS_ALLOW_ORIGIN: "*"
     envFrom:
       - secretRef:
           name: minio-secret
