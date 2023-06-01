@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: &app ha-es
+  name: &app homeassistantspain
   namespace: networking
   labels:
     app.kubernetes.io/name: *app
@@ -19,7 +19,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: &app ha-es
+  name: &app homeassistantspain
   namespace: networking
   annotations:
     external-dns.alpha.kubernetes.io/target: ingress.${SECRET_DOMAIN}
