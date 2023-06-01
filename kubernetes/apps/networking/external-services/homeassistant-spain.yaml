@@ -12,7 +12,7 @@ spec:
   externalName: ${HA_ES_IP}
   ports:
     - name: http
-      port: &port 80
+      port: &port 8123
       protocol: TCP
       targetPort: *port
 ---
@@ -39,7 +39,7 @@ spec:
               service:
                 name: *app
                 port:
-                  number: 80
+                  number: 8123
   tls:
     - hosts:
         - *host
