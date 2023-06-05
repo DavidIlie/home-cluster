@@ -32,14 +32,14 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${davidapps.es/./-}-production"
+  name: "davidapps-es-production"
   namespace: networking
 spec:
-  secretName: "${davidapps.es/./-}-production-tls"
+  secretName: "davidapps-es-production-tls"
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "${davidapps.es}"
+  commonName: "davidapps.es"
   dnsNames:
     - "${davidapps.es}"
     - "*.${davidapps.es}"
@@ -47,44 +47,44 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${davidapps.es/./-}-staging"
+  name: "davidapps-es-staging"
   namespace: networking
 spec:
-  secretName: "${davidapps.es/./-}-staging-tls"
+  secretName: "davidapps-es-staging-tls"
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
-  commonName: "${davidapps.es}"
+  commonName: "davidapps.es"
   dnsNames:
-    - "${davidapps.es}"
-    - "*.${davidapps.es}"
+    - "davidapps.es"
+    - "*.davidapps.es"
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${davidilie.com/./-}-production"
+  name: "davidilie-com-production"
   namespace: networking
 spec:
-  secretName: "${davidilie.com/./-}-production-tls"
+  secretName: "davidilie-com-production-tls"
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "${davidilie.com}"
+  commonName: "davidilie.com"
   dnsNames:
-    - "${davidilie.com}"
-    - "*.${davidilie.com}"
+    - "davidilie.com"
+    - "*.davidilie.com"
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${davidilie.com/./-}-staging"
+  name: "davidilie-com-staging"
   namespace: networking
 spec:
-  secretName: "${davidilie.com/./-}-staging-tls"
+  secretName: "davidilie-com-staging-tls"
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
-  commonName: "${davidilie.com}"
+  commonName: "davidilie.com"
   dnsNames:
-    - "${davidilie.com}"
-    - "*.${davidilie.com}"
+    - "davidilie.com"
+    - "*.davidilie.com"
