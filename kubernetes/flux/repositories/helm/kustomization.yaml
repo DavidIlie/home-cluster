@@ -18,3 +18,4 @@ resources:
   - ./csi-driver-nfs.yaml
   - ./cloudnative-pg.yaml
   - ./runix.yaml
+  - ./descheduler.yaml
