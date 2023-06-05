@@ -18,6 +18,8 @@ spec:
         selector:
           dnsZones:
             - "${SECRET_DOMAIN}"
+            - "davidilie.com"
+            - "davidapps.es"
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -39,3 +41,5 @@ spec:
         selector:
           dnsZones:
             - "${SECRET_DOMAIN}"
+            - "davidilie.com"
+            - "davidapps.es"
