@@ -41,8 +41,8 @@ spec:
     kind: ClusterIssuer
   commonName: "davidapps.es"
   dnsNames:
-    - "${davidapps.es"
-    - "*.${davidapps.es"
+    - "davidapps.es"
+    - "*.$davidapps.es"
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
