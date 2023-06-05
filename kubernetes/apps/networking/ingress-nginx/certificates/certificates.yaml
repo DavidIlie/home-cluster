@@ -32,59 +32,35 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "davidapps-es-production"
+  name: "global-production"
   namespace: networking
 spec:
-  secretName: "davidapps-es-production-tls"
+  secretName: "global-production-tls"
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "davidapps.es"
   dnsNames:
-    - "davidapps.es"
-    - "*.$davidapps.es"
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: "davidapps-es-staging"
-  namespace: networking
-spec:
-  secretName: "davidapps-es-staging-tls"
-  issuerRef:
-    name: letsencrypt-staging
-    kind: ClusterIssuer
-  commonName: "davidapps.es"
-  dnsNames:
+    - "davidapps.dev"
+    - "*.$davidapps.dev"
     - "davidapps.es"
     - "*.davidapps.es"
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: "davidilie-com-production"
-  namespace: networking
-spec:
-  secretName: "davidilie-com-production-tls"
-  issuerRef:
-    name: letsencrypt-production
-    kind: ClusterIssuer
-  commonName: "davidilie.com"
-  dnsNames:
     - "davidilie.com"
     - "*.davidilie.com"
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "davidilie-com-staging"
+  name: "global-staging"
   namespace: networking
 spec:
-  secretName: "davidilie-com-staging-tls"
+  secretName: "global-staging-tls"
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
-  commonName: "davidilie.com"
   dnsNames:
+    - "davidapps.dev"
+    - "*.$davidapps.dev"
+    - "davidapps.es"
+    - "*.davidapps.es"
     - "davidilie.com"
     - "*.davidilie.com"
