@@ -14,3 +14,4 @@ resources:
   - ./qbittorrent/ks.yaml
   - ./immich/ks.yaml
   - ./plausible/ks.yaml
+  - ./home-assistant/ks.yaml

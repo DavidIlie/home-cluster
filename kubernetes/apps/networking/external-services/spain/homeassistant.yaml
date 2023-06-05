@@ -23,6 +23,7 @@ metadata:
   namespace: networking
   annotations:
     external-dns.alpha.kubernetes.io/target: ingress.${SECRET_DOMAIN}
+    hajimari.io/appName: "Hass Spain"
     hajimari.io/icon: mdi:home-assistant
   labels:
     app.kubernetes.io/name: *app
