@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   type: ExternalName
-  externalName: ${HA_ES_IP}
+  externalName: ${ES_FORWARD_IP}
   ports:
     - name: http
       port: &port 8123
