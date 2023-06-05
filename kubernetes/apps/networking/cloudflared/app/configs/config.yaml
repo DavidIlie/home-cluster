@@ -8,4 +8,20 @@ ingress:
     service: https://ingress-nginx-controller.networking.svc.cluster.local:443
     originRequest:
       originServerName: "ingress.${SECRET_DOMAIN}"
+  - hostname: "davidapps.es"
+    service: https://ingress-nginx-controller.networking.svc.cluster.local:443
+    originRequest:
+      originServerName: "ingress.${SECRET_DOMAIN}"
+  - hostname: "*.davidapps.es"
+    service: https://ingress-nginx-controller.networking.svc.cluster.local:443
+    originRequest:
+      originServerName: "ingress.${SECRET_DOMAIN}"
+  - hostname: "davidilie.com"
+    service: https://ingress-nginx-controller.networking.svc.cluster.local:443
+    originRequest:
+      originServerName: "ingress.${SECRET_DOMAIN}"
+  - hostname: "*.davidilie.com"
+    service: https://ingress-nginx-controller.networking.svc.cluster.local:443
+    originRequest:
+      originServerName: "ingress.${SECRET_DOMAIN}"
   - service: http_status:404
