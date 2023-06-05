@@ -47,7 +47,6 @@ spec:
       TZ: Europe/Bucharest
       POSTGRES_HOST: postgres-lb.databases.svc.cluster.local
       POSTGRES_DB: hass
-      HASS_TRUSTED_PROXIES: "10.42.0.0/24"
     envFrom: *envFrom
     service:
       main:
