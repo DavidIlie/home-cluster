@@ -6,4 +6,4 @@ resources:
   - ./truenas.yaml
   - ./pterodactyl.yaml
   - ./router.yaml
-  - ./homeassistant-spain.yaml
+  - ./spain

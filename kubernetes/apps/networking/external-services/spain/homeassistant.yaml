@@ -30,7 +30,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: &host haspain.${SECRET_DOMAIN}
+    - host: &host hass.davidapps.es
       http:
         paths:
           - path: /
