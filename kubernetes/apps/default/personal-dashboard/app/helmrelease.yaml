@@ -29,7 +29,7 @@ spec:
       strategy: RollingUpdate
     image:
       repository: ghcr.io/davidilie/personal-dashboard # {"$imagepolicy": "flux-system:personal-dashboard:name"}
-      tag: master-d9df01bb-1686047518 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
+      tag: master-29325539-1686047810 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
     envFrom:
       - secretRef:
           name: personal-dashboard-secret
