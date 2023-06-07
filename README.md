@@ -12,4 +12,4 @@ not in order, just things i want to do
 - [ ] postgres backups ^^
 - [ ] jupyter server running on VM with rx 580 for AI
 - [ ] github actions runner
-- [ ] understand how to equally distribute workloads to VMS
+- [ ] install/create link shortener on `dht.ro`
