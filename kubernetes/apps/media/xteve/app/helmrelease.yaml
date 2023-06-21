@@ -37,7 +37,7 @@ spec:
           - "192.168.100.104"
         externalTrafficPolicy: Local
         ports:
-          http:
+          app:
             port: 34400
     ingress:
       main:
