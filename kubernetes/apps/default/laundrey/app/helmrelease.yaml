@@ -56,7 +56,7 @@ spec:
       secret.reloader.stakater.com/reload: laundrey-secret
     resources:
       requests:
-        cpu: 100m
+        cpu: 200m
         memory: 200Mi
       limits:
         memory: 1Gi
