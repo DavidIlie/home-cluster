@@ -27,8 +27,7 @@ spec:
   values:
     controller:
       strategy: RollingUpdate
-    image:
-      repository: ghcr.io/davidilie/laundrey-test
+    image: ghcr.io/davidilie/laundrey-test
     envFrom:
       - secretRef:
           name: laundrey-secret
