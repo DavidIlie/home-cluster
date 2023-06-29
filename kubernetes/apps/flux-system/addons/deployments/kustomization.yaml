@@ -5,3 +5,4 @@ resources:
   - ./automation.yaml
   - ./personal-dashboard/deployment.yaml
   - ./uber-item-viewer/deployment.yaml
+  - ./laundrey/deployment.yaml
