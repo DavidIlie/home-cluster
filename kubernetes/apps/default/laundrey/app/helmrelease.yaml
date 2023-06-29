@@ -29,7 +29,7 @@ spec:
       strategy: RollingUpdate
     image:
       repository: ghcr.io/davidilie/laundrey-web # {"$imagepolicy": "flux-system:laundrey:name"}
-      tag: master-cdc3115f-1688033915 # {"$imagepolicy": "flux-system:laundrey:tag"}
+      tag: master-e2a3cca7-1688078749 # {"$imagepolicy": "flux-system:laundrey:tag"}
     envFrom:
       - secretRef:
           name: laundrey-secret
