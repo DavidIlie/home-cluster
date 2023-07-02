@@ -6,3 +6,4 @@ resources:
   - ./personal-dashboard/deployment.yaml
   - ./uber-item-viewer/deployment.yaml
   - ./laundrey/deployment.yaml
+  - ./boarding-app/deployment.yaml
