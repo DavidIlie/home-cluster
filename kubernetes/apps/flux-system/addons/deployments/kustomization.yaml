@@ -7,3 +7,4 @@ resources:
   - ./uber-item-viewer/deployment.yaml
   - ./laundrey/deployment.yaml
   - ./boarding-app/deployment.yaml
+  - ./davidapps/deployment.yaml

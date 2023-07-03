@@ -15,5 +15,6 @@ resources:
   - ./immich/ks.yaml
   - ./plausible/ks.yaml
   - ./laundrey/ks.yaml
+  - ./davidapps/ks.yaml
   # - ./boarding-app/ks.yaml
   # - ./home-assistant/ks.yaml

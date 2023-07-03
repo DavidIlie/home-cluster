@@ -1,0 +1,48 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: portfolio-davidapps-dev
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: portfolio-davidapps-dev
+  filterTags:
+    pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: portfolio-davidapps-dev
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/portfolio-davidapps-dev
+  interval: 1m0s
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: portfolio-davidapps-es
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: portfolio-davidapps-es
+  filterTags:
+    pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: portfolio-davidapps-es
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/portfolio-davidapps-es
+  interval: 1m0s
