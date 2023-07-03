@@ -29,7 +29,7 @@ spec:
       strategy: RollingUpdate
     image:
       repository: ghcr.io/davidilie/portfolio-davidapps-dev # {"$imagepolicy": "flux-system:portfolio-davidapps-dev:name"}
-      tag: version5-97c9d7b8-1688379646 # {"$imagepolicy": "flux-system:portfolio-davidapps-dev:tag"}
+      tag: version5-ab3a620e-1688380534 # {"$imagepolicy": "flux-system:portfolio-davidapps-dev:tag"}
     service:
       main:
         ports:
