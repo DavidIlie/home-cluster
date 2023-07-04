@@ -31,7 +31,7 @@ spec:
       - name: docker-regcred
     image:
       repository: ghcr.io/davidilie/boarding # {"$imagepolicy": "flux-system:boarding-app:name"}
-      tag: master-c01e4852-1688335073 # {"$imagepolicy": "flux-system:boarding-app:tag"}
+      tag: master-9eeb68bf-1688470935 # {"$imagepolicy": "flux-system:boarding-app:tag"}
     envFrom:
       - secretRef:
           name: boarding-app-secret
