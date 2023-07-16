@@ -31,7 +31,7 @@ spec:
       - name: docker-regcred
     image:
       repository: ghcr.io/davidilie/tcl-home-conditioner
-      tag: latest1
+      tag: latest
     envFrom:
       - secretRef:
           name: tcl-home-conditioner-secret
