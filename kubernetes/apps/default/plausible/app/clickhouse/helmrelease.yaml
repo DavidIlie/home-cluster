@@ -26,7 +26,7 @@ spec:
       type: statefulset
     image:
       repository: clickhouse/clickhouse-server
-      tag: 23.6-alpine
+      tag: 23.7-alpine
     env:
       TZ: ${TIMEZONE}
     envFrom:
