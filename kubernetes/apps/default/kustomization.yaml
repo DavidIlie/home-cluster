@@ -17,5 +17,4 @@ resources:
   - ./laundrey/ks.yaml
   - ./davidapps/ks.yaml
   - ./boarding-app/ks.yaml
-  - ./tcl-home-conditioner/ks.yaml
   # - ./home-assistant/ks.yaml
