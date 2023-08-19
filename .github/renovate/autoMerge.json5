@@ -11,14 +11,6 @@
       "matchPackagePatterns": ["ghcr.io/bjw-s", "ghcr.io/onedr0p"]
     },
     {
-      "description": "Auto merge container digests",
-      "matchDatasources": ["docker"],
-      "automerge": true,
-      "automergeType": "branch",
-      "ignoreTests": true,
-      "matchUpdateTypes": ["digest"]
-    },
-    {
       "description": "Auto merge GitHub Actions",
       "matchManagers": ["github-actions"],
       "matchDatasources": ["github-tags"],
