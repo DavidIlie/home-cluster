@@ -76,11 +76,15 @@ spec:
         enabled: false
       startup:
         enabled: false
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
     podSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: OnRootMismatch
+      fsGroup: 1000
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 100
+        - 101
     volumeClaimTemplates:
       - name: config
         mountPath: /config
