@@ -6,7 +6,6 @@
     ":disableRateLimiting",
     ":dependencyDashboard",
     ":semanticCommits",
-    ":enablePreCommit",
     ":automergeDigest",
     ":automergeBranch",
     "github>davidilie/home-cluster//.github/renovate/autoMerge.json5",
@@ -16,34 +15,52 @@
     "github>davidilie/home-cluster//.github/renovate/semanticCommits.json5",
     "helpers:pinGitHubActionDigests"
   ],
+  "platform": "github",
+  "username": "kube-man-dave[bot]",
+  "gitAuthor": "kube-man-dave <378246+kube-man-dave[bot]@users.noreply.github.com>",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
-  "pre-commit": {
-    "enabled": true
-  },
+  // "schedule": ["everyday"],
   "flux": {
-    "fileMatch": ["kubernetes/.+\\.ya?ml$"]
+    "fileMatch": [
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
   },
   "helm-values": {
-    "fileMatch": ["kubernetes/.+\\.ya?ml$"]
+    "fileMatch": [
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
   },
   "kubernetes": {
     "fileMatch": [
-      "ansible/.+\\.ya?ml.j2$",
-      "kubernetes/.+\\.ya?ml$"
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "kustomize": {
+    "fileMatch": [
+      "(^|/)kustomization\\.ya?ml(\\.j2)?$"
     ]
   },
   "regexManagers": [
     {
       "description": "Process various other dependencies",
       "fileMatch": [
-        "ansible/.+\\.ya?ml$",
-        "kubernetes/.+\\.ya?ml$"
+        "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+        "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
       ],
       "matchStrings": [
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?\"(?<currentValue>.*)\"\n"
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?\"(?<currentValue>.*)\"\n",
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?-\\s(.*?)\/(?<currentValue>[^/]+)\/[^/]+\n",
+        "datasource=(?<datasource>\\S+)\n.*?repo: (?<registryUrl>\\S+)\n.*?chart: (?<depName>\\S+)\n.*?version: (?<currentValue>\\S+)\n"
       ],
       "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
