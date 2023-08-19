@@ -14,5 +14,5 @@ spec:
     name: home-kubernetes
   wait: false
   interval: 30m
-  retryInterval: 1m
-  timeout: 5m
+  retryInterval: 5m
+  timeout: 15m
