@@ -15,14 +15,10 @@
     "github>davidilie/home-cluster//.github/renovate/semanticCommits.json5",
     "helpers:pinGitHubActionDigests"
   ],
-  "platform": "github",
-  "username": "kube-man-dave[bot]",
-  "gitAuthor": "kube-man-dave <378246+kube-man-dave[bot]@users.noreply.github.com>",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
-  // "schedule": ["everyday"],
   "flux": {
     "fileMatch": [
       "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
