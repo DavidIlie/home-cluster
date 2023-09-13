@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: personal-dashboard
+  name: personal-website
   namespace: default
 spec:
   interval: 15m
@@ -27,6 +27,8 @@ spec:
   values:
     controller:
       strategy: RollingUpdate
+    imagePullSecrets:
+      - name: docker-regcred
     image:
       repository: ghcr.io/davidilie/portfolio-davidilie # {"$imagepolicy": "flux-system:personal-website:name"}
       tag: version6-58478dce-1694613125 # {"$imagepolicy": "flux-system:personal-website:tag"}
