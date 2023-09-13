@@ -1,0 +1,62 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: personal-dashboard
+  namespace: default
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controller:
+      strategy: RollingUpdate
+    image:
+      repository: ghcr.io/davidilie/portfolio-davidilie # {"$imagepolicy": "flux-system:personal-website:name"}
+      tag: version6-58478dce-1694613125 # {"$imagepolicy": "flux-system:personal-website:tag"}
+    envFrom:
+      - secretRef:
+          name: personal-website-secret
+    service:
+      main:
+        ports:
+          http:
+            port: &port 3000
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
+        hosts:
+          - host: &host "davidilie.com"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+    podAnnotations:
+      secret.reloader.stakater.com/reload: personal-website-secret
+    resources:
+      requests:
+        cpu: 10m
+        memory: 100Mi
+      limits:
+        memory: 750Mi
