@@ -31,7 +31,7 @@ spec:
       - name: docker-regcred
     image:
       repository: ghcr.io/davidilie/boarding-ws
-      tag: master-67136650-1695322260
+      tag: master-d54c7ab6-1695324586
     envFrom:
       - secretRef:
           name: boarding-app-secret
