@@ -51,6 +51,10 @@ spec:
             paths:
               - path: /
                 pathType: Prefix
+          - host: &host "b.davidilie.com"
+            paths:
+              - path: /
+                pathType: Prefix
         tls:
           - hosts:
               - *host
