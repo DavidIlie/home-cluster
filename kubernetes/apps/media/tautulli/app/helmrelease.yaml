@@ -30,7 +30,7 @@ spec:
       type: statefulset
     image:
       repository: ghcr.io/onedr0p/tautulli
-      tag: 2.13.1@sha256:ff498db9b86e6cc0834a2e4703d533bad7d8217a4451ba7fc5469a5032a2294c
+      tag: 2.13.1@sha256:5e3ec98d2905d0ac49de46cf4bd1070c42bd5b3a8f6db50ce5c6cddc6908adb6
     env:
       TZ: ${TIMEZONE}
     service:
