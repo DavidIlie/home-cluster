@@ -30,7 +30,7 @@ spec:
       type: statefulset
     image:
       repository: ghcr.io/pterodactyl/panel
-      tag: v1.11.4@sha256:33f840eb061140b6fe4e709fe9ee845e69a2e9c182b4263af2907bbfa18456b1
+      tag: v1.11.5@sha256:1c2ce5a484db2fa9dc07b62703d08299573c8af8771b2134854814253cd355a8
     env:
       DB_HOST: "mariadb.databases.svc.cluster.local"
       DB_PORT: 3306
