@@ -31,7 +31,7 @@ spec:
       - name: docker-regcred
     image:
       repository: ghcr.io/davidilie/portfolio-davidilie # {"$imagepolicy": "flux-system:personal-website:name"}
-      tag: version6-143ddeed-1698744553 # {"$imagepolicy": "flux-system:personal-website:tag"}
+      tag: version6-12629547-1698744783 # {"$imagepolicy": "flux-system:personal-website:tag"}
     envFrom:
       - secretRef:
           name: personal-website-secret
