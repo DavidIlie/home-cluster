@@ -5,8 +5,8 @@ metadata:
   name: cluster-apps-worklog
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: cluster-apps-cloudnative-pg-cluster
+  # dependsOn:
+  #   - name: cluster-apps-cloudnative-pg-cluster
   path: ./kubernetes/apps/default/worklog/app
   prune: true
   sourceRef:
