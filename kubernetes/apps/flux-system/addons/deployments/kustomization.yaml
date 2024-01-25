@@ -8,3 +8,4 @@ resources:
   - ./laundrey/deployment.yaml
   - ./boarding-app/deployment.yaml
   - ./personal-website/deployment.yaml
+  - ./worklog/deployment.yaml
