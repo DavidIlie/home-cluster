@@ -31,7 +31,7 @@ spec:
       - name: docker-regcred
     image:
       repository: ghcr.io/davidilie/worklog # {"$imagepolicy": "flux-system:worklog:name"}
-      tag: master-edcb5e69-1708938731 # {"$imagepolicy": "flux-system:worklog:tag"}
+      tag: master-b7f1f8ed-1709025268 # {"$imagepolicy": "flux-system:worklog:tag"}
     envFrom:
       - secretRef:
           name: worklog-secret
