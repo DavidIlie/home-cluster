@@ -45,10 +45,10 @@ spec:
                 memory: 750Mi
     service:
       app:
-        controller: echo-server
+        controller: personal-dashboard
         ports:
           http:
-            port: *port
+            port: 3000
     ingress:
       app:
         className: external
