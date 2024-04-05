@@ -1,0 +1,26 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: worklog
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: worklog
+  filterTags:
+    pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: worklog
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/worklog
+  interval: 1m0s
+  secretRef:
+    name: docker-regcred
