@@ -55,7 +55,7 @@ nodes:
           ip: "192.168.100.95"
   - hostname: "master-03"
     ipAddress: "192.168.100.54"
-    installDisk: "/dev/vda"
+    installDisk: "/dev/sda"
     talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     controlPlane: true
     networkInterfaces:
