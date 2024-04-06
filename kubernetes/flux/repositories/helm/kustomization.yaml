@@ -13,3 +13,4 @@ resources:
   - ./postfinance.yaml
   - ./spegel.yaml
   - ./stakater.yaml
+  - ./cloudnative-pg.yaml
