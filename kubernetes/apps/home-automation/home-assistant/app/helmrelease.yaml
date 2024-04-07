@@ -99,6 +99,8 @@ spec:
                service:
                  identifier: codeserver
                  port: http
+        tls:
+          - hosts: [*code]
     persistence:
       config:
         existingClaim: home-assistant
