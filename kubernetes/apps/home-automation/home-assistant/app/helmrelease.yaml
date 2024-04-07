@@ -54,6 +54,22 @@ spec:
             runAsNonRoot: true
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
+    codeserver:
+      image:
+          repository: ghcr.io/coder/code-server
+          tag: 4.22.1@sha256:62e1d2596d564f2f44c0ca710c8790cf4267fdfb183c9c761d272778ad51b217
+          pullPolicy: IfNotPresent
+      env:
+        TZ: "Europe/Madrid"
+        HASS_SERVER: http://home-assistant.home-automation.svc.cluster.local:8123
+      args:
+          - --user-data-dir
+          - "/config/.vscode"
+          - --auth
+          - "password"
+          - --port
+          - "12321"
+          - "/config"
     service:
       app:
         controller: home-assistant
@@ -74,6 +90,15 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+      codeserver:
+        className: internal
+        hosts:
+          - host: &code hass-code.davidapps.dev
+            paths:
+             - path: /
+               service:
+                 identifier: codeserver
+                 port: http
     persistence:
       config:
         existingClaim: home-assistant
