@@ -19,7 +19,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: proxmox
+  name: zigbee2mqtt
   namespace: network
 spec:
   ingressClassName: internal
