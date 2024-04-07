@@ -62,11 +62,6 @@ spec:
                 enabled: true
               readiness:
                 enabled: true
-              startup:
-                enabled: true
-                spec:
-                  failureThreshold: 30
-                  periodSeconds: 10
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -78,10 +73,10 @@ spec:
                 memory: 512Mi
         pod:
           securityContext:
-            runAsUser: 568
-            runAsGroup: 568
+            runAsUser: 65534
+            runAsGroup: 65534
             runAsNonRoot: true
-            fsGroup: 568
+            fsGroup: 65534
             fsGroupChangePolicy: OnRootMismatch
     service:
       wyze-bridge:
