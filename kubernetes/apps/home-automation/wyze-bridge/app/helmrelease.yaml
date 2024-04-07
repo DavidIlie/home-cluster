@@ -1,0 +1,120 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: wyze-bridge
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  dependsOn:
+    - name: mosquitto
+      namespace: database
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  values:
+    controllers:
+      wyze-bridge:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: mrlt8/wyze-bridge
+              tag: 2.7.0
+            env:
+            - name: RECORD_ALL
+              value: "True"
+            - name: RECORD_LENGTH
+              value: "500"
+            - name: ROTATE_DOOR
+              value: "True"
+            - name: FRESH_DATA
+              value: "True"
+            - name: TZ
+              value: Europe/Bucharest
+            - name: WB_IP
+              value: "192.168.100.105"
+            - name: ON_DEMAND
+              value: "False"
+            - name: IGNORE_OFFLINE
+              value: "true"
+            envFrom:
+              - secretRef:
+                  name: wyze-secret
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 512Mi
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            runAsNonRoot: true
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+    service:
+      wyze-bridge:
+        controller: wyze-bridge
+        type: LoadBalancer
+        annotations:
+          io.cilium/lb-ipam-ips: "192.168.100.105"
+        ports:
+          http:
+            port: &port 5000
+          rtmp:
+            port: 1935
+          rstp:
+            port: 8554
+          hls:
+            port: 8888
+          webrtc:
+            port: 8889
+          webrtcice:
+            port: 8189
+    ingress:
+      wyze-bridge:
+        className: internal
+        hosts:
+          - host: &host wyze.davidapps.dev
+            paths:
+            - path: /
+              pathType: Prefix
+              service:
+                name: wyze-bridge
+                port: *port
+        tls:
+          - hosts: [*host]
+    persistence:
+      config:
+        existingClaim: wyze
