@@ -52,8 +52,6 @@ spec:
               value: "192.168.100.105"
             - name: ON_DEMAND
               value: "False"
-            - name: IGNORE_OFFLINE
-              value: "true"
             envFrom:
               - secretRef:
                   name: wyze-secret
