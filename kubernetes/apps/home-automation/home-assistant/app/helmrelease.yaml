@@ -76,6 +76,15 @@ spec:
         ports:
           http:
             port: 8123
+      codeserver:
+            type: ClusterIP
+            controller: main
+            ports:
+              http:
+                enabled: true
+                port: 12321
+                protocol: TCP
+                targetPort: 12321
     ingress:
       app:
         className: external
