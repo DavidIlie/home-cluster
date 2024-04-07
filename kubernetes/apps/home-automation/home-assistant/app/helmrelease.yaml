@@ -97,8 +97,8 @@ spec:
             paths:
              - path: /
                service:
-                 identifier: codeserver
-                 port: http
+                  identifier: codeserver
+                  port: http
         tls:
           - hosts: [*code]
     persistence:

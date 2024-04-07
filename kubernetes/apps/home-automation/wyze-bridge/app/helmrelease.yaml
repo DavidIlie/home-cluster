@@ -24,7 +24,7 @@ spec:
       retries: 3
   dependsOn:
     - name: mosquitto
-      namespace: database
+      namespace: home-automation
     - name: rook-ceph-cluster
       namespace: rook-ceph
   values:
