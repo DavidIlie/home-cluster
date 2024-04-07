@@ -59,8 +59,10 @@ spec:
                   name: wyze-secret
             probes:
               liveness:
+                port: 5000
                 enabled: true
               readiness:
+                port: 5000
                 enabled: true
             securityContext:
               allowPrivilegeEscalation: false
