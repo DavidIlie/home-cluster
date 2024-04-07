@@ -5,5 +5,4 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./cloudnative-pg/ks.yaml
-  # - ./mosquitto/ks.yaml
   # - ./dragonfly/ks.yaml

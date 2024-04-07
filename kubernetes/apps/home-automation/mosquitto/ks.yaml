@@ -6,7 +6,7 @@ metadata:
   name: mosquitto
   namespace: flux-system
 spec:
-  targetNamespace: database
+  targetNamespace: home-automation
   path: ./kubernetes/apps/database/mosquitto/app
   prune: true
   sourceRef:
