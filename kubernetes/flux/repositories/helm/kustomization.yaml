@@ -15,3 +15,5 @@ resources:
   - ./stakater.yaml
   - ./cloudnative-pg.yaml
   - ./rook-ceph.yaml
+  - ./backube.yaml
+  - ./piraes.yaml
