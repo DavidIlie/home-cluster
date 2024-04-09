@@ -53,6 +53,7 @@ spec:
               privileged: true
               runAsUser: 0
     service:
+      controller: minio
       app:
         ports:
           http:
