@@ -52,8 +52,7 @@ spec:
               repository: ghcr.io/coder/code-server
               tag: 4.22.1@sha256:62e1d2596d564f2f44c0ca710c8790cf4267fdfb183c9c761d272778ad51b217
             env:
-              TZ: "Europe/Bucharest"
-              HASS_SERVER: http://home-assistant.home-automation.svc.cluster.local:8123
+              TZ: Europe/Bucharest
             args:
               - --user-data-dir
               - "/config/.vscode"
