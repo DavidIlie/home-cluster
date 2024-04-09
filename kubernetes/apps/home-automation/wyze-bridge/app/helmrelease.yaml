@@ -23,10 +23,10 @@ spec:
       strategy: rollback
       retries: 3
   dependsOn:
-    - name: mosquitto
-      namespace: home-automation
     - name: rook-ceph-cluster
       namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
   values:
     controllers:
       wyze-bridge:
@@ -38,20 +38,20 @@ spec:
               repository: mrlt8/wyze-bridge
               tag: 2.7.0
             env:
-            - name: RECORD_ALL
-              value: "True"
-            - name: RECORD_LENGTH
-              value: "500"
-            - name: ROTATE_DOOR
-              value: "True"
-            - name: FRESH_DATA
-              value: "True"
-            - name: TZ
-              value: Europe/Bucharest
-            - name: WB_IP
-              value: "192.168.100.105"
-            - name: ON_DEMAND
-              value: "False"
+              - name: RECORD_ALL
+                value: "True"
+              - name: RECORD_LENGTH
+                value: "500"
+              - name: ROTATE_DOOR
+                value: "True"
+              - name: FRESH_DATA
+                value: "True"
+              - name: TZ
+                value: Europe/Bucharest
+              - name: WB_IP
+                value: "192.168.100.105"
+              - name: ON_DEMAND
+                value: "False"
             envFrom:
               - secretRef:
                   name: wyze-secret
@@ -99,11 +99,11 @@ spec:
         hosts:
           - host: &host wyze.davidapps.dev
             paths:
-            - path: /
-              pathType: Prefix
-              service:
-                name: wyze-bridge
-                port: *port
+              - path: /
+                pathType: Prefix
+                service:
+                  name: wyze-bridge
+                  port: *port
         tls:
           - hosts: [*host]
     persistence:
