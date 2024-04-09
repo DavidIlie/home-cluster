@@ -30,7 +30,7 @@ spec:
           app:
             image:
               repository: quay.io/minio/minio
-              tag: RELEASE.2024-04-06T05-26-02Z
+              tag: RELEASE.2024-04-06T05-26-02Z@sha256:178e05aba3a0dc967df3558aab43097f1427bbcda77264fc24e92f1bf09dfe02
             args:
               - server
               - /data
@@ -88,4 +88,3 @@ spec:
     persistence:
       config:
         existingClaim: minio-nfs
-        mountPath: /data
