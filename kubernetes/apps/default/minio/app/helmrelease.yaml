@@ -85,3 +85,7 @@ spec:
           - hosts:
               - *cdn
               - *minio
+    persistence:
+      config:
+        existingClaim: minio-nfs
+        mountPath: /data
