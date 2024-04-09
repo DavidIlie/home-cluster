@@ -49,19 +49,19 @@ spec:
                 memory: 1Gi
           codeserver:
             image:
-                repository: ghcr.io/coder/code-server
-                tag: 4.22.1@sha256:62e1d2596d564f2f44c0ca710c8790cf4267fdfb183c9c761d272778ad51b217
+              repository: ghcr.io/coder/code-server
+              tag: 4.22.1@sha256:62e1d2596d564f2f44c0ca710c8790cf4267fdfb183c9c761d272778ad51b217
             env:
               TZ: "Europe/Bucharest"
               HASS_SERVER: http://home-assistant.home-automation.svc.cluster.local:8123
             args:
-                - --user-data-dir
-                - "/config/.vscode"
-                - --auth
-                - "none"
-                - --port
-                - "12321"
-                - "/config"
+              - --user-data-dir
+              - "/config/.vscode"
+              - --auth
+              - "none"
+              - --port
+              - "12321"
+              - "/config"
         pod:
           securityContext:
             runAsUser: 568
@@ -72,18 +72,26 @@ spec:
     service:
       app:
         controller: home-assistant
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: hass.davidapps.local
+          io.cilium/lb-ipam-ips: 192.168.100.106
         ports:
           http:
+            enabled: true
             port: 8123
+          homekit:
+            enabled: true
+            port: 21063
       codeserver:
-            type: ClusterIP
-            controller: home-assistant
-            ports:
-              http:
-                enabled: true
-                port: 12321
-                protocol: TCP
-                targetPort: 12321
+        type: ClusterIP
+        controller: home-assistant
+        ports:
+          http:
+            enabled: true
+            port: 12321
+            protocol: TCP
+            targetPort: 12321
     ingress:
       app:
         enabled: true
@@ -105,8 +113,8 @@ spec:
         hosts:
           - host: &code hass-code.davidapps.dev
             paths:
-             - path: /
-               service:
+              - path: /
+                service:
                   identifier: codeserver
                   port: http
         tls:
