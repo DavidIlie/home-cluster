@@ -54,7 +54,6 @@ spec:
               runAsUser: 0
     service:
       app:
-        controller: minio
         ports:
           http:
             port: 9001
@@ -62,7 +61,6 @@ spec:
             port: 9000
     ingress:
       s3:
-        controller: minio
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
@@ -74,7 +72,6 @@ spec:
                   identifier: app
                   port: s3
       minio:
-        controller: minio
         className: internal
         hosts:
           - host: &minio "minio.${SECRET_DOMAIN}"
