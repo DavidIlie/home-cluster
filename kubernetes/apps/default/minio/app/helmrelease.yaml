@@ -1,0 +1,89 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: minio
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.0.4
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      minio:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: quay.io/minio/minio
+              tag: RELEASE.2024-04-06T05-26-02Z
+            args:
+              - server
+              - /data
+              - --console-address
+              - :9001
+            env:
+              TZ: Europe/Bucharest
+              MINIO_UPDATE: "off"
+              MINIO_BROWSER_REDIRECT_URL: https://minio.${SECRET_DOMAIN}
+              MINIO_SERVER_URL: https://cdn.${SECRET_DOMAIN}
+              MINIO_API_CORS_ALLOW_ORIGIN: "*"
+            envFrom:
+              - secretRef:
+                  name: minio-secret
+            resources:
+              requests:
+                cpu: 5m
+                memory: 128M
+            securityContext:
+              privileged: true
+              runAsUser: 0
+    service:
+      app:
+        controller: minio
+        ports:
+          http:
+            port: 9001
+          s3:
+            port: 9000
+    ingress:
+      s3:
+        controller: minio
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        hosts:
+          - host: &cdn "cdn.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: s3
+      minio:
+        controller: minio
+        className: internal
+        hosts:
+          - host: &minio "minio.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *cdn
+              - *minio
