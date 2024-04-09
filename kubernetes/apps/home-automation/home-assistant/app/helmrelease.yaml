@@ -70,19 +70,25 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
     service:
+      # app:
+      #   controller: home-assistant
+      #   type: LoadBalancer
+      #   annotations:
+      #     external-dns.alpha.kubernetes.io/hostname: hass.davidapps.local
+      #     io.cilium/lb-ipam-ips: 192.168.100.106
+      #   ports:
+      #     http:
+      #       enabled: true
+      #       port: 8123
+      #     homekit:
+      #       enabled: true
+      #       port: 21063
       app:
         controller: home-assistant
-        type: LoadBalancer
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: hass.davidapps.local
-          io.cilium/lb-ipam-ips: 192.168.100.106
         ports:
           http:
             enabled: true
             port: 8123
-          homekit:
-            enabled: true
-            port: 21063
       codeserver:
         type: ClusterIP
         controller: home-assistant
