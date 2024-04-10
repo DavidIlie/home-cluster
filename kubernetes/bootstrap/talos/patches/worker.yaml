@@ -1,6 +1,4 @@
-patches:
- - |-
-  machine:
+- machine:
     kernel:
       modules:
         - name: nvidia
