@@ -80,7 +80,7 @@ spec:
               - name: "sdb"
           - name: worker-03
             devices:
-              - name: "vda"
+              - name: "sda"
         config:
           osdsPerDevice: "1"
       resources:
