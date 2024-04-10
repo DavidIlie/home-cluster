@@ -13,8 +13,3 @@ resources:
   - ./postfinance.yaml
   - ./spegel.yaml
   - ./stakater.yaml
-  - ./cloudnative-pg.yaml
-  - ./rook-ceph.yaml
-  - ./backube.yaml
-  - ./piraes.yaml
-  - ./csi-driver-nfs.yaml

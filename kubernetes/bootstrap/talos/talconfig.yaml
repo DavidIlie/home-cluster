@@ -22,7 +22,7 @@ nodes:
   - hostname: "master-01"
     ipAddress: "192.168.100.53"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -36,10 +36,12 @@ nodes:
             gateway: "192.168.100.1"
         vip:
           ip: "192.168.100.95"
+    patches:
+      - "@./patches/node_master-01.yaml"
   - hostname: "master-02"
     ipAddress: "192.168.100.57"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -53,10 +55,12 @@ nodes:
             gateway: "192.168.100.1"
         vip:
           ip: "192.168.100.95"
+    patches:
+      - "@./patches/node_master-02.yaml"
   - hostname: "master-03"
     ipAddress: "192.168.100.54"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -70,25 +74,29 @@ nodes:
             gateway: "192.168.100.1"
         vip:
           ip: "192.168.100.95"
+    patches:
+      - "@./patches/node_master-03.yaml"
   - hostname: "worker-01"
-    ipAddress: "192.168.100.58"
+    ipAddress: "192.168.100.62"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "bc:24:11:4d:94:00"
         dhcp: false
         addresses:
-          - "192.168.100.58/24"
+          - "192.168.100.62/24"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
             gateway: "192.168.100.1"
+    patches:
+      - "@./patches/node_worker-01.yaml"
   - hostname: "worker-02"
     ipAddress: "192.168.100.59"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
@@ -100,21 +108,25 @@ nodes:
         routes:
           - network: 0.0.0.0/0
             gateway: "192.168.100.1"
+    patches:
+      - "@./patches/node_worker-02.yaml"
   - hostname: "worker-03"
-    ipAddress: "192.168.100.55"
+    ipAddress: "192.168.100.64"
     installDisk: "/dev/vda"
-    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "bc:24:11:db:c2:96"
         dhcp: false
         addresses:
-          - "192.168.100.55/24"
+          - "192.168.100.64/24"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
             gateway: "192.168.100.1"
+    patches:
+      - "@./patches/node_worker-03.yaml"
 
 patches:
   # Configure containerd
@@ -191,6 +203,8 @@ patches:
             options: ["bind", "rshared", "rw"]
 
 
+  # User specified global patches
+  - "@./patches/global.yaml"
 
 controlPlane:
   patches:
@@ -230,4 +244,10 @@ controlPlane:
             allowedRoles: ["os:admin"]
             allowedKubernetesNamespaces: ["system-upgrade"]
 
+    # User specified controlPlane patches
+    - "@./patches/controlPlane.yaml"
 
+worker:
+  patches:
+    # User specified worker patches
+    - "@./patches/worker.yaml"
