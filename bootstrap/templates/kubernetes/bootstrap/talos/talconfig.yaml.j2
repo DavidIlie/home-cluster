@@ -224,6 +224,20 @@ controlPlane:
     - "@./patches/controlPlane.yaml"
     #% endif %#
 
+worker:
+  patches:
+    - |-
+      machine:
+        kernel:
+          modules:
+            - name: nvidia
+            - name: nvidia_uvm
+            - name: nvidia_drm
+            - name: nvidia_modeset
+        sysctls:
+          net.core.bpf_jit_harden: 1
+
+
 #% if ((bootstrap_talos.user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
 worker:
   patches:
