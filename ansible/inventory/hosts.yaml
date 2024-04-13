@@ -1,0 +1,25 @@
+---
+kubernetes:
+  children:
+    controllers:
+      hosts:
+        "master-01":
+          ansible_user: "david"
+          ansible_host: "192.168.100.50"
+        "master-02":
+          ansible_user: "david"
+          ansible_host: "192.168.100.51"
+        "master-03":
+          ansible_user: "david"
+          ansible_host: "192.168.100.52"
+    workers:
+      hosts:
+        "worker-01":
+          ansible_user: "david"
+          ansible_host: "192.168.100.53"
+        "worker-02":
+          ansible_user: "david"
+          ansible_host: "192.168.100.54"
+        "worker-03":
+          ansible_user: "david"
+          ansible_host: "192.168.100.55"
