@@ -7,4 +7,4 @@ resources:
   - ./metrics-server/ks.yaml
   - ./reloader/ks.yaml
   - ./kube-vip/ks.yaml
-  - ./nvidia-gpu-operator/ks.yaml
+  # - ./nvidia-gpu-operator/ks.yaml
