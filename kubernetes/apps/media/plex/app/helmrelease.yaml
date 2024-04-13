@@ -25,6 +25,11 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  dependsOn:
+    - name: nvidia-gpu-operator
+      namespace: kube-system
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   values:
     controllers:
       plex:
@@ -43,9 +48,12 @@ spec:
             image:
               repository: ghcr.io/onedr0p/plex
               tag: 1.40.1.8227-c0dd5a73e@sha256:c8d74539a40530fa9770c6d67f37aef8f3a7b3f30ee353c2cb5685b84ed5b04c
+            envFrom:
+              - secretRef:
+                  name: plex-secret
             env:
               TZ: Europe/Bucharest
-              ADVERTISE_IP: "http://192.168.100.107:32400,https://plex.davidapps.dev"
+              ADVERTISE_IP: "http://192.168.100.107:32400,https://plex.davidapps.dev:443"
               NVIDIA_VISIBLE_DEVICES: all
               NVIDIA_DRIVER_CAPABILITIES: all
             probes:
@@ -83,6 +91,7 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
         hosts:
           - host: &host "plex.${SECRET_DOMAIN}"
             paths:
@@ -97,13 +106,18 @@ spec:
     persistence:
       data:
         existingClaim: "plex"
+        # TODO: If setting up Plex for the first time, you'll want to add the globalMounts section
         globalMounts:
-          - path: /config
+          - path: /config/Library/Application Support/Plex Media Server
       storage:
         existingClaim: storage-nfs
         globalMounts:
           - path: /storage
+      logs:
+        type: emptyDir
+        globalMounts:
+          - path: /config/Library/Application Support/Plex Media Server/Logs
+      tmp:
+        type: emptyDir
       transcode:
-          type: emptyDir
-          globalMounts:
-            - path: /transcode
+        type: emptyDir
