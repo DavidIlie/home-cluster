@@ -34,6 +34,8 @@ spec:
             image:
               repository: tromatik/docker-minimserver
               tag: latest
+            securityContext:
+              privileged: true
             resources:
               requests:
                 cpu: 10m
