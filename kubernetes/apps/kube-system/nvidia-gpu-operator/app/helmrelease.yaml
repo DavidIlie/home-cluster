@@ -16,6 +16,8 @@ spec:
         namespace: flux-system
       interval: 5m
   maxHistory: 2
+  nodeSelector:
+    kubernetes.io/hostname: regex(worker)
   install:
     crds: CreateReplace
     remediation:
