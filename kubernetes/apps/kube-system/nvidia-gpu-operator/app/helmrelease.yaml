@@ -29,12 +29,20 @@ spec:
     keepHistory: false
   values:
     nfd:
+      nodeSelector:
+        node-type: worker
       enabled: true
     driver:
+      nodeSelector:
+        node-type: worker
       enabled: false
     psa:
+      nodeSelector:
+        node-type: worker
       enabled: true
     toolkit:
+      nodeSelector:
+        node-type: worker
       enabled: true
       env:
         - name: CONTAINERD_CONFIG
