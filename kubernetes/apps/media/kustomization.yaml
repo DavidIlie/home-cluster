@@ -5,3 +5,4 @@ resources:
   - ./namespace.yaml
   - ./nfs-pvc.yaml
   - ./navidrome/ks.yaml
+  - ./plex/ks.yaml

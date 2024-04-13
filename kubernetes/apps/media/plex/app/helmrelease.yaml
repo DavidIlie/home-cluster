@@ -1,0 +1,112 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: plex
+spec:
+  chart:
+    spec:
+      chart: app-template
+      version: 3.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 60m
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      plex:
+        pod:
+          nodeSelector:
+            node-type: worker
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            fsGroup: 0
+            fsGroupChangePolicy: "OnRootMismatch"
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/onedr0p/plex
+              tag: 1.40.1.8227-c0dd5a73e@sha256:c8d74539a40530fa9770c6d67f37aef8f3a7b3f30ee353c2cb5685b84ed5b04c
+            envFrom:
+              - secretRef:
+                  name: plex-secret
+            env:
+              TZ: Europe/Bucharest
+              ADVERTISE_IP: "http://192.168.100.107,https://plex.davidapps.dev"
+              NVIDIA_VISIBLE_DEVICES: all
+              NVIDIA_DRIVER_CAPABILITIES: all
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+                requests:
+                  cpu: 4000m
+                  memory: 4Gi
+                  nvidia.com/gpu: 1
+                limits:
+                  memory: 10Gi
+                  nvidia.com/gpu: 1
+
+
+    service:
+      app:
+        controller: plex
+        type: LoadBalancer
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.100.107
+        ports:
+          http:
+            port: 32400
+
+    ingress:
+      app:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        hosts:
+          - host: &host "plex.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
+
+    persistence:
+      data:
+        existingClaim: "plex"
+        globalMounts:
+          - path: /config
+      storage:
+        existingClaim: storage-nfs
+        globalMounts:
+          - path: /storage
+      transcode:
+          type: emptyDir
+          globalMounts:
+            - path: /transcode
