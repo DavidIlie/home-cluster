@@ -37,9 +37,7 @@ spec:
               tag: 2.7.0
             env:
               - name: RECORD_ALL
-                value: "True"
-              - name: RECORD_LENGTH
-                value: "500"
+                value: "False"
               - name: ROTATE_DOOR
                 value: "True"
               - name: FRESH_DATA
