@@ -5,3 +5,4 @@ resources:
   - ./proxmox.yaml
   - ./zigbee.yaml
   - ./truenas.yaml
+  - ./pterodactyl.yaml

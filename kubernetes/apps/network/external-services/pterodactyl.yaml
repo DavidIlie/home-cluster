@@ -1,0 +1,72 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app pterodactyl
+  namespace: network
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.68
+  ports:
+    - name: http
+      port: &port 443
+      protocol: TCP
+      targetPort: *port
+    - name: apiuber
+      port: &port 4567
+      protocol: TCP
+      targetPort: *port
+    - name: dynmap
+      port: &port 8123
+      protocol: TCP
+      targetPort: *port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &app pterodactyl
+  namespace: networking
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  ingressClassName: external
+  rules:
+    - host: &host wings-ro.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: 443
+    - host: &host uberapi.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: 4567
+    - host: &host map.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: 8123
+  tls:
+    - hosts:
+        - *host
