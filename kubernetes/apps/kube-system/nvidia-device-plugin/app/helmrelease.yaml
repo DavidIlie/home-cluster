@@ -24,4 +24,4 @@ spec:
       tag: v0.14.5
     runtimeClassName: nvidia
     nodeSelector:
-      node-role.kubernetes.io/control-plane: "false"
+      node-role.kubernetes.io/worker: "true"
