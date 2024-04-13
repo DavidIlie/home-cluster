@@ -5,3 +5,4 @@ resources:
   - ./namespace.yaml
   - ./minio/ks.yaml
   - ./minimserver/ks.yaml
+  - ./pterodactyl/ks.yaml
