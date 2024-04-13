@@ -10,7 +10,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/databases/mariadb/app
+  path: ./kubernetes/apps/database/mariadb/app
   dependsOn:
     - name: rook-ceph-cluster
   prune: true
