@@ -50,7 +50,7 @@ spec:
               ND_LOGLEVEL: info
               ND_MUSICFOLDER: /storage/Music
               ND_PORT: &port 4533
-              ND_SCANSCHEDULE: 30m
+              ND_SCANSCHEDULE: 15m
 
             probes:
               liveness:
