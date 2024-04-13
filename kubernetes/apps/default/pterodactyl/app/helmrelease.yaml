@@ -23,8 +23,6 @@ spec:
       strategy: rollback
       retries: 3
   dependsOn:
-    - name: dragonfly
-      namespace: database
     - name: mariadb
       namespace: database
     - name: rook-ceph-cluster
