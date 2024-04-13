@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./nfs-pvc.yaml
-  - ./navidrome/ks.yaml
+  # - ./navidrome/ks.yaml
