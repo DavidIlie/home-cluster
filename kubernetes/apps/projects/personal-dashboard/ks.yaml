@@ -5,7 +5,7 @@ metadata:
   name: &app personal-dashboard
   namespace: flux-system
 spec:
-  targetNamespace: default
+  targetNamespace: projects
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
