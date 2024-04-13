@@ -12,7 +12,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: "192.168.100.63"
-    path: /data/storage
+    path: /mnt/data/storage
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
