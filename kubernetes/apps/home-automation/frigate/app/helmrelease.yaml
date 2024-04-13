@@ -68,7 +68,6 @@ spec:
               privileged: true
             resources:
               requests:
-                cpu: 100m
                 nvidia.com/gpu: 1
               limits:
                 memory: 8Gi
