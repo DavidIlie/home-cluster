@@ -108,4 +108,4 @@ spec:
           - hosts: [*host]
     persistence:
       config:
-        existingClaim: wyze
+        existingClaim: wyze-bridge
