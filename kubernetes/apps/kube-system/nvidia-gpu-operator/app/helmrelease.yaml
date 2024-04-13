@@ -30,19 +30,19 @@ spec:
   values:
     nfd:
       nodeSelector:
-        - kubernetes.io/hostname: regex(worker)
+        node-type: worker
       enabled: true
     driver:
       nodeSelector:
-        - kubernetes.io/hostname: regex(worker)
+        node-type: worker
       enabled: false
     psa:
       nodeSelector:
-        - kubernetes.io/hostname: regex(worker)
+        node-type: worker
       enabled: true
     toolkit:
       nodeSelector:
-        - kubernetes.io/hostname: regex(worker)
+        node-type: worker
       enabled: true
       env:
         - name: CONTAINERD_CONFIG
