@@ -96,7 +96,7 @@ spec:
     persistence:
       data:
         existingClaim: "navidrome"
-      media:
-        existingClaim: media-nfs
+      storage:
+        existingClaim: storage-nfs
         globalMounts:
           - path: /storage
