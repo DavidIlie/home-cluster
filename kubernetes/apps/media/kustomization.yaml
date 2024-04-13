@@ -6,3 +6,4 @@ resources:
   - ./nfs-pvc.yaml
   - ./navidrome/ks.yaml
   - ./plex/ks.yaml
+  - ./tautulli/ks.yaml
