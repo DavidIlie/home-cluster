@@ -41,6 +41,7 @@ spec:
             runAsGroup: 0
             fsGroup: 0
             fsGroupChangePolicy: "OnRootMismatch"
+          runtimeClassName: nvidia
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
