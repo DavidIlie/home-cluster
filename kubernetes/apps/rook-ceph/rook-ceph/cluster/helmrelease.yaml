@@ -71,7 +71,7 @@ spec:
               - name: "sdb"
           - name: master-03
             devices:
-              - name: "sdb"
+              - name: "sda"
           - name: worker-01
             devices:
               - name: "sdb"

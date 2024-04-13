@@ -73,7 +73,6 @@ nodes:
   - hostname: "worker-01"
     ipAddress: "192.168.100.62"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
@@ -88,7 +87,6 @@ nodes:
   - hostname: "worker-02"
     ipAddress: "192.168.100.59"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
@@ -103,7 +101,6 @@ nodes:
   - hostname: "worker-03"
     ipAddress: "192.168.100.64"
     installDisk: "/dev/vda"
-    talosImageURL: factory.talos.dev/installer/5600640599fdf863b07242361615accf55aa8e66ff08aa16046d72dfae1db655
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
@@ -234,14 +231,18 @@ controlPlane:
 worker:
   patches:
     - |-
-      machine:
-        kernel:
+      - op: add
+        path: /machine/kernel
+        value:
           modules:
             - name: nvidia
             - name: nvidia_uvm
             - name: nvidia_drm
             - name: nvidia_modeset
-        sysctls:
+    - |-
+      - op: add
+        path: /machine/sysctls
+        value:
           net.core.bpf_jit_harden: 1
 
 
