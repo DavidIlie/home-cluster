@@ -43,9 +43,6 @@ spec:
             image:
               repository: ghcr.io/onedr0p/plex
               tag: 1.40.1.8227-c0dd5a73e@sha256:c8d74539a40530fa9770c6d67f37aef8f3a7b3f30ee353c2cb5685b84ed5b04c
-            envFrom:
-              - secretRef:
-                  name: plex-secret
             env:
               TZ: Europe/Bucharest
               ADVERTISE_IP: "http://192.168.100.107:32400,https://plex.davidapps.dev"
