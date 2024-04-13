@@ -48,7 +48,7 @@ spec:
                   name: plex-secret
             env:
               TZ: Europe/Bucharest
-              ADVERTISE_IP: "http://192.168.100.107,https://plex.davidapps.dev"
+              ADVERTISE_IP: "http://192.168.100.107:32400,https://plex.davidapps.dev"
               NVIDIA_VISIBLE_DEVICES: all
               NVIDIA_DRIVER_CAPABILITIES: all
             probes:
