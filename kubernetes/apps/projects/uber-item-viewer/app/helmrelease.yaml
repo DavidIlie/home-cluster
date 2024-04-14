@@ -23,14 +23,14 @@ spec:
   values:
     controllers:
       uber-item-viewer:
+        pod:
+          imagePullSecrets:
+            - name: docker-regcred
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
-            pod:
-              imagePullSecrets:
-                - name: docker-regcred
             image:
               repository: ghcr.io/davidilie/uber-item-viewer # {"$imagepolicy": "flux-system:uber-item-viewer:name"}
               tag: master-d60ffb85-1684507596 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
