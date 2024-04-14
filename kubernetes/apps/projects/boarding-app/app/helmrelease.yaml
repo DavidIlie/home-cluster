@@ -21,8 +21,8 @@ spec:
     remediation:
       retries: 3
   values:
-    boarding-app:
-      personal-website:
+    controllers:
+       boarding-app:
         pod:
           imagePullSecrets:
             - name: docker-regcred
