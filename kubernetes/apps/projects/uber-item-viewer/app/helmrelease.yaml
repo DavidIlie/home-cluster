@@ -28,8 +28,9 @@ spec:
           reloader.stakater.com/auto: "true"
         containers:
           app:
-            imagePullSecrets:
-              - name: docker-regcred
+            pod:
+              imagePullSecrets:
+                - name: docker-regcred
             image:
               repository: ghcr.io/davidilie/uber-item-viewer # {"$imagepolicy": "flux-system:uber-item-viewer:name"}
               tag: master-d60ffb85-1684507596 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
