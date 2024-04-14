@@ -7,6 +7,6 @@ resources:
   - ./navidrome/ks.yaml
   - ./plex/ks.yaml
   - ./tautulli/ks.yaml
-  - ./autobrr/ks.yaml
+  # - ./autobrr/ks.yaml
   - ./prowlarr/ks.yaml
   - ./radarr/ks.yaml
