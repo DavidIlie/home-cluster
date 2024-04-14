@@ -6,3 +6,4 @@ resources:
   - ./minio/ks.yaml
   - ./minimserver/ks.yaml
   - ./pterodactyl/ks.yaml
+  - ./excalidraw/ks.yaml
