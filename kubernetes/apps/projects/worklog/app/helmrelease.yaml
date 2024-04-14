@@ -1,4 +1,3 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -22,7 +21,7 @@ spec:
       retries: 3
   values:
     controllers:
-       worklog:
+      worklog:
         pod:
           imagePullSecrets:
             - name: docker-regcred
@@ -33,14 +32,14 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/worklog # {"$imagepolicy": "flux-system:worklog:name"}
-              tag: master-4f632a11-1711445919 # {"$imagepolicy": "flux-system:worklog:tag"}
+              tag: master-d2b25f5c-1713105331 # {"$imagepolicy": "flux-system:worklog:tag"}
             envFrom:
               - secretRef:
                   name: worklog-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
               seccompProfile:
                 type: RuntimeDefault
             resources:
