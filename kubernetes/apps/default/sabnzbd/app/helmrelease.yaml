@@ -44,7 +44,7 @@ spec:
                 sabnzbd.default.svc,
                 sabnzbd.default.svc.cluster,
                 sabnzbd.default.svc.cluster.local,
-                sab.davidapps.io
+                sab.davidapps.dev
             probes:
               liveness: &probes
                 enabled: true
