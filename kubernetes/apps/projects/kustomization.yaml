@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./personal-dashboard/ks.yaml
+  - ./uber-item-viewer/ks.yaml
