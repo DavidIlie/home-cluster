@@ -44,7 +44,7 @@ spec:
               PROWLARR__INSTANCE_NAME: Prowlarr
               PROWLARR__PORT: &port 80
               PROWLARR__LOG_LEVEL: info
-              PROWLARR__AUTHENTICATION_METHOD: Basic
+              PROWLARR__AUTHENTICATION_METHOD: External
               PROWLARR__THEME: dark
               TZ: Europe/Bucharest
             envFrom: *envFrom
