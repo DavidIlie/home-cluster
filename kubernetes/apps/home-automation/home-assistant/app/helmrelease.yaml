@@ -31,6 +31,14 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16
+            envFrom: &envFrom
+              - secretRef:
+                  name: home-assistant-secret
         containers:
           app:
             image:
@@ -38,10 +46,10 @@ spec:
               tag: 2024.4.1@sha256:bf8004556d5f420a3996f79f53a6727f2ea5ff9f4494d5ee9721cedb5c770051
             env:
               TZ: Europe/Bucharest
+              POSTGRES_DB: home_assistant
+            envFrom: *envFrom
             securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              readOnlyRootFilesystem: false
             resources:
               requests:
                 cpu: 10m
@@ -61,29 +69,12 @@ spec:
               - --port
               - "12321"
               - "/config"
-        pod:
-          securityContext:
-            runAsUser: 568
-            runAsGroup: 568
-            runAsNonRoot: true
-            fsGroup: 568
-            fsGroupChangePolicy: OnRootMismatch
     service:
-      # app:
-      #   controller: home-assistant
-      #   type: LoadBalancer
-      #   annotations:
-      #     external-dns.alpha.kubernetes.io/hostname: hass.davidapps.local
-      #     io.cilium/lb-ipam-ips: 192.168.100.106
-      #   ports:
-      #     http:
-      #       enabled: true
-      #       port: 8123
-      #     homekit:
-      #       enabled: true
-      #       port: 21063
       app:
         controller: home-assistant
+        type: LoadBalancer
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.100.108
         ports:
           http:
             enabled: true
