@@ -46,6 +46,7 @@ spec:
               tag: 2024.4.1@sha256:bf8004556d5f420a3996f79f53a6727f2ea5ff9f4494d5ee9721cedb5c770051
             env:
               TZ: Europe/Bucharest
+              POSTGRES_HOST: postgres16-rw.database.svc.cluster.local
               POSTGRES_DB: home_assistant
             envFrom: *envFrom
             securityContext:
