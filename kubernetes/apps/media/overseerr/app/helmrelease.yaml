@@ -71,7 +71,7 @@ spec:
       app:
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.devbu.io
+          external-dns.alpha.kubernetes.io/target: external.davidapps.dev
         hosts:
           - host: &host requests.davidapps.dev
             paths:
