@@ -1,4 +1,3 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -30,14 +29,14 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/personal-dashboard # {"$imagepolicy": "flux-system:personal-dashboard:name"}
-              tag: master-e79d8f79-1701259583 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
+              tag: master-d7fa3fbd-1713223255 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
             envFrom:
               - secretRef:
                   name: personal-dashboard-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
               seccompProfile:
                 type: RuntimeDefault
             resources:
