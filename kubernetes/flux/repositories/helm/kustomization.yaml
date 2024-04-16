@@ -16,3 +16,4 @@ resources:
   - ./rook-ceph.yaml
   - ./emqx.yaml
   - ./bitnami.yaml
+  - ./authentik.yaml
