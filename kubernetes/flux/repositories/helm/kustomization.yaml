@@ -17,3 +17,4 @@ resources:
   - ./emqx.yaml
   - ./bitnami.yaml
   - ./authentik.yaml
+  - ./kyverno.yaml
