@@ -43,6 +43,8 @@ spec:
       ingress:
         enabled: true
         ingressClassName: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidapps.dev"
         hosts:
           - &host auth.davidapps.dev
         paths:
