@@ -7,4 +7,5 @@ my cluster (readme will be done soon)
 - fix renovate
 - jupyter notebooks with gpu
 - mullvad VPN for downloads
-- VPN to house in spain for iOT stuff
+- VPN to house in spain for iOT stuff THROUGH TAILSCALE
+  - use same tailscale for trueNAS replication
