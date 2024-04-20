@@ -4,6 +4,7 @@ metadata:
   name: ts-ro-lan
 spec:
   hostname: ts-ro-lan
+  exitNode: true
   subnetRouter:
     advertiseRoutes:
       - "192.168.100.0/24"
