@@ -74,8 +74,6 @@ spec:
     service:
       app:
         controller: radarr
-        annotations:
-          "tailscale.com/expose": "true"
         ports:
           http:
             port: *port
