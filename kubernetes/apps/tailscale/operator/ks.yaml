@@ -5,7 +5,7 @@ metadata:
   name: &app tailscale
   namespace: flux-system
 spec:
-  targetNamespace: network
+  targetNamespace: tailscale
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
