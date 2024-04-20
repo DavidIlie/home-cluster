@@ -21,6 +21,3 @@ spec:
       hostname: "op-ro-k8s"
     apiServerProxyConfig:
       mode: "false"
-  valuesFrom:
-    - kind: Secret
-      name: tailscale-secrets
