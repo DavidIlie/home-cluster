@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app frigate
+  name: &app frigate-spain
   namespace: flux-system
 spec:
   targetNamespace: home-automation
@@ -12,7 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: emqx-cluster
-  path: ./kubernetes/apps/home-automation/frigate/app
+  path: ./kubernetes/apps/home-automation/frigate-spain/app
   prune: true
   sourceRef:
     kind: GitRepository
