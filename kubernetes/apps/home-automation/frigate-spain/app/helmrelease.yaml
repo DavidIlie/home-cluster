@@ -96,7 +96,7 @@ spec:
                 nvidia.com/gpu: 1
 
     service:
-      app:
+      frigate-spain:
         controller: frigate-spain
         ports:
           http:
@@ -104,7 +104,7 @@ spec:
           rtsp:
             port: 8554
     ingress:
-      app:
+      frigate-spain:
         className: internal
         hosts:
           - host: &host "{{ .Release.Name }}.davidapps.dev"
