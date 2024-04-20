@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: frigate
+  name: frigate-spain
 spec:
   interval: 30m
   chart:
@@ -29,7 +29,29 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      frigate:
+      tailscale:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/tailscale/tailscale
+              tag: v1.64.2@sha256:7ee2ab4b9efadc5a68c92fb4549206eedac240a758f61b5431e39e8c0806930d
+            env:
+              TZ: Europe/Madrid
+              TS_KUBE_SECRET: frigate-spain-secret
+            envFrom:
+              - secretRef:
+                  name: frigate-spain-secret
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            securityContext:
+              privileged: true
+              capabilities:
+                add:
+                  - NET_ADMIN
+      frigate-spain:
         pod:
           nodeSelector:
             node-type: worker
@@ -47,10 +69,10 @@ spec:
               repository: ghcr.io/blakeblackshear/frigate
               tag: 0.13.2@sha256:2906991ccad85035b176941f9dedfd35088ff710c39d45ef1baa9a49f2b16734
             env:
-              TZ: Europe/Bucharest
+              TZ: Europe/Madrid
             envFrom:
               - secretRef:
-                  name: frigate-secret
+                  name: frigate-spain-secret
             probes:
               liveness: &probes
                 enabled: true
@@ -75,7 +97,7 @@ spec:
 
     service:
       app:
-        controller: frigate
+        controller: frigate-spain
         ports:
           http:
             port: *port
@@ -95,7 +117,7 @@ spec:
           - hosts: [*host]
     persistence:
       config:
-        existingClaim: frigate
+        existingClaim: frigate-spain
         globalMounts:
           - path: /data
       config-file:
@@ -114,6 +136,6 @@ spec:
       media:
         type: nfs
         server: 192.168.100.63
-        path: /mnt/data/frigate
+        path: /mnt/data/frigate-spain
         globalMounts:
           - path: /media
