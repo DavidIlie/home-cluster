@@ -13,3 +13,4 @@ resources:
   - ./sonarr/ks.yaml
   # - ./recyclarr/ks.yaml
   - ./overseerr/ks.yaml
+  - ./lidarr/ks.yaml
