@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/portfolio-davidilie # {"$imagepolicy": "flux-system:personal-website:name"}
-              tag: version6-11c392ec-1713957626 # {"$imagepolicy": "flux-system:personal-website:tag"}
+              tag: version6-df9f9478-1713961228 # {"$imagepolicy": "flux-system:personal-website:tag"}
             envFrom:
               - secretRef:
                   name: personal-website-secret
