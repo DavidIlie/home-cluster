@@ -1,4 +1,3 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -38,14 +37,14 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/portfolio-davidilie # {"$imagepolicy": "flux-system:personal-website:name"}
-              tag: version6-ce4950c2-1713103922 # {"$imagepolicy": "flux-system:personal-website:tag"}
+              tag: version6-11c392ec-1713957626 # {"$imagepolicy": "flux-system:personal-website:tag"}
             envFrom:
               - secretRef:
                   name: personal-website-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
               seccompProfile:
                 type: RuntimeDefault
             resources:
