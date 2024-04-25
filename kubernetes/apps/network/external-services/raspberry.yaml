@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: &app zigbee2mqtt
+  name: &app raspberry
   namespace: network
   labels:
     app.kubernetes.io/name: *app
@@ -12,14 +12,18 @@ spec:
   externalName: 192.168.100.20
   ports:
     - name: http
-      port: &port 8080
+      port: 8080
       protocol: TCP
-      targetPort: *port
+      targetPort: 8080
+    - name: http
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: zigbee2mqtt
+  name: raspberry
   namespace: network
 spec:
   ingressClassName: internal
@@ -31,8 +35,20 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: zigbee2mqtt
+                name: raspberry
                 port:
                   number: 8080
+    - host: &hostainer portainer.davidapps.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: raspberry
+                port:
+                  number: 9000
   tls:
-    - hosts: [*host]
+    - hosts:
+        - *host
+        - *hostainer
