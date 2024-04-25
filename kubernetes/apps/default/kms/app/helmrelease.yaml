@@ -56,6 +56,7 @@ spec:
         controller: kms
         type: LoadBalancer
         annotations:
+          coredns.io/hostname: "kms.davidapps.local"
           io.cilium/lb-ipam-ips: "192.168.100.109"
         ports:
           kms:
