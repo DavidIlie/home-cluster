@@ -7,7 +7,7 @@ resources:
   - ./minimserver/ks.yaml
   - ./pterodactyl/ks.yaml
   - ./excalidraw/ks.yaml
-  - ./kms/ks.yaml
+  # - ./kms/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./flaresolverr/ks.yaml
   - ./sabnzbd/ks.yaml
