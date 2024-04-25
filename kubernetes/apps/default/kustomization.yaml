@@ -8,5 +8,3 @@ resources:
   - ./pterodactyl/ks.yaml
   - ./excalidraw/ks.yaml
   - ./kms/ks.yaml
-  # - ./qbittorrent/ks.yaml
-  # - ./sabnzbd/ks.yaml

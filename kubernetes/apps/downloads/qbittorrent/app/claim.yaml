@@ -7,5 +7,5 @@ spec:
   accessModes: ["ReadWriteMany"]
   resources:
     requests:
-      storage: 2Gi
+      storage: 1Gi
   storageClassName: ceph-filesystem
