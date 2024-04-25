@@ -23,29 +23,29 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: raspberry
+  name: &app raspberry
   namespace: network
 spec:
   ingressClassName: internal
   rules:
     - host: &host zigbee.davidapps.dev
-      zigbee:
+      http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: raspberry
+                name: *app
                 port:
                   number: 8080
     - host: &hostainer portainer.davidapps.dev
-      portainer:
+      http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: raspberry
+                name: *app
                 port:
                   number: 9000
   tls:
