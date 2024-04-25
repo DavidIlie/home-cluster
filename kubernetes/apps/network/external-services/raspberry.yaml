@@ -11,11 +11,11 @@ spec:
   type: ExternalName
   externalName: 192.168.100.20
   ports:
-    - name: http
+    - name: zigbee2mqtt
       port: 8080
       protocol: TCP
       targetPort: 8080
-    - name: http
+    - name: portainer
       port: 9000
       protocol: TCP
       targetPort: 9000
