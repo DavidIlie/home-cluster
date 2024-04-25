@@ -9,4 +9,3 @@ my cluster (readme will be done soon)
 - mullvad VPN for downloads
 - VPN to house in spain for iOT stuff
 - use tailscale for trueNAS replication
-- kms server
