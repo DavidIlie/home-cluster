@@ -16,15 +16,17 @@ spec:
       protocol: TCP
       targetPort: 8080
     - name: portainer
-      port: 9000
+      port: 9443
       protocol: TCP
-      targetPort: 9000
+      targetPort: 9443
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: &app raspberry
   namespace: network
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: internal
   rules:
@@ -47,7 +49,7 @@ spec:
               service:
                 name: *app
                 port:
-                  number: 9000
+                  number: 9443
   tls:
     - hosts:
         - *host
