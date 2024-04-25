@@ -29,7 +29,7 @@ spec:
   ingressClassName: internal
   rules:
     - host: &host zigbee.davidapps.dev
-      http:
+      zigbee:
         paths:
           - path: /
             pathType: Prefix
@@ -39,7 +39,7 @@ spec:
                 port:
                   number: 8080
     - host: &hostainer portainer.davidapps.dev
-      http:
+      portainer:
         paths:
           - path: /
             pathType: Prefix
