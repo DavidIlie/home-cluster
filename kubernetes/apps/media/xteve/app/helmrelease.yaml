@@ -39,9 +39,7 @@ spec:
             env:
               TZ: Europe/Bucharest
             securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              privileged: true
             resources:
               requests:
                 cpu: 10m
