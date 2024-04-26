@@ -42,9 +42,6 @@ spec:
     service:
       app:
         controller: telly
-        # type: "LoadBalancer"
-        # annotations:
-        #   io.cilium/lb-ipam-ips: 192.168.100.110
         ports:
           service:
             port: 6077
