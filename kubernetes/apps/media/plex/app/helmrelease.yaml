@@ -69,11 +69,10 @@ spec:
                   periodSeconds: 5
             resources:
               requests:
-                cpu: 4000m
                 memory: 4Gi
                 nvidia.com/gpu: 1
               limits:
-                memory: 10Gi
+                memory: 6Gi
                 nvidia.com/gpu: 1
 
     service:
