@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: plex
+  name: jellyfin
 spec:
   chart:
     spec:
@@ -32,7 +32,7 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      plex:
+      jellyfin:
         pod:
           nodeSelector:
             node-type: worker
@@ -47,16 +47,16 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/onedr0p/plex
-              tag: 1.40.2.8395-c67dce28e@sha256:a2a3149c1326e7777bfe9def135c687d884652f78d34e92264b0dab765908215
-            envFrom:
-              - secretRef:
-                  name: plex-secret
+              repository: ghcr.io/onedr0p/jellyfin
+              tag: 10.8.11@sha256:926e2a9f6677a0c7b12feba29f36c954154869318d6a52df72f72ff9c74cf494
             env:
               TZ: Europe/Bucharest
-              ADVERTISE_IP: "http://192.168.100.107:32400,https://plex.davidapps.dev:443"
+              JELLYFIN_PublishedServerUrl: 192.168.100.110
               NVIDIA_VISIBLE_DEVICES: all
               NVIDIA_DRIVER_CAPABILITIES: all
+              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
+              JELLYFIN_FFmpeg__probesize: 50000000
+              JELLYFIN_FFmpeg__analyzeduration: 50000000
             probes:
               liveness:
                 enabled: true
@@ -78,21 +78,19 @@ spec:
 
     service:
       app:
-        controller: plex
+        controller: jellyfin
         type: LoadBalancer
         annotations:
-          io.cilium/lb-ipam-ips: 192.168.100.107
+          io.cilium/lb-ipam-ips: 192.168.100.110
         ports:
           http:
-            port: 32400
+            port: 8096
 
     ingress:
       app:
         className: internal
-        annotations:
-          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
         hosts:
-          - host: &host "plex.${SECRET_DOMAIN}"
+          - host: &host "jelly.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
@@ -104,19 +102,20 @@ spec:
 
     persistence:
       data:
-        existingClaim: "plex"
-        # TODO: If setting up Plex for the first time, you'll want to add the globalMounts section
+        existingClaim: "jellyfin"
         globalMounts:
-          - path: /config/Library/Application Support/Plex Media Server
+          - path: /config
       storage:
         existingClaim: storage-nfs
         globalMounts:
           - path: /storage
-      logs:
+      transcode:
+        enabled: true
         type: emptyDir
         globalMounts:
-          - path: /config/Library/Application Support/Plex Media Server/Logs
-      tmp:
+          - path: /transcode
+      cache:
+        enabled: true
         type: emptyDir
-      transcode:
-        type: emptyDir
+        globalMounts:
+          - path: /cache
