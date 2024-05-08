@@ -48,7 +48,7 @@ spec:
           app:
             image:
               repository: ghcr.io/onedr0p/plex
-              tag: 1.40.1.8227-c0dd5a73e@sha256:c8d74539a40530fa9770c6d67f37aef8f3a7b3f30ee353c2cb5685b84ed5b04c
+              tag: 1.40.2.8395-c67dce28e@sha256:a2a3149c1326e7777bfe9def135c687d884652f78d34e92264b0dab765908215
             envFrom:
               - secretRef:
                   name: plex-secret
@@ -68,14 +68,13 @@ spec:
                   failureThreshold: 30
                   periodSeconds: 5
             resources:
-                requests:
-                  cpu: 4000m
-                  memory: 4Gi
-                  nvidia.com/gpu: 1
-                limits:
-                  memory: 10Gi
-                  nvidia.com/gpu: 1
-
+              requests:
+                cpu: 4000m
+                memory: 4Gi
+                nvidia.com/gpu: 1
+              limits:
+                memory: 10Gi
+                nvidia.com/gpu: 1
 
     service:
       app:
