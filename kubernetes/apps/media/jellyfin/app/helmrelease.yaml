@@ -52,7 +52,7 @@ spec:
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Bucharest
-              JELLYFIN_PublishedServerUrl: https://jellyfin.davidapps.dev
+              JELLYFIN_PublishedServerUrl: https://jelly.davidapps.dev
               NVIDIA_VISIBLE_DEVICES: all
               NVIDIA_DRIVER_CAPABILITIES: all
               DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
