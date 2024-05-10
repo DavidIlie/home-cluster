@@ -6,7 +6,7 @@ resources:
   - ./nfs-pvc.yaml
   - ./navidrome/ks.yaml
   - ./plex/ks.yaml
-  # - ./jellyfin/ks.yaml
+  - ./jellyfin/ks.yaml
   - ./tautulli/ks.yaml
   - ./prowlarr/ks.yaml
   - ./radarr/ks.yaml
