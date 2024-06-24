@@ -12,5 +12,5 @@ resources:
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./overseerr/ks.yaml
-  - ./lidarr/ks.yaml
+  # - ./lidarr/ks.yaml
   - ./xteve/ks.yaml
