@@ -72,7 +72,10 @@ spec:
               - --port
               - "12321"
               - "/config"
+    pod:
+      hostNetwork: true
     defaultPodOptions:
+      hostNetwork: true
       securityContext:
         runAsNonRoot: false
         runAsUser: 0
