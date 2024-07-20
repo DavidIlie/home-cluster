@@ -1,0 +1,26 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: personal-website
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: personal-website
+  filterTags:
+    pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: personal-website
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/portfolio-davidilie
+  interval: 1m0s
+  secretRef:
+    name: docker-regcred
