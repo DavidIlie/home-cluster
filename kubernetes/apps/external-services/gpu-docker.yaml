@@ -23,6 +23,10 @@ spec:
       port: 10443
       protocol: TCP
       targetPort: 10443
+    - name: plex
+      port: 32400
+      protocol: TCP
+      targetPort: 32400
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -77,6 +81,17 @@ spec:
                 name: gpu-docker
                 port:
                   number: 1984
+    - host: &plex plex.davidapps.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gpu-docker
+                port:
+                  number: 32400
   tls:
     - hosts:
         - *host
+        - *plex
