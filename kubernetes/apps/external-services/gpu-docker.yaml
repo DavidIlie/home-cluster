@@ -41,7 +41,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: portainer
+                name: gpu-docker
                 port:
                   number: 9443
   tls:
@@ -63,7 +63,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: go2rtc
+                name: gpu-docker
                 port:
                   number: 1984
     - host: &hosted scrypted.davidapps.dev
@@ -73,7 +73,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: go2rtc
+                name: gpu-docker
                 port:
                   number: 10443
   tls:
