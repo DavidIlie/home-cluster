@@ -21,8 +21,10 @@ kind: Ingress
 metadata:
   name: &app home-assistant
   namespace: external-services
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
 spec:
-  ingressClassName: internal
+  ingressClassName: external
   rules:
     - host: &host hass.davidapps.dev
       http:
