@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   type: ExternalName
-  externalName: 192.168.100.17
+  externalName: 192.168.25.4
   ports:
     - name: portainer
       port: 9443
@@ -27,7 +27,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: &app gpu-docker-portainer
+  name: &app portainer
   namespace: external-services
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
@@ -51,7 +51,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: &app gpu-docker
+  name: &app portainer-services
   namespace: external-services
 spec:
   ingressClassName: internal
