@@ -7,3 +7,4 @@ resources:
   - ./homeassistant.yaml
   - ./truenas.yaml
   - ./pterodactyl.yaml
+  - ./gpu-docker.yaml
