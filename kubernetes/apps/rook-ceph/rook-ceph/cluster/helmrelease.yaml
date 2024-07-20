@@ -1,6 +1,6 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: rook-ceph-cluster
@@ -28,15 +28,15 @@ spec:
       namespace: rook-ceph
   values:
     monitoring:
-      enabled: true
+      enabled: false
+      createPrometheusRules: false
     ingress:
       dashboard:
+        annotations:
         ingressClassName: internal
         host:
-          name: &host rook.davidapps.dev
+          name: rook.davidapps.dev
           path: /
-        tls:
-          - hosts: [*host]
     toolbox:
       enabled: true
     configOverride: |
@@ -48,7 +48,7 @@ spec:
       crashCollector:
         disable: false
       dashboard:
-        enabled: true
+        enabled: false
         urlPrefix: /
         ssl: false
       mgr:
@@ -192,6 +192,7 @@ spec:
               codingChunks: 1
           preservePoolsOnDelete: true
           gateway:
+            hostNetwork: false
             port: 80
             resources:
               requests:
@@ -213,10 +214,10 @@ spec:
             region: eu-east-1
         ingress:
           enabled: true
+          annotations:
+            nginx.ingress.kubernetes.io/proxy-body-size: "0"
+            nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
           ingressClassName: internal
           host:
-            name: &host rgw.davidapps.dev
+            name: rgw.davidapps.dev
             path: /
-          tls:
-            - hosts:
-                - *host
