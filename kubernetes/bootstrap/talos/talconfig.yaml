@@ -6,13 +6,13 @@ talosVersion: v1.7.5
 kubernetesVersion: v1.30.3
 
 clusterName: "romania-kube"
-endpoint: https://192.168.100.69:6443
+endpoint: https://192.168.100.169:6443
 clusterPodNets:
   - "10.69.0.0/16"
 clusterSvcNets:
   - "10.96.0.0/16"
 additionalApiServerCertSans: &sans
-  - "192.168.100.69"
+  - "192.168.100.169"
   - 127.0.0.1 # KubePrism
 additionalMachineCertSans: *sans
 
@@ -37,7 +37,7 @@ nodes:
             gateway: "192.168.100.1"
         mtu: 1500
         vip:
-          ip: "192.168.100.69"
+          ip: "192.168.100.169"
       - deviceSelector:
           hardwareAddr: "bc:24:11:c0:f4:28"
         dhcp: false
@@ -60,7 +60,7 @@ nodes:
             gateway: "192.168.100.1"
         mtu: 1500
         vip:
-          ip: "192.168.100.69"
+          ip: "192.168.100.169"
       - deviceSelector:
           hardwareAddr: "bc:24:11:2f:72:c9"
         dhcp: false
@@ -83,7 +83,7 @@ nodes:
             gateway: "192.168.100.1"
         mtu: 1500
         vip:
-          ip: "192.168.100.69"
+          ip: "192.168.100.169"
       - deviceSelector:
           hardwareAddr: "bc:24:11:35:db:15"
         dhcp: false
