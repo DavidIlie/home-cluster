@@ -27,7 +27,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: &app portainer
+  name: &app gpu-docker-https
   namespace: external-services
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
@@ -44,9 +44,20 @@ spec:
                 name: gpu-docker
                 port:
                   number: 9443
+    - host: &hosted scrypted.davidapps.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gpu-docker
+                port:
+                  number: 10443
   tls:
     - hosts:
         - *host
+        - *hosted
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -66,17 +77,6 @@ spec:
                 name: gpu-docker
                 port:
                   number: 1984
-    - host: &hosted scrypted.davidapps.dev
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: gpu-docker
-                port:
-                  number: 10443
   tls:
     - hosts:
         - *host
-        - *hosted
