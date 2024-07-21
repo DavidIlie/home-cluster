@@ -36,10 +36,8 @@ spec:
       dashboard:
         ingressClassName: internal
         host:
-          name: &host rook.davidapps.dev
+          name: rook.davidapps.dev
           path: /
-        tls:
-          - hosts: [*host]
     toolbox:
       enabled: true
     configOverride: |
@@ -63,20 +61,20 @@ spec:
         connections:
           requireMsgr2: true
       storage:
-        useAllNodes: false
-        useAllDevices: false
-        nodes:
-          - name: kube-01
-            devices:
-              - name: "sdb"
-          - name: kube-02
-            devices:
-              - name: "sdb"
-          - name: kube-03
-            devices:
-              - name: "sdb"
+        useAllNodes: true
+        useAllDevices: true
+        deviceFilter: sdb
         config:
           osdsPerDevice: "1"
+      placement:
+        mgr: &placement
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: node-role.kubernetes.io/control-plane
+                      operator: Exists
+        mon: *placement
       resources:
         mgr:
           requests:
@@ -181,46 +179,3 @@ spec:
       name: csi-ceph-filesystem
       isDefault: false
       deletionPolicy: Delete
-    cephObjectStores:
-      - name: ceph-objectstore
-        spec:
-          metadataPool:
-            failureDomain: host
-            replicated:
-              size: 3
-          dataPool:
-            failureDomain: host
-            erasureCoded:
-              dataChunks: 2
-              codingChunks: 1
-          preservePoolsOnDelete: true
-          gateway:
-            hostNetwork: false
-            port: 80
-            resources:
-              requests:
-                cpu: 100m
-                memory: 1Gi
-              limits:
-                memory: 2Gi
-            instances: 2
-            priorityClassName: system-cluster-critical
-          healthCheck:
-            bucket:
-              interval: 60s
-        storageClass:
-          enabled: true
-          name: ceph-bucket
-          reclaimPolicy: Delete
-          volumeBindingMode: Immediate
-          parameters:
-            region: eu-east-1
-        ingress:
-          enabled: true
-          ingressClassName: internal
-          host:
-            name: &host rgw.davidapps.dev
-            path: /
-          tls:
-            - hosts:
-                - *host
