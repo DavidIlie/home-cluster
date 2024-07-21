@@ -34,11 +34,12 @@ spec:
       createPrometheusRules: false
     ingress:
       dashboard:
-        annotations:
         ingressClassName: internal
         host:
-          name: rook.davidapps.dev
+          name: &host rook.davidapps.dev
           path: /
+        tls:
+          - hosts: [*host]
     toolbox:
       enabled: true
     configOverride: |
@@ -216,10 +217,10 @@ spec:
             region: eu-east-1
         ingress:
           enabled: true
-          annotations:
-            nginx.ingress.kubernetes.io/proxy-body-size: "0"
-            nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
           ingressClassName: internal
           host:
-            name: rgw.davidapps.dev
+            name: &host rgw.davidapps.dev
             path: /
+          tls:
+            - hosts:
+                - *host
