@@ -38,12 +38,12 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.100.169"
-      # - deviceSelector:
-      #     hardwareAddr: "bc:24:11:c0:f4:28"
-      #   dhcp: false
-      #   addresses:
-      #     - "192.168.25.5/24"
-      #   mtu: 1500
+      - deviceSelector:
+          hardwareAddr: "bc:24:11:c0:f4:28"
+        dhcp: false
+        addresses:
+          - "192.168.25.5/24"
+        mtu: 1500
   - hostname: "kube-02"
     ipAddress: "192.168.100.85"
     installDisk: "/dev/sda"
@@ -61,12 +61,12 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.100.169"
-      # - deviceSelector:
-      #     hardwareAddr: "bc:24:11:2f:72:c9"
-      #   dhcp: false
-      #   addresses:
-      #     - "192.168.25.6/24"
-      #   mtu: 1500
+      - deviceSelector:
+          hardwareAddr: "bc:24:11:2f:72:c9"
+        dhcp: false
+        addresses:
+          - "192.168.25.6/24"
+        mtu: 1500
   - hostname: "kube-03"
     ipAddress: "192.168.100.86"
     installDisk: "/dev/sda"
@@ -84,12 +84,12 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.100.169"
-      # - deviceSelector:
-      #     hardwareAddr: "bc:24:11:35:db:15"
-      #   dhcp: false
-      #   addresses:
-      #     - "192.168.25.7/24"
-      #   mtu: 1500
+      - deviceSelector:
+          hardwareAddr: "bc:24:11:35:db:15"
+        dhcp: false
+        addresses:
+          - "192.168.25.7/24"
+        mtu: 1500
 
 # Global patches
 patches:
