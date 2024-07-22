@@ -59,9 +59,15 @@ spec:
         connections:
           requireMsgr2: true
       storage:
-        useAllNodes: true
-        useAllDevices: true
-        deviceFilter: sdb
+        useAllNodes: false
+        useAllDevices: false
+        nodes:
+          - name: kube-02
+            devices:
+              - name: "sdb"
+          - name: kube-03
+            devices:
+              - name: "sdb"
         config:
           osdsPerDevice: "1"
       resources:
