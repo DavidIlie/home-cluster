@@ -24,7 +24,7 @@ nodes:
   - hostname: "kube-01"
     ipAddress: "192.168.100.84"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/e3fab82b561b5e559cdf1c0b1e5950c0e52700b9208a2cfaa5b18454796f3a7e
+    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -47,7 +47,7 @@ nodes:
   - hostname: "kube-02"
     ipAddress: "192.168.100.85"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/e3fab82b561b5e559cdf1c0b1e5950c0e52700b9208a2cfaa5b18454796f3a7e
+    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -70,7 +70,7 @@ nodes:
   - hostname: "kube-03"
     ipAddress: "192.168.100.86"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/e3fab82b561b5e559cdf1c0b1e5950c0e52700b9208a2cfaa5b18454796f3a7e
+    talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
