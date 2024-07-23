@@ -4,5 +4,5 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   # - ./qbittorrent/ks.yaml
-  # - ./sabnzbd/ks.yaml
+  - ./sabnzbd/ks.yaml
   - ./flaresolverr/ks.yaml
