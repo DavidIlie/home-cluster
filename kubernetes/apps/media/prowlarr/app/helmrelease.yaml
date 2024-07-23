@@ -44,7 +44,7 @@ spec:
               PROWLARR__APP__INSTANCENAME: Prowlarr
               PROWLARR__SERVER__PORT: &port 80
               PROWLARR__LOG__LEVEL: info
-              PROWLARR__LOG_DBENABLED: "False"
+              PROWLARR__LOG__DBENABLED: "False"
               PROWLARR__AUTH__METHOD: External
               PROWLARR__APP__THEME: dark
               PROWLARR__AUTH__REQUIRED: DisabledForLocalAddresses
