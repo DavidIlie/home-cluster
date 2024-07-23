@@ -46,6 +46,6 @@ spec:
       music:
         type: nfs
         server: 192.168.25.3
-        path: /mnt/data/share/music
+        path: /mnt/data/share/Music
         globalMounts:
           - path: /media
