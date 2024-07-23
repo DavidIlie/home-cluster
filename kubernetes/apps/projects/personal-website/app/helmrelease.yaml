@@ -36,9 +36,9 @@ spec:
             image:
               repository: ghcr.io/onedr0p/postgres-init
               tag: 16
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
-                  name: personal-website-secret
+                  name: &envFrom personal-website-secret
         containers:
           app:
             image:
