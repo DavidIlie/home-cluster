@@ -31,6 +31,18 @@ spec:
       port: 5000
       protocol: TCP
       targetPort: 5000
+    - name: pterodactyl-wings
+      port: 443
+      protocol: TCP
+      targetPort: 443
+    - name: apiuber
+      port: &port 4567
+      protocol: TCP
+      targetPort: *port
+    - name: dynmap
+      port: &port 8123
+      protocol: TCP
+      targetPort: *port
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -110,3 +122,68 @@ spec:
         - *host
         - *plex
         - *frigate
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pterodactyl-wings
+  namespace: external-services
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+  labels:
+    app.kubernetes.io/name: pterodactyl-wings
+    app.kubernetes.io/instance: pterodactyl-wings
+spec:
+  ingressClassName: external
+  rules:
+    - host: &host wings.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gpu-docker
+                port:
+                  number: 443
+  tls:
+    - hosts:
+        - *host
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: davidapps-smp
+  namespace: external-services
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+  labels:
+    app.kubernetes.io/name: davidapps-smp
+    app.kubernetes.io/instance: davidapps-smp
+spec:
+  ingressClassName: external
+  rules:
+    - host: &host uberapi.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gpu-docker
+                port:
+                  number: 4567
+    - host: &map map.${SECRET_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gpu-docker
+                port:
+                  number: 8123
+  tls:
+    - hosts:
+        - *host
+        - *map

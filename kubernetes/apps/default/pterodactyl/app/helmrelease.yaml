@@ -1,0 +1,105 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &app pterodactyl
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  dependsOn:
+    - name: dragonfly-operator
+      namespace: database
+    - name: mariadb
+      namespace: database
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  values:
+    controllers:
+      pterodactyl:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/pterodactyl/panel
+              tag: v1.11.7@sha256:0a0b94df1e00de30bd3365de5dcc732c0e28c72a6a25d4a8da4560cc83dadbbb
+            env:
+              DB_HOST: mariadb.database.svc.cluster.local
+              DB_PORT: 3306
+              DB_DATABASE: "panel"
+              DB_USERNAME: "pterodactyl"
+              DB_PASSWORD: ${PTERODACTYL_MARIADB_PASSWORD}
+              REDIS_HOST: dragonfly.database.svc.cluster.local
+              CACHE_DRIVER: "redis"
+              SESSION_DRIVER: "redis"
+              QUEUE_DRIVER: "redis"
+              APP_URL: "https://panel.${SECRET_DOMAIN}"
+              APP_ENV: "production"
+              APP_ENVIRONMENT_ONLY: "false"
+              APP_TIMEZONE: Europe/Bucharest
+              APP_SERVICE_AUTHOR: ${SECRET_ACME_EMAIL}
+              TRUSTED_PROXIES: "*"
+            resources:
+              requests:
+                cpu: 50m
+                memory: 300M
+              limits:
+                memory: 500M
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: 80
+    ingress:
+      app:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: external.${SECRET_DOMAIN}
+          nginx.ingress.kubernetes.io/enable-cors: "true"
+          nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, OPTIONS"
+          nginx.ingress.kubernetes.io/cors-allow-headers: "*"
+          nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+          nginx.ingress.kubernetes.io/cors-max-age: "100"
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            more_set_input_headers X-Forwarded-Proto "https";
+            more_set_headers X-Forwarded-Proto "https";
+        hosts:
+          - host: &host "panel.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts: [*host]
+    persistence:
+      data:
+        enabled: true
+        existingClaim: *app
+        advancedMounts:
+          pterodactyl:
+            app:
+              - subPath: "data"
+                path: "/app/var"
+              - subPath: "nginx"
+                path: "/etc/nginx/http.d"
+              - subPath: "logs"
+                path: "/app/storage/logs"

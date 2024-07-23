@@ -6,5 +6,4 @@ resources:
   - ./proxmox.yaml
   - ./homeassistant.yaml
   - ./truenas.yaml
-  - ./pterodactyl.yaml
   - ./gpu-docker.yaml
