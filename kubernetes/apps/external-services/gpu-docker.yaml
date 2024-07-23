@@ -27,6 +27,10 @@ spec:
       port: 32400
       protocol: TCP
       targetPort: 32400
+    - name: frigate
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -91,7 +95,18 @@ spec:
                 name: gpu-docker
                 port:
                   number: 32400
+    - host: &frigate frigate.davidapps.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gpu-docker
+                port:
+                  number: 5000
   tls:
     - hosts:
         - *host
         - *plex
+        - *frigate
