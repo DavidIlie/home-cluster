@@ -1,0 +1,89 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: personal-website
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  values:
+    controllers:
+      personal-website:
+        pod:
+          imagePullSecrets:
+            - name: docker-regcred
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16
+            envFrom: &envFrom
+              - secretRef:
+                  name: personal-website-secret
+        containers:
+          app:
+            image:
+              repository: ghcr.io/davidilie/portfolio-davidilie # {"$imagepolicy": "flux-system:personal-website:name"}
+              tag: version6-987a8b18-1717355161 # {"$imagepolicy": "flux-system:personal-website:tag"}
+            envFrom:
+              - secretRef:
+                  name: *envFrom
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              seccompProfile:
+                type: RuntimeDefault
+            resources:
+              requests:
+                cpu: 10m
+                memory: 10Mi
+              limits:
+                memory: 800Mi
+    service:
+      app:
+        controller: personal-website
+        ports:
+          http:
+            port: 3000
+    ingress:
+      app:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        hosts:
+          - host: &host "davidilie.com"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+          - host: &hostwww "www.davidilie.com"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
+              - *hostwww
