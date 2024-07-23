@@ -23,7 +23,7 @@ cniConfig:
 nodes:
   - hostname: "kube-01"
     ipAddress: "192.168.100.84"
-    installDisk: "/dev/sda"
+    installDisk: "/dev/nvme0n1"
     talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     controlPlane: true
     networkInterfaces:
@@ -46,7 +46,7 @@ nodes:
         mtu: 1500
   - hostname: "kube-02"
     ipAddress: "192.168.100.85"
-    installDisk: "/dev/sda"
+    installDisk: "/dev/vda"
     talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     controlPlane: true
     networkInterfaces:
@@ -69,7 +69,7 @@ nodes:
         mtu: 1500
   - hostname: "kube-03"
     ipAddress: "192.168.100.86"
-    installDisk: "/dev/sda"
+    installDisk: "/dev/vda"
     talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     controlPlane: true
     networkInterfaces:
@@ -115,4 +115,3 @@ controlPlane:
     - "@./patches/controller/cluster.yaml"
     - "@./patches/controller/disable-admission-controller.yaml"
     - "@./patches/controller/etcd.yaml"
-
