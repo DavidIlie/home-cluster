@@ -5,7 +5,7 @@ resources:
   - ./namespace.yaml
   - ./nfs-pvc.yaml
   - ./tautulli/ks.yaml
-  - ./prowlarr/ks.yaml
-  - ./radarr/ks.yaml
-  - ./sonarr/ks.yaml
+  # - ./prowlarr/ks.yaml
+  # - ./radarr/ks.yaml
+  # - ./sonarr/ks.yaml
   - ./overseerr/ks.yaml
