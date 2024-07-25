@@ -89,6 +89,6 @@ spec:
       config:
         type: nfs
         server: 192.168.25.3
-        path: /mnt/data/minio
+        path: /mnt/ssds/minio
         globalMounts:
           - path: /data
