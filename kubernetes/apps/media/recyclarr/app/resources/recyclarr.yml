@@ -16,18 +16,13 @@ sonarr:
       - template: sonarr-v4-quality-profile-web-2160p
 
     quality_profiles:
-      - name: RemuxOrBluray-1080p
+      - name: Remux-1080p
         reset_unmatched_scores:
           enabled: true
-        upgrade:
-          allowed: true
-          until_quality: Bluray-1080p Remux
-          until_score: 10000
-        min_format_score: 10
+        min_format_score: 0
         quality_sort: top
         qualities:
           - name: Bluray-1080p Remux
-            qualities: ["Bluray-1080p Remux", "Bluray-1080p"]
       - name: ANY
         reset_unmatched_scores:
           enabled: true
@@ -157,7 +152,6 @@ sonarr:
           - d0c516558625b04b363fa6c5c2c7cfd4 # WEB Scene
         quality_profiles:
           - name: WEB-1080p
-          - name: RemuxOrBluray-1080p
 
       - trash_ids:
           - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
