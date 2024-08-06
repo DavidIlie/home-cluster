@@ -44,6 +44,27 @@ spec:
       protocol: TCP
       targetPort: *port
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app davidapps-smp
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.17
+  ports:
+    - name: apiuber
+      port: &port 4567
+      protocol: TCP
+      targetPort: *port
+    - name: dynmap
+      port: &port 8123
+      protocol: TCP
+      targetPort: *port
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -170,7 +191,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: gpu-docker
+                name: davidapps-smp
                 port:
                   number: 4567
     - host: &map map.${SECRET_DOMAIN}
@@ -180,7 +201,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: gpu-docker
+                name: davidapps-smp
                 port:
                   number: 8123
   tls:
