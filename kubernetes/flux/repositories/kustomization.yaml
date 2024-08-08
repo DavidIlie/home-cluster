@@ -5,4 +5,4 @@ resources:
   - ./git
   - ./helm
   - ./oci
-  - ./secret.sops.yaml
+  - ./image/secret.sops.yaml
