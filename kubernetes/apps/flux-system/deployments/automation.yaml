@@ -18,9 +18,6 @@ spec:
         email: davidilie@users.noreply.github.com
         name: davidilie
       messageTemplate: "chore(image): {{range .Updated.Images}}{{println .}}{{end}}"
-      signingKey:
-        secretRef:
-          name: github-deploy-key
     push:
       branch: main
   update:
