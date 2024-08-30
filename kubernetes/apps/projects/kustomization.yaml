@@ -7,3 +7,4 @@ resources:
   - ./personal-dashboard/ks.yaml
   - ./personal-website/ks.yaml
   - ./uber-item-viewer/ks.yaml
+  - ./worklog/ks.yaml
