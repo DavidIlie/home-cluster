@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/worklog
-              tag: master-fc0e9163-1725026371
+              tag: master-7e2308f7-1725030941
             envFrom:
               - secretRef:
                   name: worklog-secret
