@@ -76,7 +76,7 @@ spec:
       dashboard:
         className: internal
         hosts:
-          - host: &minio "minio-workroad.davidpps.dev"
+          - host: &minio "minio-workroad.davidapps.dev"
             paths:
               - path: /
                 service:
