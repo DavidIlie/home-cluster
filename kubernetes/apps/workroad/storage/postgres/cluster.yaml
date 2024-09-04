@@ -34,11 +34,11 @@ spec:
       wal:
         compression: bzip2
         maxParallel: 8
-      destinationPath: s3://postgres-backups/
-      endpointURL: http://cdn-hdd.default.svc.cluster.local:9000
+      destinationPath: s3://cloudnative-pg/
+      endpointURL: http://192.168.25.3:9000
       # Note: serverName version needs to be inclemented
       # when recovering from an existing cnpg cluster
-      serverName: &currentCluster workroad-postgres16
+      serverName: &currentCluster workroad-postgres
       s3Credentials:
         accessKeyId:
           name: workroad-pg-secret

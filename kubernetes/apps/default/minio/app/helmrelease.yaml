@@ -72,12 +72,6 @@ spec:
                 service:
                   identifier: app
                   port: s3
-          - host: &cdn "cdn.workroad.app"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: s3
       minio:
         className: internal
         hosts:
