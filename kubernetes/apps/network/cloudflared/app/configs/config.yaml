@@ -12,3 +12,8 @@ ingress:
   - hostname: "*.davidilie.com"
     service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
   - service: http_status:404
+
+  - hostname: "workroad.app"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+  - hostname: "*.workroad.app"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
