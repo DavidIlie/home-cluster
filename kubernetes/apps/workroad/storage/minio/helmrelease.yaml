@@ -39,7 +39,8 @@ spec:
             env:
               TZ: Europe/Bucharest
               MINIO_UPDATE: "off"
-              MINIO_BROWSER_REDIRECT_URL: https://minio.workroad.app
+              MINIO_BROWSER_REDIRECT: "false"
+              MINIO_BROWSER_REDIRECT_URL: https://minio-workroad.davidpps.dev
               MINIO_SERVER_URL: https://cdn.workroad.app
               MINIO_API_CORS_ALLOW_ORIGIN: "*"
             envFrom:
