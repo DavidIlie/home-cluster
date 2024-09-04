@@ -50,7 +50,7 @@ metadata:
   name: &app workroad-minio
   namespace: flux-system
 spec:
-  targetNamespace: default
+  targetNamespace: workroad
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
