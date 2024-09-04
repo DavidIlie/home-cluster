@@ -72,7 +72,7 @@ spec:
                 service:
                   identifier: app
                   port: s3
-      minio:
+      dashboard:
         className: internal
         hosts:
           - host: &minio "minio-workroad.davidpps.dev"
