@@ -11,7 +11,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: dragonfly
-  path: ./kubernetes/apps/workroad/storage/redis
+  path: ./kubernetes/apps/workroad/storage/dragonfly
   prune: true
   sourceRef:
     kind: GitRepository
