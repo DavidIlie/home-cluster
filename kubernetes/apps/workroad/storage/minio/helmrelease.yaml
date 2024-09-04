@@ -75,7 +75,7 @@ spec:
       minio:
         className: internal
         hosts:
-          - host: &minio "minio.workroad.app"
+          - host: &minio "minio-workroad.davidpps.dev"
             paths:
               - path: /
                 service:
