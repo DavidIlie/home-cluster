@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./minio/ks.yaml
+  - ./minio-hdd/ks.yaml
   - ./minimserver/ks.yaml
   - ./pterodactyl/ks.yaml
   - ./excalidraw/ks.yaml
