@@ -71,8 +71,8 @@ spec:
         password: DB_password
         username: DB_username
         database: DB_database
-        port: DB_port
-        host: DB_host
+      port: 5432
+      host: postgres16-rw.database.svc.cluster.local
     redis:
       enabled: false
     externalRedis:
