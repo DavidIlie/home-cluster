@@ -68,7 +68,7 @@ spec:
       clickhouse:
         persistentVolumeClaim:
           dataPersistentVolume:
-            storage: 6Gi
+            storage: 5Gi
     memcached:
       extraEnvVarsCM: sentry-sentry-custom-memcached
     postgresql:
