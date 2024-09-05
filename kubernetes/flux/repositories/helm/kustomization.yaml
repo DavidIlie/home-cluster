@@ -20,3 +20,4 @@ resources:
   - ./bitnami.yaml
   - ./sentry.yaml
   - ./sentry-custom.yaml
+  - ./pascaliske.yaml

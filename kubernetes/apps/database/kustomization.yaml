@@ -7,3 +7,4 @@ resources:
   - ./cloudnative-pg/ks.yaml
   - ./dragonfly/ks.yaml
   - ./mariadb/ks.yaml
+  - ./clickhouse/ks.yaml
