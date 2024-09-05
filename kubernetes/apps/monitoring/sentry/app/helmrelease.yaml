@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: sentry
-      version: 25.2.2
+      version: 25.3.0
       sourceRef:
         kind: HelmRepository
         name: sentry
@@ -44,8 +44,6 @@ spec:
       public: true
     sourcemaps:
       enabled: true
-    symbolicator:
-      enabled: false
     auth:
       register: false
     nginx:
@@ -80,26 +78,17 @@ spec:
     externalRedis:
       host: "dragonfly.database.svc.cluster.local"
       port: 6379
-    clickhouse:
-      enabled: false
-    externalClickhouse:
-      host: "clickhouse.database.svc.cluster.local"
-      tcpPort: 9000
-      httpPort: 8123
-      username: default
-      password: ""
-      database: sentry
-      singleNode: true
+    # clickhouse:
+    #   enabled: false
+    # externalClickhouse:
+    #   host: "clickhouse.database.svc.cluster.local"
+    #   tcpPort: 9000
+    #   httpPort: 8123
+    #   username: default
+    #   password: ""
+    #   database: sentry
+    #   singleNode: true
     rabbitmq:
       enabled: false
-    zookeeper:
-      enabled: false
-    kafka:
-      zookeeper:
-        enabled: false
-      kraft:
-        enabled: true
     metrics:
-      enabled: true
-      serviceMonitor:
-        enabled: false
+      enabled: false
