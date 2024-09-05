@@ -7,4 +7,3 @@ resources:
   - ./homeassistant.yaml
   - ./truenas.yaml
   - ./gpu-docker.yaml
-  - ./monitoring.yaml
