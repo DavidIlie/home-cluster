@@ -25,7 +25,7 @@ spec:
   values:
     user:
       create: true
-      username: "david@davidapps.dev"
+      email: "david@davidapps.dev"
       existingSecret: sentry-secret
       existingSecretKey: password
       # this is required on the first installation, as sentry has to be initialized first
