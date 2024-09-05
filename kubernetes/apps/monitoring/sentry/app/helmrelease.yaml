@@ -35,6 +35,12 @@ spec:
       asHook: true
     hooks:
       activeDeadlineSeconds: 1000
+      dbCheck:
+        enabled: true
+      dbInit:
+        enabled: true
+      snubaInit:
+        enabled: true
     sentry:
       existingSecret: sentry-secret
       existingSecretKey: sentry-secret-key
