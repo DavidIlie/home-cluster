@@ -8,6 +8,7 @@ spec:
   interval: 1m
   chart:
     spec:
+      timeout: 30m
       chart: sentry
       version: 25.3.0
       sourceRef:
@@ -34,7 +35,7 @@ spec:
       # deploys relay & snuba consumers as post hooks
       asHook: true
     hooks:
-      activeDeadlineSeconds: 1000
+      activeDeadlineSeconds: 3600
       dbCheck:
         enabled: true
       dbInit:
