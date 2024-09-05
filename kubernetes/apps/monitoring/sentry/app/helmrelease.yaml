@@ -51,7 +51,7 @@ spec:
     nginx:
       enabled: false
     ingress:
-      enabled: false
+      enabled: true
       hostname: &host "sentry.davidapps.dev"
       ingressClassName: external
       annotations:
