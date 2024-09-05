@@ -19,3 +19,4 @@ resources:
   - ./cloudnative-pg.yaml
   - ./bitnami.yaml
   - ./sentry.yaml
+  - ./sentry-custom.yaml
