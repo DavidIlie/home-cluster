@@ -8,11 +8,11 @@ spec:
   interval: 1m
   chart:
     spec:
-      chart: sentry
+      chart: sentry-custom
       version: 21.3.2
       sourceRef:
         kind: HelmRepository
-        name: sentry
+        name: sentry-custom
         namespace: flux-system
       interval: 15m
   install:
