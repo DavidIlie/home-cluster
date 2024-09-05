@@ -20,4 +20,6 @@ spec:
     env:
       - name: TZ
         value: Europe/Bucharest
+    persistentVolumeClaim:
+      size: "5Gi"
   interval: 10m0s
