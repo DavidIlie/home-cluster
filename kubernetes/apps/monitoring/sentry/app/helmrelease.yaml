@@ -52,7 +52,7 @@ spec:
       enabled: true
       hostname: &host "sentry.davidapps.dev"
       annotations:
-        kubernetes.io/ingress.class: external
+        kubernetes.io/ingress.class: "external"
         external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
       tls:
         - hosts:
