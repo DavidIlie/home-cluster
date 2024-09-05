@@ -20,6 +20,7 @@ spec:
     env:
       - name: TZ
         value: Europe/Bucharest
+    # LEARN how to automatically create the databases
     configMap:
       files:
         create-databases.sql: |
