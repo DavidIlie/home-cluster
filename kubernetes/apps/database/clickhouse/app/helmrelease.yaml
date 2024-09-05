@@ -20,16 +20,4 @@ spec:
     env:
       - name: TZ
         value: Europe/Bucharest
-    configMap:
-      files:
-        # temporary fix for plausible <-> clickhouse 24.2 support
-        # https://togithub.com/plausible/analytics/issues/3855
-        clickhouse-user-config.xml: |
-          <clickhouse>
-              <profiles>
-                  <default>
-                      <query_plan_optimize_prewhere>0</query_plan_optimize_prewhere>
-                  </default>
-              </profiles>
-          </clickhouse>
   interval: 10m0s
