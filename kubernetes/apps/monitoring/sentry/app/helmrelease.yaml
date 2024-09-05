@@ -81,12 +81,12 @@ spec:
     clickhouse:
       enabled: false
     externalClickhouse:
-      host: "clickhouse-0.clickhouse-headless.database.svc.cluster.local"
+      host: "clickhouse.database.svc.cluster.local"
       tcpPort: 9000
       httpPort: 8123
       username: default
       password: ""
-      database: default
+      database: sentry
       singleNode: true
     rabbitmq:
       enabled: false
