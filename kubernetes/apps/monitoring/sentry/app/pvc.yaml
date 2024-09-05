@@ -5,7 +5,7 @@ metadata:
   name: sentry-filestore-rwx
   namespace: monitoring
 spec:
-  accessModes: ["ReadWriteMany"]
+  accessModes: ["ReadWriteOnce"]
   resources:
     requests:
       storage: 10Gi

@@ -62,7 +62,7 @@ spec:
         persistence:
           enabled: true
           existingClaim: sentry-filestore-rwx
-          accessMode: ReadWriteMany
+          accessMode: ReadWriteOnce
     clickhouse:
       singleNode: true
       clickhouse:
