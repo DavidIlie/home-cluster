@@ -63,12 +63,6 @@ spec:
           enabled: true
           existingClaim: sentry-filestore-rwx
           accessMode: ReadWriteOnce
-    clickhouse:
-      singleNode: true
-      clickhouse:
-        persistentVolumeClaim:
-          dataPersistentVolume:
-            storage: 5Gi
     postgresql:
       enabled: false
     externalPostgresql:
@@ -84,6 +78,16 @@ spec:
     externalRedis:
       host: "dragonfly.database.svc.cluster.local"
       port: 6379
+    clickhouse:
+      enabled: false
+    externalClickhouse:
+      host: "clickhouse-0.clickhouse-headless.database.svc.cluster.local"
+      tcpPort: 9000
+      httpPort: 8123
+      username: default
+      password: ""
+      database: default
+      singleNode: true
     rabbitmq:
       enabled: false
     zookeeper:
