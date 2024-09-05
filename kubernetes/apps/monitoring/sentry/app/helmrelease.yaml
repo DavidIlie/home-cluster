@@ -1,0 +1,96 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: sentry
+  namespace: work
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: sentry-custom
+      version: 21.3.2
+      sourceRef:
+        kind: HelmRepository
+        name: sentry-custom
+        namespace: flux-system
+      interval: 15m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 0
+  upgrade:
+    remediation:
+      retries: 0
+  values:
+    user:
+      create: true
+      username: "david@davidapps.dev"
+      existingSecret: sentry-secret
+      existingSecretKey: password
+      # this is required on the first installation, as sentry has to be initialized first
+      # recommended to set false for updating the helm chart afterwards,
+      # as you will have some downtime on each update if it's a hook
+      # deploys relay & snuba consumers as post hooks
+      asHook: true
+    sentry:
+      existingSecret: sentry-secret
+      existingSecretKey: sentry-secret-key
+    system:
+      url: "https://sentry.davidapps.dev"
+      adminEmail: "david@davidapps.dev"
+      public: true
+    sourcemaps:
+      enabled: true
+    symbolicator:
+      enabled: false
+    auth:
+      register: false
+    nginx:
+      enabled: false
+    ingress:
+      enabled: true
+      hostname: &host "sentry.davidapps.dev"
+      className: external
+      annotations:
+        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+      tls:
+        - hosts:
+            - *host
+    filestore:
+      filesystem:
+        persistence:
+          enabled: true
+          existingClaim: sentry-filestore-rwx
+          accessMode: ReadWriteMany
+    clickhouse:
+      singleNode: true
+      clickhouse:
+        persistentVolumeClaim:
+          dataPersistentVolume:
+            storage: 5Gi
+    memcached:
+      extraEnvVarsCM: sentry-sentry-custom-memcached
+    postgresql:
+      enabled: false
+    externalPostgresql:
+      existingSecret: sentry-secret
+      existingSecretKeys:
+        password: DB_password
+        username: DB_username
+        database: DB_database
+        port: DB_port
+        host: DB_host
+    rabbitmq:
+      enabled: false
+    zookeeper:
+      enabled: false
+    kafka:
+      zookeeper:
+        enabled: false
+      kraft:
+        enabled: true
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: false
