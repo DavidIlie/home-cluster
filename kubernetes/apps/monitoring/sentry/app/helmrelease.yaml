@@ -33,7 +33,7 @@ spec:
       # recommended to set false for updating the helm chart afterwards,
       # as you will have some downtime on each update if it's a hook
       # deploys relay & snuba consumers as post hooks
-      asHook: true
+      asHook: false
     hooks:
       activeDeadlineSeconds: 3600
       dbCheck:
@@ -80,11 +80,11 @@ spec:
         database: DB_database
       port: 5432
       host: postgres16-rw.database.svc.cluster.local
-    redis:
-      enabled: false
-    externalRedis:
-      host: "dragonfly.database.svc.cluster.local"
-      port: 6379
+    # redis:
+    #   enabled: false
+    # externalRedis:
+    #   host: dragonfly.database.svc.cluster.local
+    #   port: 6379
     # clickhouse:
     #   enabled: false
     # externalClickhouse:
