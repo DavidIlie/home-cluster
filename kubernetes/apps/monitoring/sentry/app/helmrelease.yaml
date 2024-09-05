@@ -33,6 +33,8 @@ spec:
       # as you will have some downtime on each update if it's a hook
       # deploys relay & snuba consumers as post hooks
       asHook: true
+    hooks:
+      activeDeadlineSeconds: 1000
     sentry:
       existingSecret: sentry-secret
       existingSecretKey: sentry-secret-key
@@ -49,10 +51,10 @@ spec:
     nginx:
       enabled: false
     ingress:
-      enabled: true
+      enabled: false
       hostname: &host "sentry.davidapps.dev"
+      ingressClassName: external
       annotations:
-        kubernetes.io/ingress.class: "external"
         external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
       tls:
         - hosts:
@@ -61,8 +63,8 @@ spec:
       filesystem:
         persistence:
           enabled: true
-          existingClaim: sentry-filestore-rwx
-          accessMode: ReadWriteOnce
+          existingClaim: sentry-nfs
+          accessMode: ReadWriteMany
     postgresql:
       enabled: false
     externalPostgresql:

@@ -20,6 +20,19 @@ spec:
     env:
       - name: TZ
         value: Europe/Bucharest
+    configMap:
+      files:
+        clickhouse-user-config.xml: |
+          <clickhouse>
+              <profiles>
+                  <default>
+                      <query_plan_optimize_prewhere>0</query_plan_optimize_prewhere>
+                  </default>
+              </profiles>
+          </clickhouse>
+        create-databases.sql: |
+          CREATE DATABASE IF NOT EXISTS sentry;
+          CREATE DATABASE IF NOT EXISTS plausible;
     persistentVolumeClaim:
       size: "5Gi"
   interval: 10m0s
