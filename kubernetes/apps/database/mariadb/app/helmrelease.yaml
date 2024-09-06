@@ -26,12 +26,9 @@ spec:
     auth:
       rootPassword: "${MARIADB_ROOT_PASSWORD}"
     metrics:
-      enabled: true
-      resourcesPreset: small
-      serviceMonitor:
-        enabled: true
+      enabled: false
     primary:
-      resourcesPreset: small
+      resourcesPreset: none
       persistence:
         enabled: true
         existingClaim: mariadb-pvc
