@@ -1,9 +1,11 @@
 ---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1.json
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: bjw-s
+  name: bernd-schorgers
   namespace: flux-system
 spec:
+  type: oci
   interval: 5m
-  url: https://bernd-schorgers.github.io/helm-charts/
+  url: oci://ghcr.io/bernd-schorgers/helm
