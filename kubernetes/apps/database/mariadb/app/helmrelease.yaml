@@ -28,7 +28,7 @@ spec:
     metrics:
       enabled: false
     primary:
-      resourcesPreset: none
+      resourcesPreset: medium
       persistence:
         enabled: true
         existingClaim: mariadb-pvc
