@@ -18,6 +18,3 @@ resources:
   - ./rook-ceph.yaml
   - ./cloudnative-pg.yaml
   - ./bitnami.yaml
-  - ./sentry.yaml
-  - ./sentry-custom.yaml
-  - ./pascaliske.yaml
