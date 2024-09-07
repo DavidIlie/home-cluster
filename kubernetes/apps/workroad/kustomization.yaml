@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./docker.sops.yaml
-  # - ./storage/ks.yaml
+  - ./storage/ks.yaml
