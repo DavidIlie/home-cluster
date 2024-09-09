@@ -113,7 +113,7 @@ spec:
             port: 8000
     ingress:
       plausible:
-        enabled: false
+        enabled: true
         className: external
         hosts:
           - host: &app plausible.davidapps.dev
