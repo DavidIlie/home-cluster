@@ -26,7 +26,7 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      workroad-production:
+      workroad:
         pod:
           imagePullSecrets:
             - name: docker-regcred
@@ -44,7 +44,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: {drop: ["ALL"]}
+              capabilities: { drop: ["ALL"] }
               seccompProfile:
                 type: RuntimeDefault
             resources:
@@ -55,7 +55,7 @@ spec:
                 memory: 800Mi
     service:
       app:
-        controller: worklog
+        controller: workroad
         ports:
           http:
             port: 3000
