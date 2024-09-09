@@ -8,4 +8,4 @@ resources:
   - ./pterodactyl/ks.yaml
   - ./excalidraw/ks.yaml
   - ./kms/ks.yaml
-  # - ./plausible/ks.yaml
+  - ./plausible/ks.yaml

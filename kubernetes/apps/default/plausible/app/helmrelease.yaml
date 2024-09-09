@@ -18,8 +18,6 @@ spec:
   driftDetection:
     mode: enabled
   dependsOn:
-    - name: cloudnative-pg-cluster
-      namespace: database
     - name: plausible-clickhouse
       namespace: default
     - name: rook-ceph-cluster
