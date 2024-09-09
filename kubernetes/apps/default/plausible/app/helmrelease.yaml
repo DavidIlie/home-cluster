@@ -13,10 +13,17 @@ spec:
       sourceRef:
         kind: HelmRepository
         namespace: flux-system
-        name: bjw-s
+        name: bernd-schorgers
   interval: 1h
   driftDetection:
     mode: enabled
+  dependsOn:
+    - name: cloudnative-pg-cluster
+      namespace: database
+    - name: plausible-clickhouse
+      namespace: default
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   values:
     controllers:
       plausible:
