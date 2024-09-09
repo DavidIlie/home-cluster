@@ -68,15 +68,15 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /var/log
-      config:
-        enabled: true
-        type: configMap
-        name: clickhouse-config
-        globalMounts:
-          - path: /etc/clickhouse-server/config.d/logging.xml
-            subPath: config.xml
-          - path: /etc/clickhouse-server/users.d/logging.xml
-            subPath: users.xml
+      # config:
+      #   enabled: true
+      #   type: configMap
+      #   name: clickhouse-config
+      #   globalMounts:
+      #     - path: /etc/clickhouse-server/config.d/logging.xml
+      #       subPath: config.xml
+      #     - path: /etc/clickhouse-server/users.d/logging.xml
+      #       subPath: users.xml
     configMaps:
       config:
         enabled: true
