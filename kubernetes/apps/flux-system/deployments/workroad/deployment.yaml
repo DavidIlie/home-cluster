@@ -2,11 +2,11 @@
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
-  name: worklog
+  name: workroad
   namespace: flux-system
 spec:
   imageRepositoryRef:
-    name: worklog
+    name: workroad
   filterTags:
     pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
     extract: "$ts"
@@ -17,10 +17,10 @@ spec:
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
-  name: worklog
+  name: workroad
   namespace: flux-system
 spec:
-  image: ghcr.io/davidilie/worklog
+  image: ghcr.io/davidilie/workroad
   interval: 1m0s
   secretRef:
     name: docker-regcred

@@ -7,4 +7,4 @@ resources:
   - ./personal-dashboard/deployment.yaml
   - ./personal-website/deployment.yaml
   - ./uber-item-viewer/deployment.yaml
-  - ./worklog/deployment.yaml
+  - ./workroad/deployment.yaml
