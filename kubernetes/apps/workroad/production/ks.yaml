@@ -2,14 +2,14 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app worklog
+  name: &app workroad-production
   namespace: flux-system
 spec:
   targetNamespace: projects
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/projects/worklog/app
+  path: ./kubernetes/apps/projects/workroad-production/app
   prune: true
   sourceRef:
     kind: GitRepository

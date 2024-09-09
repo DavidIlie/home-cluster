@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: worklog
+  name: workroad-production
 spec:
   interval: 30m
   chart:
@@ -26,7 +26,7 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      worklog:
+      workroad-production:
         pod:
           imagePullSecrets:
             - name: docker-regcred
@@ -36,11 +36,11 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/davidilie/worklog
-              tag: master-5f70f615-1725031438
+              repository: ghcr.io/davidilie/workroad-production
+              tag: master-342defa0-1725840656
             envFrom:
               - secretRef:
-                  name: worklog-secret
+                  name: workroad-production-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -65,7 +65,13 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
         hosts:
-          - host: &host "worklog.davidapps.dev"
+          - host: &host "workroad.app"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+          - host: &hostwww "www.workroad.app"
             paths:
               - path: /
                 service:
@@ -74,3 +80,4 @@ spec:
         tls:
           - hosts:
               - *host
+              - *hostwww
