@@ -36,7 +36,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/davidilie/workroad-production # {"$imagepolicy": "flux-system:workroad:name"}
+              repository: ghcr.io/davidilie/workroad # {"$imagepolicy": "flux-system:workroad:name"}
               tag: master-342defa0-1725840656 # {"$imagepolicy": "flux-system:workroad:tag"}
             envFrom:
               - secretRef:
@@ -44,7 +44,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
               seccompProfile:
                 type: RuntimeDefault
             resources:
