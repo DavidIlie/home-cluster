@@ -44,15 +44,13 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: {drop: ["ALL"]}
+              capabilities: { drop: ["ALL"] }
               seccompProfile:
                 type: RuntimeDefault
             resources:
               requests:
-                cpu: 10m
-                memory: 10Mi
-              limits:
-                memory: 800Mi
+                cpu: 1000m
+                memory: 1000Mi
     service:
       app:
         controller: workroad
