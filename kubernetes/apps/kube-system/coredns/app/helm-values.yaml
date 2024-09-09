@@ -14,6 +14,7 @@ servers:
     port: 53
     plugins:
       - name: errors
+      - name: log
       - name: health
         configBlock: |-
           lameduck 5s
