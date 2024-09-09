@@ -41,6 +41,9 @@ spec:
               GEOIPUPDATE_PRESERVE_FILE_TIMES: "1"
               GEOIPUPDATE_EDITION_IDS: GeoLite2-City
               GEOIPUPDATE_ACCOUNT_ID: "1"
+            envFrom:
+              - secretRef:
+                  name: plausible-envs
             securityContext:
               readOnlyRootFilesystem: true
             probes:
