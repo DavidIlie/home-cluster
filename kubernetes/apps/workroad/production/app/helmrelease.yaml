@@ -43,8 +43,8 @@ spec:
                   name: workroad-production-secret
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: {drop: ["ALL"]}
+              readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
               seccompProfile:
                 type: RuntimeDefault
             resources:
