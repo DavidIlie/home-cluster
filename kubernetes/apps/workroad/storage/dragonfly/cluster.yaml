@@ -15,11 +15,11 @@ spec:
           divisor: 1Mi
   args:
     - --maxmemory=$(MAX_MEMORY)Mi
-    - --proactor_threads=2
+    - --proactor_threads=8
     - --cluster_mode=emulated
     - --lock_on_hashtags
   resources:
     requests:
       cpu: 100m
     limits:
-      memory: 512Mi
+      memory: 4096Mi
