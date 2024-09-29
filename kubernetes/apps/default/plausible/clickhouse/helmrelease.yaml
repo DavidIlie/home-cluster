@@ -59,7 +59,7 @@ spec:
         enabled: true
         storageClass: ceph-block
         accessMode: ReadWriteOnce
-        size: 2Gi
+        size: 10Gi
         retain: true
         globalMounts:
           - path: /var/lib/clickhouse
