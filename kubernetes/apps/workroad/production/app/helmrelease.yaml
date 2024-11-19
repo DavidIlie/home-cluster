@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/workroad # {"$imagepolicy": "flux-system:workroad:name"}
-              tag: master-2b8a153b-1732029643 # {"$imagepolicy": "flux-system:workroad:tag"}
+              tag: master-e29b1e6b-1732030601 # {"$imagepolicy": "flux-system:workroad:tag"}
             envFrom:
               - secretRef:
                   name: workroad-production-secret
