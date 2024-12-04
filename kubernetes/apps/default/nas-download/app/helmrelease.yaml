@@ -1,56 +1,40 @@
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: nas-download
 spec:
-  interval: 30m
   chart:
     spec:
       chart: app-template
       version: 3.4.0
+      reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
-        name: bernd-schorgers
         namespace: flux-system
-  install:
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
+        name: bernd-schorgers
+  interval: 30m
   values:
     controllers:
       nginx:
         type: statefulset
-        annotations:
-          reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
               repository: nginx
               tag: latest
+              pullPolicy: IfNotPresent
             args:
               - nginx
               - -g
               - daemon off;
-            volumeMounts:
-              - name: data-volume
-                mountPath: /data
-            resources:
-              requests:
-                cpu: 5m
-                memory: 128Mi
-        volumes:
-          - name: data-volume
-            persistentVolumeClaim:
-              claimName: nginx-data-pvc
-        securityContext:
-          privileged: true
-          runAsUser: 0
+        pod:
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 101
+            fsGroup: 101
     service:
-      app:
+      nginx:
         controller: nginx
         ports:
           http:
@@ -71,22 +55,26 @@ spec:
           - hosts:
               - dl.${SECRET_DOMAIN}
     persistence:
-      config:
+      data:
+        enabled: true
         type: nfs
         server: 192.168.25.3
         path: /mnt/data/share/dl_facing
         globalMounts:
           - path: /data
-    config:
-      nginx.conf: |
-        server {
-            listen 80;
-            server_name public-dl.${SECRET_DOMAIN};
+    configMaps:
+      nginx-config:
+        enabled: true
+        data:
+          nginx.conf: |
+            server {
+                listen 80;
+                server_name dl.${SECRET_DOMAIN};
 
-            location / {
-                root /data;
-                autoindex on;
-                autoindex_exact_size off;
-                autoindex_localtime on;
+                location / {
+                    root /data;
+                    autoindex on;
+                    autoindex_exact_size off;
+                    autoindex_localtime on;
+                }
             }
-        }
