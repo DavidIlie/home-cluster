@@ -28,6 +28,11 @@ spec:
               - nginx
               - -g
               - daemon off;
+        pod:
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            fsGroup: 0
     service:
       nginx:
         controller: nginx
