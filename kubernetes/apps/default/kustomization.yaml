@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./minio/ks.yaml
-  # - ./nas-download/ks.yaml
+  - ./nas-download/ks.yaml
   - ./minimserver/ks.yaml
   - ./pterodactyl/ks.yaml
   - ./excalidraw/ks.yaml
