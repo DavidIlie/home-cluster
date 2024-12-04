@@ -4,3 +4,9 @@ kind: Kustomization
 namespace: default
 resources:
   - ./helmrelease.yaml
+configMapGenerator:
+  - name: nas-download-config
+    files:
+      - nginx.conf=./resources/nginx.conf
+generatorOptions:
+  disableNameSuffixHash: true
