@@ -57,6 +57,13 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp/nginx_temp
+      config:
+        enabled: true
+        type: configMap
+        name: nginx-config
+        globalMounts:
+          - path: /etc/nginx/nginx.conf
+            subPath: nginx.conf
     service:
       nginx:
         controller: nginx
@@ -105,6 +112,7 @@ spec:
                     return 404;
                 }
 
+                # Serve NAS directory and enable directory listing
                 server {
                     listen 80;
                     server_name dl.${SECRET_DOMAIN};
