@@ -7,11 +7,11 @@ spec:
   interval: 30m
   chart:
     spec:
-      chart: nginx
-      version: 18.2.6
+      chart: app-template
+      version: 3.4.0
       sourceRef:
         kind: HelmRepository
-        name: bitnami
+        name: bernd-schorgers
         namespace: flux-system
   install:
     remediation:
@@ -21,41 +21,55 @@ spec:
     remediation:
       retries: 3
   values:
-    image:
-      repository: nginx
-      tag: latest
-    replicaCount: 1
+    controllers:
+      nginx:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: nginx
+              tag: latest
+            args:
+              - nginx
+              - -g
+              - daemon off;
+            volumeMounts:
+              - name: data-volume
+                mountPath: /data
+            resources:
+              requests:
+                cpu: 5m
+                memory: 128Mi
+        volumes:
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: nginx-data-pvc
+        securityContext:
+          privileged: true
+          runAsUser: 0
     service:
-      type: ClusterIP
-      ports:
-        - port: 80
-          targetPort: http
+      app:
+        controller: nginx
+        ports:
+          http:
+            port: 80
     ingress:
-      enabled: true
-      ingressClassName: external
-      annotations:
-        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-      hosts:
-        - host: dl.${SECRET_DOMAIN}
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - hosts:
-            - dl.${SECRET_DOMAIN}
-    config:
-      defaultServerBlock: |
-        server {
-          listen 80;
-          server_name dl.${SECRET_DOMAIN};
-
-          location / {
-              root /data;
-              autoindex on;
-              autoindex_exact_size off;
-              autoindex_localtime on;
-          }
-        }
+      public:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        hosts:
+          - host: dl.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - dl.${SECRET_DOMAIN}
     persistence:
       config:
         type: nfs
@@ -63,3 +77,16 @@ spec:
         path: /mnt/data/share/dl_facing
         globalMounts:
           - path: /data
+    config:
+      nginx.conf: |
+        server {
+            listen 80;
+            server_name public-dl.${SECRET_DOMAIN};
+
+            location / {
+                root /data;
+                autoindex on;
+                autoindex_exact_size off;
+                autoindex_localtime on;
+            }
+        }
