@@ -6,5 +6,5 @@ resources:
   - ./docker.sops.yaml
   - ./personal-dashboard/ks.yaml
   - ./personal-website/ks.yaml
-  - ./uber-item-viewer/ks.yaml
   - ./freelance-network/ks.yaml
+  - ./uber-item-viewer/ks.yaml
