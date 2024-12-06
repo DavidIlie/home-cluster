@@ -38,7 +38,7 @@ spec:
               tag: master-5619f11c-1733451647 # {"$imagepolicy": "flux-system:freelance-network:tag"}
             envFrom:
               - secretRef:
-                  name: *envFrom
+                  name: freelance-network-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
