@@ -8,3 +8,4 @@ resources:
   - ./personal-website/deployment.yaml
   - ./uber-item-viewer/deployment.yaml
   - ./workroad/deployment.yaml
+  - ./freelance-network/deployment.yaml
