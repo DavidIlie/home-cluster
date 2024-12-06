@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/freelance-network # {"$imagepolicy": "flux-system:freelance-network:name"}
-              tag: master-ebabf1e0-1733455481 # {"$imagepolicy": "flux-system:freelance-network:tag"}
+              tag: master-2ccfdc1e-1733455541 # {"$imagepolicy": "flux-system:freelance-network:tag"}
             envFrom:
               - secretRef:
                   name: freelance-network-secret
