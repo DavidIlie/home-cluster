@@ -47,8 +47,8 @@ spec:
                   name: minio-secret
             resources:
               requests:
-                cpu: 5m
-                memory: 128M
+                cpu: 10m
+                memory: 1024M
             securityContext:
               privileged: true
               runAsUser: 0
