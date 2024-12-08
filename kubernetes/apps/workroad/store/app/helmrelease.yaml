@@ -41,6 +41,8 @@ spec:
             envFrom:
               - secretRef:
                   name: workroad-secret
+              - secretRef:
+                  name: workroad-store-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
