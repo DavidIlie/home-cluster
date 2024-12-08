@@ -40,7 +40,7 @@ spec:
               tag: master-a4bb8081-1733482769 # {"$imagepolicy": "flux-system:workroad:tag"}
             envFrom:
               - secretRef:
-                  name: workroad-store-secret
+                  name: workroad-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false

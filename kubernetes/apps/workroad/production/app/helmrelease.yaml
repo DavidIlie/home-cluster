@@ -41,10 +41,12 @@ spec:
             envFrom:
               - secretRef:
                   name: workroad-production-secret
+              - secretRef:
+                  name: workroad-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
-              capabilities: {drop: ["ALL"]}
+              capabilities: { drop: ["ALL"] }
               seccompProfile:
                 type: RuntimeDefault
             resources:
