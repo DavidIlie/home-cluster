@@ -37,14 +37,14 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/workroad-store # {"$imagepolicy": "flux-system:workroad-store:name"}
-              tag: master-da116687-1733620754 # {"$imagepolicy": "flux-system:workroad-store:tag"}
+              tag: master-0058dee8-1733621237 # {"$imagepolicy": "flux-system:workroad-store:tag"}
             envFrom:
               - secretRef:
                   name: workroad-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
               seccompProfile:
                 type: RuntimeDefault
             resources:
