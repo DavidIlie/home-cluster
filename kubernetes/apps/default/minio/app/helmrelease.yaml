@@ -61,6 +61,8 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          nginx.ingress.kubernetes.io/server-snippet: |
+            proxy_cache_convert_head off;
         hosts:
           - host: &cdn "cdn.${SECRET_DOMAIN}"
             paths:
