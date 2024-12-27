@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/workroad-store # {"$imagepolicy": "flux-system:workroad-store:name"}
-              tag: master-86592126-1734908708 # {"$imagepolicy": "flux-system:workroad-store:tag"}
+              tag: master-d02cd264-1735322529 # {"$imagepolicy": "flux-system:workroad-store:tag"}
             envFrom:
               - secretRef:
                   name: workroad-secret
