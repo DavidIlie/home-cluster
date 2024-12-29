@@ -66,6 +66,7 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          nginx.ingress.kubernetes.io/proxy-body-size: 150m
         hosts:
           - host: &cdn "cdn.workroad.app"
             paths:
