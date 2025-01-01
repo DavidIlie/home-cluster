@@ -8,3 +8,4 @@ resources:
   - ./storage/ks.yaml
   - ./production/ks.yaml
   - ./store/ks.yaml
+  - ./docs/ks.yaml

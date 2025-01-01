@@ -50,3 +50,29 @@ spec:
   interval: 1m0s
   secretRef:
     name: docker-regcred
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: workroad-docs
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: workroad-docs
+  filterTags:
+    pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: workroad-docs
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/workroad-docs
+  interval: 1m0s
+  secretRef:
+    name: docker-regcred
