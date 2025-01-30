@@ -85,6 +85,18 @@ spec:
                 name: docker-gpu
                 port:
                   number: 1984
+  tls:
+    - hosts:
+        - *host
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docker-gpu-external
+  namespace: external-services
+spec:
+  ingressClassName: external
+  rules:
     - host: &plex plex.davidhome.ro
       http:
         paths:
@@ -97,7 +109,6 @@ spec:
                   number: 32400
   tls:
     - hosts:
-        - *host
         - *plex
 ---
 apiVersion: networking.k8s.io/v1
