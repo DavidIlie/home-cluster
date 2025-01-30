@@ -11,3 +11,4 @@ resources:
   - ./metrics-server.yaml
   - ./prometheus-community.yaml
   - ./rook-ceph.yaml
+  - ./openebs.yaml
