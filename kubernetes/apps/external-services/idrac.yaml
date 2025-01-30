@@ -12,30 +12,9 @@ spec:
   externalName: 192.168.100.13
   ports:
     - name: http
-      port: &port 80
+      port: &port 443
       protocol: TCP
       targetPort: *port
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: idrac-nucleus
-  namespace: external-services
-spec:
-  ingressClassName: internal
-  rules:
-    - host: &host nucleus.idrac.davidhome.ro
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: idrac-nucleus
-                port:
-                  number: 80
-  tls:
-    - hosts: [*host]
 ---
 apiVersion: v1
 kind: Service
@@ -50,30 +29,9 @@ spec:
   externalName: 192.168.100.14
   ports:
     - name: http
-      port: &port 80
+      port: &port 443
       protocol: TCP
       targetPort: *port
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: idrac-electron
-  namespace: external-services
-spec:
-  ingressClassName: internal
-  rules:
-    - host: &host electron.idrac.davidhome.ro
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: idrac-electron
-                port:
-                  number: 80
-  tls:
-    - hosts: [*host]
 ---
 apiVersion: v1
 kind: Service
@@ -88,30 +46,9 @@ spec:
   externalName: 192.168.100.15
   ports:
     - name: http
-      port: &port 80
+      port: &port 443
       protocol: TCP
       targetPort: *port
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: idrac-proton
-  namespace: external-services
-spec:
-  ingressClassName: internal
-  rules:
-    - host: &host proton.idrac.davidhome.ro
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: idrac-proton
-                port:
-                  number: 80
-  tls:
-    - hosts: [*host]
 ---
 apiVersion: v1
 kind: Service
@@ -126,19 +63,51 @@ spec:
   externalName: 192.168.100.16
   ports:
     - name: http
-      port: &port 80
+      port: &port 443
       protocol: TCP
       targetPort: *port
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: idrac-neutron
+  name: idrac-ingress
   namespace: external-services
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: internal
   rules:
-    - host: &host neutron.idrac.davidhome.ro
+    - host: &host nucleus.idrac.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-nucleus
+                port:
+                  number: 443
+    - host: &host1 electron.idrac.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-electron
+                port:
+                  number: 443
+    - host: &host2 proton.idrac.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-proton
+                port:
+                  number: 443
+    - host: &host3 neutron.idrac.davidhome.ro
       http:
         paths:
           - path: /
@@ -147,6 +116,8 @@ spec:
               service:
                 name: idrac-neutron
                 port:
-                  number: 80
+                  number: 443
   tls:
-    - hosts: [*host]
+    - hosts: [*host, *host1, *host2, *host3]
+---
+
