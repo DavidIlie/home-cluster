@@ -12,7 +12,7 @@ spec:
   externalName: 192.168.25.3
   ports:
     - name: http
-      port: &port 80
+      port: &port 443
       protocol: TCP
       targetPort: *port
 ---
@@ -21,6 +21,8 @@ kind: Ingress
 metadata:
   name: truenas
   namespace: external-services
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: internal
   rules:
@@ -33,6 +35,6 @@ spec:
               service:
                 name: truenas
                 port:
-                  number: 80
+                  number: 443
   tls:
     - hosts: [*host]
