@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app proxmox-nucleus
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.56
+  ports:
+    - name: http
+      port: &port 8006
+      protocol: TCP
+      targetPort: *port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proxmox-nucleus
+  namespace: external-services
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host nucleus.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxmox-nucleus
+                port:
+                  number: 8006
+  tls:
+    - hosts: [*host]

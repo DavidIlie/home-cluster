@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app home-assistant
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.20
+  ports:
+    - name: homeassistant
+      port: 8123
+      protocol: TCP
+      targetPort: 8123
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &app home-assistant
+  namespace: external-services
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
+spec:
+  ingressClassName: external
+  rules:
+    - host: &host hass.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-assistant
+                port:
+                  number: 8123
+  tls:
+    - hosts:
+        - *host

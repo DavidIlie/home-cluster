@@ -1,0 +1,152 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app idrac-nucleus
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.13
+  ports:
+    - name: http
+      port: &port 80
+      protocol: TCP
+      targetPort: *port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-nucleus
+  namespace: external-services
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host nucleus.idrac.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-nucleus
+                port:
+                  number: 80
+  tls:
+    - hosts: [*host]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app idrac-electron
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.14
+  ports:
+    - name: http
+      port: &port 80
+      protocol: TCP
+      targetPort: *port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-electron
+  namespace: external-services
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host electron.idrac.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-electron
+                port:
+                  number: 80
+  tls:
+    - hosts: [*host]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app idrac-proton
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.15
+  ports:
+    - name: http
+      port: &port 80
+      protocol: TCP
+      targetPort: *port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-proton
+  namespace: external-services
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host proton.idrac.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-proton
+                port:
+                  number: 80
+  tls:
+    - hosts: [*host]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app idrac-neutron
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  type: ExternalName
+  externalName: 192.168.100.16
+  ports:
+    - name: http
+      port: &port 80
+      protocol: TCP
+      targetPort: *port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-neutron
+  namespace: external-services
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host neutron.idrac.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-neutron
+                port:
+                  number: 80
+  tls:
+    - hosts: [*host]
