@@ -94,6 +94,9 @@ kind: Ingress
 metadata:
   name: docker-gpu-external
   namespace: external-services
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: external
   rules:
