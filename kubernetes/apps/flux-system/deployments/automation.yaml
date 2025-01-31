@@ -7,7 +7,7 @@ spec:
   interval: 1m0s
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
     namespace: flux-system
   git:
     checkout:
