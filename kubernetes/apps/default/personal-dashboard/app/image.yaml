@@ -1,0 +1,24 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: personal-dashboard
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: personal-dashboard
+  filterTags:
+    pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: personal-dashboard
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/personal-dashboard
+  interval: 1m0s
