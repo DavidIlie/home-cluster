@@ -10,5 +10,4 @@ resources:
   - ./k8s-gateway.yaml
   - ./metrics-server.yaml
   - ./prometheus-community.yaml
-  - ./rook-ceph.yaml
   - ./openebs.yaml
