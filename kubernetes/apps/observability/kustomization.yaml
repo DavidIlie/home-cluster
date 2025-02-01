@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: observability
 resources:
   - ./prometheus-operator-crds/ks.yaml
+  - ./kube-prometheus-stack/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
