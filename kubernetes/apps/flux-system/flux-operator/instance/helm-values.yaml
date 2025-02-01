@@ -7,6 +7,7 @@ instance:
     - kustomize-controller
     - helm-controller
     - notification-controller
+    - image-automation-controller
   sync:
     kind: GitRepository
     url: "ssh://git@github.com/davidilie/home-cluster.git"
