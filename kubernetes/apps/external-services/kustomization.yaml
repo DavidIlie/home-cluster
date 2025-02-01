@@ -10,5 +10,6 @@ resources:
   - ./truenas.yaml
   - ./idrac.yaml
   - ./pifour.yaml
+  - ./grafana.yaml
 components:
   - ../../flux/components/namespace
