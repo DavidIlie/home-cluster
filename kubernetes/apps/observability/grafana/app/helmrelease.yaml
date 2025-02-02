@@ -87,70 +87,67 @@ spec:
           gnetId: 17457
           revision: 6
           datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
+            - { name: DS_PROMETHEUS, value: prometheus-davidapps-cluster }
         external-dns:
           # renovate: depName="External-dns"
           gnetId: 15038
           revision: 3
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         flux-cluster:
           url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/cluster.json
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         flux-control-plane:
           url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/control-plane.json
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         kubernetes-api-server:
           # renovate: depName="Kubernetes / System / API Server"
           gnetId: 15761
           revision: 18
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         kubernetes-coredns:
           # renovate: depName="Kubernetes / System / CoreDNS"
           gnetId: 15762
           revision: 19
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         kubernetes-global:
           # renovate: depName="Kubernetes / Views / Global"
           gnetId: 15757
           revision: 42
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         kubernetes-namespaces:
           # renovate: depName="Kubernetes / Views / Namespaces"
           gnetId: 15758
           revision: 41
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         kubernetes-nodes:
           # renovate: depName="Kubernetes / Views / Nodes"
           gnetId: 15759
           revision: 32
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         kubernetes-pods:
           # renovate: depName="Kubernetes / Views / Pods"
           gnetId: 15760
           revision: 34
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         kubernetes-volumes:
           # renovate: depName="K8s / Storage / Volumes / Cluster"
           gnetId: 11454
           revision: 14
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         miniflux:
           url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         nginx:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         nginx-request-handling-performance:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860
           revision: 37
-          datasource: Prometheus
-        node-feature-discovery:
-          url: https://raw.githubusercontent.com/kubernetes-sigs/node-feature-discovery/master/examples/grafana-dashboard.json
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
         prometheus:
           # renovate: depName="Prometheus"
           gnetId: 19105
@@ -161,7 +158,7 @@ spec:
           gnetId: 20204
           revision: 1
           datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
+            - { name: DS_PROMETHEUS, value: prometheus-davidapps-cluster }
     sidecar:
       dashboards:
         enabled: true
