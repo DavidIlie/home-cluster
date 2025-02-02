@@ -96,15 +96,15 @@ spec:
     dashboards:
       default:
         cloudflared:
-          # renovate: depName="Cloudflare Tunnels (cloudflared)"
+          # renovate: depName="Flux2"
           gnetId: 17457
           revision: 6
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-davidapps-cluster }
-        external-dns:
-          # renovate: depName="External-dns"
-          gnetId: 15038
-          revision: 3
+        flux:
+          # renovate: depName="Kubernetes / System / API Server"
+          gnetId: 16714
+          revision: 1
           datasource: prometheus-davidapps-cluster
         flux-cluster:
           url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/cluster.json
@@ -176,12 +176,12 @@ spec:
           gnetId: 19105
           revision: 6
           datasource: Prometheus
-        smart:
-          # renovate: depName="Dashboard for smartctl_exporter"
-          gnetId: 20204
-          revision: 1
-          datasource:
-            - { name: DS_PROMETHEUS, value: prometheus-davidapps-cluster }
+        smartctl:
+          # renovate: depName="SMARTctl Exporter Dashboard"
+          gnetId: 22604
+          revision: 2
+          datasource: Prometheus
+
     sidecar:
       dashboards:
         enabled: true
