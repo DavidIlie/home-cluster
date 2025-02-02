@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mrlhansen/idrac_exporter
-              tag: sha256:1ade74ea772318e7f287183746fdb3b92bdac34fb4711fbf0acd1da2b425283b
+              tag: 1.6.0@sha256:c375f50d2fd646d62cada12aa61850e00bcd46c0ea73c91f14120dfc251f5156
             envFrom:
               - secretRef:
                   name: idrac-exporter-secret
