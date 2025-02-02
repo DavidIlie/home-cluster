@@ -73,7 +73,7 @@ spec:
             uid: influxdb
             access: proxy
             url: http://192.168.100.18:8086
-            isDefault: true
+            isDefault: false
             jsonData:
               version: Flux
               organization: davidapps
