@@ -101,11 +101,6 @@ spec:
           revision: 6
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-davidapps-cluster }
-        flux:
-          # renovate: depName="Kubernetes / System / API Server"
-          gnetId: 16714
-          revision: 1
-          datasource: prometheus-davidapps-cluster
         kubernetes-api-server:
           # renovate: depName="Kubernetes / System / API Server"
           gnetId: 15761
@@ -169,7 +164,7 @@ spec:
           # renovate: depName="SMARTctl Exporter Dashboard"
           gnetId: 22604
           revision: 2
-          datasource: Prometheus
+          datasource: prometheus-davidapps-cluster
     sidecar:
       dashboards:
         enabled: false
