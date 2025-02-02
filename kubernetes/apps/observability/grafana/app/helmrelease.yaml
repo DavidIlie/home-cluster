@@ -106,6 +106,16 @@ spec:
           gnetId: 15761
           revision: 18
           datasource: prometheus-davidapps-cluster
+        node-exporter-disks:
+          # renovate: depName="node-exporter disk graphs"
+          gnetId: 9852
+          revision: 1
+          datasource: prometheus-davidapps-cluster
+        pihole:
+          # renovate: depName="Pi-hole Exporter"
+          gnetId: 10176
+          revision: 3
+          datasource: prometheus-main-cluster
         kubernetes-coredns:
           # renovate: depName="Kubernetes / System / CoreDNS"
           gnetId: 15762
