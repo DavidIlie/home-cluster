@@ -23,6 +23,8 @@ spec:
           secretKeyRef:
             name: cloudflare-exporter
             key: CF_API_TOKEN
+      - name: CF_API_EMAIL
+        value: david@davidilie.com
       - name: TZ
         value: Europe/Bucharest
       - name: FREE_TIER
