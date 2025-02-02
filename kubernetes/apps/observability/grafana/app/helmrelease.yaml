@@ -150,10 +150,8 @@ spec:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
           datasource: prometheus-davidapps-cluster
         proxmox:
-          # renovate: depName="Proxmox Cluster [Flux]"
-          gnetId: 15356
-          revision: 14
-          datasource: influxdb
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/proxmox.json
+          datasource: prometheus-davidapps-cluster
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860
