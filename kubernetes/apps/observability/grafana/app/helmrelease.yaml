@@ -142,11 +142,6 @@ spec:
           gnetId: 15760
           revision: 34
           datasource: prometheus-davidapps-cluster
-        kubernetes-volumes:
-          # renovate: depName="K8s / Storage / Volumes / Cluster"
-          gnetId: 11454
-          revision: 14
-          datasource: prometheus-davidapps-cluster
         miniflux:
           url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
           datasource: prometheus-davidapps-cluster
@@ -181,10 +176,9 @@ spec:
           gnetId: 22604
           revision: 2
           datasource: Prometheus
-
     sidecar:
       dashboards:
-        enabled: true
+        enabled: false
         searchNamespace: ALL
         label: grafana_dashboard
         folderAnnotation: grafana_folder
@@ -192,7 +186,7 @@ spec:
           disableDelete: true
           foldersFromFilesStructure: true
       datasources:
-        enabled: true
+        enabled: false
         searchNamespace: ALL
         labelValue: ""
     plugins:
