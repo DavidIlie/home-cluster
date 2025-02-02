@@ -157,6 +157,11 @@ spec:
           gnetId: 1860
           revision: 37
           datasource: prometheus-davidapps-cluster
+        zfs:
+          # renovate: depName="Node - ZFS Stats"
+          gnetId: 7968
+          revision: 1
+          datasource: prometheus-davidapps-cluster
         cloudnativepg:
           # renovate: depName="CloudNativePG"
           gnetId: 20417
