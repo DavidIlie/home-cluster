@@ -60,14 +60,6 @@ spec:
             jsonData:
               timeInterval: 15s
             isDefault: false
-          - name: prometheus-main-cluster
-            type: prometheus
-            uid: prometheus-main-cluster
-            access: proxy
-            url: http://192.168.100.18:9092
-            jsonData:
-              timeInterval: 15s
-            isDefault: true
           - name: influxdb
             type: influxdb
             uid: influxdb
@@ -115,7 +107,7 @@ spec:
           # renovate: depName="Pi-hole Exporter"
           gnetId: 10176
           revision: 3
-          datasource: prometheus-main-cluster
+          datasource: prometheus-home-cluster
         kubernetes-coredns:
           # renovate: depName="Kubernetes / System / CoreDNS"
           gnetId: 15762
