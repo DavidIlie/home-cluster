@@ -58,5 +58,5 @@ spec:
         ports:
           http:
             port: 9348
-            nodePort: 9348
+            nodePort: 30173
         type: NodePort
