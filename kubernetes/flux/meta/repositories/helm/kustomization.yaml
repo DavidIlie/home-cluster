@@ -13,3 +13,4 @@ resources:
   - ./portainer.yaml
   - ./grafana.yaml
   - ./cloudflare-exporter.yaml
+  - ./nvidia-charts.yaml
