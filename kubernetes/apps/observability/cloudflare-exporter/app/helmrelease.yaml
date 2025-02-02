@@ -18,15 +18,15 @@ spec:
       repository: ghcr.io/lablabs/cloudflare_exporter
       tag: 0.0.16
     env:
-      - name: TZ
-        value: Europe/Bucharest
-      - name: FREE_TIER
-        value: "true"
       - name: CF_API_TOKEN
         valueFrom:
           secretKeyRef:
             name: cloudflare-exporter
             key: CF_API_TOKEN
+      - name: TZ
+        value: Europe/Bucharest
+      - name: FREE_TIER
+        value: "true"
     serviceMonitor:
       enabled: true
   interval: 10m0s
