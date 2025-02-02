@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: idrac-exporter-config
+data:
+  idrac.yml: ENC[AES256_GCM,data:2hmgdXNv8AT9jMrlk3mTulvDK3n+6JHgAOXO889l+G9M0WiR6Se92z8b2D7isF1TOn+X/XOWdR3avAxxZGFzLcAQE6NUaSvkiZCJRwLb+8KVbgzoqgiuEd71UskZv49EHHEqOP8jomwBAch6KL886sgeG1TDaqlSAj+WyLK0CduC4BODKE8/k904BEW6bZLCpWd9EVG5Y7RjkjccyLD0TaA3gXHb58jhBUMBkFZV3SY4MBhQOjjNwL0MAOBP430XBXYSvMF8FmP39vy6qsO6YEAHJHEXPMDUPP7RiBVkevBv27XV2hwwHK0CKr9Ga/t14HHC7gPXuOAuq2W4p03+z3ATxfNRi5i3gP0H7izyR9beExSrS2XDno0+Nhxo2dHEDI7AXKfL0x0H02rpnjcgqKbl+qPaLGny78CHYo8EDVVDYgKATU0kUUah/2CuJEW5FjdKWqGGs+xJPuQGQbr+KJF0tDc8lDasRkmQi56kEyvGZ0nxWubnGgCB1z7iubxC/EWuT7DX4Ylc0Aq4MoML3+q8QpQlpv1J9+GJ1ZiYBg==,iv:T7LoHysm5aduUSNCEw/vPeN8L31E6m2vA5tLZLdrOgE=,tag:l52bCZ7dkvVs2af8cCS2Dw==,type:str]
+sops:
+  kms: []
+  gcp_kms: []
+  azure_kv: []
+  hc_vault: []
+  age:
+    - recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBwOWQ3QkhCbkhQZFhVTVJC
+        SmpCeWdNZHV3YlpudnFWUlorY3pTcDlUVUNnCmE5eXJwV241dUlOb3FiVW9DelRL
+        b2pwYlArNDI5ZjJGOXlKSjV5aFZ2YlEKLS0tIFFReGlqRHNpNmY4RWh5RjFOeVRh
+        aXFwTnlGWE9scHZPQnB4MXZQZzRqeFUKyC+Zp9syH35RdlDgwHls+aeCXRwzkmfq
+        LeSHJAYpkOMOc03jFIioP6hkEyMYkqow2g4ZI/1iLriQ/oUSQW/67A==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-02-02T17:12:12Z"
+  mac: ENC[AES256_GCM,data:1oUt2fxb33KDmgtTTEegdX5vTX0ndS3E+OQ34yu07I2z3DKuwmqBPOWYBt7wHJo7QuW8l3BYyPqR1tv/FmnWkQmofiGnxXalXx7lI7wvI/Qh4WvlQUXf/a5I+SWHyyGslw49yGbmx/7bA1tMX3eChdVvkNj3dmw3iXTBceP8yTo=,iv:jJEurjntSRJKLcRHioqFTSADtvZOX1HM1fk+uairGjQ=,tag:DHoX+xxQq6WbxQ8h4RAs+A==,type:str]
+  pgp: []
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.9.1

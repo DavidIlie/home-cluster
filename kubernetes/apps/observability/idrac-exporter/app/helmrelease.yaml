@@ -30,9 +30,6 @@ spec:
             image:
               repository: mrlhansen/idrac_exporter
               tag: 1.6.0@sha256:c375f50d2fd646d62cada12aa61850e00bcd46c0ea73c91f14120dfc251f5156
-            envFrom:
-              - secretRef:
-                  name: idrac-exporter-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
