@@ -143,9 +143,8 @@ spec:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
           datasource: prometheus-davidapps-cluster
         idrac:
-          url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/refs/heads/master/grafana/idrac_overview.json
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/idrac.json
           datasource: prometheus-main-cluster
-          name: "iDRAC"
         nginx-request-handling-performance:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
           datasource: prometheus-davidapps-cluster
