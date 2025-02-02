@@ -20,7 +20,7 @@ spec:
   values:
     persistence:
       enabeld: true
-      size: 1GiB
+      size: 1G
       storageClass: openebs-hostpath
     ingress:
       enabled: true
