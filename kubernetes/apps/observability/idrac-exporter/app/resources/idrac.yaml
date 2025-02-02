@@ -1,0 +1,20 @@
+address: 192.168.100.180 # Listen address
+port: 9348 # Listen port
+timeout: 10 # HTTP timeout (in seconds) for Redfish API calls
+hosts:
+  192.168.100.13:
+    username: root
+  192.168.100.14:
+    username: root
+  192.168.100.15:
+    username: root
+  192.168.100.16:
+    username: root
+metrics:
+  system: true
+  sensors: true
+  power: true
+  events: false
+  storage: false
+  memory: false
+  network: false
