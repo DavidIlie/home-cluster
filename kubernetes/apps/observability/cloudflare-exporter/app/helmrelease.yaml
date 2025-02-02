@@ -18,11 +18,11 @@ spec:
       repository: ghcr.io/lablabs/cloudflare_exporter
       tag: 0.0.16
     env:
-      - name: CF_API_TOKEN
+      - name: CF_API_KEY
         valueFrom:
           secretKeyRef:
             name: cloudflare-exporter
-            key: CF_API_TOKEN
+            key: CF_API_KEY
       - name: CF_API_EMAIL
         value: david@davidilie.com
       - name: TZ
