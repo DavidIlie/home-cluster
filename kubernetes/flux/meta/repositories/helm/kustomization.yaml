@@ -11,3 +11,4 @@ resources:
   - ./prometheus-community.yaml
   - ./openebs.yaml
   - ./portainer.yaml
+  - ./grafana.yaml
