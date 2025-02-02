@@ -131,12 +131,19 @@ spec:
           gnetId: 15760
           revision: 34
           datasource: prometheus-davidapps-cluster
+        kubernetes-summary:
+          # renovate: depName="Kubernetes / Views / K3s Cluster"
+          name: "Kubernetes / Overall View"
+          gnetId: 16450
+          revision: 3
+          datasource: prometheus-davidapps-cluster
         nginx:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
           datasource: prometheus-davidapps-cluster
         idrac:
           url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/refs/heads/master/grafana/idrac_overview.json
-          datasource: prometheus-main
+          datasource: prometheus-main-cluster
+          name: "iDRAC"
         nginx-request-handling-performance:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
           datasource: prometheus-davidapps-cluster
