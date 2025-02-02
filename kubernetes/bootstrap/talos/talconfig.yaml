@@ -30,6 +30,11 @@ nodes:
       secureboot: false
     talosImageURL: factory.talos.dev/installer/990731763242a6b3cf735e49d0f550ce4068b4d0e7f4dfbb49a31799b698877e
     controlPlane: true
+    kernelModules:
+      - name: nvidia
+      - name: nvidia_uvm
+      - name: nvidia_drm
+      - name: nvidia_modeset
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "bc:24:11:92:03:ae"
