@@ -10,3 +10,4 @@ resources:
   - ./metrics-server.yaml
   - ./prometheus-community.yaml
   - ./openebs.yaml
+  - ./portainer.yaml
