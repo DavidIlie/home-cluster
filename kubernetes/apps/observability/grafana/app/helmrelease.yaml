@@ -166,6 +166,11 @@ spec:
           gnetId: 1860
           revision: 37
           datasource: prometheus-davidapps-cluster
+        cloudnativepg:
+          # renovate: depName="CloudNativePG"
+          gnetId: 20417
+          revision: 3
+          datasource: prometheus-davidapps-cluster
         prometheus:
           # renovate: depName="Prometheus"
           gnetId: 19105
