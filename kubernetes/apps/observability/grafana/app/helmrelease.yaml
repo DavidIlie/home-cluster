@@ -143,6 +143,11 @@ spec:
         nginx-request-handling-performance:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
           datasource: prometheus-davidapps-cluster
+        proxmox:
+          # renovate: depName="Proxmox"
+          gnetId: 10048
+          revision: 4
+          datasource: prometheus-main
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860
