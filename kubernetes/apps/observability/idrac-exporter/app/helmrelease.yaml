@@ -53,9 +53,10 @@ spec:
     service:
       app:
         annotations:
-          coredns.io/hostname: blocky
+          coredns.io/hostname: idrac-exporter
         controller: idrac-exporter
         ports:
           http:
             port: 9348
+            nodePort: 9348
         type: NodePort
