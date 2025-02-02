@@ -19,6 +19,7 @@ spec:
         namespace: flux-system
   values:
     persistence:
+      enabeld: true
       size: 1GiB
       storageClass: openebs-hostpath
     ingress:
