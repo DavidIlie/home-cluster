@@ -68,6 +68,19 @@ spec:
             jsonData:
               timeInterval: 15s
             isDefault: true
+          - name: influxdb
+            type: influxdb
+            uid: influxdb
+            access: proxy
+            url: http://192.168.100.18:8086
+            isDefault: true
+            jsonData:
+              version: Flux
+              organization: davidapps
+              defaultBucket: davidapps
+              tlsSkipVerify: true
+            secureJsonData:
+              token: 4yLtxxssHuESsvLKsivoZ9dgI8vyE9ayCTlqB-l4e_hVFgTYO5Wdj9tsE_NT43LsAoBiy3w74A3fvUDSINx4CA==
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -147,7 +160,7 @@ spec:
           # renovate: depName="Proxmox"
           gnetId: 10048
           revision: 4
-          datasource: prometheus-main
+          datasource: influxdb
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860
