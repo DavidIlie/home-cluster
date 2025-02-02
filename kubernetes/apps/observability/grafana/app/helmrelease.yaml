@@ -106,12 +106,6 @@ spec:
           gnetId: 16714
           revision: 1
           datasource: prometheus-davidapps-cluster
-        flux-cluster:
-          url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/cluster.json
-          datasource: prometheus-davidapps-cluster
-        flux-control-plane:
-          url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/control-plane.json
-          datasource: prometheus-davidapps-cluster
         kubernetes-api-server:
           # renovate: depName="Kubernetes / System / API Server"
           gnetId: 15761
@@ -142,19 +136,19 @@ spec:
           gnetId: 15760
           revision: 34
           datasource: prometheus-davidapps-cluster
-        miniflux:
-          url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
-          datasource: prometheus-davidapps-cluster
         nginx:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
           datasource: prometheus-davidapps-cluster
+        idrac:
+          url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/refs/heads/master/grafana/idrac_overview.json
+          datasource: prometheus-main
         nginx-request-handling-performance:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
           datasource: prometheus-davidapps-cluster
         proxmox:
-          # renovate: depName="Proxmox"
-          gnetId: 10048
-          revision: 4
+          # renovate: depName="Proxmox Cluster [Flux]"
+          gnetId: 15356
+          revision: 14
           datasource: influxdb
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
