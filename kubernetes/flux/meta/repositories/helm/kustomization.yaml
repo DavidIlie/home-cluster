@@ -12,3 +12,4 @@ resources:
   - ./openebs.yaml
   - ./portainer.yaml
   - ./grafana.yaml
+  - ./cloudflare-exporter.yaml
