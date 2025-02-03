@@ -139,6 +139,12 @@ spec:
           gnetId: 16450
           revision: 3
           datasource: prometheus-davidapps-cluster
+        kubernetes-persistent-volumes:
+          # renovate: depName="kubernetes-persistent-volumes"
+          name: "Kubernetes / PVCs"
+          gnetId: 13646
+          revision: 2
+          datasource: prometheus-davidapps-cluster
         nginx:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
           datasource: prometheus-davidapps-cluster
