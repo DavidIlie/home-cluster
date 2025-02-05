@@ -5,16 +5,15 @@ metadata:
   name: plausible
   namespace: plausible
 spec:
+  interval: 1h
   chart:
     spec:
       chart: app-template
       version: 3.6.1
-      reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
+        name: bjw-s
         namespace: flux-system
-        name: bernd-schorgers
-  interval: 1h
   driftDetection:
     mode: enabled
   values:
