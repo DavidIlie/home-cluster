@@ -35,7 +35,7 @@ spec:
               GEOIPUPDATE_EDITION_IDS: GeoLite2-City
             envFrom:
               - secretRef:
-                  name: plausible-envs
+                  name: plausible-secret
             securityContext:
               readOnlyRootFilesystem: true
             probes:
@@ -67,7 +67,7 @@ spec:
               IP_GEOLOCATION_DB: /usr/share/GeoIP/GeoLite2-City.mmdb
             envFrom:
               - secretRef:
-                  name: plausible-envs
+                  name: plausible-secret
             probes:
               startup:
                 enabled: true
