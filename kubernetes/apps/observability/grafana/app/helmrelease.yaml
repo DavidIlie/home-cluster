@@ -32,7 +32,7 @@ spec:
       GF_EXPLORE_ENABLED: true
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel
       GF_SECURITY_ANGULAR_SUPPORT_ENABLED: true
-      GF_SERVER_ROOT_URL: "https://monitoring.davidhome.ro"
+      GF_SERVER_ROOT_URL: "https://monitoring.davidapps.dev"
     grafana.ini:
       analytics:
         check_for_updates: false
@@ -198,8 +198,6 @@ spec:
       enabled: true
     ingress:
       enabled: true
-      annotations:
-        external-dns.alpha.kubernetes.io/target: external.davidhome.ro
       ingressClassName: external
       hosts: ["monitoring.davidapps.dev"]
     persistence:
