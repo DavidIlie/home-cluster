@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nas-download
+spec:
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 30m
+  values:
+    controllers:
+      nginx:
+        type: statefulset
+        initContainers:
+          setup-temp-dir:
+            image:
+              repository: busybox
+              tag: latest
+              pullPolicy: IfNotPresent
+            command:
+              - sh
+              - -c
+              - |
+                mkdir -p /tmp/nginx_temp/client_temp /tmp/nginx_temp/proxy_temp /tmp/nginx_temp/fastcgi_temp /tmp/nginx_temp/uwsgi_temp /tmp/nginx_temp/scgi_temp && chmod -R 777 /tmp/nginx_temp
+        containers:
+          app:
+            image:
+              repository: nginx
+              tag: latest
+              pullPolicy: IfNotPresent
+            args:
+              - nginx
+              - -g
+              - daemon off;
+        pod:
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            fsGroup: 0
+    persistence:
+      data:
+        enabled: true
+        type: nfs
+        server: 192.168.25.3
+        path: /mnt/data/share/client_user/dl_facing
+        globalMounts:
+          - path: /data
+      tmp:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /tmp/nginx_temp
+      config:
+        enabled: true
+        type: configMap
+        name: nas-download-config
+        globalMounts:
+          - path: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+    service:
+      nginx:
+        controller: nginx
+        ports:
+          http:
+            port: 80
+    ingress:
+      public:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+        hosts:
+          - host: dl.davidhome.ro
+            paths:
+              - path: /
+                service:
+                  identifier: nginx
+                  port: http
+        tls:
+          - hosts:
+              - dl.davidhome.ro
