@@ -1,0 +1,124 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: plausible
+  namespace: plausible
+spec:
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        namespace: flux-system
+        name: bernd-schorgers
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      plausible:
+        strategy: RollingUpdate
+        annotations:
+          secret.reloader.stakater.com/reload: plausible-envs
+        initContainers:
+          geoip:
+            image:
+              repository: ghcr.io/maxmind/geoipupdate
+              tag: v7.1@sha256:e596817580fb150490f9897390a5a8b52bcfb8b9bb69354ae9bdfd47a949d84e
+              pullPolicy: IfNotPresent
+            restartPolicy: Always
+            env:
+              GEOIPUPDATE_FREQUENCY: "8"
+              GEOIPUPDATE_PRESERVE_FILE_TIMES: "1"
+              GEOIPUPDATE_EDITION_IDS: GeoLite2-City
+            envFrom:
+              - secretRef:
+                  name: plausible-envs
+            securityContext:
+              readOnlyRootFilesystem: true
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: [ls, /usr/share/GeoIP/GeoLite2-City.mmdb]
+                  periodSeconds: 5
+        containers:
+          app:
+            image:
+              repository: ghcr.io/plausible/community-edition
+              tag: v2.1.5@sha256:1f9d3fb861e10cc9ac9643a94ce5938eb17e7553ecac76941e94abe58ffc5621
+              pullPolicy: IfNotPresent
+            command:
+              - sh
+              - -c
+              - |
+                set -eux
+                /entrypoint.sh db createdb
+                /entrypoint.sh db migrate
+                exec /entrypoint.sh run
+            env:
+              BASE_URL: https://plausible.davidapps.dev
+              DISABLE_REGISTRATION: invite_only
+              CLICKHOUSE_DATABASE_URL: http://192.168.100.18:8123/plausible_events_db
+              IP_GEOLOCATION_DB: /usr/share/GeoIP/GeoLite2-City.mmdb
+            envFrom:
+              - secretRef:
+                  name: plausible-envs
+            probes:
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            securityContext:
+              readOnlyRootFilesystem: true
+        pod:
+          terminationGracePeriodSeconds: 1
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [10000]
+            seccompProfile: { type: RuntimeDefault }
+    persistence:
+      tmp:
+        enabled: true
+        type: emptyDir
+      geoip:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /usr/share/GeoIP
+    service:
+      plausible:
+        controller: plausible
+        ports:
+          http:
+            port: 8000
+    ingress:
+      plausible:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidapps.dev"
+        hosts:
+          - host: &app plausible.davidapps.dev
+            paths:
+              - path: /
+                service:
+                  identifier: plausible
+                  port: http
+        tls:
+          - hosts:
+              - *app

@@ -201,7 +201,7 @@ spec:
       annotations:
         external-dns.alpha.kubernetes.io/target: external.davidhome.ro
       ingressClassName: external
-      hosts: ["monitoring.davidhome.ro"]
+      hosts: ["monitoring.davidapps.dev"]
     persistence:
       enabled: false
     testFramework:
