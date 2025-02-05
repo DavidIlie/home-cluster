@@ -175,6 +175,16 @@ spec:
           gnetId: 19105
           revision: 6
           datasource: Prometheus
+        cillium-metrics-production:
+          # renovate: depName="Cilium Metrics (production)"
+          gnetId: 22126
+          revision: 1
+          datasource: prometheus-davidapps-cluster
+        cillium-metrics-home:
+          # renovate: depName="Cilium Metrics (home)"
+          gnetId: 22126
+          revision: 1
+          datasource: prometheus-home-cluster
     sidecar:
       dashboards:
         enabled: false
