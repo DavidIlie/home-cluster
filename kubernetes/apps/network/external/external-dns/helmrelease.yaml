@@ -45,7 +45,7 @@ spec:
     sources: ["crd", "ingress"]
     txtPrefix: k8s.
     txtOwnerId: default
-    domainFilters: ["davidhome.ro", "davidapps.dev"]
+    domainFilters: ["davidhome.ro"]
     serviceMonitor:
       enabled: true
     podAnnotations:
