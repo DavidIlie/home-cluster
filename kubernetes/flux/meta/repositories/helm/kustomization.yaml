@@ -14,3 +14,4 @@ resources:
   - ./grafana.yaml
   - ./cloudflare-exporter.yaml
   - ./nvidia-charts.yaml
+  - ./cloudnative-pg.yaml
