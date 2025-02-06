@@ -28,7 +28,7 @@ metadata:
 spec:
   targetNamespace: *namespace
   dependsOn:
-    - name: cluster-apps-node-feature-discovery
+    - name: node-feature-discovery
   interval: 30m
   path: ./kubernetes/apps/kube-system/node-feature-discovery/rules
   prune: true
