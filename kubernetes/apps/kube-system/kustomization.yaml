@@ -9,7 +9,7 @@ resources:
   - ./metrics-server/ks.yaml
   - ./reloader/ks.yaml
   - ./spegel/ks.yaml
-
+  - ./nvidia-device-plugin/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
