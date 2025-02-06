@@ -27,8 +27,7 @@ spec:
     keepHistory: false
   # values:
   #   runtimeClassName: nvidia
-  #   nodeSelector:
-  #     nvidia.feature.node.kubernetes.io/gpu: "true"
+
   #   config:
   #     map:
   #       default: |-
@@ -45,4 +44,6 @@ spec:
   values:
     image:
       repository: nvcr.io/nvidia/k8s-device-plugin
+    nodeSelector:
+      nvidia.feature.node.kubernetes.io/gpu: "true"
     runtimeClassName: nvidia-gpu
