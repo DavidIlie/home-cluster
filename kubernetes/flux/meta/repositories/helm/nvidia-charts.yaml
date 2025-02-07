@@ -2,7 +2,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: nvidia-charts
+  name: nvidia-device-plugin
   namespace: flux-system
 spec:
   interval: 1h
