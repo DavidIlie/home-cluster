@@ -185,6 +185,13 @@ spec:
           gnetId: 22126
           revision: 1
           datasource: prometheus-home-cluster
+        home-nvidia-gpu:
+          # renovate: depName="NVIDIA DCGM Exporter Dashboard"
+          gnetId: 12239
+          revision: 2
+          name: Home NVIDIA Exporter
+          datasource: prometheus-home-cluster
+
     sidecar:
       dashboards:
         enabled: false
