@@ -5,6 +5,8 @@ kind: Kustomization
 namespace: infastructure
 resources:
   - ./portainer/ks.yaml
+  - ./scrypted/ks.yaml
+  - ./go2rtc/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
