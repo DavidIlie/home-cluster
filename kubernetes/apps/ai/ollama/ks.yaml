@@ -4,18 +4,18 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app ollama
-  namespace: &namespace infastructure
+  namespace: &namespace ai
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   interval: 30m
-  path: ./kubernetes/apps/infastructure/ollama/app
+  path: ./kubernetes/apps/ai/ollama/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *namespace
-  timeout: 5m
+  timeout: 10m
   wait: false
