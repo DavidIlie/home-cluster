@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: media
 resources:
   - ./nfs-pvc.yaml
-  # - ./tautulli/ks.yaml
+  - ./tautulli/ks.yaml
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./plex/ks.yaml
