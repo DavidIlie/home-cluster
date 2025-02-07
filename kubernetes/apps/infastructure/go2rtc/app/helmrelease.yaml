@@ -25,7 +25,6 @@ spec:
   values:
     controllers:
       go2rtc:
-        replicas: 2
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -34,7 +33,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/alexxit/go2rtc:latest-hardware
+              repository: ghcr.io/alexxit/go2rtc
               tag: 1.9.8-hardware@sha256:a6686483311549aade194994b8e49ca4b02c51695cf0153f6abb663755bffe6b
             probes:
               liveness: &probes
