@@ -59,7 +59,9 @@ spec:
     ingress:
       app:
         enabled: true
-        className: internal
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
         hosts:
           - host: &host "chat.davidhome.ro"
             paths:
