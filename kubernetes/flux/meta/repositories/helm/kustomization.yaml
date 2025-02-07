@@ -15,4 +15,3 @@ resources:
   - ./cloudflare-exporter.yaml
   - ./nvidia-charts.yaml
   - ./cloudnative-pg.yaml
-  - ./node-feature-discovery.yaml

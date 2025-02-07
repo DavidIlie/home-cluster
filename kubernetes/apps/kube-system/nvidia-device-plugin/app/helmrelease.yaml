@@ -3,50 +3,22 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: nvidia-device-plugin
+  namespace: kube-system
 spec:
-  interval: 30m
+  interval: 15m
   chart:
     spec:
+      # renovate: registryUrl=https://nvidia.github.io/k8s-device-plugin
       chart: nvidia-device-plugin
       version: 0.17.0
       sourceRef:
         kind: HelmRepository
-        name: nvidia-charts
+        name: nvidia-device-plugin
         namespace: flux-system
-  maxHistory: 2
-  install:
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
+      interval: 15m
+  # https://github.com/NVIDIA/k8s-device-plugin/blob/main/deployments/helm/nvidia-device-plugin/values.yaml
   values:
+    image:
+      repository: nvcr.io/nvidia/k8s-device-plugin
+      tag: v0.17.0
     runtimeClassName: nvidia
-    nodeSelector:
-      nvidia.feature.node.kubernetes.io/gpu: "true"
-    securityContext:
-      privileged: true
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: nvidia.feature.node.kubernetes.io/gpu
-                  operator: In
-                  values:
-                    - "true"
-    config:
-      map:
-        default: |-
-          version: v1
-          sharing:
-            timeSlicing:
-              renameByDefault: false
-              resources:
-                - name: nvidia.com/gpu
-                  replicas: 1
