@@ -66,6 +66,8 @@ spec:
     ingress:
       app:
         className: "internal"
+        annotations:
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
         hosts:
           - host: scrypted.davidhome.ro
             paths:
