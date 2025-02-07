@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 30m
-  path: ./kubernetes/apps/home/scrypted/app
+  path: ./kubernetes/apps/infastructure/scrypted/app
   prune: true
   sourceRef:
     kind: GitRepository

@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 30m
-  path: ./kubernetes/apps/home/go2rtc/app
+  path: ./kubernetes/apps/infastructure/go2rtc/app
   prune: true
   sourceRef:
     kind: GitRepository
