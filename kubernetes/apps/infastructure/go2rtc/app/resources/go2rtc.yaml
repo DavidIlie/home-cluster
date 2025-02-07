@@ -1,0 +1,18 @@
+---
+api:
+  listen: :80
+rtsp:
+  listen: :554
+webrtc:
+  listen: :8555
+  candidates:
+    - 192.168.100.180:8555
+    - stun:8555
+  ice_servers:
+    - urls:
+        - stun:stun.cloudflare.com:3478
+
+streams:
+log:
+  format: text
+  level: "trace"

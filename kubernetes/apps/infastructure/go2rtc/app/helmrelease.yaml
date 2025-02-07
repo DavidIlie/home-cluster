@@ -91,3 +91,11 @@ spec:
                 service:
                   identifier: app
                   port: http
+    persistence:
+      config-file:
+        type: configMap
+        name: go2rtc-configmap
+        globalMounts:
+          - path: /config/go2rtc.yaml
+            subPath: go2rtc.yaml
+            readOnly: true
