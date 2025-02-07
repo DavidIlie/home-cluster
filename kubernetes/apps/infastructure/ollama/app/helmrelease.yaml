@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ollama
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      backend:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: docker.io/ollama/ollama
+              tag: 0.5.7@sha256:7e672211886f8bd4448a98ed577e26c816b9e8b052112860564afaa2c105800e
+            env:
+              #LIBVA_DRIVER_NAME: i965
+              OLLAMA_HOST: 0.0.0.0
+              OLLAMA_ORIGINS: "*"
+              OLLAMA_LOG_LEVEL: debug
+              #OLLAMA_MODELS: &pvc /models
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                memory: 2G
+                cpu: 2000m
+        pod:
+          runtimeClassName: nvidia
+    service:
+      backend:
+        controller: backend
+        ports:
+          http:
+            port: &port 11434
+    ingress:
+      backend:
+        className: internal
+        hosts:
+          - host: &host ollama.davidhome.ro
+            paths:
+              - path: /
+                service:
+                  identifier: backend
+                  port: *port
+    persistence:
+      data:
+        existingClaim: ollama-data-pvc
+        advancedMounts:
+          backend:
+            main:
+              - path: /.ollama
+      tmp:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        globalMounts:
+          - path: /tmp
