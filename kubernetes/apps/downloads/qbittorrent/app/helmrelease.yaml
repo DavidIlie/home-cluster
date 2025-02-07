@@ -39,6 +39,9 @@ spec:
               TZ: Europe/Bucharest
               QBT_WEBUI_PORT: &port 80
               QBT_TORRENTING_PORT: &bittorrentPort 50413
+              QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
+              QBT_Preferences__WebUI__AuthSubnetWhitelist: |-
+                10.69.0.0/16, 192.168.100.0/24
             probes:
               liveness:
                 enabled: true
