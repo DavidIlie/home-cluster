@@ -16,3 +16,4 @@ resources:
   - ./nvidia-charts.yaml
   - ./cloudnative-pg.yaml
   - ./node-feature-discovery.yaml
+  - ./dcgm-exporter.yaml

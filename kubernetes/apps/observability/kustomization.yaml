@@ -7,6 +7,7 @@ resources:
   - ./prometheus-operator-crds/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./cloudflare-exporter/ks.yaml
+  - ./dcgm-exporter/ks.yaml
   - ./grafana/ks.yaml
   - ./idrac-exporter/ks.yaml
   - ./plausible/ks.yaml
