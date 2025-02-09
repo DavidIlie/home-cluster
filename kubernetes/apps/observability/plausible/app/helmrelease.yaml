@@ -116,6 +116,18 @@ spec:
                 service:
                   identifier: plausible
                   port: http
+      metrics:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+        hosts:
+          - host: &app i.davidhome.ro
+            paths:
+              - path: /
+                service:
+                  identifier: plausible
+                  port: http
         tls:
           - hosts:
               - *app
