@@ -124,7 +124,7 @@ spec:
         hosts:
           - host: &app i.davidhome.ro
             paths:
-              - path: /
+              - path: /api/event
                 service:
                   identifier: plausible
                   port: http
