@@ -7,5 +7,18 @@ spec:
   accessModes: ["ReadWriteOnce"]
   resources:
     requests:
-      storage: 100Gi
+      storage: 150Gi
+  storageClassName: openebs-hostpath
+---
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-config
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
   storageClassName: openebs-hostpath

@@ -40,7 +40,7 @@ spec:
               OLLAMA_HOST: 0.0.0.0
               OLLAMA_ORIGINS: "*"
               OLLAMA_LOG_LEVEL: debug
-              #OLLAMA_MODELS: &pvc /models
+              OLLAMA_MODELS: &modelPath /models
             securityContext:
               privileged: true
             resources:
@@ -56,8 +56,14 @@ spec:
           http:
             port: 11434
     persistence:
-      data:
+      models:
         existingClaim: ollama-data-pvc
+        advancedMounts:
+          ollama:
+            app:
+              - path: *modelPath
+      data:
+        existingClaim: ollama-config
         advancedMounts:
           backend:
             main:
