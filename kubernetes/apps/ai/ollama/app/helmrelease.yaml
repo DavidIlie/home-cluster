@@ -57,7 +57,7 @@ spec:
             port: 11434
     persistence:
       models:
-        existingClaim: ollama-data-pvc
+        existingClaim: ollama-models
         advancedMounts:
           ollama:
             app:
