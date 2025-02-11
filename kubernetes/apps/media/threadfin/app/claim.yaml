@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tautulli
+  name: config-threadfin
 spec:
   accessModes: ["ReadWriteOnce"]
   resources:
