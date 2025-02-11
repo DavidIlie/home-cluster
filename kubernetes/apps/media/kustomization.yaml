@@ -8,7 +8,7 @@ resources:
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./plex/ks.yaml
-  # - ./threadfin/ks.yaml
+  - ./threadfin/ks.yaml
   # - ./recyclarr/ks.yaml
 components:
   - ../../flux/components/namespace
