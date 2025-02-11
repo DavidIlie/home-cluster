@@ -57,12 +57,14 @@ spec:
             port: 11434
     persistence:
       models:
+        enabled: true
         existingClaim: ollama-models
         advancedMounts:
           ollama:
             app:
               - path: *modelPath
       data:
+        enabled: true
         existingClaim: ollama-config
         advancedMounts:
           backend:
