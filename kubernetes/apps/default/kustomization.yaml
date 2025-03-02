@@ -8,6 +8,7 @@ resources:
   - ./personal-dashboard/ks.yaml
   - ./minimserver/ks.yaml
   - ./nas-download/ks.yaml
+  - ./shlink/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops

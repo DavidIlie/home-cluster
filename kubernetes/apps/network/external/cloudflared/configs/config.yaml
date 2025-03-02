@@ -7,6 +7,8 @@ ingress:
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "*.davidhome.ro"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "dave.tips"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "monitoring.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "plausible.davidapps.dev"
