@@ -12,3 +12,4 @@ configurations:
   - ./kustomizeconfig.yaml
 components:
   - ../../flux/components/namespace
+  - ../../flux/components/sops
