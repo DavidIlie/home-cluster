@@ -9,10 +9,9 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   ports:
-    - name: https
-      protocol: TCP
-      port: &port 8006
-      targetPort: *port
+    - protocol: TCP
+      port: 8006
+      targetPort: 8006
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -23,8 +22,8 @@ metadata:
     kubernetes.io/service-name: proxmox-nucleus
 addressType: IPv4
 ports:
-  - name: https
-    appProtocol: https
+  - name: http
+    appProtocol: http
     protocol: TCP
     port: 8006
 endpoints:
