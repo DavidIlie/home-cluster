@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   ports:
-    - name: http
+    - name: https
       protocol: TCP
       port: &port 8006
       targetPort: *port
@@ -23,8 +23,8 @@ metadata:
     kubernetes.io/service-name: proxmox-nucleus
 addressType: IPv4
 ports:
-  - name: http
-    appProtocol: http
+  - name: https
+    appProtocol: https
     protocol: TCP
     port: 8006
 endpoints:
