@@ -8,13 +8,27 @@ metadata:
     app.kubernetes.io/name: *app
     app.kubernetes.io/instance: *app
 spec:
-  type: ExternalName
-  externalName: 192.168.100.20
   ports:
-    - name: homeassistant
-      port: 8123
-      protocol: TCP
-      targetPort: 8123
+    - protocol: TCP
+      port: &port 8123
+      targetPort: *port
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: home-assistant
+  namespace: external-services
+  labels:
+    kubernetes.io/service-name: home-assistant
+addressType: IPv4
+ports:
+  - name: http
+    appProtocol: http
+    protocol: TCP
+    port: 8123
+endpoints:
+  - addresses:
+      - "192.168.100.20"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
