@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: network
 resources:
   - ./external/ks.yaml
-  - ./internal/ks.yaml
+  # - ./internal/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
