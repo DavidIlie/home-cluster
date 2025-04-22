@@ -28,7 +28,7 @@ ports:
     port: 80
 endpoints:
   - addresses:
-      - "192.168.100.20"
+      - "192.168.100.82"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
