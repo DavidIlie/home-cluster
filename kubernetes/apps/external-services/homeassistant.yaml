@@ -9,7 +9,8 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: &port 8123
       targetPort: *port
 ---
