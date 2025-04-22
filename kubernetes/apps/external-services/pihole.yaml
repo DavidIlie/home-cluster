@@ -16,10 +16,10 @@ spec:
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
 metadata:
-  name: pifour
+  name: pihole
   namespace: external-services
   labels:
-    kubernetes.io/service-name: pifour
+    kubernetes.io/service-name: pihole
 addressType: IPv4
 ports:
   - name: http
