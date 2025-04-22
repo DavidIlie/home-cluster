@@ -49,3 +49,22 @@ spec:
         path: /mnt/data/share/Music
         globalMounts:
           - path: /media
+    service:
+      app:
+        controller: minimserver
+        ports:
+          http:
+            port: 9790
+    ingress:
+      app:
+        className: internal
+        hosts:
+          - host: &host "dlna.davidhome.ro"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
