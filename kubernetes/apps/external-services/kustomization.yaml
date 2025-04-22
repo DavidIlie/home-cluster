@@ -8,6 +8,6 @@ resources:
   - ./proxmox-nucleus.yaml
   - ./truenas.yaml
   - ./idrac.yaml
-  - ./pifour.yaml
+  - ./pihole.yaml
 components:
   - ../../flux/components/namespace
