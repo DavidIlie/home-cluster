@@ -9,7 +9,7 @@ resources:
   - ./sonarr/ks.yaml
   - ./plex/ks.yaml
   - ./bazarr/ks.yaml
-  # - ./stream-master/ks.yaml
+  - ./stream-master/ks.yaml
   # - ./threadfin/ks.yaml
   # - ./recyclarr/ks.yaml
 components:
