@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: stream-master
+  name: &app stream-master
 spec:
   interval: 60m
   chart:
@@ -24,7 +24,7 @@ spec:
       retries: 3
   values:
     controllers:
-      streammaster:
+      stream-master:
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
@@ -66,7 +66,7 @@ spec:
             supplementalGroups: [10000]
     service:
       app:
-        controller: streammaster
+        controller: *app
         ports:
           http:
             port: 7095
@@ -88,7 +88,7 @@ spec:
       config:
         existingClaim: config-stream-master
         advancedMounts:
-          backend:
+          stream-master:
             main:
               - path: ~/.streammaster
       tmp:
