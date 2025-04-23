@@ -47,9 +47,8 @@ spec:
               PUID: 568
               PGID: 568
             securityContext:
-              allowPrivilegeEscalation: false
+              allowPrivilegeEscalation: true
               readOnlyRootFilesystem: false
-              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
@@ -60,7 +59,7 @@ spec:
           securityContext:
             runAsUser: 568
             runAsGroup: 568
-            runAsNonRoot: true
+            runAsNonRoot: false
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [10000]
