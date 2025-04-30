@@ -128,17 +128,10 @@ spec:
                 service:
                   identifier: plausible
                   port: http
-          - host: &app e.dave.tips
-            paths:
-              - path: /api/event
-                service:
-                  identifier: plausible
-                  port: http
       manualscript:
         enabled: true
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.manual.revenue.js
         hosts:
           - host: &app manualjs.dave.tips
