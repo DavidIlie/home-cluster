@@ -136,7 +136,19 @@ spec:
         hosts:
           - host: &app manualjs.dave.tips
             paths:
-              - path: /js/manual
+              - path: /
+                service:
+                  identifier: plausible
+                  port: http
+      script:
+        enabled: true
+        className: external
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /js/script.file-downloads.outbound-links.pageview-props.revenue.tagged-events.js
+        hosts:
+          - host: &app manualjs.dave.tips
+            paths:
+              - path: /
                 service:
                   identifier: plausible
                   port: http
