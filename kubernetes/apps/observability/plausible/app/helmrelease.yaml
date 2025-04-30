@@ -146,7 +146,7 @@ spec:
         annotations:
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.file-downloads.outbound-links.pageview-props.revenue.tagged-events.js
         hosts:
-          - host: &app manualjs.dave.tips
+          - host: &app js.dave.tips
             paths:
               - path: /
                 service:
