@@ -128,6 +128,16 @@ spec:
                 service:
                   identifier: plausible
                   port: http
+      backupevents:
+        enabled: true
+        className: external
+        hosts:
+          - host: &backupevents e.dave.tips
+            paths:
+              - path: /api/event
+                service:
+                  identifier: plausible
+                  port: http
       manualscript:
         enabled: true
         className: external
@@ -156,5 +166,6 @@ spec:
           - hosts:
               - *app
               - *events
+              - *backupevents
               - *manual
               - *script
