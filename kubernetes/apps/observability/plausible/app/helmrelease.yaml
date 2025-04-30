@@ -142,11 +142,13 @@ spec:
         enabled: true
         className: external
         annotations:
+          nginx.ingress.kubernetes.io/use-regex: "true"
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.manual.revenue.js
         hosts:
           - host: &manual manualjs.dave.tips
             paths:
-              - path: /
+              - path: /(.*)
+                pathType: ImplementationSpecific
                 service:
                   identifier: plausible
                   port: http
@@ -154,11 +156,13 @@ spec:
         enabled: true
         className: external
         annotations:
+          nginx.ingress.kubernetes.io/use-regex: "true"
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.file-downloads.outbound-links.pageview-props.revenue.tagged-events.js
         hosts:
           - host: &script js.dave.tips
             paths:
-              - path: /
+              - path: /(.*)
+                pathType: ImplementationSpecific
                 service:
                   identifier: plausible
                   port: http
