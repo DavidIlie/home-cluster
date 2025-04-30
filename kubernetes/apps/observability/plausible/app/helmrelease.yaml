@@ -122,7 +122,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
         hosts:
-          - host: &app e.davidhome.ro
+          - host: &events e.davidhome.ro
             paths:
               - path: /api/event
                 service:
@@ -134,7 +134,7 @@ spec:
         annotations:
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.manual.revenue.js
         hosts:
-          - host: &app manualjs.dave.tips
+          - host: &manual manualjs.dave.tips
             paths:
               - path: /
                 service:
@@ -146,7 +146,7 @@ spec:
         annotations:
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.file-downloads.outbound-links.pageview-props.revenue.tagged-events.js
         hosts:
-          - host: &app js.dave.tips
+          - host: &script js.dave.tips
             paths:
               - path: /
                 service:
@@ -155,3 +155,6 @@ spec:
         tls:
           - hosts:
               - *app
+              - *events
+              - *manual
+              - *script
