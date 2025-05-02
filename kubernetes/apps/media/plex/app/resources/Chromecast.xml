@@ -20,12 +20,12 @@
         <UpperBound name="video.level" value="42" />
       </Limitations>
     </VideoCodec>
-    <VideoAudioCodec name="aac,mp3,ac3,opus">
+    <VideoAudioCodec name="aac,mp3,ac3">
       <Limitations>
         <UpperBound name="audio.channels" value="2" />
       </Limitations>
     </VideoAudioCodec>
-        <VideoAudioCodec name="aac,mp3,ac3,opus">
+        <VideoAudioCodec name="aac,mp3,ac3">
       <Limitations>
         <UpperBound name="audio.channels" value="1" />
       </Limitations>
