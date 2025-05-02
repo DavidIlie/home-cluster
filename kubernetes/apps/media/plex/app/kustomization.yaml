@@ -5,3 +5,9 @@ namespace: default
 resources:
   - ./claim.yaml
   - ./helmrelease.yaml
+configMapGenerator:
+  - name: plex-chromecast-profile
+    files:
+      - Chromecast.xml=./resources/Chromecast.xml
+generatorOptions:
+  disableNameSuffixHash: true

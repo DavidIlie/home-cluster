@@ -102,6 +102,13 @@ spec:
         type: emptyDir
       transcode:
         type: emptyDir
+      plex-chromecast-profile:
+        type: configMap
+        name: plex-chromecast-profile
+        globalMounts:
+          - path: /usr/lib/plexmediaserver/Resources/Profiles/Chromecast.xml
+            subPath: Chromecast.xml
+            readOnly: true
     service:
       app:
         controller: *app
