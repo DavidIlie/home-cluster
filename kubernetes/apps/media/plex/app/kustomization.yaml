@@ -5,6 +5,7 @@ namespace: default
 resources:
   - ./claim.yaml
   - ./helmrelease.yaml
+  - ./secret.sops.yaml
 configMapGenerator:
   - name: plex-chromecast-profile
     files:

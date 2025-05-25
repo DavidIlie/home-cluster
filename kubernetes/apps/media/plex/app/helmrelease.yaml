@@ -39,6 +39,9 @@ spec:
               NVIDIA_DRIVER_CAPABILITIES: all
               NVIDIA_VISIBLE_DEVICES: all
               TZ: "Europe/Bucharest"
+            envFrom:
+              - secretRef:
+                  name: plex-secret
             probes:
               liveness: &probes
                 enabled: true
