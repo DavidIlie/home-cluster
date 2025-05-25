@@ -39,9 +39,6 @@ spec:
               NVIDIA_DRIVER_CAPABILITIES: all
               NVIDIA_VISIBLE_DEVICES: all
               TZ: "Europe/Bucharest"
-            envFrom:
-              - secretRef:
-                  name: plex-secret
             probes:
               liveness: &probes
                 enabled: true
@@ -78,7 +75,7 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
-          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          # nginx.ingress.kubernetes.io/backend-protocol: HTTPS
         hosts:
           - host: &host "plex.davidhome.ro"
             paths:
