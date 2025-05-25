@@ -34,7 +34,7 @@ spec:
               tag: 1.41.7.9799@sha256:0c31ee1ebee0b63ead2de2accc6c52b1e65e9322b39118715eeac8b2f2bb786f
             env:
               # PLEX_ADVERTISE_URL: https://{{ .Release.Name }}.${SECRET_DOMAIN}:443
-              ADVERTISE_IP: "https://plex.davidhome.ro,http://david.home.ro:32400"
+              ADVERTISE_IP: "https://plex.davidhome.ro,http://david.home.ro:32400,http://192.168.100.180:32400"
               PLEX_NO_AUTH_NETWORKS: 192.168.100.0/24
               NVIDIA_DRIVER_CAPABILITIES: all
               NVIDIA_VISIBLE_DEVICES: all
