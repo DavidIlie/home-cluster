@@ -40,17 +40,7 @@ spec:
                   failureThreshold: 3
               readiness: *probes
             securityContext:
-              readOnlyRootFilesystem: true
-        pod:
-          terminationGracePeriodSeconds: 1
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 568
-            runAsGroup: 568
-            fsGroup: 568
-            fsGroupChangePolicy: OnRootMismatch
-            supplementalGroups: [10000]
-            seccompProfile: { type: RuntimeDefault }
+              privileged: true
     persistence:
       event-data:
         enabled: true
@@ -66,27 +56,6 @@ spec:
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /var/log/clickhouse-server
-      config-logs:
-        enabled: true
-        type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/plausible/clickhouse-config/logs.xml
-        hostPathType: DirectoryOrCreate
-        globalMounts:
-          - path: /etc/clickhouse-server/config.d/logs.xml
-      config-ipv4:
-        enabled: true
-        type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/plausible/clickhouse-config/ipv4-only.xml
-        hostPathType: DirectoryOrCreate
-        globalMounts:
-          - path: /etc/clickhouse-server/config.d/ipv4-only.xml
-      config-low-resources:
-        enabled: true
-        type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/plausible/clickhouse-config/low-resources.xml
-        hostPathType: DirectoryOrCreate
-        globalMounts:
-          - path: /etc/clickhouse-server/config.d/low-resources.xml
     service:
       clickhouse:
         controller: clickhouse
