@@ -28,16 +28,14 @@ nodes:
     installDisk: "/dev/vda"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/d531577dd4e967145c7066260ca51d73cc92bcfd7b64361dcda1e9b44a9cfc8e
+    talosImageURL: factory.talos.dev/installer/990731763242a6b3cf735e49d0f550ce4068b4d0e7f4dfbb49a31799b698877e
     controlPlane: true
-    # userVolumes:
-    #   - name: mdadm-raid-storage
-    #     provisioning:
-    #       diskSelector:
-    #         match: disk.dev_path == "/dev/md127"
-    #       maxSize: 100GiB
-    #     filesystem:
-    #       type: ext4
+    userVolumes:
+      - name: mdadm-analytics-storage
+        provisioning:
+          diskSelector:
+            match: disk.dev_path == "/dev/vdb"
+          minSize: 100GiB
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "bc:24:11:92:03:ae"

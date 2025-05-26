@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: swiss-army-knife-ds
+spec:
+  selector:
+    matchLabels:
+      app: swiss-army-knife-ds
+  template:
+    metadata:
+      labels:
+        app: swiss-army-knife-ds
+    spec:
+      containers:
+        - name: swiss-army-knife-ds
+          image: leodotcloud/swiss-army-knife
+          ports:
+            - containerPort: 5201
+          volumeMounts:
+            - name: mdadm-analytics-storage
+              mountPath: /mnt/host
+      volumes:
+        - name: mdadm-analytics-storage
+          hostPath:
+            path: /var/mnt/mdadm-analytics-storage
+            type: DirectoryOrCreate
