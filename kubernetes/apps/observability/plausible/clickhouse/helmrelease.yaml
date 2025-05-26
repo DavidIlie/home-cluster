@@ -70,21 +70,21 @@ spec:
         enabled: true
         type: hostPath
         hostPath: /var/mnt/mdadm-analytics-storage/plausible/clickhouse-config/logs.xml
-        hostPathType: FileOrCreate
+        hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /etc/clickhouse-server/config.d/logs.xml
       config-ipv4:
         enabled: true
         type: hostPath
         hostPath: /var/mnt/mdadm-analytics-storage/plausible/clickhouse-config/ipv4-only.xml
-        hostPathType: FileOrCreate
+        hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /etc/clickhouse-server/config.d/ipv4-only.xml
       config-low-resources:
         enabled: true
         type: hostPath
         hostPath: /var/mnt/mdadm-analytics-storage/plausible/clickhouse-config/low-resources.xml
-        hostPathType: FileOrCreate
+        hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /etc/clickhouse-server/config.d/low-resources.xml
     service:
