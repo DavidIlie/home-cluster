@@ -74,7 +74,7 @@ spec:
               - path: /
                 service:
                   identifier: influxdb
-                  port: influx
+                  port: 8086
         tls:
           - hosts:
               - *app
