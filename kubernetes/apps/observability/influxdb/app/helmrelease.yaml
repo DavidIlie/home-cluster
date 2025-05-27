@@ -65,7 +65,7 @@ spec:
         globalMounts:
           - path: /var/lib/influxdb
     ingress:
-      plausible:
+      influxdb:
         enabled: true
         className: internal
         hosts:
