@@ -4,3 +4,9 @@ kind: Kustomization
 namespace: observability
 resources:
   - ./helmrelease.yaml
+configMapGenerator:
+  - name: prometheus-davidapps-cluster-config
+    files:
+      - config.yml=./resources/config.yml
+generatorOptions:
+  disableNameSuffixHash: true

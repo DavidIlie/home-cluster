@@ -1,0 +1,50 @@
+global:
+  scrape_interval: 15s
+
+remote_write:
+  - url: "http://prometheus-home-cluster.observability.svc.cluster.local:9090/api/v1/write"
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+          ["prometheus-home-cluster.observability.svc.cluster.local:9090"]
+
+  - job_name: "idrac"
+    static_configs:
+      - targets:
+          [
+            "192.168.100.13",
+            "192.168.100.14",
+            "192.168.100.15",
+            "192.168.100.16",
+          ]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: "192.168.100.180:30173"
+
+  - job_name: "rpi-node"
+    static_configs:
+      - targets: ["192.168.100.82:9100"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: server
+        replacement: rpi
+      - source_labels: [__address__]
+        target_label: service
+        replacement: node-exporter
+
+  - job_name: "rpi-pihole"
+    static_configs:
+      - targets: ["192.168.100.82:9617"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: server
+        replacement: rpi
+      - source_labels: [__address__]
+        target_label: service
+        replacement: pihole-exporter

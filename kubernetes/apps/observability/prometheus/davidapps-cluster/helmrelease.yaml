@@ -30,11 +30,6 @@ spec:
               - "--config.file=/etc/prometheus/prometheus.yml"
               - "--storage.tsdb.path=/prometheus_data"
               - "--web.enable-remote-write-receiver"
-            ports:
-              - containerPort: &port 9090
-                hostPort: 9091
-                name: http
-                protocol: TCP
             probes:
               liveness: &probes
                 enabled: true
@@ -42,7 +37,7 @@ spec:
                 spec:
                   httpGet:
                     path: &path /-/healthy
-                    port: *port
+                    port: &port 9090
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -52,12 +47,11 @@ spec:
               privileged: true
     persistence:
       config:
-        enabled: true
-        type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/prometheus/davidapps-cluster/config
-        hostPathType: DirectoryOrCreate
+        type: configMap
+        name: prometheus-davidapps-cluster-config
         globalMounts:
-          - path: /etc/prometheus
+          - path: /etc/prometheus/prometheus.yml
+            subPath: config.yml
             readOnly: true
       data:
         enabled: true
@@ -83,6 +77,10 @@ spec:
     service:
       prometheus:
         controller: prometheus
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: prometheus-davidapps.davidhome.ro
+          io.cilium/lb-ipam-ips: 192.168.100.95
         ports:
           http:
             port: *port

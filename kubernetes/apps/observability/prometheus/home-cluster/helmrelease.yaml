@@ -52,12 +52,11 @@ spec:
               privileged: true
     persistence:
       config:
-        enabled: true
-        type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/prometheus/home-cluster/config
-        hostPathType: DirectoryOrCreate
+        type: configMap
+        name: prometheus-home-cluster-config
         globalMounts:
-          - path: /etc/prometheus
+          - path: /etc/prometheus/prometheus.yml
+            subPath: config.yml
             readOnly: true
       data:
         enabled: true

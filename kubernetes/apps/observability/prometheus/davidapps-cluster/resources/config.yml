@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+remote_write:
+  - url: "http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090/api/v1/write"
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+          ["prometheus-davidapps-cluster.observability.svc.cluster.local:9090"]
