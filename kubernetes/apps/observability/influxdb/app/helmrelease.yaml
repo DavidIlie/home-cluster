@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app influxdb
+  name: influxdb
   namespace: observability
 spec:
   interval: 1h
@@ -80,7 +80,7 @@ spec:
               - *app
     service:
       app:
-        controller: *app
+        controller: influxdb
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: influx.davidhome.ro
