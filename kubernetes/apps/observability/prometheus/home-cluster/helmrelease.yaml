@@ -30,11 +30,6 @@ spec:
               - "--config.file=/etc/prometheus/prometheus.yml"
               - "--storage.tsdb.path=/prometheus_data"
               - "--web.enable-remote-write-receiver"
-            ports:
-              - containerPort: &port 9090
-                hostPort: 9090
-                name: http
-                protocol: TCP
             probes:
               liveness: &probes
                 enabled: true
@@ -42,7 +37,7 @@ spec:
                 spec:
                   httpGet:
                     path: &path /-/healthy
-                    port: *port
+                    port: &port 9090
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
