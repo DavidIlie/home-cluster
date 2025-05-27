@@ -65,7 +65,7 @@ spec:
         globalMounts:
           - path: /var/lib/influxdb
     ingress:
-      app:
+      influxdb:
         enabled: true
         className: internal
         hosts:
@@ -79,7 +79,7 @@ spec:
           - hosts:
               - *app
     service:
-      app:
+      influxdb:
         controller: influxdb
         type: LoadBalancer
         annotations:
