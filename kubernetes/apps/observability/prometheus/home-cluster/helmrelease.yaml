@@ -30,6 +30,11 @@ spec:
               - "--config.file=/etc/prometheus/prometheus.yml"
               - "--storage.tsdb.path=/prometheus_data"
               - "--web.enable-remote-write-receiver"
+            ports:
+              - containerPort: &port 9090
+                hostPort: 9090
+                name: http
+                protocol: TCP
             probes:
               liveness: &probes
                 enabled: true
@@ -37,7 +42,7 @@ spec:
                 spec:
                   httpGet:
                     path: &path /-/healthy
-                    port: &port 9090
+                    port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -61,9 +66,23 @@ spec:
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /prometheus_data
+    ingress:
+      plausible:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &app prometheus.davidhome.ro
+            paths:
+              - path: /
+                service:
+                  identifier: prometheus
+                  port: http
+        tls:
+          - hosts:
+              - *app
     service:
       prometheus:
         controller: prometheus
         ports:
           http:
-            port: 9090
+            port: *port

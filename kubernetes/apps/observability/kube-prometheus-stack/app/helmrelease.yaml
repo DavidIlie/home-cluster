@@ -51,10 +51,7 @@ spec:
       enabled: false
     prometheus:
       ingress:
-        enabled: true
-        ingressClassName: internal
-        hosts: ["prometheus.davidhome.ro"]
-        pathType: Prefix
+        enabled: false
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
