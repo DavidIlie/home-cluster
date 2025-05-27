@@ -64,15 +64,15 @@ spec:
             type: influxdb
             uid: influxdb
             access: proxy
-            url: http://192.168.100.18:8086
+            url: http://influxdb.observability.svc.cluster.local:8086
             isDefault: false
             jsonData:
               version: Flux
-              organization: davidapps
-              defaultBucket: davidapps
+              organization: HomeLab
+              defaultBucket: proxmox
               tlsSkipVerify: true
             secureJsonData:
-              token: 4yLtxxssHuESsvLKsivoZ9dgI8vyE9ayCTlqB-l4e_hVFgTYO5Wdj9tsE_NT43LsAoBiy3w74A3fvUDSINx4CA==
+              token: bXFW2b-GPM_mWk4wdXCrm1hnyB2QrLd4CkNhO4VMQpj5h_Qz1RgwI5-_L6tMGqe9d6gskfZOmYXsmZm0PT5JBg==
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
