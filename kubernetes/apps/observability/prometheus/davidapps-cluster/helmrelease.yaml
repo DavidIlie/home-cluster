@@ -30,6 +30,13 @@ spec:
               - "--config.file=/etc/prometheus/prometheus.yml"
               - "--storage.tsdb.path=/prometheus_data"
               - "--web.enable-remote-write-receiver"
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                cpu: 2000m
+                memory: 4Gi
             probes:
               liveness: &probes
                 enabled: true

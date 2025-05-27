@@ -11,6 +11,7 @@ scrape_configs:
           ["prometheus-home-cluster.observability.svc.cluster.local:9090"]
 
   - job_name: "idrac"
+    scrape_interval: 60s
     static_configs:
       - targets:
           [
@@ -28,6 +29,7 @@ scrape_configs:
         replacement: "192.168.100.180:30173"
 
   - job_name: "rpi-node"
+    scrape_interval: 60s
     static_configs:
       - targets: ["192.168.100.82:9100"]
     relabel_configs:
@@ -37,14 +39,3 @@ scrape_configs:
       - source_labels: [__address__]
         target_label: service
         replacement: node-exporter
-
-  - job_name: "rpi-pihole"
-    static_configs:
-      - targets: ["192.168.100.82:9617"]
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: server
-        replacement: rpi
-      - source_labels: [__address__]
-        target_label: service
-        replacement: pihole-exporter
