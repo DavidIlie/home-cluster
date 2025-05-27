@@ -11,6 +11,7 @@ resources:
   - ./grafana/ks.yaml
   - ./idrac-exporter/ks.yaml
   - ./plausible/ks.yaml
+  - ./prometheus/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops

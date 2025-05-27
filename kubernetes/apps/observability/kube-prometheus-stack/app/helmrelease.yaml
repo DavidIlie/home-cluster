@@ -64,7 +64,7 @@ spec:
         enableAdminAPI: true
         walCompression: true
         remoteWrite:
-          - url: "http://192.168.100.18:9091/api/v1/write"
+          - url: "http://prometheus-home-cluster.observability.svc.cluster.local:9090/api/v1/write"
         enableFeatures:
           - memory-snapshot-on-shutdown
         resources:

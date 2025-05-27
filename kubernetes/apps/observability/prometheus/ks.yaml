@@ -3,18 +3,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app kube-prometheus-stack
+  name: &app prometheus-home-cluster
   namespace: &namespace observability
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   interval: 30m
-  path: ./kubernetes/apps/observability/kube-prometheus-stack/app
+  path: ./kubernetes/apps/observability/prometheus/home-cluster
   prune: true
-  dependsOn:
-    - name: prometheus-home-cluster
-      namespace: observability
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -27,15 +24,15 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app kube-prometheus-stack-crds
+  name: &app prometheus-davidapps-cluster
   namespace: &namespace observability
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   interval: 30m
-  path: ./kubernetes/apps/observability/kube-prometheus-stack/crds
-  prune: false
+  path: ./kubernetes/apps/observability/prometheus/davidapps-cluster
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
