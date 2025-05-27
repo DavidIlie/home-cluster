@@ -61,7 +61,7 @@ spec:
         globalMounts:
           - path: /prometheus_data
     ingress:
-      plausible:
+      prometheus:
         enabled: true
         className: internal
         hosts:
