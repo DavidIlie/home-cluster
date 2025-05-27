@@ -21,8 +21,8 @@ This is running as a virtual machine on my Proxmox server called Nucleus, that c
 | Name        | Information           | Resources                                   |
 | ----------- | --------------------- | ------------------------------------------- |
 | truenas     | My NAS software       | 16 cores, 128GB RAM, 4x 4TB HDD, NVME cache |
-| kubernetes  | All my home workloads | 8 cores, 64GB RAM, RTX 2080 passed through  |
-| pterodactyl | Game servers          | 4 cores, 32GB RAM                           |
+| kubernetes  | All my home workloads | 16 cores, 64GB RAM, RTX 2080 passed through |
+| pterodactyl | Game servers          | 6 cores, 32GB RAM                           |
 
 ## 🧠 My server, Nucleus
 
