@@ -63,7 +63,7 @@ spec:
         hostPath: /var/mnt/mdadm-analytics-storage/influxdb/data
         hostPathType: DirectoryOrCreate
         globalMounts:
-          - path: /var/lib/influxdb
+          - path: /var/lib/influxdb2
     ingress:
       influxdb:
         enabled: true
