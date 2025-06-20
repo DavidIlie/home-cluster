@@ -72,7 +72,7 @@ spec:
               defaultBucket: proxmox
               tlsSkipVerify: true
             secureJsonData:
-              token: bXFW2b-GPM_mWk4wdXCrm1hnyB2QrLd4CkNhO4VMQpj5h_Qz1RgwI5-_L6tMGqe9d6gskfZOmYXsmZm0PT5JBg==
+              token: mFmAagmwQMYVMsiBwmv9SSZH7D-lYf1t-AX6u-aVNZXwW8RA4Xt5w6w9suSFhSFLT48hroXRFEjVyl5S1gykcw==
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
