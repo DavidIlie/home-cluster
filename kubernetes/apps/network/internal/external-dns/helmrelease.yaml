@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: external-dns
-      version: 1.16.1
+      version: 1.17.0
       sourceRef:
         kind: HelmRepository
         name: external-dns
@@ -48,7 +48,3 @@ spec:
       enabled: true
     podAnnotations:
       secret.reloader.stakater.com/reload: external-dns-pihole-secret
-    image:
-      repository: gcr.io/k8s-staging-external-dns/external-dns
-      tag: v20250402-v0.16.1-48-g1efdf416
-      pullPolicy: IfNotPresent
