@@ -28,7 +28,7 @@ nodes:
     installDisk: "/dev/vda"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/990731763242a6b3cf735e49d0f550ce4068b4d0e7f4dfbb49a31799b698877e
+    talosImageURL: factory.talos.dev/installer/d5125ad5496e9754a936097045098ffdf5c2ef854d44a5b357ee01179b77dfbf
     controlPlane: true
     userVolumes:
       - name: mdadm-analytics-storage
@@ -71,7 +71,7 @@ controlPlane:
           - siderolabs/nonfree-kmod-nvidia-production
           - siderolabs/nvidia-container-toolkit-production
           - siderolabs/qemu-guest-agent
-          - siderolabs/mdadm
+          - siderolabs/bnx2-bnx2x
   patches:
     - "@./patches/controller/admission-controller-patch.yaml"
     - "@./patches/controller/cluster.yaml"
