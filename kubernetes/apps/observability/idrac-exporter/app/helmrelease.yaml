@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mrlhansen/idrac_exporter
-              tag: 1.6.2@sha256:d9d62464d82fa1e73b9ef117fd636d7e10a28e9dc4109f0bde2999dd975a03d7
+              tag: 2.1.0@sha256:f2c06d53a13c77c604739e6ae5606d165c71814826258007350613d7f3e1adbd
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
