@@ -32,6 +32,8 @@ spec:
             image:
               repository: openspeedtest/latest
               tag: v2.0.6
+            securityContext:
+              privileged: true
             probes:
               liveness: &probes
                 enabled: true
@@ -55,7 +57,7 @@ spec:
                 memory: 512Mi
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: true
+        runAsNonRoot: false
         runAsUser: 65534
         runAsGroup: 65534
         seccompProfile: { type: RuntimeDefault }
