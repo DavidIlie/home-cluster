@@ -9,7 +9,7 @@ resources:
   - ./minimserver/ks.yaml
   - ./nas-download/ks.yaml
   - ./shlink/ks.yaml
-  # - ./openspeedtest/ks.yaml
+  - ./openspeedtest/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
