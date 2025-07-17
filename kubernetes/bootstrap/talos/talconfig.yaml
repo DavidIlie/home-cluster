@@ -37,8 +37,7 @@ nodes:
             match: disk.dev_path == "/dev/vdb"
           minSize: 100GiB
     networkInterfaces:
-      - deviceSelector:
-          hardwareAddr: "bc:24:11:92:03:ae"
+      - interface: "ens18"
         dhcp: false
         addresses:
           - "192.168.100.180/24"
@@ -46,8 +45,7 @@ nodes:
           - network: "0.0.0.0/0"
             gateway: "192.168.100.1"
         mtu: 1500
-      - deviceSelector:
-          hardwareAddr: "bc:24:11:fe:b4:fe"
+      - interface: "ens19"
         dhcp: false
         addresses:
           - "192.168.25.5/24"
