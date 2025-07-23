@@ -9,7 +9,7 @@ resources:
   - ./cloudflare-exporter/ks.yaml
   - ./dcgm-exporter/ks.yaml
   - ./grafana/ks.yaml
-  - ./idrac-exporter/ks.yaml
+  # - ./idrac-exporter/ks.yaml
   - ./plausible/ks.yaml
   - ./prometheus/ks.yaml
   - ./influxdb/ks.yaml
