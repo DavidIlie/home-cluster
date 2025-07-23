@@ -9,7 +9,6 @@ scrape_configs:
     static_configs:
       - targets:
           ["prometheus-home-cluster.observability.svc.cluster.local:9090"]
-
   - job_name: "idrac"
     scrape_interval: 60s
     static_configs:
