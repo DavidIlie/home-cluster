@@ -14,12 +14,7 @@ scrape_configs:
     scrape_interval: 60s
     static_configs:
       - targets:
-          [
-            "192.168.100.13",
-            "192.168.100.14",
-            "192.168.100.15",
-            "192.168.100.16",
-          ]
+          ["192.168.10.50", "192.168.10.51", "192.168.10.52", "192.168.10.53"]
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
