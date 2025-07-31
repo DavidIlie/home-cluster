@@ -74,7 +74,6 @@ spec:
             port: *port
     serviceMonitor:
       unpoller:
-        controller: influxdb
         endpoints:
           - port: http
             interval: 2m
