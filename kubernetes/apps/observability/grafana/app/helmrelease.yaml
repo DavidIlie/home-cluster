@@ -91,7 +91,8 @@ spec:
           # renovate: depName="Proxmox via Prometheus"
           gnetId: 10347
           revision: 5
-          datasource: prometheus-home-cluster
+          datasource:
+            - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
         cloudflared:
           # renovate: depName="Flux2"
           gnetId: 17457
