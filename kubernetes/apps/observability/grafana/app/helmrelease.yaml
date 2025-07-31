@@ -87,6 +87,11 @@ spec:
               path: /var/lib/grafana/dashboards/default
     dashboards:
       default:
+        proxmox-prometheus:
+          # renovate: depName="Proxmox via Prometheus"
+          gnetId: 10347
+          revision: 5
+          datasource: prometheus-home-cluster
         cloudflared:
           # renovate: depName="Flux2"
           gnetId: 17457
