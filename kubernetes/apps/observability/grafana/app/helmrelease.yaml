@@ -86,7 +86,7 @@ spec:
             options:
               path: /var/lib/grafana/dashboards/default
     dashboards:
-      unifi:
+      default:
         uap-insights:
           # renovate: depName="UniFi-Poller: UAP Insights - Prometheus"
           gnetId: 11314
@@ -129,7 +129,6 @@ spec:
           revision: 5
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
-      infra:
         proxmox-prometheus:
           # renovate: depName="Proxmox via Prometheus"
           gnetId: 10347
@@ -142,7 +141,6 @@ spec:
         proxmox:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/proxmox.json
           datasource: prometheus-davidapps-cluster
-      kubernetes:
         kubernetes-api-server:
           # renovate: depName="Kubernetes / System / API Server"
           gnetId: 15761
@@ -185,7 +183,6 @@ spec:
           gnetId: 16450
           revision: 3
           datasource: prometheus-davidapps-cluster
-      default:
         cloudflared:
           # renovate: depName="Flux2"
           gnetId: 17457
@@ -242,7 +239,6 @@ spec:
           revision: 2
           name: Home NVIDIA Exporter
           datasource: prometheus-home-cluster
-
     sidecar:
       dashboards:
         enabled: false
