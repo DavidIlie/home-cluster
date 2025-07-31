@@ -33,6 +33,9 @@ spec:
             envFrom:
               - secretRef:
                   name: proxmox-exporter-secret
+            env:
+              - name: TMPDIR
+                value: /tmp
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -45,6 +48,32 @@ spec:
                 memory: 10Mi
               limits:
                 memory: 750Mi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: 9221
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+        pod:
+          securityContext:
+            runAsUser: 65534
+            runAsGroup: 65534
+            runAsNonRoot: true
+            fsGroup: 65534
+    defaultPodOptions:
+      automountServiceAccountToken: false
+    persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
     service:
       app:
         annotations:
