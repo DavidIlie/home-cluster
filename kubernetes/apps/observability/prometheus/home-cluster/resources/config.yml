@@ -37,3 +37,7 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: proxmox-exporter.observability.svc.cluster.local:9221
+  - job_name: "unifipoller"
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["unpoller.observability.svc.cluster.local:80"]
