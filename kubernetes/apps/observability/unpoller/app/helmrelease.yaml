@@ -67,12 +67,12 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
     service:
-      app:
+      unpoller:
         ports:
           http:
             port: *port
     serviceMonitor:
-      app:
+      unpoller:
         endpoints:
           - port: http
             interval: 2m
