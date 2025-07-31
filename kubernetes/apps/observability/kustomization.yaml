@@ -12,7 +12,6 @@ resources:
   - ./idrac-exporter/ks.yaml
   - ./plausible/ks.yaml
   - ./prometheus/ks.yaml
-  - ./influxdb/ks.yaml
   - ./proxmox-exporter/ks.yaml
   - ./unpoller/ks.yaml
 components:

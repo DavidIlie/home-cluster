@@ -60,19 +60,6 @@ spec:
             jsonData:
               timeInterval: 15s
             isDefault: false
-          - name: influxdb
-            type: influxdb
-            uid: influxdb
-            access: proxy
-            url: http://influxdb.observability.svc.cluster.local:8086
-            isDefault: false
-            jsonData:
-              version: Flux
-              organization: home-cluster
-              defaultBucket: proxmox
-              tlsSkipVerify: true
-            secureJsonData:
-              token: mFmAagmwQMYVMsiBwmv9SSZH7D-lYf1t-AX6u-aVNZXwW8RA4Xt5w6w9suSFhSFLT48hroXRFEjVyl5S1gykcw==
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -138,9 +125,6 @@ spec:
         idrac:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/idrac.json
           datasource: prometheus-main-cluster
-        proxmox:
-          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/proxmox.json
-          datasource: prometheus-davidapps-cluster
         kubernetes-api-server:
           # renovate: depName="Kubernetes / System / API Server"
           gnetId: 15761
