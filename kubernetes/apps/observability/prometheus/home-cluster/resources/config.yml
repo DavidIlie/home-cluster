@@ -9,8 +9,7 @@ scrape_configs:
     static_configs:
       - targets:
           ["prometheus-home-cluster.observability.svc.cluster.local:9090"]
-  - job_name: "idrac"
-    scrape_interval: 60s
+  - job_name: idrac
     static_configs:
       - targets:
           ["192.168.10.50", "192.168.10.51", "192.168.10.52", "192.168.10.53"]
@@ -20,7 +19,7 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: "idrac-exporter.observability.svc.cluster.local:9348"
+        replacement: idrac-exporter.observability.svc.cluster.local:9348
   - job_name: "pve"
     static_configs:
       - targets:
