@@ -53,5 +53,5 @@ spec:
         ports:
           http:
             port: 9221
-            nodePort: 9221
+            nodePort: 30174
         type: NodePort
