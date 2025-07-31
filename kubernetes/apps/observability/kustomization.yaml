@@ -14,6 +14,7 @@ resources:
   - ./prometheus/ks.yaml
   - ./influxdb/ks.yaml
   - ./proxmox-exporter/ks.yaml
+  - ./unpoller/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
