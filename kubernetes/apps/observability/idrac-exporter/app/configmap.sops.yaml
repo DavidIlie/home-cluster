@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
     name: idrac-exporter-config
 data:
-    idrac.yml: ENC[AES256_GCM,data:8LAcT2XXtYq0kV9Nyw7+0gm9gxx3gWXVj8GLaqZ9MEZlT6YvQFzrXJdeJlZa0Mrg5w3QZzQSltwCcHIBUioGFMrZ+XlgATppN2i6HlvCgUdZauvo+MrxI7lPhEbIecsQqFtFSNGLlbj3i1RB3Vh3cKYwmKQZavzrbPXczuoJDMTCJFULWcAmnMP7VZXQAT09FpzT2K++6JZiFtHPStKtqd2z9yyHaRIqSJU6CovEe3wJhVPvaMbZj4px6zMRlnke/nqF8L14mbfvP4oCdG4IBXNVix6hHn96hrzIYb6u/bhFCrrjYQdFGPVOKfKW7nNiwjXgnsTsTejbPuRbzkuNLB34kEuvLN0JXbaUjlyey6R4jno4OtX47tjmUw5Vo/667LPoRG2opoeGczKCBpq9ug==,iv:diCRuE6jufgEwJ6WPsGvicyyWLiIUtRKgt6JONLyoAk=,tag:lXw7tWwJvdXpOVlnhQ4few==,type:str]
+    idrac.yml: ENC[AES256_GCM,data:KEULkADowf+sKI3NKlb9W1v6TXhN3ikPWSwdTKvGRPJgT+l4oTSuwsguqzsOQ9q3CQwGuNknp7psZu4m+qHfwL5Rc+XzgA6iMoMKWb2HhwG/rFWZVIzvfcQ8SIwEyOBCZXex1fsvXNVUWSXDyJchR2Z4W0CYUbpojQ==,iv:cBgzH0mzqYnqes2i9NTdByGLUoUKaST9XkAA8WrjTVI=,tag:Rdu8h70L1O4nPttT7P9qCg==,type:str]
 sops:
     age:
         - recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
@@ -15,8 +15,8 @@ sops:
             aXFwTnlGWE9scHZPQnB4MXZQZzRqeFUKyC+Zp9syH35RdlDgwHls+aeCXRwzkmfq
             LeSHJAYpkOMOc03jFIioP6hkEyMYkqow2g4ZI/1iLriQ/oUSQW/67A==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-07-23T06:44:32Z"
-    mac: ENC[AES256_GCM,data:kHzV40lz01V3Djrxhstx5ST4Wt6rnh2MtEim33W8UWkXJt8TEZN2/WglEReSioJiM3ySt3skjH3o7mhtHehoHTicEmC0tgAAaN36gnGNRC8dJ/S2CA+vkVliEj3tjmTM0AnUb1nLaOxzwlU1yHpMHUM33C0ESK07rzVMb2YSVIU=,iv:8TRvCitd1XA4Lp18D6s5dApCna1Hb4ZxGH+QtNO6cl4=,tag:c9W6jWs1nR9vTeJPA0EZ3g==,type:str]
+    lastmodified: "2025-07-31T13:16:23Z"
+    mac: ENC[AES256_GCM,data:MTKycnFZjpwlLfydppjzqO28Lm5KnOAC+C3/NVyn+t/0DpznHS72DX/qCUKqCqeBqw7jnR3HCFJUyBdFHi8AhHLqirxuRhKtQT+8oQBJ4eQiZUEQ5YwaCvxj8DSgwk3uEB22jBIXgYPWiXw5iS2rEIjcDKb8lUKOCt68q+v1I1M=,iv:z5z84D7b5YOG4CIDaw9XCYYSTqAOackzeI/D6rBR+/Y=,tag:c2ibAzvDGWeIUqeo5VmusQ==,type:str]
     encrypted_regex: ^(data|stringData)$
     mac_only_encrypted: true
     version: 3.10.2
