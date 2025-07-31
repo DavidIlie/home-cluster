@@ -68,11 +68,13 @@ spec:
         runAsGroup: 1000
     service:
       unpoller:
+        controller: unpoller
         ports:
           http:
             port: *port
     serviceMonitor:
       unpoller:
+        controller: influxdb
         endpoints:
           - port: http
             interval: 2m
