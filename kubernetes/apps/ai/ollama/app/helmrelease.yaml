@@ -34,7 +34,7 @@ spec:
           main:
             image:
               repository: docker.io/ollama/ollama
-              tag: 0.10.1@sha256:67642615c0fe816cdedefda19c3a82f85bc99bf54c82af2d0f63df2842d4fb48
+              tag: 0.11.6@sha256:1868fd51253099b8f48b89b981e5d8ba23e4db161a501b86e29593071c1c069b
             env:
               #LIBVA_DRIVER_NAME: i965
               OLLAMA_HOST: 0.0.0.0
