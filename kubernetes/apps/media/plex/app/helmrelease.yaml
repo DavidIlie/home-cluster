@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/plex
-              tag: 1.41.9.9961@sha256:6c86319bb3275135f5da5aec71b45e48305669ecbceee0f88d335bebf0d0f218
+              tag: 1.42.2.10156@sha256:9ad8a3506e1d8ebda873a668603c1a2c10e6887969564561be669efd65ae8871
             env:
               ADVERTISE_IP: "https://plex.davidhome.ro,http://david.home.ro:32400"
               PLEX_NO_AUTH_NETWORKS: 192.168.100.0/24
