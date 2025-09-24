@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/alexxit/go2rtc
-              tag: 1.9.9-hardware@sha256:7d78c5843ca6bbe6bdd1f3cfd5a7708c7a6a30817c2996113de000cf09fcd741
+              tag: 1.9.10-hardware@sha256:ae516679b9a3e7a5c55558f99a29a632a5d6a77e126c896bc908dcc0146349ef
             probes:
               liveness: &probes
                 enabled: true
