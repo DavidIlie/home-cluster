@@ -85,6 +85,12 @@ spec:
                 service:
                   identifier: app
                   port: http
+          - host: gurt.ing
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
     persistence:
       tmp:
         type: emptyDir
