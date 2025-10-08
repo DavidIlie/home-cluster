@@ -15,12 +15,12 @@ ingress:
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "*.gurt.ing"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "childpizza.com"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "*.childpizza.com"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "monitoring.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "plausible.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - service: http_status:404
-  - hostname: "childpizza.com"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
-  - hostname: "*.childpizza.com"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
