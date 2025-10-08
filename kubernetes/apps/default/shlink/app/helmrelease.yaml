@@ -91,6 +91,12 @@ spec:
                 service:
                   identifier: app
                   port: http
+          - host: childpizza.com
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
     persistence:
       tmp:
         type: emptyDir

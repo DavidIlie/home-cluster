@@ -20,3 +20,7 @@ ingress:
   - hostname: "plausible.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - service: http_status:404
+  - hostname: "childpizza.com"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "*.childpizza.com"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
