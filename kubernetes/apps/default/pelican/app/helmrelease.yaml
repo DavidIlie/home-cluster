@@ -35,19 +35,22 @@ spec:
               APP_URL: https://pelican.davidapps.dev
               ADMIN_EMAIL: david@davidilie.com
             securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: true
+              readOnlyRootFilesystem: false
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 10m
+                cpu: 100m
               limits:
-                memory: 64Mi
+                memory: 2Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65534
-        runAsGroup: 65534
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [44]
         seccompProfile: { type: RuntimeDefault }
     service:
       app:
