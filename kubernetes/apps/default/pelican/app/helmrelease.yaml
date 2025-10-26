@@ -58,7 +58,7 @@ spec:
               - path: /
                 service:
                   identifier: pelican
-                  port: https
+                  port: http
     persistence:
       config-log:
         existingClaim: pelican
