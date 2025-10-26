@@ -9,5 +9,6 @@ resources:
   - ./truenas.yaml
   - ./idrac.yaml
   - ./pihole.yaml
+  - ./pelican.yaml
 components:
   - ../../flux/components/namespace
