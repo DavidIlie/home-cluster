@@ -49,16 +49,16 @@ spec:
             port: 80
           https:
             port: 443
-    # ingress:
-    #   pelican:
-    #     className: external
-    #     hosts:
-    #       - host: "panel.davidapps.dev"
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: pelican
-    #               port: https
+    ingress:
+      pelican:
+        className: external
+        hosts:
+          - host: "panel.davidapps.dev"
+            paths:
+              - path: /
+                service:
+                  identifier: pelican
+                  port: https
     persistence:
       config-log:
         existingClaim: pelican
