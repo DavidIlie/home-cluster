@@ -5,3 +5,9 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./claim.yaml
+configMapGenerator:
+  - name: pelican-caddyfile
+    files:
+      - Caddyfile=./config/Caddyfile
+generatorOptions:
+  disableNameSuffixHash: true
