@@ -1,7 +1,7 @@
 {
     admin off
     servers {
-        trusted_proxies static external-ingress-nginx-controller.network.svc.cluster.local
+        trusted_proxies static 10.0.0.0/8
     }
 }
 
