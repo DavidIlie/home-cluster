@@ -32,7 +32,7 @@ spec:
               tag: v1.0.0-beta27@sha256:98225fbc38aabe3edfd6a8c5ee50610c0c2e61acb20999be91ed87889ff55fe9
             env:
               XDG_DATA_HOME: /data
-              APP_URL: https://pelican.davidapps.dev
+              APP_URL: https://panel.davidapps.dev
               ADMIN_EMAIL: david@davidilie.com
             securityContext:
               privileged: true
