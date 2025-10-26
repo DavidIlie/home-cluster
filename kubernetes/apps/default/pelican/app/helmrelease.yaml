@@ -42,7 +42,7 @@ spec:
               limits:
                 memory: 2Gi
     service:
-      plausible:
+      pelican:
         controller: pelican
         ports:
           http:
@@ -50,7 +50,7 @@ spec:
           https:
             port: 443
     ingress:
-      plausible:
+      pelican:
         className: external
         hosts:
           - host: "panel.davidapps.dev"
