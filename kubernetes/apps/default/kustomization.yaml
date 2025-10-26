@@ -10,7 +10,7 @@ resources:
   - ./nas-download/ks.yaml
   - ./shlink/ks.yaml
   - ./pelican/ks.yaml
-  # - ./uber-item-viewer/ks.yaml
+  - ./uber-item-viewer/ks.yaml
   # - ./openspeedtest/ks.yaml
 components:
   - ../../flux/components/namespace
