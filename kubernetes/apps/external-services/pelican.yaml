@@ -13,6 +13,14 @@ spec:
       protocol: TCP
       port: &port 8080
       targetPort: *port
+    - name: uberapi
+      protocol: TCP
+      port: &uberapi 4567
+      targetPort: *uberapi
+    - name: dynmap
+      protocol: TCP
+      port: &dynmap 8123
+      targetPort: *dynmap
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -27,6 +35,14 @@ ports:
     appProtocol: http
     protocol: TCP
     port: 8080
+  - name: uberapi
+    protocol: TCP
+    port: &uberapi 4567
+    targetPort: *uberapi
+  - name: dynmap
+    protocol: TCP
+    port: &dynmap 8123
+    targetPort: *dynmap
 endpoints:
   - addresses:
       - "192.168.100.163"
@@ -36,8 +52,10 @@ kind: Ingress
 metadata:
   name: pelican
   namespace: external-services
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
 spec:
-  ingressClassName: internal
+  ingressClassName: external
   rules:
     - host: &host pelican.davidhome.ro
       http:
@@ -49,5 +67,25 @@ spec:
                 name: pelican
                 port:
                   number: 8080
+    - host: &uberapi uberapi.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pelican
+                port:
+                  number: 4567
+    - host: &map map.gurt.ing
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pelican
+                port:
+                  number: 8123
   tls:
-    - hosts: [*host]
+    - hosts: [*host, *uberapi, *map]
