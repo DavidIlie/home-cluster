@@ -14,4 +14,5 @@ resources:
   # - ./openspeedtest/ks.yaml
 components:
   - ../../flux/components/namespace
+  - ../../flux/components/regcred
   - ../../flux/components/sops

@@ -24,6 +24,11 @@ spec:
   values:
     controllers:
       uber-item-viewer:
+        pod:
+          imagePullSecrets:
+            - name: docker-regcred
+        annotations:
+          reloader.stakater.com/auto: "true"
         strategy: RollingUpdate
         containers:
           app:
