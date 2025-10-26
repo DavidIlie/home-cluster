@@ -68,9 +68,10 @@ spec:
         existingClaim: pelican-logs
         globalMounts:
           - path: /var/www/html/storage/logs
-    configMap:
-      pelican-caddyfile:
+      plex-chromecast-profile:
+        type: configMap
         name: pelican-caddyfile
         globalMounts:
           - path: /etc/caddy/Caddyfile
             subPath: Caddyfile
+            readOnly: true
