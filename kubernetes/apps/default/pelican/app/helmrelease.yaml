@@ -46,11 +46,6 @@ spec:
               ADMIN_EMAIL: david@davidilie.com
             securityContext:
               privileged: true
-            resources:
-              requests:
-                cpu: 100m
-              limits:
-                memory: 2Gi
     service:
       pelican:
         controller: pelican
