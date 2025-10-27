@@ -45,7 +45,7 @@ spec:
     sources: ["crd", "ingress"]
     txtPrefix: k8s.
     txtOwnerId: default
-    domainFilters: ["davidhome.ro", "dave.tips", "gurt.ing", "childpizza.com"]
+    domainFilters: ["davidhome.ro", "dave.tips", "gurt.ing", "childpizza.com", "anaxax.tv"]
     serviceMonitor:
       enabled: true
     podAnnotations:

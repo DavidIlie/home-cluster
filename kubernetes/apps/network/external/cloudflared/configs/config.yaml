@@ -19,6 +19,10 @@ ingress:
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "*.childpizza.com"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "anaxax.tv"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "*.anaxax.tv"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "monitoring.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "plausible.davidapps.dev"
