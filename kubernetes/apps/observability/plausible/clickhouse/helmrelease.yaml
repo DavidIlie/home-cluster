@@ -41,6 +41,11 @@ spec:
               readiness: *probes
             securityContext:
               privileged: true
+            ports:
+              - name: http
+                containerPort: 8123
+                hostPort: 8123
+                protocol: TCP
     persistence:
       event-data:
         enabled: true
