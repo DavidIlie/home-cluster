@@ -2,8 +2,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: plausible-clickhouse
-  namespace: observability
+  name: clickhouse
+  namespace: databases
 spec:
   interval: 1h
   chart:
@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: clickhouse/clickhouse-server
-              tag: 24.3.3.102-alpine@sha256:f226fe41f0578968b7f68a54b902d203ff4decfddfccb97c89fe5bfc36a51b66
+              tag: 25.10-alpine@sha256:81ce9121febca7b12c75cf1aae448ccfaef0f68da25802ad805e81f8af610de9
               pullPolicy: IfNotPresent
             probes:
               liveness: &probes
@@ -44,19 +44,20 @@ spec:
             ports:
               - name: http
                 containerPort: 8123
+                hostPort: 8123
                 protocol: TCP
     persistence:
       event-data:
         enabled: true
         type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/plausible/event-data
+        hostPath: /var/mnt/mdadm-analytics-storage/clickhouse/event-data
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /var/lib/clickhouse
       event-logs:
         enabled: true
         type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/plausible/event-logs
+        hostPath: /var/mnt/mdadm-analytics-storage/clickhouse/event-logs
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /var/log/clickhouse-server
