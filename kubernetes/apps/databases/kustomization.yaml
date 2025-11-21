@@ -6,7 +6,7 @@ namespace: databases
 resources:
   - ./cloudnative-pg/ks.yaml
   - ./dragonfly/ks.yaml
-  - ./clickhouse/ks.yaml
+  # - ./clickhouse/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
