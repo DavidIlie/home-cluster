@@ -17,6 +17,8 @@ spec:
     controllers:
       nginx:
         type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
         initContainers:
           setup-temp-dir:
             image:
