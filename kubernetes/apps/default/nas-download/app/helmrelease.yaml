@@ -82,7 +82,14 @@ spec:
                 service:
                   identifier: nginx
                   port: http
-          - host: dl.gurt.ing
+        tls:
+          - hosts:
+              - dl.davidhome.ro
+      temp:
+        enabled: true
+        className: external
+        hosts:
+          - host: dl.mbretrofit.it
             paths:
               - path: /
                 service:
@@ -90,5 +97,4 @@ spec:
                   port: http
         tls:
           - hosts:
-              - dl.davidhome.ro
-              - dl.gurt.ing
+              - dl.mbretrofit.it
