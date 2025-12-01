@@ -29,4 +29,6 @@ ingress:
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "panel.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "dl.mbretrofit.it"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - service: http_status:404
