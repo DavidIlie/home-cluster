@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: prom/prometheus
-              tag: v3.6.0@sha256:76947e7ef22f8a698fc638f706685909be425dbe09bd7a2cd7aca849f79b5f64
+              tag: v3.8.0@sha256:d936808bdea528155c0154a922cd42fd75716b8bb7ba302641350f9f3eaeba09
               pullPolicy: IfNotPresent
             args:
               - "--config.file=/etc/prometheus/prometheus.yml"
