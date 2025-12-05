@@ -10,5 +10,6 @@ resources:
   - ./idrac.yaml
   - ./pihole.yaml
   - ./pelican.yaml
+  - ./macbook.yaml
 components:
   - ../../flux/components/namespace
