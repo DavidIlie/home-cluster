@@ -36,10 +36,8 @@ kind: Ingress
 metadata:
   name: &app macbook
   namespace: external-services
-  annotations:
-    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
 spec:
-  ingressClassName: external
+  ingressClassName: internal
   rules:
     - host: &host dav-mbp.davidhome.ro
       http:
