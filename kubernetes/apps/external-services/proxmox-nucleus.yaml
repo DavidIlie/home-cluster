@@ -9,10 +9,12 @@ metadata:
     app.kubernetes.io/instance: *app
 spec:
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 8006
       targetPort: 8006
-    - protocol: TCP
+    - name: proxmenux
+      protocol: TCP
       port: 8008
       targetPort: 8008
 ---

@@ -8,7 +8,6 @@ resources:
   - ./proxmox-nucleus.yaml
   - ./truenas.yaml
   - ./idrac.yaml
-  - ./pihole.yaml
   - ./pelican.yaml
   - ./macbook.yaml
 components:
