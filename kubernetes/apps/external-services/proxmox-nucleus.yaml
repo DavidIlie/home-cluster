@@ -12,6 +12,9 @@ spec:
     - protocol: TCP
       port: 8006
       targetPort: 8006
+    - protocol: TCP
+      port: 8008
+      targetPort: 8008
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -26,6 +29,10 @@ ports:
     appProtocol: http
     protocol: TCP
     port: 8006
+  - name: proxmenux
+    appProtocol: http
+    protocol: TCP
+    port: 8008
 endpoints:
   - addresses:
       - "192.168.100.56"
@@ -50,5 +57,26 @@ spec:
                 name: proxmox-nucleus
                 port:
                   number: 8006
+  tls:
+    - hosts: [*host]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proxmoxmenux-nucleus
+  namespace: external-services
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host nucleus-menux.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxmox-nucleus
+                port:
+                  number: 8008
   tls:
     - hosts: [*host]
