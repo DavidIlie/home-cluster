@@ -74,6 +74,8 @@ spec:
               # Performance
               - name: RAG_EMBEDDING_BATCH_SIZE
                 value: "32"
+              - name: ENABLE_MEMORIES
+                value: "true"
             envFrom: *envFrom
             resources:
               requests:
