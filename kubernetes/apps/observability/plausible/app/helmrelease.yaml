@@ -50,7 +50,7 @@ spec:
           app:
             image:
               repository: ghcr.io/plausible/community-edition
-              tag: v3.0.1@sha256:14c1afde21d6555a41fad0e8db9445d835f5722238f7d58bbc4dc8c76d7aa499
+              tag: v3.2.0@sha256:3d8af8d4a1be32c3dcc5e8dc01496639d945edd9963827e18abe984dd6bda086
               pullPolicy: IfNotPresent
             command:
               - sh
