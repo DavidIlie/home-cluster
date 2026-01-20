@@ -8,6 +8,9 @@ general:
   enable_metrics: false
 
 server:
+  # secret_key is set via SEARXNG_SECRET environment variable from Kubernetes secret
+  # This placeholder value will be overridden by the env var at runtime
+  secret_key: "placeholder-will-be-overridden-by-env-var"
   limiter: true
   image_proxy: true
   method: GET
