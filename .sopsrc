@@ -1,1 +1,1 @@
-ageKeyFile: ~/.config/sops/age/keys.txt
+ageKeyFile: /Users/david/dev/home-cluster/age.key

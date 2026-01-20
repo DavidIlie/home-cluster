@@ -36,6 +36,9 @@ spec:
               SEARXNG_BASE_URL: http://searxng.ai.svc.cluster.local:8080
               SEARXNG_PORT: &port 8080
               SEARXNG_REDIS_URL: redis://dragonfly.databases.svc.cluster.local:6379
+            envFrom:
+              - secretRef:
+                  name: searxng-secret
             probes:
               liveness: &probes
                 enabled: true
