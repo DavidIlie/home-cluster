@@ -6,6 +6,7 @@ namespace: ai
 resources:
   - ./ollama/ks.yaml
   - ./open-webui/ks.yaml
+  - ./searxng/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops

@@ -41,8 +41,39 @@ spec:
               repository: ghcr.io/open-webui/open-webui
               tag: 0.7.2
             env:
+              # Ollama connection
               - name: OLLAMA_BASE_URL
                 value: http://ollama.ai.svc.cluster.local:11434
+              # Web Search - SearXNG
+              - name: ENABLE_RAG_WEB_SEARCH
+                value: "true"
+              - name: RAG_WEB_SEARCH_ENGINE
+                value: searxng
+              - name: SEARXNG_QUERY_URL
+                value: "http://searxng.ai.svc.cluster.local:8080/search?q=<query>"
+              - name: RAG_WEB_SEARCH_RESULT_COUNT
+                value: "10"
+              - name: RAG_WEB_SEARCH_CONCURRENT_REQUESTS
+                value: "15"
+              # RAG Optimization
+              - name: RAG_TOP_K
+                value: "10"
+              - name: RAG_RELEVANCE_THRESHOLD
+                value: "0.0"
+              - name: RAG_TEXT_SPLITTER
+                value: token
+              - name: CHUNK_SIZE
+                value: "1024"
+              - name: CHUNK_OVERLAP
+                value: "256"
+              # YouTube Transcripts
+              - name: ENABLE_RAG_YOUTUBE_LOADER
+                value: "true"
+              - name: YOUTUBE_LOADER_LANGUAGE
+                value: "en"
+              # Performance
+              - name: RAG_EMBEDDING_BATCH_SIZE
+                value: "32"
             envFrom: *envFrom
             resources:
               requests:

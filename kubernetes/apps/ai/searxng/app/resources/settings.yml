@@ -1,0 +1,358 @@
+use_default_settings: true
+
+general:
+  instance_name: David Search
+  privacypolicy_url: false
+  donation_url: false
+  contact_url: false
+  enable_metrics: false
+
+server:
+  limiter: true
+  image_proxy: true
+  method: GET
+  public_instance: false
+
+search:
+  safe_search: 0
+  autocomplete: google
+  favicon_resolver: duckduckgo
+  default_lang: en
+  languages:
+    - all
+    - en
+    - en-US
+    - en-GB
+  formats:
+    - html
+    - json
+  suspended_times:
+    SearxEngineAccessDenied: 86400
+    SearxEngineCaptcha: 86400
+    SearxEngineTooManyRequests: 3600
+
+ui:
+  default_theme: simple
+  infinite_scroll: true
+  query_in_title: true
+  results_on_new_tab: true
+  static_use_hash: true
+  theme_args:
+    simple_style: auto
+
+outgoing:
+  request_timeout: 5.0
+  max_request_timeout: 15.0
+  pool_connections: 100
+  pool_maxsize: 20
+  keepalive_expiry: 5.0
+  retries: 2
+  enable_http2: true
+
+categories_as_tabs:
+  general:
+  images:
+  videos:
+  news:
+  map:
+  music:
+  it:
+  science:
+  files:
+  social media:
+
+enabled_plugins:
+  - Basic Calculator
+  - Hash plugin
+  - Hostnames plugin
+  - Open Access DOI rewrite
+  - Self Informations
+  - Tracker URL remover
+  - Unit converter plugin
+
+# Enable tons of search engines for comprehensive results
+engines:
+  # ===== GENERAL SEARCH =====
+  - name: google
+    disabled: false
+    weight: 1.5
+  - name: bing
+    disabled: false
+    weight: 1.3
+  - name: duckduckgo
+    disabled: false
+    weight: 1.2
+  - name: brave
+    disabled: false
+    weight: 1.2
+  - name: startpage
+    disabled: false
+  - name: qwant
+    disabled: false
+  - name: mojeek
+    disabled: false
+  - name: yahoo
+    disabled: false
+  - name: wiby
+    disabled: false
+  - name: mwmbl
+    disabled: false
+  - name: presearch
+    disabled: false
+
+  # ===== IMAGES =====
+  - name: google images
+    disabled: false
+  - name: bing images
+    disabled: false
+  - name: duckduckgo images
+    disabled: false
+  - name: brave.images
+    disabled: false
+  - name: qwant images
+    disabled: false
+  - name: flickr
+    disabled: false
+  - name: unsplash
+    disabled: false
+  - name: deviantart
+    disabled: false
+  - name: pinterest
+    disabled: false
+  - name: pixabay
+    disabled: false
+  - name: openverse
+    disabled: false
+
+  # ===== VIDEOS =====
+  - name: google videos
+    disabled: false
+  - name: bing videos
+    disabled: false
+  - name: duckduckgo videos
+    disabled: false
+  - name: brave.videos
+    disabled: false
+  - name: youtube
+    disabled: false
+  - name: dailymotion
+    disabled: false
+  - name: vimeo
+    disabled: false
+  - name: piped
+    disabled: false
+  - name: rumble
+    disabled: false
+  - name: sepiasearch
+    disabled: false
+
+  # ===== NEWS =====
+  - name: google news
+    disabled: false
+  - name: bing news
+    disabled: false
+  - name: duckduckgo news
+    disabled: false
+  - name: brave.news
+    disabled: false
+  - name: yahoo news
+    disabled: false
+  - name: wikinews
+    disabled: false
+  - name: presearch news
+    disabled: false
+
+  # ===== SCIENCE & ACADEMIC =====
+  - name: arxiv
+    disabled: false
+  - name: pubmed
+    disabled: false
+  - name: semantic scholar
+    disabled: false
+  - name: google scholar
+    disabled: false
+  - name: crossref
+    disabled: false
+  - name: openalex
+    disabled: false
+  - name: springer nature
+    disabled: false
+  - name: core.ac.uk
+    disabled: false
+  - name: base
+    disabled: false
+  - name: openrepos
+    disabled: false
+
+  # ===== IT & CODE =====
+  - name: github
+    disabled: false
+  - name: gitlab
+    disabled: false
+  - name: codeberg
+    disabled: false
+  - name: bitbucket
+    disabled: false
+  - name: dockerhub
+    disabled: false
+  - name: npm
+    disabled: false
+  - name: pypi
+    disabled: false
+  - name: crates.io
+    disabled: false
+  - name: packagist
+    disabled: false
+  - name: rubygems
+    disabled: false
+  - name: pkg.go.dev
+    disabled: false
+  - name: hoogle
+    disabled: false
+  - name: lib.rs
+    disabled: false
+  - name: sourcehut
+    disabled: false
+  - name: searchcode code
+    disabled: false
+  - name: mankier
+    disabled: false
+
+  # ===== Q&A & KNOWLEDGE =====
+  - name: stackoverflow
+    disabled: false
+  - name: superuser
+    disabled: false
+  - name: askubuntu
+    disabled: false
+  - name: serverfault
+    disabled: false
+  - name: wikipedia
+    disabled: false
+  - name: wikidata
+    disabled: false
+  - name: wikimedia commons
+    disabled: false
+  - name: wikibooks
+    disabled: false
+
+  # ===== SOCIAL MEDIA =====
+  - name: reddit
+    disabled: false
+  - name: lemmy communities
+    disabled: false
+  - name: lemmy posts
+    disabled: false
+  - name: lemmy comments
+    disabled: false
+  - name: mastodon users
+    disabled: false
+  - name: mastodon hashtags
+    disabled: false
+  - name: hackernews
+    disabled: false
+  - name: lobste.rs
+    disabled: false
+
+  # ===== MAPS =====
+  - name: openstreetmap
+    disabled: false
+  - name: apple maps
+    disabled: false
+  - name: photon
+    disabled: false
+
+  # ===== FILES & TORRENTS =====
+  - name: anna's archive
+    disabled: false
+  - name: z-library
+    disabled: false
+  - name: library genesis
+    disabled: false
+  - name: internet archive
+    disabled: false
+  - name: archive.today
+    disabled: false
+  - name: 1337x
+    disabled: false
+  - name: nyaa
+    disabled: false
+  - name: bt4gprx
+    disabled: false
+  - name: btdigg
+    disabled: false
+  - name: solidtorrents
+    disabled: false
+  - name: piratebay
+    disabled: false
+  - name: kickass
+    disabled: false
+
+  # ===== MUSIC =====
+  - name: bandcamp
+    disabled: false
+  - name: mixcloud
+    disabled: false
+  - name: soundcloud
+    disabled: false
+  - name: genius
+    disabled: false
+  - name: radiobrowser
+    disabled: false
+
+  # ===== SHOPPING & PRODUCTS =====
+  - name: ebay
+    disabled: false
+
+  # ===== DICTIONARIES & TRANSLATION =====
+  - name: dictzone
+    disabled: false
+  - name: linguee
+    disabled: false
+  - name: wordnik
+    disabled: false
+  - name: wiktionary
+    disabled: false
+  - name: mymemory translated
+    disabled: false
+
+  # ===== WEATHER & MISC =====
+  - name: wttr.in
+    disabled: false
+  - name: currency
+    disabled: false
+
+hostnames:
+  high_priority:
+    - (.*)\/blog\/(.*)
+    - (.*\.)?wikipedia.org$
+    - (.*\.)?github.com$
+    - (.*\.)?gitlab.com$
+    - (.*\.)?reddit.com$
+    - (.*\.)?stackoverflow.com$
+    - (.*\.)?stackexchange.com$
+    - (.*\.)?askubuntu.com$
+    - (.*\.)?superuser.com$
+    - (.*\.)?serverfault.com$
+    - (.*\.)?docker.com$
+    - (.*\.)?archlinux.org$
+    - (.*\.)?debian.org$
+    - (.*\.)?ubuntu.com$
+    - (.*\.)?nixos.org$
+    - (.*\.)?kubernetes.io$
+    - (.*\.)?docs.rs$
+    - (.*\.)?rust-lang.org$
+    - (.*\.)?python.org$
+    - (.*\.)?nodejs.org$
+    - (.*\.)?golang.org$
+    - (.*\.)?developer.mozilla.org$
+    - (.*\.)?medium.com$
+    - (.*\.)?dev.to$
+    - (.*\.)?news.ycombinator.com$
+    - (.*\.)?arxiv.org$
+    - (.*\.)?scholar.google.com$
+  low_priority:
+    - (.*\.)?pinterest.com$
+    - (.*\.)?quora.com$
+  replace:
+    '(.*\.)?reddit\.com$': 'old.reddit.com'

@@ -61,7 +61,7 @@ spec:
         existingClaim: ollama-models
         advancedMounts:
           backend:
-            app:
+            main:
               - path: *modelPath
       data:
         enabled: true
