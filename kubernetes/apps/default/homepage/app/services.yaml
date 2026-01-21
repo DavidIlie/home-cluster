@@ -34,7 +34,7 @@
         description: Plex Statistics
         widget:
           type: tautulli
-          url: http://tautulli.media.svc.cluster.local
+          url: http://tautulli.media.svc.cluster.local:80
           key: "{{HOMEPAGE_VAR_TAUTULLI_API_KEY}}"
     - Plex:
         icon: plex.png

@@ -1,10 +1,4 @@
 ---
-- resources:
-    backend: kubernetes
-    expanded: true
-    cpu: true
-    memory: true
-
 - kubernetes:
     cluster:
       show: true
@@ -12,11 +6,6 @@
       memory: true
       showLabel: true
       label: "cluster"
-    nodes:
-      show: true
-      cpu: true
-      memory: true
-      showLabel: true
 
 - proxmox:
     proxmoxNode: nucleus

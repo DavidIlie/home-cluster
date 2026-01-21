@@ -122,37 +122,8 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
-    rbac:
-      roles:
-        gatus:
-          type: ClusterRole
-          rules:
-            - apiGroups:
-                - ""
-              resources:
-                - services
-              verbs:
-                - get
-                - watch
-                - list
-            - apiGroups:
-                - gateway.networking.k8s.io
-              resources:
-                - gateways
-                - httproutes
-              verbs:
-                - get
-                - watch
-                - list
-      bindings:
-        gatus:
-          type: ClusterRoleBinding
-          roleRef:
-            identifier: gatus
-          subjects:
-            - identifier: gatus
     serviceAccount:
-      create: true
+      create: false
       name: gatus
     persistence:
       config-file:
