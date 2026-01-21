@@ -7,7 +7,6 @@ resources:
   - ./sabnzbd/ks.yaml
   - ./flaresolverr/ks.yaml
   - ./prowlarr/ks.yaml
-  - ./autobrr/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops

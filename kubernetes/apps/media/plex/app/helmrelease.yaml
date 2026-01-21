@@ -81,6 +81,9 @@ spec:
           gethomepage.dev/name: Plex
           gethomepage.dev/icon: plex.png
           gethomepage.dev/description: Media Server
+          gethomepage.dev/widget.type: plex
+          gethomepage.dev/widget.url: http://192.168.100.180:32400
+          gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
           gatus.home-operations.com/endpoint: |-
             name: Plex
             group: Media

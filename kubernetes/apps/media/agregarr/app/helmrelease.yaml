@@ -95,3 +95,14 @@ spec:
           - path: /app/config
       tmp:
         type: emptyDir
+      media:
+        existingClaim: storage-nfs
+        globalMounts:
+          - path: /share
+      youtube-cookies:
+        type: configMap
+        name: agregarr-youtube-cookies
+        globalMounts:
+          - path: /app/config/youtube-cookies.txt
+            subPath: youtube-cookies.txt
+            readOnly: true

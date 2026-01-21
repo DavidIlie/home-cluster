@@ -38,46 +38,9 @@ spec:
             env:
               TZ: Europe/Bucharest
               HOMEPAGE_ALLOWED_HOSTS: "*"
-              RADARR_API_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: RADARR_API_KEY
-              SONARR_API_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: SONARR_API_KEY
-              PROWLARR_API_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: PROWLARR_API_KEY
-              UNIFI_API_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: UNIFI_API_KEY
-              GRAFANA_USERNAME:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: GRAFANA_USERNAME
-              GRAFANA_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: GRAFANA_PASSWORD
-              PROXMOX_TOKEN:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: PROXMOX_TOKEN
-              PROXMOX_SECRET:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: PROXMOX_SECRET
+            envFrom:
+              - secretRef:
+                  name: homepage-secret
             probes:
               liveness: &probes
                 enabled: true

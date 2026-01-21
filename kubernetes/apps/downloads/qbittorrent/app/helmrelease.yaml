@@ -96,6 +96,8 @@ spec:
           gethomepage.dev/name: qBittorrent
           gethomepage.dev/icon: qbittorrent.png
           gethomepage.dev/description: Torrent Client
+          gethomepage.dev/widget.type: qbittorrent
+          gethomepage.dev/widget.url: http://qbittorrent.downloads.svc.cluster.local
         hosts:
           - host: &host qb.davidhome.ro
             paths:

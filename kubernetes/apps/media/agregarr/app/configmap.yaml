@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agregarr-youtube-cookies
+data:
+  youtube-cookies.txt: |
+    # Netscape HTTP Cookie File
+    # https://curl.haxx.se/rfc/cookie_spec.html
+    # This is a generated file! Do not edit.
+
+    .youtube.com	TRUE	/	TRUE	1797609143	SOCS	CAISEwgDEgk4MzM1NjMyOTgaAmVuIAEaBgiA7u7IBg
+    .youtube.com	TRUE	/	TRUE	1779033143	VISITOR_INFO1_LIVE	IDQI9auvqCg
+    .youtube.com	TRUE	/	TRUE	1779033143	__Secure-BUCKET	CL4C
+    .youtube.com	TRUE	/	TRUE	1769019788	GPS	1
+    .youtube.com	TRUE	/	FALSE	1803578055	SID	g.a0005wh6pkqOrDelLehJfosd_C0ydYSXdBp63pcYoSQX7WncYXscAMUiJtDoTCMAYKhffMU75gACgYKASMSARQSFQHGX2MiJtSeZAUGxM5EMnQb_PoGoRoVAUF8yKpvi-vlE7LAIJBR0koumtUl0076
+    .youtube.com	TRUE	/	TRUE	1800554055	__Secure-1PSIDTS	sidts-CjUB7I_69Jkg26akrkLZtG2cS5zsy3jaih-M3LEAjPKp8ToVCxvMjdlCM0JvUDoxxgkP7W6QIBAA
+    .youtube.com	TRUE	/	TRUE	1800554055	__Secure-3PSIDTS	sidts-CjUB7I_69Jkg26akrkLZtG2cS5zsy3jaih-M3LEAjPKp8ToVCxvMjdlCM0JvUDoxxgkP7W6QIBAA
+    .youtube.com	TRUE	/	TRUE	1803578055	__Secure-1PSID	g.a0005wh6pkqOrDelLehJfosd_C0ydYSXdBp63pcYoSQX7WncYXsclQPGPvKkPHEExXoafdRWswACgYKAUQSARQSFQHGX2MibZpkiSwbO8d47Sqf29krxhoVAUF8yKqQnMT5Xmd9iqYJUJuQHwDP0076
+    .youtube.com	TRUE	/	TRUE	1803578055	__Secure-3PSID	g.a0005wh6pkqOrDelLehJfosd_C0ydYSXdBp63pcYoSQX7WncYXscD5cdcxtD6DUBWOXG4-StvQACgYKAcMSARQSFQHGX2MiIvtaI4av0S2DT-3QlfqzKRoVAUF8yKrA8MyJY4Nef8B_mU3lrhyv0076
+    .youtube.com	TRUE	/	FALSE	1803578055	HSID	ArHoW3NB3HntCTdjw
+    .youtube.com	TRUE	/	TRUE	1803578055	SSID	AtqagZeO-m9gaGpBA
+    .youtube.com	TRUE	/	FALSE	1803578055	APISID	pae5KdW8br_uf6wP/ALLmuLyIobXP39tIu
+    .youtube.com	TRUE	/	TRUE	1803578055	SAPISID	OBStT_VY1TSt2fCS/AGsseHqyCoXvtdot7
+    .youtube.com	TRUE	/	TRUE	1803578055	__Secure-1PAPISID	OBStT_VY1TSt2fCS/AGsseHqyCoXvtdot7
+    .youtube.com	TRUE	/	TRUE	1803578055	__Secure-3PAPISID	OBStT_VY1TSt2fCS/AGsseHqyCoXvtdot7
+    .youtube.com	TRUE	/	TRUE	1803578055	LOGIN_INFO	AFmmF2swRgIhAN5wgmnvWqaIM9HWlrh01T8wTg9TGX5ceVliFHwIpvNbAiEAkg8IBaI_FodwQJKkiyS0BDFqvDrTMlJRrsqoLoHz8XY:QUQ3MjNmeFd3RFNfMUJ4QlBHYWdDSnBxZlhxOVJDb2dZeEFCVVpNRm56ZXdfbkZVRlBDRDdKSk52bWdUeUhMVEtyd1dlbkxXUGtuNTg5VzZpQXQ4bnlaNmxZZ0szMjNoTGo2dV9rMDRUQU15VG54ZWhETGNCeV9YQVpOVl9oT2hpb2Y3ekk1dVptTk45T2ZJRUFBbWFnRm9NenNfYTFfWE5n
+    .youtube.com	TRUE	/	TRUE	1803578058	PREF	f6=40000080&f7=100&tz=Europe.London&f4=4000000
+    .youtube.com	TRUE	/	FALSE	1800554061	SIDCC	AKEyXzWsn7hOcH-TV5ky-W7dU3Pq6zGBzmoi_bryzGEMtJmV0zOP8YvJ5EW7jyWSCHKxyLS-
+    .youtube.com	TRUE	/	TRUE	1800554061	__Secure-1PSIDCC	AKEyXzXlZwYSSF2TCxSqQfaNeM6-jC9bfxCfe3OrmIXorrp8lbHvr_u2-grx2ispemHXkwjGAA
+    .youtube.com	TRUE	/	TRUE	1800554061	__Secure-3PSIDCC	AKEyXzW-wS3JCH9nOuJdZc45q0nwFEFdjjNmW1tTawHVU3PahubmTwr5JjyYAZLuNiPoOksIug
+    .youtube.com	TRUE	/	TRUE	1784570061	VISITOR_INFO1_LIVE	Zs7-acDAM3M
+    .youtube.com	TRUE	/	TRUE	1784570061	VISITOR_PRIVACY_METADATA	CgJSTxIhEh0SGwsMDg8QERITFBUWFxgZGhscHR4fICEiIyQlJiBM
+    .youtube.com	TRUE	/	TRUE	0	YSC	iqmOjBoCE-4
+    .youtube.com	TRUE	/	TRUE	1784569988	__Secure-ROLLOUT_TOKEN	CKmU6PK6xuv2PBCO5p6Qp_qQAxj2-4DGmZ2SAw%3D%3D

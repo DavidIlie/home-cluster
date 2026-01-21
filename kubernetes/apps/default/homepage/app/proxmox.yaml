@@ -1,5 +1,5 @@
 ---
 nucleus:
   url: https://nucleus.davidhome.ro
-  token: ${PROXMOX_TOKEN}
-  secret: ${PROXMOX_SECRET}
+  token: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
+  secret: "{{HOMEPAGE_VAR_PROXMOX_SECRET}}"

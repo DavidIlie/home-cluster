@@ -97,6 +97,9 @@ spec:
           gethomepage.dev/name: Prowlarr
           gethomepage.dev/icon: prowlarr.png
           gethomepage.dev/description: Indexer Manager
+          gethomepage.dev/widget.type: prowlarr
+          gethomepage.dev/widget.url: http://prowlarr.downloads.svc.cluster.local
+          gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
         hosts:
           - host: &host "prowlarr.davidhome.ro"
             paths:

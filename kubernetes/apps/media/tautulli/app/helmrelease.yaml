@@ -85,6 +85,9 @@ spec:
           gethomepage.dev/name: Tautulli
           gethomepage.dev/icon: tautulli.png
           gethomepage.dev/description: Plex Statistics
+          gethomepage.dev/widget.type: tautulli
+          gethomepage.dev/widget.url: http://tautulli.media.svc.cluster.local
+          gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_TAUTULLI_API_KEY}}"
         hosts:
           - host: &host "tautulli.davidhome.ro"
             paths:

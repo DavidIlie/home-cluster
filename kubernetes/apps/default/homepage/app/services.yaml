@@ -1,62 +1,38 @@
 ---
-# Services are auto-discovered via Kubernetes ingress annotations
+# Services without Kubernetes ingress (external or internal-only services)
+# Services with ingress are auto-discovered via annotations
 
-# Media *arr widgets
-- Media:
-    - Radarr:
-        href: https://radarr.davidhome.ro
-        widget:
-          type: radarr
-          url: http://radarr.media.svc.cluster.local
-          key: ${RADARR_API_KEY}
-    - Sonarr:
-        href: https://sonarr.davidhome.ro
-        widget:
-          type: sonarr
-          url: http://sonarr.media.svc.cluster.local
-          key: ${SONARR_API_KEY}
-- Downloads:
-    - Prowlarr:
-        href: https://prowlarr.davidhome.ro
-        widget:
-          type: prowlarr
-          url: http://prowlarr.downloads.svc.cluster.local
-          key: ${PROWLARR_API_KEY}
-    - qBittorrent:
-        href: https://qb.davidhome.ro
-        widget:
-          type: qbittorrent
-          url: http://qbittorrent.downloads.svc.cluster.local
-          enableLeechProgress: true
-          enableLeechSize: true
 - Monitoring:
     - Prometheus Home Cluster:
         href: http://prometheus-home-cluster.observability.svc.cluster.local:9090
+        icon: prometheus.png
+        description: Home Cluster Metrics
         widget:
           type: prometheus
           url: http://prometheus-home-cluster.observability.svc.cluster.local:9090
     - Prometheus DavidApps Cluster:
         href: http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090
+        icon: prometheus.png
+        description: DavidApps Cluster Metrics
         widget:
           type: prometheus
           url: http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090
     - Grafana:
         href: https://monitoring.davidapps.dev
+        icon: grafana.png
+        description: Metrics Dashboard
         widget:
           type: grafana
-          version: 2
           url: https://monitoring.davidapps.dev
-          username: ${GRAFANA_USERNAME}
-          password: ${GRAFANA_PASSWORD}
+          username: "{{HOMEPAGE_VAR_GRAFANA_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+
 - Infrastructure:
     - Unifi Controller:
         href: https://unifi.davidhome.ro
+        icon: unifi.png
+        description: Network Management
         widget:
           type: unifi
           url: https://unifi.davidhome.ro
-          key: ${UNIFI_API_KEY}
-          fields:
-            - uptime
-            - wan
-            - lan
-            - wlan
+          key: "{{HOMEPAGE_VAR_UNIFI_API_KEY}}"
