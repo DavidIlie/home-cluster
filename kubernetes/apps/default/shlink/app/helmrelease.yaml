@@ -78,11 +78,12 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Services
-          gethomepage.dev/name: Shlink
-          gethomepage.dev/icon: shlink.png
-          gethomepage.dev/description: URL Shortener
+          gatus.home-operations.com/endpoint: |-
+            name: Shlink
+            group: Services
+            url: https://dave.tips/rest/health
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: *host
             paths:

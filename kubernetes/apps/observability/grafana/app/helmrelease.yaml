@@ -253,6 +253,12 @@ spec:
         gethomepage.dev/name: Grafana
         gethomepage.dev/icon: grafana.png
         gethomepage.dev/description: Observability Dashboard
+        gatus.home-operations.com/endpoint: |-
+          name: Grafana
+          group: Monitoring
+          url: https://monitoring.davidapps.dev
+          interval: 1m
+          conditions: ["[STATUS] == 200"]
       hosts: ["monitoring.davidapps.dev"]
     persistence:
       enabled: false

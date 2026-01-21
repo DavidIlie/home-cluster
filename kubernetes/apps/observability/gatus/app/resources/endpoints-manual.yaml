@@ -1,0 +1,160 @@
+---
+endpoints:
+  # Databases
+  - name: Dragonfly
+    group: Databases
+    url: tcp://dragonfly.databases.svc.cluster.local:6379
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: PostgreSQL
+    group: Databases
+    url: tcp://postgres17-rw.databases.svc.cluster.local:5432
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Plausible ClickHouse
+    group: Databases
+    url: http://plausible-clickhouse.observability.svc.cluster.local:8123/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Zerocut ClickHouse
+    group: Databases
+    url: http://clickhouse.databases.svc.cluster.local:8123/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  # Cluster
+  - name: Kubernetes API
+    group: Cluster
+    url: https://kubernetes.default.svc.cluster.local:443
+    client:
+      insecure: true
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 401, 403)"
+
+  # Internal Services (no external ingress)
+  - name: Radarr
+    group: Media
+    url: http://radarr.media.svc.cluster.local:80/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Sonarr
+    group: Media
+    url: http://sonarr.media.svc.cluster.local:80/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Bazarr
+    group: Media
+    url: http://bazarr.media.svc.cluster.local:6767/health
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Tautulli
+    group: Media
+    url: http://tautulli.media.svc.cluster.local:80/status
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Agregarr
+    group: Media
+    url: http://agregarr.media.svc.cluster.local:7171/api/v1/status
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: MinimServer
+    group: Media
+    url: http://minimserver.default.svc.cluster.local:9790
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 302, 401)"
+
+  - name: qBittorrent
+    group: Downloads
+    url: http://qbittorrent.downloads.svc.cluster.local:80
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: SABnzbd
+    group: Downloads
+    url: http://sabnzbd.downloads.svc.cluster.local:80/api?mode=version
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Prowlarr
+    group: Downloads
+    url: http://prowlarr.downloads.svc.cluster.local:80/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Autobrr
+    group: Downloads
+    url: http://autobrr.downloads.svc.cluster.local:80/api/healthz/liveness
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: FlareSolverr
+    group: Downloads
+    url: http://flaresolverr.downloads.svc.cluster.local:8191/health
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Ollama
+    group: AI
+    url: http://ollama.ai.svc.cluster.local:11434
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: SearXNG
+    group: AI
+    url: http://searxng.ai.svc.cluster.local:8080
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Portainer
+    group: Infrastructure
+    url: http://portainer.infastructure.svc.cluster.local:9000
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: go2rtc
+    group: Infrastructure
+    url: http://go2rtc.infastructure.svc.cluster.local:1984
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Shlink Web
+    group: Services
+    url: http://shlink-web.default.svc.cluster.local:8080
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Homepage
+    group: Services
+    url: http://homepage.default.svc.cluster.local:3000/api/healthcheck
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"

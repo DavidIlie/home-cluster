@@ -43,6 +43,12 @@ metadata:
     gethomepage.dev/name: Home Assistant
     gethomepage.dev/icon: home-assistant.png
     gethomepage.dev/description: Smart Home
+    gatus.home-operations.com/endpoint: |-
+      name: Home Assistant
+      group: Infrastructure
+      url: https://hass.davidhome.ro
+      interval: 1m
+      conditions: ["[STATUS] == 200"]
 spec:
   ingressClassName: external
   rules:

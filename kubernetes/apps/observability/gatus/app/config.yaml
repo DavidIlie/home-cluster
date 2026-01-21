@@ -4,23 +4,45 @@ connectivity:
     target: 1.1.1.1:53
     interval: 1m
 
+endpoints:
+  - name: Cloudflare
+    group: connectivity
+    url: icmp://1.1.1.1
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Google
+    group: connectivity
+    url: icmp://8.8.8.8
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Quad9
+    group: connectivity
+    url: icmp://9.9.9.9
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
 metrics: true
 
 storage:
   type: sqlite
   caching: true
-  path: /data/gatus.db
+  path: ${GATUS_CONFIG_PATH}/gatus.db
 
 ui:
-  title: Status | David Home
+  title: Status | Gatus
   header: Status
   logo: https://avatars.githubusercontent.com/u/47594764
   link: https://github.com/DavidIlie
   buttons:
     - name: GitHub
+      link: https://github.com/DavidIlie
+    - name: HomeLab
       link: https://github.com/DavidIlie/home-cluster
-    - name: Homepage
-      link: https://hp.davidhome.ro
 
 web:
-  port: 8080
+  port: ${GATUS_WEB_PORT}

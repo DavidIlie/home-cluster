@@ -51,6 +51,14 @@ metadata:
     gethomepage.dev/name: Proxmox
     gethomepage.dev/icon: proxmox.png
     gethomepage.dev/description: Virtualization
+    gatus.home-operations.com/endpoint: |-
+      name: Proxmox
+      group: Hardware
+      url: https://nucleus.davidhome.ro
+      interval: 1m
+      client:
+        insecure: true
+      conditions: ["[STATUS] == any(200, 302, 301)"]
 spec:
   ingressClassName: internal
   rules:

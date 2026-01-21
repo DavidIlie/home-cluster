@@ -87,10 +87,16 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Services
+          gethomepage.dev/group: Infastructure
           gethomepage.dev/name: Echo Server
           gethomepage.dev/icon: mdi-lan-check
           gethomepage.dev/description: HTTP Echo Test
+          gatus.home-operations.com/endpoint: |-
+            name: Echo Server
+            group: Services
+            url: https://echo-server.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: "echo-server.davidhome.ro"
             paths:

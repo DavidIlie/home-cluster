@@ -81,6 +81,12 @@ spec:
           gethomepage.dev/name: Plex
           gethomepage.dev/icon: plex.png
           gethomepage.dev/description: Media Server
+          gatus.home-operations.com/endpoint: |-
+            name: Plex
+            group: Media
+            url: https://plex.davidhome.ro/identity
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "plex.davidhome.ro"
             paths:

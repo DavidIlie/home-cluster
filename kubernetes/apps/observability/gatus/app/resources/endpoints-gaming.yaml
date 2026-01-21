@@ -1,8 +1,0 @@
----
-endpoints:
-  - name: Pelican Wings
-    group: Gaming
-    url: https://pelican.davidhome.ro
-    interval: 1m
-    conditions:
-      - "[STATUS] == any(200, 401, 403)"

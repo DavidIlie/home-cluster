@@ -115,6 +115,12 @@ spec:
           gethomepage.dev/name: Plausible
           gethomepage.dev/icon: plausible.png
           gethomepage.dev/description: Web Analytics
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible
+            group: Monitoring
+            url: https://plausible.davidapps.dev
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &app plausible.davidapps.dev
             paths:

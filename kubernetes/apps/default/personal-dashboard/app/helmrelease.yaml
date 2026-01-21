@@ -61,6 +61,12 @@ spec:
           gethomepage.dev/name: Personal Dashboard
           gethomepage.dev/icon: mdi-view-dashboard
           gethomepage.dev/description: Personal Dashboard
+          gatus.home-operations.com/endpoint: |-
+            name: Personal Dashboard
+            group: Services
+            url: https://dash.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "dash.davidhome.ro"
             paths:

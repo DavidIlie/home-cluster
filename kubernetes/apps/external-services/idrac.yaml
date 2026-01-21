@@ -139,6 +139,14 @@ metadata:
     gethomepage.dev/name: iDRAC Servers
     gethomepage.dev/icon: idrac.png
     gethomepage.dev/description: Server Management
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Nucleus
+      group: Hardware
+      url: https://nucleus.idrac.davidhome.ro
+      interval: 1m
+      client:
+        insecure: true
+      conditions: ["[STATUS] == any(200, 302, 301)"]
 spec:
   ingressClassName: internal
   rules:

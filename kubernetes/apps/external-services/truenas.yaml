@@ -43,6 +43,14 @@ metadata:
     gethomepage.dev/name: TrueNAS
     gethomepage.dev/icon: truenas-scale.png
     gethomepage.dev/description: Network Storage
+    gatus.home-operations.com/endpoint: |-
+      name: TrueNAS
+      group: Infrastructure
+      url: https://truenas.davidhome.ro
+      interval: 1m
+      client:
+        insecure: true
+      conditions: ["[STATUS] == any(200, 302)"]
 spec:
   ingressClassName: internal
   rules:
