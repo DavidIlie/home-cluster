@@ -112,7 +112,7 @@ endpoints:
 
   - name: FlareSolverr
     group: Downloads
-    url: http://flaresolverr.downloads.svc.cluster.local:8191/health
+    url: http://flaresolverr.downloads.svc.cluster.local:80/health
     interval: 1m
     conditions:
       - "[STATUS] == 200"

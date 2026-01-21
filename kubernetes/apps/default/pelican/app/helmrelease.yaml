@@ -65,7 +65,7 @@ spec:
           gethomepage.dev/description: Game Server Panel
           gatus.home-operations.com/endpoint: |-
             name: Pelican Panel
-            group: Services
+            group: Gaming
             url: https://panel.davidapps.dev
             interval: 1m
             conditions: ["[STATUS] == any(200, 302)"]
