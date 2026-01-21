@@ -122,8 +122,8 @@ spec:
         tls:
           - hosts: [*host]
     serviceAccount:
-      gatus:
-        create: false
+      create: false
+      name: gatus
     persistence:
       config-file:
         type: configMap

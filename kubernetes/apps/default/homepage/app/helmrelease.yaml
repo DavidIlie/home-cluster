@@ -24,8 +24,8 @@ spec:
       retries: 3
   values:
     serviceAccount:
-      homepage:
-        create: false
+      create: false
+      name: homepage
     controllers:
       homepage:
         annotations:
