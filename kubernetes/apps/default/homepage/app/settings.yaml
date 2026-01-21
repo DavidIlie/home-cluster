@@ -4,13 +4,8 @@ favicon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/ho
 theme: dark
 color: slate
 
-# Background with filters for a nice glassmorphism effect
-background:
-  image: https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2560&q=80
-  blur: sm
-  saturate: 100
-  brightness: 50
-  opacity: 100
+# Background - simple URL first to test
+background: https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2560&q=80
 
 # Card styling
 cardBlur: md
