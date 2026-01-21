@@ -1,25 +1,93 @@
 ---
-# Services without Kubernetes ingress (external or internal-only services)
-# Services with ingress are auto-discovered via annotations
+# Widget configurations for services
+# Basic discovery is handled via Kubernetes ingress annotations
+# Widgets must be configured here as annotations don't support widgets
+
+- Media:
+    - Radarr:
+        icon: radarr.png
+        href: https://radarr.davidhome.ro
+        description: Movie Management
+        widget:
+          type: radarr
+          url: http://radarr.media.svc.cluster.local
+          key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
+    - Sonarr:
+        icon: sonarr.png
+        href: https://sonarr.davidhome.ro
+        description: TV Show Management
+        widget:
+          type: sonarr
+          url: http://sonarr.media.svc.cluster.local
+          key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
+    - Bazarr:
+        icon: bazarr.png
+        href: https://bazarr.davidhome.ro
+        description: Subtitle Management
+        widget:
+          type: bazarr
+          url: http://bazarr.media.svc.cluster.local:6767
+          key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
+    - Tautulli:
+        icon: tautulli.png
+        href: https://tautulli.davidhome.ro
+        description: Plex Statistics
+        widget:
+          type: tautulli
+          url: http://tautulli.media.svc.cluster.local
+          key: "{{HOMEPAGE_VAR_TAUTULLI_API_KEY}}"
+    - Plex:
+        icon: plex.png
+        href: https://plex.davidhome.ro
+        description: Media Server
+        widget:
+          type: plex
+          url: http://192.168.100.180:32400
+          key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
+
+- Downloads:
+    - Prowlarr:
+        icon: prowlarr.png
+        href: https://prowlarr.davidhome.ro
+        description: Indexer Manager
+        widget:
+          type: prowlarr
+          url: http://prowlarr.downloads.svc.cluster.local
+          key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: https://qb.davidhome.ro
+        description: Torrent Client
+        widget:
+          type: qbittorrent
+          url: http://qbittorrent.downloads.svc.cluster.local
+    - SABnzbd:
+        icon: sabnzbd.png
+        href: https://sab.davidhome.ro
+        description: Usenet Client
+        widget:
+          type: sabnzbd
+          url: http://sabnzbd.downloads.svc.cluster.local
+          key: "{{HOMEPAGE_VAR_SABNZBD_API_KEY}}"
 
 - Monitoring:
     - Prometheus Home Cluster:
-        href: http://prometheus-home-cluster.observability.svc.cluster.local:9090
         icon: prometheus.png
+        href: http://prometheus-home-cluster.observability.svc.cluster.local:9090
         description: Home Cluster Metrics
         widget:
           type: prometheus
           url: http://prometheus-home-cluster.observability.svc.cluster.local:9090
     - Prometheus DavidApps Cluster:
-        href: http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090
         icon: prometheus.png
+        href: http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090
         description: DavidApps Cluster Metrics
         widget:
           type: prometheus
           url: http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090
     - Grafana:
-        href: https://monitoring.davidapps.dev
         icon: grafana.png
+        href: https://monitoring.davidapps.dev
         description: Metrics Dashboard
         widget:
           type: grafana
@@ -29,8 +97,8 @@
 
 - Infrastructure:
     - Unifi Controller:
-        href: https://unifi.davidhome.ro
         icon: unifi.png
+        href: https://unifi.davidhome.ro
         description: Network Management
         widget:
           type: unifi

@@ -95,14 +95,7 @@ spec:
       app:
         className: internal
         annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Media
-          gethomepage.dev/name: Radarr
-          gethomepage.dev/icon: radarr.png
-          gethomepage.dev/description: Movie Management
-          gethomepage.dev/widget.type: radarr
-          gethomepage.dev/widget.url: http://radarr.media.svc.cluster.local
-          gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
+          gethomepage.dev/enabled: "false"
         hosts:
           - host: &host "radarr.davidhome.ro"
             paths:

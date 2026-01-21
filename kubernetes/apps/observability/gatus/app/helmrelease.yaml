@@ -94,11 +94,13 @@ spec:
         seccompProfile: {type: RuntimeDefault}
     service:
       app:
+        controller: gatus
         ports:
           http:
             port: *port
     serviceMonitor:
       app:
+        serviceName: gatus
         endpoints:
           - port: http
     ingress:
@@ -150,7 +152,8 @@ spec:
           subjects:
             - identifier: gatus
     serviceAccount:
-      gatus: {}
+      create: true
+      name: gatus
     persistence:
       config-file:
         type: configMap

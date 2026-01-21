@@ -91,14 +91,7 @@ spec:
       app:
         className: internal
         annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Media
-          gethomepage.dev/name: Bazarr
-          gethomepage.dev/icon: bazarr.png
-          gethomepage.dev/description: Subtitle Management
-          gethomepage.dev/widget.type: bazarr
-          gethomepage.dev/widget.url: http://bazarr.media.svc.cluster.local:6767
-          gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
+          gethomepage.dev/enabled: "false"
         hosts:
           - host: &host "bazarr.davidhome.ro"
             paths:

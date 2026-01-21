@@ -38,11 +38,7 @@ metadata:
   namespace: external-services
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/group: Infrastructure
-    gethomepage.dev/name: Unifi Controller
-    gethomepage.dev/icon: unifi.png
-    gethomepage.dev/description: Network Controller
+    gethomepage.dev/enabled: "false"
     gatus.home-operations.com/endpoint: |-
       name: Unifi Controller
       group: Infrastructure

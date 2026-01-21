@@ -3,29 +3,64 @@ title: David Home
 favicon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/homepage.png
 theme: dark
 color: slate
-headerStyle: clean
+
+# Beautiful background with glass effect
+background:
+  image: https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=2560&q=80
+  blur: sm
+  saturate: 50
+  brightness: 40
+  opacity: 50
+
+# Glass card effect
+cardBlur: md
+headerStyle: boxed
+
+# Status indicator style
+statusStyle: dot
+
+# Show stats on service cards
+showStats: true
+
+# Responsive layouts
 layout:
   Media:
     style: row
-    columns: 3
+    columns: 4
+    header: true
+    icon: mdi-play-circle
   Downloads:
     style: row
-    columns: 4
+    columns: 3
+    header: true
+    icon: mdi-download
   AI:
     style: row
     columns: 2
+    header: true
+    icon: mdi-robot
   Infrastructure:
     style: row
     columns: 4
+    header: true
+    icon: mdi-server
   Hardware:
     style: row
     columns: 2
+    header: true
+    icon: mdi-chip
   Monitoring:
     style: row
     columns: 3
+    header: true
+    icon: mdi-chart-line
   Services:
     style: row
     columns: 4
+    header: true
+    icon: mdi-apps
   Gaming:
     style: row
     columns: 2
+    header: true
+    icon: mdi-gamepad-variant
