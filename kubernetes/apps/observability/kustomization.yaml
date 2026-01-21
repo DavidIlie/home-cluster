@@ -14,7 +14,7 @@ resources:
   - ./prometheus/ks.yaml
   - ./proxmox-exporter/ks.yaml
   - ./unpoller/ks.yaml
-  # - ./gatus/ks.yaml
+  - ./gatus/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
