@@ -15,5 +15,6 @@ configMapGenerator:
       - bookmarks.yaml
       - kubernetes.yaml
       - proxmox.yaml
+      - docker.yaml
 generatorOptions:
   disableNameSuffixHash: true
