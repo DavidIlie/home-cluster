@@ -139,6 +139,7 @@ metadata:
     gethomepage.dev/name: iDRAC Nucleus
     gethomepage.dev/icon: idrac.png
     gethomepage.dev/description: Server Management
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: iDRAC Nucleus
       group: Hardware
@@ -175,6 +176,7 @@ metadata:
     gethomepage.dev/name: iDRAC Electron
     gethomepage.dev/icon: idrac.png
     gethomepage.dev/description: Server Management
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: iDRAC Electron
       group: Hardware
@@ -211,6 +213,7 @@ metadata:
     gethomepage.dev/name: iDRAC Proton
     gethomepage.dev/icon: idrac.png
     gethomepage.dev/description: Server Management
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: iDRAC Proton
       group: Hardware
@@ -247,6 +250,7 @@ metadata:
     gethomepage.dev/name: iDRAC Neutron
     gethomepage.dev/icon: idrac.png
     gethomepage.dev/description: Server Management
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: iDRAC Neutron
       group: Hardware

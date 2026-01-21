@@ -51,6 +51,7 @@ metadata:
     gethomepage.dev/name: Proxmox
     gethomepage.dev/icon: proxmox.png
     gethomepage.dev/description: Virtualization
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: Proxmox
       group: Hardware
@@ -86,6 +87,7 @@ metadata:
     gethomepage.dev/name: Proxmox Menux
     gethomepage.dev/icon: proxmox.png
     gethomepage.dev/description: Proxmox Menux Interface
+    gethomepage.dev/pod-selector: ""
 spec:
   ingressClassName: internal
   rules:

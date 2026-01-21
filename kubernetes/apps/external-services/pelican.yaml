@@ -67,6 +67,7 @@ metadata:
     gethomepage.dev/name: Pelican Wings
     gethomepage.dev/icon: pterodactyl.png
     gethomepage.dev/description: Game Server Node
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: Pelican Wings
       group: Gaming

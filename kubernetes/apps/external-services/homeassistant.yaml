@@ -43,6 +43,7 @@ metadata:
     gethomepage.dev/name: Home Assistant
     gethomepage.dev/icon: home-assistant.png
     gethomepage.dev/description: Smart Home
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: Home Assistant
       group: Infrastructure

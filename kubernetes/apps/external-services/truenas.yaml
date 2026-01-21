@@ -43,6 +43,7 @@ metadata:
     gethomepage.dev/name: TrueNAS
     gethomepage.dev/icon: truenas-scale.png
     gethomepage.dev/description: Network Storage
+    gethomepage.dev/pod-selector: ""
     gatus.home-operations.com/endpoint: |-
       name: TrueNAS
       group: Infrastructure
