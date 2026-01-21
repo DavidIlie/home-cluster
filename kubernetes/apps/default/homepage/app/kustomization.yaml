@@ -17,5 +17,6 @@ configMapGenerator:
       - proxmox.yaml
       - docker.yaml
       - custom.css
+      - custom.js
 generatorOptions:
   disableNameSuffixHash: true
