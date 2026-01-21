@@ -10,5 +10,6 @@ resources:
   - ./idrac.yaml
   - ./pelican.yaml
   - ./macbook.yaml
+  - ./unifi.yaml
 components:
   - ../../flux/components/namespace

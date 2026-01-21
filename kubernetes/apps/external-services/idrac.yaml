@@ -130,13 +130,13 @@ endpoints:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: idrac-ingress
+  name: idrac-nucleus
   namespace: external-services
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Hardware
-    gethomepage.dev/name: iDRAC Servers
+    gethomepage.dev/name: iDRAC Nucleus
     gethomepage.dev/icon: idrac.png
     gethomepage.dev/description: Server Management
     gatus.home-operations.com/endpoint: |-
@@ -160,6 +160,32 @@ spec:
                 name: idrac-nucleus
                 port:
                   number: 443
+  tls:
+    - hosts: [*host]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-electron
+  namespace: external-services
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Hardware
+    gethomepage.dev/name: iDRAC Electron
+    gethomepage.dev/icon: idrac.png
+    gethomepage.dev/description: Server Management
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Electron
+      group: Hardware
+      url: https://electron.idrac.davidhome.ro
+      interval: 1m
+      client:
+        insecure: true
+      conditions: ["[STATUS] == any(200, 302, 301)"]
+spec:
+  ingressClassName: internal
+  rules:
     - host: &host1 electron.idrac.davidhome.ro
       http:
         paths:
@@ -170,6 +196,32 @@ spec:
                 name: idrac-electron
                 port:
                   number: 443
+  tls:
+    - hosts: [*host1]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-proton
+  namespace: external-services
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Hardware
+    gethomepage.dev/name: iDRAC Proton
+    gethomepage.dev/icon: idrac.png
+    gethomepage.dev/description: Server Management
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Proton
+      group: Hardware
+      url: https://proton.idrac.davidhome.ro
+      interval: 1m
+      client:
+        insecure: true
+      conditions: ["[STATUS] == any(200, 302, 301)"]
+spec:
+  ingressClassName: internal
+  rules:
     - host: &host2 proton.idrac.davidhome.ro
       http:
         paths:
@@ -180,6 +232,32 @@ spec:
                 name: idrac-proton
                 port:
                   number: 443
+  tls:
+    - hosts: [*host2]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-neutron
+  namespace: external-services
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Hardware
+    gethomepage.dev/name: iDRAC Neutron
+    gethomepage.dev/icon: idrac.png
+    gethomepage.dev/description: Server Management
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Neutron
+      group: Hardware
+      url: https://neutron.idrac.davidhome.ro
+      interval: 1m
+      client:
+        insecure: true
+      conditions: ["[STATUS] == any(200, 302, 301)"]
+spec:
+  ingressClassName: internal
+  rules:
     - host: &host3 neutron.idrac.davidhome.ro
       http:
         paths:
@@ -191,6 +269,6 @@ spec:
                 port:
                   number: 443
   tls:
-    - hosts: [*host, *host1, *host2, *host3]
+    - hosts: [*host3]
 ---
 

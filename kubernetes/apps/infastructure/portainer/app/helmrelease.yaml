@@ -31,6 +31,12 @@ spec:
         gethomepage.dev/name: Portainer
         gethomepage.dev/icon: portainer.png
         gethomepage.dev/description: Container Management
+        gatus.home-operations.com/endpoint: |-
+          name: Portainer
+          group: Infrastructure
+          url: https://portainer.davidhome.ro
+          interval: 1m
+          conditions: ["[STATUS] == 200"]
       hosts:
         - host: &host "portainer.davidhome.ro"
           paths:

@@ -1,2 +1,64 @@
 ---
 # Services are auto-discovered via Kubernetes ingress annotations
+
+# Media *arr widgets
+- Media:
+    - Radarr:
+        href: http://radarr.media.svc.cluster.local
+        widget:
+          type: radarr
+          url: http://radarr.media.svc.cluster.local
+          key: ${RADARR_API_KEY}
+    - Sonarr:
+        href: http://sonarr.media.svc.cluster.local
+        widget:
+          type: sonarr
+          url: http://sonarr.media.svc.cluster.local
+          key: ${SONARR_API_KEY}
+- Downloads:
+    - Prowlarr:
+        href: http://prowlarr.downloads.svc.cluster.local
+        widget:
+          type: prowlarr
+          url: http://prowlarr.downloads.svc.cluster.local
+          key: ${PROWLARR_API_KEY}
+    - qBittorrent:
+        href: http://qbittorrent.downloads.svc.cluster.local
+        widget:
+          type: qbittorrent
+          url: http://qbittorrent.downloads.svc.cluster.local
+          username: ${QBITTORRENT_USERNAME}
+          password: ${QBITTORRENT_PASSWORD}
+          enableLeechProgress: true
+          enableLeechSize: true
+- Monitoring:
+    - Prometheus Home Cluster:
+        href: http://prometheus-home-cluster.observability.svc.cluster.local:9090
+        widget:
+          type: prometheus
+          url: http://prometheus-home-cluster.observability.svc.cluster.local:9090
+    - Prometheus DavidApps Cluster:
+        href: http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090
+        widget:
+          type: prometheus
+          url: http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090
+    - Grafana:
+        href: https://monitoring.davidapps.dev
+        widget:
+          type: grafana
+          version: 2
+          url: https://monitoring.davidapps.dev
+          username: ${GRAFANA_USERNAME}
+          password: ${GRAFANA_PASSWORD}
+- Infrastructure:
+    - Unifi Controller:
+        href: https://unifi.davidhome.ro
+        widget:
+          type: unifi
+          url: https://unifi.davidhome.ro
+          key: ${UNIFI_API_KEY}
+          fields:
+            - uptime
+            - wan
+            - lan
+            - wlan

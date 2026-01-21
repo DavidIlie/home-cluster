@@ -38,6 +38,56 @@ spec:
             env:
               TZ: Europe/Bucharest
               HOMEPAGE_ALLOWED_HOSTS: "*"
+              RADARR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: RADARR_API_KEY
+              SONARR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: SONARR_API_KEY
+              PROWLARR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: PROWLARR_API_KEY
+              UNIFI_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: UNIFI_API_KEY
+              QBITTORRENT_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: QBITTORRENT_USERNAME
+              QBITTORRENT_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: QBITTORRENT_PASSWORD
+              GRAFANA_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: GRAFANA_USERNAME
+              GRAFANA_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: GRAFANA_PASSWORD
+              PROXMOX_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: PROXMOX_TOKEN
+              PROXMOX_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: PROXMOX_SECRET
             probes:
               liveness: &probes
                 enabled: true
@@ -106,6 +156,9 @@ spec:
             readOnly: true
           - path: /app/config/kubernetes.yaml
             subPath: kubernetes.yaml
+            readOnly: true
+          - path: /app/config/proxmox.yaml
+            subPath: proxmox.yaml
             readOnly: true
       tmp:
         type: emptyDir

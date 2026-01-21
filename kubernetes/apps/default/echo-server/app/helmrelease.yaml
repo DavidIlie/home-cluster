@@ -87,7 +87,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Infastructure
+          gethomepage.dev/group: Infrastructure
           gethomepage.dev/name: Echo Server
           gethomepage.dev/icon: mdi-lan-check
           gethomepage.dev/description: HTTP Echo Test

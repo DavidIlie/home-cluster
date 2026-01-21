@@ -80,6 +80,12 @@ kind: Ingress
 metadata:
   name: proxmoxmenux-nucleus
   namespace: external-services
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Hardware
+    gethomepage.dev/name: Proxmox Menux
+    gethomepage.dev/icon: proxmox.png
+    gethomepage.dev/description: Proxmox Menux Interface
 spec:
   ingressClassName: internal
   rules:

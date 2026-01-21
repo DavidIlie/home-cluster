@@ -5,6 +5,27 @@
     cpu: true
     memory: true
 
+- kubernetes:
+    cluster:
+      show: true
+      cpu: true
+      memory: true
+      showLabel: true
+      label: "cluster"
+    nodes:
+      show: true
+      cpu: true
+      memory: true
+      showLabel: true
+
+- proxmox:
+    proxmoxNode: nucleus
+    fields:
+      - vms
+      - lxc
+      - resources.cpu
+      - resources.mem
+
 - datetime:
     text_size: xl
     format:

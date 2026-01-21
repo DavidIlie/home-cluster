@@ -131,13 +131,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: Portainer
-    group: Infrastructure
-    url: http://portainer.infastructure.svc.cluster.local:9000
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
   - name: go2rtc
     group: Infrastructure
     url: http://go2rtc.infastructure.svc.cluster.local:1984
