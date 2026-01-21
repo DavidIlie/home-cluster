@@ -1,0 +1,15 @@
+---
+endpoints:
+  - name: Grafana
+    group: Monitoring
+    url: https://monitoring.davidapps.dev
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Plausible
+    group: Monitoring
+    url: https://plausible.davidapps.dev
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"

@@ -37,7 +37,7 @@ spec:
               tag: v1.2.0
             env:
               TZ: Europe/Bucharest
-              HOMEPAGE_ALLOWED_HOSTS: "hp.davidhome.ro,homepage.default.svc.cluster.local,10.42.0.0/16"
+              HOMEPAGE_ALLOWED_HOSTS: "*"
             probes:
               liveness: &probes
                 enabled: true

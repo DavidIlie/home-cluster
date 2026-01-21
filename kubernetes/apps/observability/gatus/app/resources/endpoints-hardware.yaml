@@ -1,0 +1,46 @@
+---
+endpoints:
+  - name: Proxmox
+    group: Hardware
+    url: https://nucleus.davidhome.ro
+    client:
+      insecure: true
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 302, 301)"
+
+  - name: iDRAC Nucleus
+    group: Hardware
+    url: https://nucleus.idrac.davidhome.ro
+    client:
+      insecure: true
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 302, 301)"
+
+  - name: iDRAC Electron
+    group: Hardware
+    url: https://electron.idrac.davidhome.ro
+    client:
+      insecure: true
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 302, 301)"
+
+  - name: iDRAC Proton
+    group: Hardware
+    url: https://proton.idrac.davidhome.ro
+    client:
+      insecure: true
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 302, 301)"
+
+  - name: iDRAC Neutron
+    group: Hardware
+    url: https://neutron.idrac.davidhome.ro
+    client:
+      insecure: true
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 302, 301)"

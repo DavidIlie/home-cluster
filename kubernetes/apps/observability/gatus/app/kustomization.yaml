@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+configMapGenerator:
+  - name: gatus-config
+    files:
+      - config.yaml
+      - resources/endpoints-connectivity.yaml
+      - resources/endpoints-media.yaml
+      - resources/endpoints-downloads.yaml
+      - resources/endpoints-ai.yaml
+      - resources/endpoints-infrastructure.yaml
+      - resources/endpoints-hardware.yaml
+      - resources/endpoints-monitoring.yaml
+      - resources/endpoints-services.yaml
+      - resources/endpoints-gaming.yaml
+      - resources/endpoints-databases.yaml
+      - resources/endpoints-cluster.yaml
+generatorOptions:
+  disableNameSuffixHash: true

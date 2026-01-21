@@ -1,0 +1,29 @@
+---
+endpoints:
+  - name: Dragonfly
+    group: Databases
+    url: tcp://dragonfly.databases.svc.cluster.local:6379
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: PostgreSQL
+    group: Databases
+    url: tcp://postgres17-rw.databases.svc.cluster.local:5432
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Plausible ClickHouse
+    group: Databases
+    url: http://plausible-clickhouse.observability.svc.cluster.local:8123/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Zerocut ClickHouse
+    group: Databases
+    url: http://clickhouse.databases.svc.cluster.local:8123/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"

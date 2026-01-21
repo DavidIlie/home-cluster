@@ -1,0 +1,50 @@
+---
+endpoints:
+  - name: Plex
+    group: Media
+    url: https://plex.davidhome.ro/identity
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Radarr
+    group: Media
+    url: http://radarr.media.svc.cluster.local:80/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Sonarr
+    group: Media
+    url: http://sonarr.media.svc.cluster.local:80/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Bazarr
+    group: Media
+    url: http://bazarr.media.svc.cluster.local:6767/health
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Tautulli
+    group: Media
+    url: http://tautulli.media.svc.cluster.local:80/status
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Agregarr
+    group: Media
+    url: http://agregarr.media.svc.cluster.local:7171/api/v1/status
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: MinimServer
+    group: Media
+    url: http://minimserver.default.svc.cluster.local:9790
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 302, 401)"

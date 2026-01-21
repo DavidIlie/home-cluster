@@ -38,6 +38,7 @@ spec:
             env:
               TZ: Europe/Bucharest
               GATUS_CONFIG_PATH: /config
+              GATUS_WEB_PORT: "8080"
             probes:
               liveness: &probes
                 enabled: true
@@ -102,7 +103,43 @@ spec:
           - path: /config/config.yaml
             subPath: config.yaml
             readOnly: true
+          - path: /config/endpoints-connectivity.yaml
+            subPath: endpoints-connectivity.yaml
+            readOnly: true
+          - path: /config/endpoints-media.yaml
+            subPath: endpoints-media.yaml
+            readOnly: true
+          - path: /config/endpoints-downloads.yaml
+            subPath: endpoints-downloads.yaml
+            readOnly: true
+          - path: /config/endpoints-ai.yaml
+            subPath: endpoints-ai.yaml
+            readOnly: true
+          - path: /config/endpoints-infrastructure.yaml
+            subPath: endpoints-infrastructure.yaml
+            readOnly: true
+          - path: /config/endpoints-hardware.yaml
+            subPath: endpoints-hardware.yaml
+            readOnly: true
+          - path: /config/endpoints-monitoring.yaml
+            subPath: endpoints-monitoring.yaml
+            readOnly: true
+          - path: /config/endpoints-services.yaml
+            subPath: endpoints-services.yaml
+            readOnly: true
+          - path: /config/endpoints-gaming.yaml
+            subPath: endpoints-gaming.yaml
+            readOnly: true
+          - path: /config/endpoints-databases.yaml
+            subPath: endpoints-databases.yaml
+            readOnly: true
+          - path: /config/endpoints-cluster.yaml
+            subPath: endpoints-cluster.yaml
+            readOnly: true
       data:
-        existingClaim: gatus
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: openebs-hostpath
         globalMounts:
           - path: /data

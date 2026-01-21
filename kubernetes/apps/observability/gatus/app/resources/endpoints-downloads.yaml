@@ -1,0 +1,36 @@
+---
+endpoints:
+  - name: qBittorrent
+    group: Downloads
+    url: http://qbittorrent.downloads.svc.cluster.local:80
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: SABnzbd
+    group: Downloads
+    url: http://sabnzbd.downloads.svc.cluster.local:80/api?mode=version
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Prowlarr
+    group: Downloads
+    url: http://prowlarr.downloads.svc.cluster.local:80/ping
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Autobrr
+    group: Downloads
+    url: http://autobrr.downloads.svc.cluster.local:80/api/healthz/liveness
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: FlareSolverr
+    group: Downloads
+    url: http://flaresolverr.downloads.svc.cluster.local:8191/health
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
