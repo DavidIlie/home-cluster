@@ -4,26 +4,26 @@
 # Media *arr widgets
 - Media:
     - Radarr:
-        href: http://radarr.media.svc.cluster.local
+        href: https://radarr.davidhome.ro
         widget:
           type: radarr
           url: http://radarr.media.svc.cluster.local
           key: ${RADARR_API_KEY}
     - Sonarr:
-        href: http://sonarr.media.svc.cluster.local
+        href: https://sonarr.davidhome.ro
         widget:
           type: sonarr
           url: http://sonarr.media.svc.cluster.local
           key: ${SONARR_API_KEY}
 - Downloads:
     - Prowlarr:
-        href: http://prowlarr.downloads.svc.cluster.local
+        href: https://prowlarr.davidhome.ro
         widget:
           type: prowlarr
           url: http://prowlarr.downloads.svc.cluster.local
           key: ${PROWLARR_API_KEY}
     - qBittorrent:
-        href: http://qbittorrent.downloads.svc.cluster.local
+        href: https://qb.davidhome.ro
         widget:
           type: qbittorrent
           url: http://qbittorrent.downloads.svc.cluster.local
