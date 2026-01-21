@@ -34,8 +34,8 @@ storage:
   path: ${GATUS_CONFIG_PATH}/gatus.db
 
 ui:
-  title: Status | Gatus
-  header: Status
+  title: Status | David Home
+  header: David Home Status
   logo: https://avatars.githubusercontent.com/u/47594764
   link: https://github.com/DavidIlie
   buttons:
@@ -43,6 +43,7 @@ ui:
       link: https://github.com/DavidIlie
     - name: HomeLab
       link: https://github.com/DavidIlie/home-cluster
+  dark-mode: true
 
 web:
   port: ${GATUS_WEB_PORT}
