@@ -44,6 +44,18 @@ ui:
     - name: HomeLab
       link: https://github.com/DavidIlie/home-cluster
   dark-mode: true
+  custom-css: |
+    :root {
+      color-scheme: dark !important;
+    }
+    html, body {
+      background-color: #0d1117 !important;
+      color: #c9d1d9 !important;
+    }
+    @media (prefers-color-scheme: light) {
+      :root { color-scheme: dark !important; }
+      html, body { background-color: #0d1117 !important; color: #c9d1d9 !important; }
+    }
 
 web:
   port: ${GATUS_WEB_PORT}
