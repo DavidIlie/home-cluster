@@ -16,5 +16,6 @@ configMapGenerator:
       - kubernetes.yaml
       - proxmox.yaml
       - docker.yaml
+      - custom.css
 generatorOptions:
   disableNameSuffixHash: true
