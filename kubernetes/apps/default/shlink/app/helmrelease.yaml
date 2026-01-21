@@ -78,6 +78,11 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Services
+          gethomepage.dev/name: Shlink
+          gethomepage.dev/icon: shlink.png
+          gethomepage.dev/description: URL Shortener
         hosts:
           - host: *host
             paths:

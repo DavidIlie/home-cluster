@@ -58,6 +58,12 @@ spec:
     ingress:
       app:
         className: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: MinimServer
+          gethomepage.dev/icon: mdi-music-box
+          gethomepage.dev/description: DLNA Music Server
         hosts:
           - host: &host "dlna.davidhome.ro"
             paths:

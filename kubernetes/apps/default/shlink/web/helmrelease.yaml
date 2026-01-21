@@ -56,6 +56,12 @@ spec:
     ingress:
       app:
         className: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Services
+          gethomepage.dev/name: Shlink Web
+          gethomepage.dev/icon: shlink.png
+          gethomepage.dev/description: URL Shortener Admin
         hosts:
           - host: &host "shlink.davidhome.ro"
             paths:

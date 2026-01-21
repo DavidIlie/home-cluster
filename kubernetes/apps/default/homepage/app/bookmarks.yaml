@@ -1,0 +1,22 @@
+---
+- Development:
+    - GitHub:
+        - icon: github.png
+          href: https://github.com/DavidIlie/home-cluster
+
+    - Flux CD:
+        - icon: flux-cd.png
+          href: https://fluxcd.io/docs/
+
+    - Talos:
+        - icon: talos.png
+          href: https://www.talos.dev/docs/
+
+- Resources:
+    - KubeSearch:
+        - icon: kubernetes.png
+          href: https://kubesearch.dev/
+
+    - Dashboard Icons:
+        - icon: mdi-palette
+          href: https://github.com/walkxcode/dashboard-icons

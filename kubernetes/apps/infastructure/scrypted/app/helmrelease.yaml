@@ -68,6 +68,11 @@ spec:
         className: "internal"
         annotations:
           nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Infrastructure
+          gethomepage.dev/name: Scrypted
+          gethomepage.dev/icon: scrypted.png
+          gethomepage.dev/description: Smart Home Hub
         hosts:
           - host: scrypted.davidhome.ro
             paths:

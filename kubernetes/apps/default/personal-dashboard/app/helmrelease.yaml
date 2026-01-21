@@ -56,6 +56,11 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Services
+          gethomepage.dev/name: Personal Dashboard
+          gethomepage.dev/icon: mdi-view-dashboard
+          gethomepage.dev/description: Personal Dashboard
         hosts:
           - host: &host "dash.davidhome.ro"
             paths:

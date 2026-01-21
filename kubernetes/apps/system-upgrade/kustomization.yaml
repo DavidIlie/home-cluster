@@ -5,11 +5,5 @@ kind: Kustomization
 namespace: system-upgrade
 components:
   - ../../flux/components/namespace
-  - ../../flux/components/sops
 resources:
-  - ./system-upgrade-controller/ks.yaml
-configMapGenerator:
-  - name: versions
-    env: ./versions.env
-configurations:
-  - ./kustomizeconfig.yaml
+  - ./tuppr/ks.yaml

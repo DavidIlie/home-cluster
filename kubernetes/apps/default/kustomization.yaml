@@ -11,6 +11,8 @@ resources:
   - ./shlink/ks.yaml
   - ./pelican/ks.yaml
   - ./uber-item-viewer/ks.yaml
+  - ./gatus/ks.yaml
+  - ./homepage/ks.yaml
   # - ./openspeedtest/ks.yaml
 components:
   - ../../flux/components/namespace

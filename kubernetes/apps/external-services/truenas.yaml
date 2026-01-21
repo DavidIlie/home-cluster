@@ -38,6 +38,11 @@ metadata:
   namespace: external-services
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Infrastructure
+    gethomepage.dev/name: TrueNAS
+    gethomepage.dev/icon: truenas-scale.png
+    gethomepage.dev/description: Network Storage
 spec:
   ingressClassName: internal
   rules:

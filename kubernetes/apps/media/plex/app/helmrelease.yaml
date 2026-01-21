@@ -76,6 +76,11 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: Plex
+          gethomepage.dev/icon: plex.png
+          gethomepage.dev/description: Media Server
         hosts:
           - host: &host "plex.davidhome.ro"
             paths:

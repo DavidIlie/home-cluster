@@ -38,6 +38,11 @@ metadata:
   namespace: external-services
   annotations:
     external-dns.alpha.kubernetes.io/target: external.davidhome.ro
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Infrastructure
+    gethomepage.dev/name: Home Assistant
+    gethomepage.dev/icon: home-assistant.png
+    gethomepage.dev/description: Smart Home
 spec:
   ingressClassName: external
   rules:

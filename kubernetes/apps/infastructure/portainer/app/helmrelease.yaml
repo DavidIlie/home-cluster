@@ -25,6 +25,12 @@ spec:
     ingress:
       enabled: true
       ingressClassName: internal
+      annotations:
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/group: Infrastructure
+        gethomepage.dev/name: Portainer
+        gethomepage.dev/icon: portainer.png
+        gethomepage.dev/description: Container Management
       hosts:
         - host: &host "portainer.davidhome.ro"
           paths:

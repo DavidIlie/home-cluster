@@ -109,6 +109,12 @@ spec:
       plausible:
         enabled: true
         className: external
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/name: Plausible
+          gethomepage.dev/icon: plausible.png
+          gethomepage.dev/description: Web Analytics
         hosts:
           - host: &app plausible.davidapps.dev
             paths:

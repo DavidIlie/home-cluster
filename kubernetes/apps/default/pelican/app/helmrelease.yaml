@@ -57,6 +57,12 @@ spec:
     ingress:
       pelican:
         className: external
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Services
+          gethomepage.dev/name: Pelican
+          gethomepage.dev/icon: pterodactyl.png
+          gethomepage.dev/description: Game Server Panel
         hosts:
           - host: "panel.davidapps.dev"
             paths:

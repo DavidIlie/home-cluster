@@ -247,6 +247,12 @@ spec:
     ingress:
       enabled: true
       ingressClassName: external
+      annotations:
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/group: Monitoring
+        gethomepage.dev/name: Grafana
+        gethomepage.dev/icon: grafana.png
+        gethomepage.dev/description: Observability Dashboard
       hosts: ["monitoring.davidapps.dev"]
     persistence:
       enabled: false

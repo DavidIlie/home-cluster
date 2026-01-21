@@ -1,0 +1,2 @@
+---
+# Services are auto-discovered via Kubernetes ingress annotations

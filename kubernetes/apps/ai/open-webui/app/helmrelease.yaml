@@ -95,6 +95,11 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: AI
+          gethomepage.dev/name: Open WebUI
+          gethomepage.dev/icon: https://raw.githubusercontent.com/open-webui/open-webui/main/static/logo.svg
+          gethomepage.dev/description: AI Chat Interface
         hosts:
           - host: &host "chat.davidhome.ro"
             paths:

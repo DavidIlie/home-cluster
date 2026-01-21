@@ -1,0 +1,20 @@
+---
+- resources:
+    backend: kubernetes
+    expanded: true
+    cpu: true
+    memory: true
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: false
+
+- openmeteo:
+    label: Bucharest
+    latitude: 44.4268
+    longitude: 26.1025
+    timezone: Europe/Bucharest
+    units: metric

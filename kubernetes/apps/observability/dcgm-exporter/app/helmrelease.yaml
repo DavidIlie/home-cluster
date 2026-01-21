@@ -35,7 +35,11 @@ spec:
       NVIDIA_VISIBLE_DEVICES: all
     runtimeClassName: nvidia
     resources:
+      requests:
+        cpu: 10m
+        memory: 256Mi
       limits:
+        memory: 512Mi
         nvidia.com/gpu: 1
     serviceMonitor:
       interval: 15s

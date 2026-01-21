@@ -134,6 +134,11 @@ metadata:
   namespace: external-services
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Hardware
+    gethomepage.dev/name: iDRAC Servers
+    gethomepage.dev/icon: idrac.png
+    gethomepage.dev/description: Server Management
 spec:
   ingressClassName: internal
   rules:

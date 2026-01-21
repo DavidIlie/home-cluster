@@ -73,6 +73,12 @@ spec:
     ingress:
       app:
         className: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Infrastructure
+          gethomepage.dev/name: go2rtc
+          gethomepage.dev/icon: go2rtc.png
+          gethomepage.dev/description: Camera Streaming
         hosts:
           - host: go2rtc.davidhome.ro
             paths:
