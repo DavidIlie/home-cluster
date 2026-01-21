@@ -53,7 +53,7 @@ endpoints:
 
   - name: Agregarr
     group: Media
-    url: "http://agregarr.media.svc.cluster.local:80/api/v1/status"
+    url: "http://agregarr.media.svc.cluster.local:7171/api/v1/status"
     interval: 60s
     conditions:
       - "[STATUS] == 200"
