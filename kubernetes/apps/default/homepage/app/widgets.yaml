@@ -8,12 +8,9 @@
       label: "cluster"
 
 - proxmox:
-    proxmoxNode: nucleus
-    fields:
-      - vms
-      - lxc
-      - resources.cpu
-      - resources.mem
+    url: https://nucleus.davidhome.ro
+    username: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
+    password: "{{HOMEPAGE_VAR_PROXMOX_SECRET}}"
 
 - datetime:
     text_size: xl

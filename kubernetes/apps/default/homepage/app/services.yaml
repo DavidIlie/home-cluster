@@ -42,7 +42,7 @@
         description: Media Server
         widget:
           type: plex
-          url: http://192.168.100.180:32400
+          url: http://plex.media.svc.cluster.local:32400
           key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
 
 - Downloads:
