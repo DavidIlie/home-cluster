@@ -16,12 +16,10 @@
       show: false
 
 - proxmox:
-    proxmoxNode: nucleus
-    fields:
-      - vms
-      - lxc
-      - resources.cpu
-      - resources.mem
+    url: https://192.168.100.56:8006
+    username: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
+    password: "{{HOMEPAGE_VAR_PROXMOX_SECRET}}"
+    node: nucleus
 
 - datetime:
     text_size: xl
