@@ -82,6 +82,7 @@ spec:
           gethomepage.dev/name: NAS Download
           gethomepage.dev/icon: mdi-download
           gethomepage.dev/description: File Downloads
+          gethomepage.dev/pod-selector: ""
           gatus.home-operations.com/endpoint: |-
             name: NAS Download
             group: Services
