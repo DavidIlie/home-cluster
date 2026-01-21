@@ -58,16 +58,6 @@ spec:
                   secretKeyRef:
                     name: homepage-secret
                     key: UNIFI_API_KEY
-              QBITTORRENT_USERNAME:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: QBITTORRENT_USERNAME
-              QBITTORRENT_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: homepage-secret
-                    key: QBITTORRENT_PASSWORD
               GRAFANA_USERNAME:
                 valueFrom:
                   secretKeyRef:
