@@ -27,8 +27,6 @@
         widget:
           type: qbittorrent
           url: http://qbittorrent.downloads.svc.cluster.local
-          username: ${QBITTORRENT_USERNAME}
-          password: ${QBITTORRENT_PASSWORD}
           enableLeechProgress: true
           enableLeechSize: true
 - Monitoring:
