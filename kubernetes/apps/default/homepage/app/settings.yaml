@@ -4,6 +4,7 @@ favicon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/ho
 theme: dark
 color: slate
 
+# Background with filters for a nice glassmorphism effect
 background:
   image: https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2560&q=80
   blur: sm
@@ -11,42 +12,45 @@ background:
   brightness: 50
   opacity: 100
 
+# Card styling
 cardBlur: md
 headerStyle: boxed
 statusStyle: dot
 showStats: true
 hideVersion: true
+useEqualHeights: true
 
+# Layout configuration for each group
 layout:
   Media:
     style: row
     columns: 5
-    icon: mdi-play-circle
+    header: true
   Downloads:
     style: row
     columns: 3
-    icon: mdi-download
+    header: true
   AI:
     style: row
     columns: 2
-    icon: mdi-robot
+    header: true
   Infrastructure:
     style: row
     columns: 4
-    icon: mdi-server
+    header: true
   Hardware:
     style: row
-    columns: 2
-    icon: mdi-chip
+    columns: 3
+    header: true
   Monitoring:
     style: row
     columns: 3
-    icon: mdi-chart-line
+    header: true
   Services:
     style: row
     columns: 4
-    icon: mdi-apps
+    header: true
   Gaming:
     style: row
     columns: 2
-    icon: mdi-gamepad-variant
+    header: true

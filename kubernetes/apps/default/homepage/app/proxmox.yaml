@@ -1,5 +1,6 @@
 ---
+# Proxmox server configuration for widgets
 nucleus:
   url: https://192.168.100.56:8006
-  token: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
-  secret: "{{HOMEPAGE_VAR_PROXMOX_SECRET}}"
+  username: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
+  password: "{{HOMEPAGE_VAR_PROXMOX_SECRET}}"
