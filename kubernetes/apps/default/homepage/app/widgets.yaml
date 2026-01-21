@@ -8,7 +8,7 @@
       label: "cluster"
 
 - proxmox:
-    url: https://nucleus.davidhome.ro:8006
+    url: https://192.168.100.56:8006
     username: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
     password: "{{HOMEPAGE_VAR_PROXMOX_SECRET}}"
     node: nucleus
