@@ -89,15 +89,8 @@
     // Critical Infrastructure - NO Automerge
     // =====================
     {
-      description: ['Disable automerge for critical infrastructure'],
+      description: ['Disable automerge for databases and Talos/Kubernetes'],
       matchPackageNames: [
-        // Networking & Ingress
-        '/external-dns/',
-        '/ingress-nginx/',
-        '/cloudflared/',
-        '/cilium/',
-        // Certificates
-        '/cert-manager/',
         // Talos & Kubernetes
         '/siderolabs/',
         '/talos/',
@@ -107,10 +100,6 @@
         '/postgresql/',
         '/cloudnative-pg/',
         '/dragonfly/',
-        // Analytics
-        '/plausible/',
-        // GitOps
-        '/flux/',
       ],
       automerge: false,
     },
