@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plausible-clickhouse-users
+  namespace: observability
+data:
+  users.xml: |
+    <?xml version="1.0"?>
+    <clickhouse>
+      <users>
+        <gurt>
+          <password>pizza</password>
+          <networks>
+            <ip>::/0</ip>
+          </networks>
+          <profile>default</profile>
+          <quota>default</quota>
+          <access_management>1</access_management>
+        </gurt>
+        <default>
+          <password></password>
+          <networks>
+            <ip>::1</ip>
+            <ip>127.0.0.1</ip>
+          </networks>
+          <profile>default</profile>
+          <quota>default</quota>
+        </default>
+      </users>
+    </clickhouse>

@@ -26,9 +26,6 @@ spec:
               repository: clickhouse/clickhouse-server
               tag: 25.12.3.21-alpine@sha256:74da41cd61db84f652c6364fd30d59e19b7276d34f7c82515f5f0e70d6f325da
               pullPolicy: IfNotPresent
-            env:
-              CLICKHOUSE_USER: gurt
-              CLICKHOUSE_PASSWORD: pizza
             probes:
               liveness: &probes
                 enabled: true
@@ -63,6 +60,13 @@ spec:
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /var/log/clickhouse-server
+      users-config:
+        enabled: true
+        type: configMap
+        name: plausible-clickhouse-users
+        globalMounts:
+          - path: /etc/clickhouse-server/users.d/users.xml
+            subPath: users.xml
     service:
       clickhouse:
         controller: clickhouse
