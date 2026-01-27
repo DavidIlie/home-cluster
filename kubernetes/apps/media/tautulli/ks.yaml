@@ -11,7 +11,6 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: volsync
-      namespace: volsync-system
   path: ./kubernetes/apps/media/tautulli/app
   prune: true
   sourceRef:
@@ -29,4 +28,3 @@ spec:
     substituteFrom:
       - kind: Secret
         name: volsync-secret
-        namespace: volsync-system

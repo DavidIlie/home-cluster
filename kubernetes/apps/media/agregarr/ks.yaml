@@ -13,7 +13,6 @@ spec:
     - name: openebs
       namespace: openebs-system
     - name: volsync
-      namespace: volsync-system
   path: ./kubernetes/apps/media/agregarr/app
   prune: true
   sourceRef:
@@ -31,4 +30,3 @@ spec:
     substituteFrom:
       - kind: Secret
         name: volsync-secret
-        namespace: volsync-system
