@@ -12,7 +12,6 @@ resources:
   - ./bazarr/ks.yaml
   - ./agregarr/ks.yaml
   - ./overseerr/ks.yaml
-  - ./recommendarr/ks.yaml
   # - ./stream-master/ks.yaml
   # - ./threadfin/ks.yaml
   # - ./recyclarr/ks.yaml

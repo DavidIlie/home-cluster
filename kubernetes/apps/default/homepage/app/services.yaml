@@ -12,10 +12,6 @@
           type: overseerr
           url: http://overseerr.media.svc.cluster.local:5055
           key: "{{HOMEPAGE_VAR_OVERSEERR_API_KEY}}"
-    - Recommendarr:
-        icon: mdi-movie-search
-        href: https://recommendarr.davidhome.ro
-        description: AI Media Recommendations
     - Radarr:
         icon: radarr.png
         href: https://radarr.davidhome.ro
