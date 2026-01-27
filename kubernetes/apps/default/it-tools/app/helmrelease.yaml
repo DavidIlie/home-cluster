@@ -94,3 +94,11 @@ spec:
     persistence:
       tmp:
         type: emptyDir
+      nginx-cache:
+        type: emptyDir
+        globalMounts:
+          - path: /var/cache/nginx
+      nginx-run:
+        type: emptyDir
+        globalMounts:
+          - path: /var/run

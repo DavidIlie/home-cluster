@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: volsync-system
 resources:
   - ./volsync/ks.yaml
-  - ./kopia/ks.yaml
+  # - ./kopia/ks.yaml  # Not needed - using VolSync with restic to S3
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
