@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: media
 resources:
   - ./nfs-pvc.yaml
+  - ./volsync-secret.sops.yaml
   - ./tautulli/ks.yaml
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
