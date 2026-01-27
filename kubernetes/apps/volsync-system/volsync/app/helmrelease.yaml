@@ -27,6 +27,3 @@ spec:
     manageCRDs: true
     metrics:
       disableAuth: true
-    image:
-      repository: ghcr.io/backube/volsync
-      tag: 0.14.0
