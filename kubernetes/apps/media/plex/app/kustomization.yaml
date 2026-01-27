@@ -5,6 +5,8 @@ namespace: default
 resources:
   - ./claim.yaml
   - ./helmrelease.yaml
+components:
+  - ../../../../flux/components/volsync
 configMapGenerator:
   - name: plex-chromecast-profile
     files:

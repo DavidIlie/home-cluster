@@ -19,6 +19,8 @@ spec:
       namespace: ai
     - name: dragonfly-cluster
       namespace: databases
+    - name: volsync
+      namespace: volsync-system
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -26,3 +28,11 @@ spec:
   targetNamespace: *namespace
   timeout: 10m
   wait: false
+  postBuild:
+    substitute:
+      APP: *app
+      APP_PVC: *app
+    substituteFrom:
+      - kind: Secret
+        name: volsync-secret
+        namespace: volsync-system

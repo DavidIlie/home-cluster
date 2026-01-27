@@ -6,3 +6,5 @@ resources:
   - ./helmrelease.yaml
   - ./claim.yaml
   - ./configmap.yaml
+components:
+  - ../../../../flux/components/volsync

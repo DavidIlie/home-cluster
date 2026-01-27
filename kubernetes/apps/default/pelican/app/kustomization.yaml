@@ -6,6 +6,8 @@ resources:
   - ./helmrelease.yaml
   - ./claim.yaml
   - ./secret.sops.yaml
+components:
+  - ../../../../flux/components/volsync
 configMapGenerator:
   - name: pelican-caddyfile
     files:

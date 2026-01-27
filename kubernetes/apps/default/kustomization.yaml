@@ -12,6 +12,9 @@ resources:
   - ./pelican/ks.yaml
   - ./uber-item-viewer/ks.yaml
   - ./homepage/ks.yaml
+  - ./it-tools/ks.yaml
+  - ./miniflux/ks.yaml
+  - ./paperless/ks.yaml
   # - ./openspeedtest/ks.yaml
 components:
   - ../../flux/components/namespace

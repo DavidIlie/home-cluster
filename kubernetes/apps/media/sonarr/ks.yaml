@@ -12,6 +12,8 @@ spec:
   dependsOn:
     - name: cloudnative-pg-cluster
       namespace: databases
+    - name: volsync
+      namespace: volsync-system
   path: ./kubernetes/apps/media/sonarr/app
   prune: true
   sourceRef:
@@ -22,3 +24,11 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
+  postBuild:
+    substitute:
+      APP: *app
+      APP_PVC: *app
+    substituteFrom:
+      - kind: Secret
+        name: volsync-secret
+        namespace: volsync-system

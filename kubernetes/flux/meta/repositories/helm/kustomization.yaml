@@ -17,3 +17,4 @@ resources:
   - ./cloudnative-pg.yaml
   - ./node-feature-discovery.yaml
   - ./dcgm-exporter.yaml
+  - ./backube.yaml

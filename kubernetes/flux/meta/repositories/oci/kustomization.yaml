@@ -8,3 +8,4 @@ resources:
   - ./spegel.yaml
   - ./stakater.yaml
   - ./coredns.yaml
+  - ./actions-runner-controller.yaml

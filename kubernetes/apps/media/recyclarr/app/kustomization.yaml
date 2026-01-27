@@ -6,6 +6,8 @@ resources:
   - ./secret.sops.yaml
   - ./claim.yaml
   - ./helmrelease.yaml
+components:
+  - ../../../../flux/components/volsync
 configMapGenerator:
   - name: recyclarr-configmap
     files:

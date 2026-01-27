@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: &name paperless-nfs
+spec:
+  storageClassName: *name
+  capacity:
+    storage: 1Mi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: "192.168.25.3"
+    path: /mnt/data/share/client_user/kubernetes/paperless
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: &name paperless-nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: *name
+  resources:
+    requests:
+      storage: 1Mi

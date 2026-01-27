@@ -1,0 +1,24 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: "${APP}"
+spec:
+  sourcePVC: "${APP_PVC}"
+  trigger:
+    schedule: "0 */6 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: "${APP}-volsync-secret"
+    retain:
+      hourly: 6
+      daily: 7
+      weekly: 4
+      monthly: 3
+    copyMethod: Direct
+    moverSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+    cacheStorageClassName: openebs-hostpath
+    cacheCapacity: 2Gi

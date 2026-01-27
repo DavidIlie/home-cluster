@@ -280,9 +280,72 @@ Present the created files for review before committing. Ask: **"Here are the fil
 - `external` - Public-facing via Cloudflare tunnel
 - `internal` - Internal network only
 
+### Ingress Requirements (IMPORTANT)
+
+**Every app with an ingress MUST have:**
+
+1. **Gatus Health Check** - Add this annotation to the ingress:
+```yaml
+ingress:
+  app:
+    annotations:
+      gatus.home-operations.com/endpoint: |-
+        name: App Name
+        group: Category  # Media, Utilities, Downloads, Monitoring, etc.
+        url: https://hostname.davidhome.ro
+        interval: 1m
+        conditions: ["[STATUS] == 200"]
+```
+
+2. **Homepage Entry** - Add to `kubernetes/apps/default/homepage/app/services.yaml`:
+```yaml
+- Category:
+    - App Name:
+        icon: app-icon.png  # or mdi-icon-name
+        href: https://hostname.davidhome.ro
+        description: Brief description
+        widget:  # Optional - only if the app supports homepage widgets
+          type: widget-type
+          url: http://service.namespace.svc.cluster.local:port
+          key: "{{HOMEPAGE_VAR_APP_API_KEY}}"
+```
+
+**Widget API keys** go in `kubernetes/apps/default/homepage/app/secret.sops.yaml`
+
 ### Storage
 - **OpenEBS** - Local provisioner for stateful apps
 - **NFS** - Media storage mounted from TrueNAS
+
+### Backups (VolSync)
+
+Apps with PVCs use VolSync to backup data to MinIO S3 (`192.168.100.63:9000/volsync`).
+
+**To enable VolSync backups for an app:**
+
+1. Add to `ks.yaml`:
+```yaml
+spec:
+  dependsOn:
+    - name: volsync
+      namespace: volsync-system
+  postBuild:
+    substitute:
+      APP: *app
+      APP_PVC: *app  # Or custom PVC name if different
+    substituteFrom:
+      - kind: Secret
+        name: volsync-secret
+        namespace: volsync-system
+```
+
+2. Add to `app/kustomization.yaml`:
+```yaml
+components:
+  - ../../../../flux/components/volsync
+```
+
+**Backup schedule:** Every 6 hours
+**Retention:** 6 hourly, 7 daily, 4 weekly, 3 monthly
 
 ### Common Helm Repositories
 - `bjw-s` - app-template charts (most apps use this)
@@ -469,3 +532,5 @@ PRs are labeled by type:
 | `infastructure` | Infrastructure tools |
 | `external-services` | External service monitors |
 | `openebs-system` | Storage provisioner |
+| `volsync-system` | PVC backup/restore with VolSync |
+| `actions-runner-system` | GitHub Actions self-hosted runners |

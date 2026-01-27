@@ -4,6 +4,18 @@
 # Widgets must be configured here as annotations don't support widgets
 
 - Media:
+    - Overseerr:
+        icon: overseerr.png
+        href: https://overseerr.davidhome.ro
+        description: Media Request Manager
+        widget:
+          type: overseerr
+          url: http://overseerr.media.svc.cluster.local:5055
+          key: "{{HOMEPAGE_VAR_OVERSEERR_API_KEY}}"
+    - Recommendarr:
+        icon: mdi-movie-search
+        href: https://recommendarr.davidhome.ro
+        description: AI Media Recommendations
     - Radarr:
         icon: radarr.png
         href: https://radarr.davidhome.ro
@@ -94,6 +106,28 @@
           url: https://monitoring.davidapps.dev
           username: "{{HOMEPAGE_VAR_GRAFANA_USERNAME}}"
           password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+
+- Utilities:
+    - IT Tools:
+        icon: it-tools.png
+        href: https://it-tools.davidhome.ro
+        description: Developer Utilities
+    - Miniflux:
+        icon: miniflux.png
+        href: https://miniflux.davidhome.ro
+        description: RSS Reader
+        widget:
+          type: miniflux
+          url: http://miniflux.default.svc.cluster.local
+          key: "{{HOMEPAGE_VAR_MINIFLUX_API_KEY}}"
+    - Paperless:
+        icon: paperless-ngx.png
+        href: https://paperless.davidhome.ro
+        description: Document Management
+        widget:
+          type: paperlessngx
+          url: http://paperless.default.svc.cluster.local:8000
+          key: "{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}"
 
 - Infrastructure:
     - Unifi Controller:
