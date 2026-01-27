@@ -20,6 +20,7 @@ spec:
     - name: dragonfly-cluster
       namespace: databases
     - name: volsync
+      namespace: volsync-system
   sourceRef:
     kind: GitRepository
     name: flux-system

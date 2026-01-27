@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: volsync
+      namespace: volsync-system
   path: ./kubernetes/apps/downloads/qbittorrent/app
   prune: true
   sourceRef:
