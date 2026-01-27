@@ -108,14 +108,6 @@
         icon: it-tools.png
         href: https://it-tools.davidhome.ro
         description: Developer Utilities
-    - Miniflux:
-        icon: miniflux.png
-        href: https://miniflux.davidhome.ro
-        description: RSS Reader
-        widget:
-          type: miniflux
-          url: http://miniflux.default.svc.cluster.local
-          key: "{{HOMEPAGE_VAR_MINIFLUX_API_KEY}}"
     - Paperless:
         icon: paperless-ngx.png
         href: https://paperless.davidhome.ro

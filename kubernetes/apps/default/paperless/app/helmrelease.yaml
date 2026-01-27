@@ -67,6 +67,7 @@ spec:
               PAPERLESS_DBENGINE: postgresql
               # Auth
               PAPERLESS_ACCOUNT_ALLOW_SIGNUPS: "false"
+              PAPERLESS_AUTO_LOGIN_USERNAME: admin
               # User permissions
               USERMAP_UID: "1000"
               USERMAP_GID: "1000"
