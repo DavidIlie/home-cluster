@@ -61,12 +61,17 @@ spec:
               PAPERLESS_OCR_LANGUAGE: eng
               PAPERLESS_OCR_LANGUAGES: eng
               PAPERLESS_OCR_SKIP_ARCHIVE_FILE: with_text
+              # Tika & Gotenberg (document conversion)
+              PAPERLESS_TIKA_ENABLED: "true"
+              PAPERLESS_TIKA_ENDPOINT: http://tika.default.svc.cluster.local:9998
+              PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg.default.svc.cluster.local:3000
               # Redis (Dragonfly)
               PAPERLESS_REDIS: redis://dragonfly.databases.svc.cluster.local:6379
               # Database
               PAPERLESS_DBENGINE: postgresql
               # Auth
               PAPERLESS_ACCOUNT_ALLOW_SIGNUPS: "false"
+              PAPERLESS_AUTO_LOGIN_USERNAME: admin
               # User permissions
               USERMAP_UID: "1000"
               USERMAP_GID: "1000"
