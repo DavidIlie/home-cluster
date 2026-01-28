@@ -116,14 +116,6 @@
           type: paperlessngx
           url: http://paperless.default.svc.cluster.local:8000
           key: "{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}"
-    - Paperless AI:
-        icon: mdi-robot
-        href: https://paperless-ai.davidhome.ro
-        description: AI Metadata Suggestions
-    - Paperless GPT:
-        icon: mdi-file-document-edit
-        href: https://paperless-gpt.davidhome.ro
-        description: Vision OCR & AI Processing
 
 - Infrastructure:
     - Unifi Controller:
