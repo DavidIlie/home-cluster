@@ -42,7 +42,7 @@ spec:
               # Vision OCR configuration (using Ollama with vision model)
               OCR_PROVIDER: llm
               VISION_LLM_PROVIDER: ollama
-              VISION_LLM_MODEL: minicpm-v:8b
+              VISION_LLM_MODEL: moondream:1.8b
               # Tags
               MANUAL_TAG: paperless-gpt
               AUTO_TAG: paperless-gpt-auto
