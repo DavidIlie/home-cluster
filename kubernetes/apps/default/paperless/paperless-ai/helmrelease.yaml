@@ -35,7 +35,7 @@ spec:
             env:
               # Paperless connection
               PAPERLESS_API_URL: http://paperless.default.svc.cluster.local:8000
-              PAPERLESS_USERNAME: admin
+              PAPERLESS_USERNAME: david
               # Ollama connection
               AI_PROVIDER: ollama
               OLLAMA_API_URL: http://ollama-backend.ai.svc.cluster.local:11434
