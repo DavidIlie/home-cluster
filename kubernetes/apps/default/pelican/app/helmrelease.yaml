@@ -44,6 +44,9 @@ spec:
               XDG_DATA_HOME: /pelican-data
               APP_URL: https://panel.davidapps.dev
               ADMIN_EMAIL: david@davidilie.com
+            envFrom:
+              - secretRef:
+                  name: pelican-secret
             securityContext:
               privileged: true
     service:
