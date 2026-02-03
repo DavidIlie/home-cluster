@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: ghcr.io/linkwarden/linkwarden
-              tag: v2.10.0
+              tag: v2.10.2
             env:
               TZ: Europe/Bucharest
               NEXTAUTH_URL: https://linkwarden.davidhome.ro
