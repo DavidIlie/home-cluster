@@ -11,7 +11,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: dragonfly-cluster
+    - name: dragonfly-operator
       namespace: databases
   path: ./kubernetes/apps/observability/claude-usage-tracker/app
   prune: true
