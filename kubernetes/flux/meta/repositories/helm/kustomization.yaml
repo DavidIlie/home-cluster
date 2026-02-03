@@ -18,3 +18,4 @@ resources:
   - ./node-feature-discovery.yaml
   - ./dcgm-exporter.yaml
   - ./backube.yaml
+  - ./piraeus.yaml

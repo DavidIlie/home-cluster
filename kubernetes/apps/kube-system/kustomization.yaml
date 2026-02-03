@@ -11,6 +11,7 @@ resources:
   - ./spegel/ks.yaml
   - ./node-feature-discovery/ks.yaml
   - ./nvidia-device-plugin/ks.yaml
+  - ./snapshot-controller/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
