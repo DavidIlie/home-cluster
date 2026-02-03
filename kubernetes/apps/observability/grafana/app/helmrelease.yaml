@@ -60,13 +60,12 @@ spec:
             jsonData:
               timeInterval: 15s
             isDefault: false
-          # Victoria Logs datasource disabled - plugin not in registry
-          # - name: victoria-logs
-          #   type: victorialogs-datasource
-          #   uid: victoria-logs
-          #   access: proxy
-          #   url: http://victoria-logs-server.observability.svc.cluster.local:9428
-          #   isDefault: false
+          - name: VictoriaLogs
+            type: victoriametrics-logs-datasource
+            uid: victoria-logs
+            access: proxy
+            url: http://victoria-logs-server.observability.svc.cluster.local:9428
+            isDefault: false
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -261,7 +260,7 @@ spec:
       - grafana-worldmap-panel
       - natel-discrete-panel
       - vonage-status-panel
-      # victorialogs-datasource disabled - not in plugin registry
+      - victoriametrics-logs-datasource
     serviceMonitor:
       enabled: true
     ingress:
