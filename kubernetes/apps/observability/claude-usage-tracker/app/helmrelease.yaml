@@ -15,11 +15,11 @@ spec:
         name: bjw-s
         namespace: flux-system
   install:
-    timeout: 10m
+    timeout: 15m
     remediation:
       retries: 3
   upgrade:
-    timeout: 10m
+    timeout: 15m
     cleanupOnFail: true
     remediation:
       strategy: rollback
