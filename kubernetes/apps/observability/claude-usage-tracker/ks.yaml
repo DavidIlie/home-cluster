@@ -10,9 +10,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  dependsOn:
-    - name: dragonfly-operator
-      namespace: databases
   path: ./kubernetes/apps/observability/claude-usage-tracker/app
   prune: true
   sourceRef:
