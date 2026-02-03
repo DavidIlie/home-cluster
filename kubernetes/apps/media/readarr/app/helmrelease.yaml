@@ -38,8 +38,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/home-operations/readarr-develop
-              tag: 0.4.12.2737@sha256:f8e0f88b15015de8e54df9e2f74c6a8eb6ba8c15d16e0c09c206978e47be0d00
+              repository: ghcr.io/home-operations/readarr
+              tag: 0.4.18.2805
             env:
               READARR__APP__INSTANCENAME: Readarr
               READARR__SERVER__PORT: &port 80
