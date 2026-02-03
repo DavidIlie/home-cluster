@@ -60,6 +60,12 @@ spec:
             jsonData:
               timeInterval: 15s
             isDefault: false
+          - name: victoria-logs
+            type: victorialogs-datasource
+            uid: victoria-logs
+            access: proxy
+            url: http://victoria-logs-server.observability.svc.cluster.local:9428
+            isDefault: false
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -223,6 +229,18 @@ spec:
           revision: 2
           name: Home NVIDIA Exporter
           datasource: prometheus-home-cluster
+        truenas-scale:
+          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale.json
+          datasource: prometheus-home-cluster
+        truenas-scale-disk-insights:
+          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_disk_insights.json
+          datasource: prometheus-home-cluster
+        truenas-scale-temperatures:
+          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_temperatures.json
+          datasource: prometheus-home-cluster
+        claude-usage-tracker:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/claude-usage-tracker.json
+          datasource: prometheus-home-cluster
     sidecar:
       dashboards:
         enabled: false
@@ -242,6 +260,7 @@ spec:
       - grafana-worldmap-panel
       - natel-discrete-panel
       - vonage-status-panel
+      - victorialogs-datasource
     serviceMonitor:
       enabled: true
     ingress:

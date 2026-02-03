@@ -1,0 +1,126 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app claude-usage-tracker
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  dependsOn:
+    - name: openebs
+      namespace: openebs-system
+    - name: dragonfly-cluster
+      namespace: databases
+  values:
+    controllers:
+      claude-usage-tracker:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/davidilie/claude-code-prometheus
+              tag: 1.0.1
+            env:
+              TZ: Europe/Bucharest
+              PORT: &port 3000
+              NODE_ENV: production
+              DATABASE_URL: file:/app/data/db.sqlite
+              # Redis for session caching (optional)
+              REDIS_URL: redis://dragonfly.databases.svc.cluster.local:6379
+              # Auto-login bypass - set initial admin credentials
+              AUTO_SETUP: "true"
+              ADMIN_USERNAME: admin
+            envFrom:
+              - secretRef:
+                  name: claude-usage-tracker-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *port
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: claude-usage-tracker
+        ports:
+          http:
+            port: *port
+    serviceMonitor:
+      app:
+        serviceName: claude-usage-tracker
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+    ingress:
+      app:
+        className: internal
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            name: Claude Usage Tracker
+            group: Monitoring
+            url: https://claude-usage.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hosts:
+          - host: &host "claude-usage.davidhome.ro"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts: [*host]
+    persistence:
+      data:
+        enabled: true
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: openebs-hostpath
+        globalMounts:
+          - path: /app/data

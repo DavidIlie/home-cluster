@@ -40,3 +40,8 @@ scrape_configs:
     scrape_interval: 30s
     static_configs:
       - targets: ["unpoller.observability.svc.cluster.local:80"]
+  - job_name: "claude-usage-tracker"
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["claude-usage-tracker.observability.svc.cluster.local:3000"]
+    metrics_path: /metrics

@@ -28,6 +28,14 @@
           type: sonarr
           url: http://sonarr.media.svc.cluster.local
           key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
+    - Readarr:
+        icon: readarr.png
+        href: https://readarr.davidhome.ro
+        description: Ebook Management
+        widget:
+          type: readarr
+          url: http://readarr.media.svc.cluster.local
+          key: "{{HOMEPAGE_VAR_READARR_API_KEY}}"
     - Bazarr:
         icon: bazarr.png
         href: https://bazarr.davidhome.ro
@@ -36,6 +44,10 @@
           type: bazarr
           url: http://bazarr.media.svc.cluster.local:6767
           key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
+    - Kavita:
+        icon: kavita.png
+        href: https://kavita.davidhome.ro
+        description: Ebook Reader
     - Tautulli:
         icon: tautulli.png
         href: https://tautulli.davidhome.ro
@@ -102,12 +114,20 @@
           url: https://monitoring.davidapps.dev
           username: "{{HOMEPAGE_VAR_GRAFANA_USERNAME}}"
           password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+    - Claude Usage Tracker:
+        icon: mdi-robot-outline
+        href: https://claude-usage.davidhome.ro
+        description: Claude Code Usage Metrics
 
 - Utilities:
     - IT Tools:
         icon: it-tools.png
         href: https://it-tools.davidhome.ro
         description: Developer Utilities
+    - Stirling PDF:
+        icon: stirling-pdf.png
+        href: https://pdf.davidhome.ro
+        description: PDF Tools
     - Paperless:
         icon: paperless-ngx.png
         href: https://paperless.davidhome.ro
@@ -116,6 +136,30 @@
           type: paperlessngx
           url: http://paperless.default.svc.cluster.local:8000
           key: "{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}"
+    - Mealie:
+        icon: mealie.png
+        href: https://mealie.davidhome.ro
+        description: Recipe Manager
+        widget:
+          type: mealie
+          url: http://mealie.default.svc.cluster.local:9000
+          key: "{{HOMEPAGE_VAR_MEALIE_API_KEY}}"
+    - Linkwarden:
+        icon: linkwarden.png
+        href: https://linkwarden.davidhome.ro
+        description: Bookmark Manager
+    - Memos:
+        icon: memos.png
+        href: https://memos.davidhome.ro
+        description: Note Taking
+    - n8n:
+        icon: n8n.png
+        href: https://n8n.davidhome.ro
+        description: Workflow Automation
+    - OpenSpeedTest:
+        icon: openspeedtest.png
+        href: https://speedtest.davidhome.ro
+        description: Network Speed Test
 
 - Infrastructure:
     - Unifi Controller:

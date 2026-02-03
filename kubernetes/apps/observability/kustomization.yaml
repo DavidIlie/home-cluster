@@ -15,6 +15,13 @@ resources:
   - ./proxmox-exporter/ks.yaml
   - ./unpoller/ks.yaml
   - ./gatus/ks.yaml
+  - ./victoria-logs/ks.yaml
+  - ./fluent-bit/ks.yaml
+  - ./blackbox-exporter/ks.yaml
+  - ./smartctl-exporter/ks.yaml
+  - ./kromgo/ks.yaml
+  - ./graphite-exporter/ks.yaml
+  - ./claude-usage-tracker/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
