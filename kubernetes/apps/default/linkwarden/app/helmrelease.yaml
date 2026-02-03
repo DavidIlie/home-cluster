@@ -44,7 +44,7 @@ spec:
               TZ: Europe/Bucharest
               NEXTAUTH_URL: https://linkwarden.davidhome.ro
               NEXT_PUBLIC_DISABLE_REGISTRATION: "true"
-              STORAGE_FOLDER: /data
+              STORAGE_FOLDER: /linkwarden-data
             envFrom: *envFrom
             probes:
               liveness:
@@ -64,10 +64,10 @@ spec:
                 memory: 1Gi
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsNonRoot: false
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
@@ -99,4 +99,4 @@ spec:
       data:
         existingClaim: linkwarden
         globalMounts:
-          - path: /data
+          - path: /linkwarden-data
