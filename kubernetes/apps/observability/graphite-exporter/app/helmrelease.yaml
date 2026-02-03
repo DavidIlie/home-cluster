@@ -1,0 +1,96 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: graphite-exporter
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      graphite-exporter:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: prom/graphite-exporter
+              tag: v0.16.0
+            args:
+              - --graphite.mapping-config=/config/graphite_mapping.conf
+              - --graphite.listen-address=:2003
+              - --web.listen-address=:9108
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /metrics
+                    port: 9108
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /metrics
+                    port: 9108
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        controller: graphite-exporter
+        type: LoadBalancer
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.100.97
+        ports:
+          http:
+            port: 9108
+          graphite:
+            port: 2003
+            protocol: TCP
+    serviceMonitor:
+      app:
+        serviceName: graphite-exporter
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 30s
+            honorLabels: true
+    persistence:
+      config:
+        type: configMap
+        name: graphite-exporter-config
+        globalMounts:
+          - path: /config/graphite_mapping.conf
+            subPath: graphite_mapping.conf
+            readOnly: true

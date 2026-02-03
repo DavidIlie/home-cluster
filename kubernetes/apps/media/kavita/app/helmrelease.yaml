@@ -1,9 +1,9 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: openspeedtest
+  name: kavita
 spec:
   interval: 30m
   chart:
@@ -20,61 +20,61 @@ spec:
   upgrade:
     cleanupOnFail: true
     remediation:
+      strategy: rollback
       retries: 3
   values:
     controllers:
-      openspeedtest:
+      kavita:
         containers:
           app:
             image:
-              repository: openspeedtest/latest
-              tag: v2.0.6
+              repository: ghcr.io/kareadita/kavita
+              tag: 0.8.4
+            env:
+              TZ: Europe/Bucharest
             probes:
-              liveness: &probes
+              liveness:
                 enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /
-                    port: &port 3000
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
+              readiness:
+                enabled: true
               startup:
-                enabled: false
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
             resources:
               requests:
-                cpu: 20m
+                cpu: 10m
                 memory: 256Mi
               limits:
-                memory: 512Mi
+                memory: 1Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101
-        runAsGroup: 101
-        seccompProfile: { type: RuntimeDefault }
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [10000]
     service:
       app:
-        controller: openspeedtest
+        controller: kavita
         ports:
           http:
-            port: *port
+            port: 5000
     ingress:
       app:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
           gatus.home-operations.com/endpoint: |-
-            name: OpenSpeedTest
-            group: Utilities
-            url: https://speedtest.davidhome.ro
+            name: Kavita
+            group: Media
+            url: https://kavita.davidhome.ro
             interval: 1m
             conditions: ["[STATUS] == 200"]
         hosts:
-          - host: &host "speedtest.davidhome.ro"
+          - host: &host "kavita.davidhome.ro"
             paths:
               - path: /
                 service:
@@ -82,3 +82,12 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    persistence:
+      config:
+        existingClaim: kavita
+        globalMounts:
+          - path: /kavita/config
+      media:
+        existingClaim: storage-nfs
+        globalMounts:
+          - path: /share

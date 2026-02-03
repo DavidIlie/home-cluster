@@ -15,7 +15,12 @@ resources:
   - ./homepage/ks.yaml
   - ./it-tools/ks.yaml
   - ./paperless/ks.yaml
-  # - ./openspeedtest/ks.yaml
+  - ./stirling-pdf/ks.yaml
+  - ./n8n/ks.yaml
+  - ./mealie/ks.yaml
+  - ./linkwarden/ks.yaml
+  - ./memos/ks.yaml
+  - ./openspeedtest/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/regcred

@@ -9,3 +9,5 @@ resources:
   - ./stakater.yaml
   - ./coredns.yaml
   - ./actions-runner-controller.yaml
+  - ./fluent-bit.yaml
+  - ./victoria-metrics.yaml

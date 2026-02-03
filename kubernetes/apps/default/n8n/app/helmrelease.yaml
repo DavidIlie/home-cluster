@@ -1,0 +1,105 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: n8n
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      n8n:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18.1
+            envFrom: &envFrom
+              - secretRef:
+                  name: n8n-secret
+        containers:
+          app:
+            image:
+              repository: docker.io/n8nio/n8n
+              tag: 1.77.0
+            env:
+              GENERIC_TIMEZONE: Europe/Bucharest
+              TZ: Europe/Bucharest
+              N8N_PORT: &port 5678
+              N8N_HOST: n8n.davidhome.ro
+              N8N_PROTOCOL: https
+              WEBHOOK_URL: https://n8n.davidhome.ro/
+              N8N_USER_FOLDER: /home/node/.n8n
+            envFrom: *envFrom
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: n8n
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: internal
+        annotations:
+          gethomepage.dev/enabled: "false"
+          gatus.home-operations.com/endpoint: |-
+            name: n8n
+            group: Utilities
+            url: https://n8n.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hosts:
+          - host: &host "n8n.davidhome.ro"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts: [*host]
+    persistence:
+      config:
+        existingClaim: n8n
+        globalMounts:
+          - path: /home/node/.n8n

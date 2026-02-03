@@ -1,9 +1,9 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: openspeedtest
+  name: memos
 spec:
   interval: 30m
   chart:
@@ -20,61 +20,62 @@ spec:
   upgrade:
     cleanupOnFail: true
     remediation:
+      strategy: rollback
       retries: 3
   values:
     controllers:
-      openspeedtest:
+      memos:
         containers:
           app:
             image:
-              repository: openspeedtest/latest
-              tag: v2.0.6
+              repository: ghcr.io/usememos/memos
+              tag: 0.24.0
+            env:
+              TZ: Europe/Bucharest
+              MEMOS_MODE: prod
+              MEMOS_PORT: "5230"
             probes:
-              liveness: &probes
+              liveness:
                 enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /
-                    port: &port 3000
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
+              readiness:
+                enabled: true
               startup:
-                enabled: false
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
             resources:
               requests:
-                cpu: 20m
-                memory: 256Mi
+                cpu: 10m
+                memory: 128Mi
               limits:
                 memory: 512Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101
-        runAsGroup: 101
-        seccompProfile: { type: RuntimeDefault }
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
-        controller: openspeedtest
+        controller: memos
         ports:
           http:
-            port: *port
+            port: 5230
     ingress:
       app:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
           gatus.home-operations.com/endpoint: |-
-            name: OpenSpeedTest
+            name: Memos
             group: Utilities
-            url: https://speedtest.davidhome.ro
+            url: https://memos.davidhome.ro
             interval: 1m
             conditions: ["[STATUS] == 200"]
         hosts:
-          - host: &host "speedtest.davidhome.ro"
+          - host: &host "memos.davidhome.ro"
             paths:
               - path: /
                 service:
@@ -82,3 +83,8 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    persistence:
+      data:
+        existingClaim: memos
+        globalMounts:
+          - path: /var/opt/memos
