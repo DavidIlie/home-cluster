@@ -17,8 +17,8 @@ spec:
       monthly: 3
     copyMethod: Direct
     moverSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
+      runAsUser: ${MOVER_UID:=568}
+      runAsGroup: ${MOVER_GID:=568}
+      fsGroup: ${MOVER_FSGROUP:=568}
     cacheStorageClassName: openebs-hostpath
     cacheCapacity: 2Gi

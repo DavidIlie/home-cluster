@@ -26,6 +26,9 @@ spec:
     substitute:
       APP: *app
       APP_PVC: plex-config
+      MOVER_UID: "1000"
+      MOVER_GID: "1000"
+      MOVER_FSGROUP: "1000"
     substituteFrom:
       - kind: Secret
         name: volsync-secret
