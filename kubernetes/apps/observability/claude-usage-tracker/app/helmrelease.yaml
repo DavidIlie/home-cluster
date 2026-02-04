@@ -42,8 +42,10 @@ spec:
               PORT: &port 3000
               NODE_ENV: production
               DATABASE_URL: file:/app/data/db.sqlite
-              # Redis for session caching (optional)
+              # Redis for session caching
+              REDIS_ENABLED: "true"
               REDIS_URL: redis://dragonfly.databases.svc.cluster.local:6379
+              REDIS_TTL_HOURS: "24"
               # Auto-login bypass - set initial admin credentials
               AUTO_SETUP: "true"
               ADMIN_USERNAME: admin
