@@ -36,7 +36,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/claude-code-prometheus
-              tag: 1.0.16@sha256:caf49e439b79fc841f585ce5095a65dee3207435ff13126710d6f08b365e978a
+              tag: 1.0.17@sha256:9fbb87834912d62387c9eaadfe96613f95bf75b9a2f0488c49c06755319b29c5
             env:
               TZ: Europe/Bucharest
               PORT: &port 3000
