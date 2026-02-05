@@ -118,6 +118,10 @@
         icon: mdi-robot-outline
         href: https://claude-usage.davidhome.ro
         description: Claude Code Usage Metrics
+    - VictoriaLogs:
+        icon: victoriametrics.png
+        href: https://vlogs.davidhome.ro
+        description: Log Explorer (VMUI)
 
 - Utilities:
     - IT Tools:
