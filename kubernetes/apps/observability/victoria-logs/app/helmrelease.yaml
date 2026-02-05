@@ -35,11 +35,14 @@ spec:
           volumeMounts:
             - name: analytics-data
               mountPath: /storage
-      extraHostPathMounts:
+      extraVolumes:
+        - name: analytics-data
+          hostPath:
+            path: /var/mnt/mdadm-analytics-storage/victoria-logs/data
+            type: DirectoryOrCreate
+      extraVolumeMounts:
         - name: analytics-data
           mountPath: /storage
-          hostPath: /var/mnt/mdadm-analytics-storage/victoria-logs/data
-          hostPathType: DirectoryOrCreate
       resources:
         requests:
           cpu: 100m
