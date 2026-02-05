@@ -125,7 +125,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_container_name=~\"$container\", k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" $query | stats count()",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} k_container_name:\"$container\" app:=\"$app\" $query | stats count()",
           "legendFormat": "${namespace} ${container}",
           "queryType": "statsRange",
           "refId": "A"
@@ -190,7 +190,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_container_name=~\"$container\", k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" $query | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} k_container_name:\"$container\" app:=\"$app\" $query | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
           "legendFormat": "{{$count_by}}",
           "queryType": "stats",
           "refId": "A"
@@ -229,7 +229,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_container_name=~\"$container\", k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" $query | sort desc | limit $limit",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} k_container_name:\"$container\" app:=\"$app\" $query | sort desc | limit $limit",
           "queryType": "range",
           "refId": "A"
         }
