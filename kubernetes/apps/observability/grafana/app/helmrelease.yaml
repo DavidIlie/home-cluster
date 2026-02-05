@@ -241,6 +241,9 @@ spec:
         claude-usage-tracker:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/claude-usage-tracker.json
           datasource: prometheus-home-cluster
+        kubernetes-pod-logs:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-pod-logs.json
+          datasource: VictoriaLogs
     sidecar:
       dashboards:
         enabled: false
