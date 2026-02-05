@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: victoria-logs-analytics
+spec:
+  capacity:
+    storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: victoria-logs-analytics
+  local:
+    path: /var/mnt/mdadm-analytics-storage/victoria-logs/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - kube-home
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: victoria-logs-analytics
+  namespace: observability
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: victoria-logs-analytics
+  resources:
+    requests:
+      storage: 100Gi

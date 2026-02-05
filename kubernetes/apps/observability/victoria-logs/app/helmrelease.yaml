@@ -26,23 +26,9 @@ spec:
     fullnameOverride: victoria-logs
     server:
       persistentVolume:
-        enabled: false
+        enabled: true
+        existingClaim: victoria-logs-analytics
       retentionPeriod: 30d
-      initContainers:
-        - name: init-storage
-          image: busybox:latest
-          command: ["sh", "-c", "mkdir -p /storage && chown -R 1000:2000 /storage"]
-          volumeMounts:
-            - name: analytics-data
-              mountPath: /storage
-      extraVolumes:
-        - name: analytics-data
-          hostPath:
-            path: /var/mnt/mdadm-analytics-storage/victoria-logs/data
-            type: DirectoryOrCreate
-      extraVolumeMounts:
-        - name: analytics-data
-          mountPath: /storage
       resources:
         requests:
           cpu: 100m
