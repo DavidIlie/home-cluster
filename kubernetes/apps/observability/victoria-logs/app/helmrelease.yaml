@@ -46,5 +46,23 @@ spec:
         type: LoadBalancer
         annotations:
           io.cilium/lb-ipam-ips: 192.168.100.96
+      ingress:
+        enabled: true
+        ingressClassName: internal
+        annotations:
+          nginx.ingress.kubernetes.io/app-root: /select/vmui/
+          gatus.home-operations.com/endpoint: |-
+            name: VictoriaLogs
+            group: Monitoring
+            url: https://vlogs.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hosts:
+          - name: &host "vlogs.davidhome.ro"
+            path:
+              - /
+            port: http
+        tls:
+          - hosts: [*host]
     fluent-bit:
       enabled: false
