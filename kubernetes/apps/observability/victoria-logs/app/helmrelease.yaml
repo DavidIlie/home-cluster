@@ -26,10 +26,20 @@ spec:
     fullnameOverride: victoria-logs
     server:
       persistentVolume:
-        enabled: true
-        storageClassName: openebs-hostpath
-        size: 50Gi
+        enabled: false
       retentionPeriod: 30d
+      initContainers:
+        - name: init-storage
+          image: busybox:latest
+          command: ["sh", "-c", "mkdir -p /storage && chown -R 1000:2000 /storage"]
+          volumeMounts:
+            - name: analytics-data
+              mountPath: /storage
+      extraHostPathMounts:
+        - name: analytics-data
+          mountPath: /storage
+          hostPath: /var/mnt/mdadm-analytics-storage/victoria-logs/data
+          hostPathType: DirectoryOrCreate
       resources:
         requests:
           cpu: 100m
