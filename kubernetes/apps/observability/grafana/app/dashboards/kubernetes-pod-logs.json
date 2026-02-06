@@ -347,7 +347,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | sort desc | limit $limit",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | fields _msg, _time, stream, k_pod_name | sort desc | limit $limit",
           "queryType": "range",
           "refId": "A"
         }
