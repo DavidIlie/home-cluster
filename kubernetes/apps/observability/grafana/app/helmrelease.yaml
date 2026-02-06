@@ -60,6 +60,14 @@ spec:
             jsonData:
               timeInterval: 15s
             isDefault: false
+          - name: prometheus-kube-stack
+            type: prometheus
+            uid: prometheus-kube-stack
+            access: proxy
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+            jsonData:
+              timeInterval: 15s
+            isDefault: false
           - name: VictoriaLogs
             type: victoriametrics-logs-datasource
             uid: victoria-logs
@@ -246,7 +254,7 @@ spec:
           datasource: VictoriaLogs
         analytics-storage:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/analytics-storage.json
-          datasource: prometheus-home-cluster
+          datasource: prometheus-kube-stack
     sidecar:
       dashboards:
         enabled: false

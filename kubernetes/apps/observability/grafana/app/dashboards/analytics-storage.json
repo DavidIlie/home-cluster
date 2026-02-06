@@ -11,7 +11,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -77,7 +77,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -111,7 +111,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -145,7 +145,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -183,7 +183,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -217,7 +217,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -249,7 +249,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -295,7 +295,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
@@ -359,7 +359,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "fieldConfig": {
         "defaults": {
