@@ -8,59 +8,85 @@ data:
   disable-logs.xml: |
     <?xml version="1.0"?>
     <clickhouse>
-      <query_log>
+      <query_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>query_log</table>
       </query_log>
-      <query_thread_log>
+      <query_thread_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>query_thread_log</table>
       </query_thread_log>
-      <query_views_log>
+      <query_views_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>query_views_log</table>
       </query_views_log>
-      <query_metric_log>
+      <query_metric_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>query_metric_log</table>
       </query_metric_log>
-      <trace_log>
+      <trace_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>trace_log</table>
       </trace_log>
-      <text_log>
+      <text_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>text_log</table>
       </text_log>
-      <metric_log>
+      <metric_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>metric_log</table>
       </metric_log>
-      <asynchronous_metric_log>
+      <asynchronous_metric_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>asynchronous_metric_log</table>
       </asynchronous_metric_log>
-      <part_log>
+      <part_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>part_log</table>
       </part_log>
-      <processors_profile_log>
+      <processors_profile_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>processors_profile_log</table>
       </processors_profile_log>
-      <error_log>
+      <error_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>error_log</table>
       </error_log>
-      <session_log>
+      <session_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>session_log</table>
       </session_log>
-      <opentelemetry_span_log>
+      <opentelemetry_span_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>opentelemetry_span_log</table>
       </opentelemetry_span_log>
-      <crash_log>
+      <crash_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>crash_log</table>
       </crash_log>
-      <backup_log>
+      <backup_log replace="replace">
         <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>backup_log</table>
       </backup_log>
-      <blob_storage_log>
+      <asynchronous_insert_log replace="replace">
         <engine>ENGINE = Null</engine>
-      </blob_storage_log>
-      <s3_queue_log>
-        <engine>ENGINE = Null</engine>
-      </s3_queue_log>
-      <asynchronous_insert_log>
-        <engine>ENGINE = Null</engine>
+        <database>system</database>
+        <table>asynchronous_insert_log</table>
       </asynchronous_insert_log>
     </clickhouse>
   prometheus.xml: |
