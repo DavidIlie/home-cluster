@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Explore Kubernetes pod logs from VictoriaLogs via Fluent Bit - supports multi-cluster filtering",
+  "description": "Explore Kubernetes pod logs from VictoriaLogs - filter by cluster, namespace, app, pod, node with full-text search",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -43,6 +43,128 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "count(*)"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Logs"
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "k_pod_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pod"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "k_host"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Node"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "k_container_image"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Image"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Logs"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | stats by (k_pod_name, k_host, k_container_image) count() | sort by (count(*) desc) | limit 20",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Pod Overview — ${app}",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "mode": "palette-classic"
           },
           "custom": {
@@ -54,7 +176,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "bars",
-            "fillOpacity": 0,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -63,16 +185,16 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 2,
+            "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -85,10 +207,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -100,7 +218,7 @@
         "h": 6,
         "w": 18,
         "x": 0,
-        "y": 0
+        "y": 5
       },
       "id": 2,
       "options": {
@@ -125,13 +243,13 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} k_container_name:\"$container\" app:=\"$app\" $query | stats count()",
-          "legendFormat": "${namespace} ${container}",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | stats by (stream) count()",
+          "legendFormat": "{{stream}}",
           "queryType": "statsRange",
           "refId": "A"
         }
       ],
-      "title": "Log Volume — ${cluster} / ${namespace} / ${container}",
+      "title": "Log Volume — ${app}",
       "type": "timeseries"
     },
     {
@@ -160,7 +278,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 5
       },
       "id": 3,
       "options": {
@@ -190,7 +308,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} k_container_name:\"$container\" app:=\"$app\" $query | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
           "legendFormat": "{{$count_by}}",
           "queryType": "stats",
           "refId": "A"
@@ -208,19 +326,19 @@
         "h": 23,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 11
       },
       "id": 1,
       "options": {
         "dedupStrategy": "none",
-        "enableInfiniteScrolling": false,
+        "enableInfiniteScrolling": true,
         "enableLogDetails": true,
         "prettifyLogMessage": false,
         "showCommonLabels": false,
-        "showLabels": false,
+        "showLabels": true,
         "showTime": true,
         "sortOrder": "Descending",
-        "wrapLogMessage": false
+        "wrapLogMessage": true
       },
       "targets": [
         {
@@ -229,12 +347,12 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} k_container_name:\"$container\" app:=\"$app\" $query | sort desc | limit $limit",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | sort desc | limit $limit",
           "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "Logs — ${cluster} / ${namespace} / ${container}",
+      "title": "Logs — ${app} / ${pod}",
       "type": "logs"
     }
   ],
@@ -260,7 +378,7 @@
         "query": {
           "field": "cluster",
           "limit": 100,
-          "query": "",
+          "query": "*",
           "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
           "type": "fieldValue"
         },
@@ -298,14 +416,14 @@
           "type": "victoriametrics-logs-datasource",
           "uid": "victoria-logs"
         },
-        "definition": "cluster:\"$cluster\" k_namespace_name:\"$namespace\"",
+        "definition": "",
         "includeAll": false,
         "label": "App",
         "name": "app",
         "options": [],
         "query": {
           "field": "app",
-          "limit": 0,
+          "limit": 100,
           "query": "cluster:\"$cluster\" k_namespace_name:\"$namespace\"",
           "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
           "type": "fieldValue"
@@ -316,19 +434,68 @@
         "type": "query"
       },
       {
+        "allValue": ".*",
         "current": {},
         "datasource": {
           "type": "victoriametrics-logs-datasource",
           "uid": "victoria-logs"
         },
-        "definition": "cluster:\"$cluster\" k_namespace_name:\"$namespace\" app:=\"$app\"",
-        "includeAll": false,
+        "definition": "",
+        "includeAll": true,
+        "label": "Pod",
+        "name": "pod",
+        "options": [],
+        "query": {
+          "field": "k_pod_name",
+          "limit": 100,
+          "query": "cluster:\"$cluster\" k_namespace_name:\"$namespace\" app:=\"$app\"",
+          "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
+          "type": "fieldValue"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {},
+        "datasource": {
+          "type": "victoriametrics-logs-datasource",
+          "uid": "victoria-logs"
+        },
+        "definition": "",
+        "includeAll": true,
+        "label": "Node",
+        "name": "node",
+        "options": [],
+        "query": {
+          "field": "k_host",
+          "limit": 100,
+          "query": "cluster:\"$cluster\" k_namespace_name:\"$namespace\" app:=\"$app\"",
+          "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
+          "type": "fieldValue"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {},
+        "datasource": {
+          "type": "victoriametrics-logs-datasource",
+          "uid": "victoria-logs"
+        },
+        "definition": "",
+        "includeAll": true,
         "label": "Container",
         "name": "container",
         "options": [],
         "query": {
           "field": "k_container_name",
-          "limit": 0,
+          "limit": 100,
           "query": "cluster:\"$cluster\" k_namespace_name:\"$namespace\" app:=\"$app\"",
           "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
           "type": "fieldValue"
@@ -344,7 +511,7 @@
           "type": "victoriametrics-logs-datasource",
           "uid": "victoria-logs"
         },
-        "definition": "cluster:\"$cluster\" k_namespace_name:\"$namespace\" app:=\"$app\"",
+        "definition": "",
         "includeAll": false,
         "label": "Count By",
         "name": "count_by",
@@ -363,24 +530,19 @@
       },
       {
         "current": {
-          "text": "100",
-          "value": "100"
+          "text": "250",
+          "value": "250"
         },
         "label": "Limit",
         "name": "limit",
         "options": [
           {
             "selected": false,
-            "text": "50",
-            "value": "50"
-          },
-          {
-            "selected": true,
             "text": "100",
             "value": "100"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "250",
             "value": "250"
           },
@@ -393,9 +555,14 @@
             "selected": false,
             "text": "1000",
             "value": "1000"
+          },
+          {
+            "selected": false,
+            "text": "5000",
+            "value": "5000"
           }
         ],
-        "query": "50,100,250,500,1000",
+        "query": "100,250,500,1000,5000",
         "type": "custom"
       },
       {
@@ -403,8 +570,8 @@
           "text": "",
           "value": ""
         },
-        "label": "Query",
-        "name": "query",
+        "label": "Search",
+        "name": "search",
         "options": [
           {
             "selected": true,
@@ -418,7 +585,7 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
