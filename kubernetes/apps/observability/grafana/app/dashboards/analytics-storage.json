@@ -20,15 +20,15 @@
           },
           "mappings": [],
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 90 }
+              { "color": "yellow", "value": 1200000000000 },
+              { "color": "red", "value": 1500000000000 }
             ]
           },
           "unit": "decbytes",
-          "max": 1
+          "max": 1717986918400
         },
         "overrides": []
       },
@@ -49,30 +49,18 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_used_bytes",
           "legendFormat": "Used",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "Used Space",
-      "type": "gauge",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 1200000000000 },
-              { "color": "red", "value": 1500000000000 }
-            ]
-          },
-          "unit": "decbytes",
-          "max": 1717986918400
-        }
-      }
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -87,12 +75,13 @@
             "mode": "absolute",
             "steps": [{ "color": "green", "value": null }]
           }
-        }
+        },
+        "overrides": []
       },
       "gridPos": { "h": 3, "w": 3, "x": 6, "y": 0 },
       "id": 2,
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
@@ -100,9 +89,14 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_capacity_bytes",
           "legendFormat": "Total",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "Total Capacity",
@@ -121,12 +115,13 @@
             "mode": "absolute",
             "steps": [{ "color": "green", "value": null }]
           }
-        }
+        },
+        "overrides": []
       },
       "gridPos": { "h": 3, "w": 3, "x": 9, "y": 0 },
       "id": 3,
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
@@ -134,9 +129,14 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_available_bytes",
           "legendFormat": "Available",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "Available",
@@ -159,12 +159,13 @@
               { "color": "red", "value": 0.9 }
             ]
           }
-        }
+        },
+        "overrides": []
       },
       "gridPos": { "h": 3, "w": 3, "x": 6, "y": 3 },
       "id": 4,
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
@@ -172,9 +173,14 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_used_bytes / analytics_storage_capacity_bytes",
           "legendFormat": "Used %",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "Used %",
@@ -193,12 +199,13 @@
             "mode": "absolute",
             "steps": [{ "color": "green", "value": null }]
           }
-        }
+        },
+        "overrides": []
       },
       "gridPos": { "h": 3, "w": 3, "x": 9, "y": 3 },
       "id": 5,
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
@@ -206,9 +213,14 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_used_bytes",
           "legendFormat": "Used",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "Used",
@@ -226,7 +238,8 @@
             "hideFrom": { "legend": false, "tooltip": false, "viz": false }
           },
           "unit": "decbytes"
-        }
+        },
+        "overrides": []
       },
       "gridPos": { "h": 6, "w": 12, "x": 12, "y": 0 },
       "id": 6,
@@ -238,9 +251,14 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_bytes{path!~\".+/.+\"}",
           "legendFormat": "{{path}}",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "Storage by Service",
@@ -274,7 +292,8 @@
             "thresholdsStyle": { "mode": "off" }
           },
           "unit": "decbytes"
-        }
+        },
+        "overrides": []
       },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
       "id": 7,
@@ -284,6 +303,10 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_bytes{path!~\".+/.+\"}",
           "legendFormat": "{{path}}",
           "refId": "A"
@@ -337,6 +360,10 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_bytes",
           "legendFormat": "{{path}}",
           "refId": "A",
@@ -376,7 +403,8 @@
             "thresholdsStyle": { "mode": "off" }
           },
           "unit": "decbytes"
-        }
+        },
+        "overrides": []
       },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 23 },
       "id": 9,
@@ -386,16 +414,28 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_capacity_bytes",
           "legendFormat": "Capacity",
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_used_bytes",
           "legendFormat": "Used",
           "refId": "B"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
           "expr": "analytics_storage_available_bytes",
           "legendFormat": "Available",
           "refId": "C"
