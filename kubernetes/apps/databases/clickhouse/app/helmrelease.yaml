@@ -49,6 +49,9 @@ spec:
                 containerPort: 8123
                 hostPort: 8123
                 protocol: TCP
+              - name: metrics
+                containerPort: 9363
+                protocol: TCP
     persistence:
       event-data:
         enabled: true
@@ -64,9 +67,28 @@ spec:
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /var/log/clickhouse-server
+      config:
+        type: configMap
+        name: clickhouse-config
+        globalMounts:
+          - path: /etc/clickhouse-server/config.d/disable-logs.xml
+            subPath: disable-logs.xml
+            readOnly: true
+          - path: /etc/clickhouse-server/config.d/prometheus.xml
+            subPath: prometheus.xml
+            readOnly: true
     service:
       clickhouse:
         controller: clickhouse
         ports:
           http:
             port: 8123
+          metrics:
+            port: 9363
+    serviceMonitor:
+      clickhouse:
+        serviceName: clickhouse
+        endpoints:
+          - port: metrics
+            path: /metrics
+            interval: 1m
