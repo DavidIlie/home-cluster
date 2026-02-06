@@ -53,14 +53,14 @@ spec:
       event-data:
         enabled: true
         type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/clickhouse/event-data
+        hostPath: /var/mnt/mdadm-analytics-storage/zerocut/event-data
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /var/lib/clickhouse
       event-logs:
         enabled: true
         type: hostPath
-        hostPath: /var/mnt/mdadm-analytics-storage/clickhouse/event-logs
+        hostPath: /var/mnt/mdadm-analytics-storage/zerocut/event-logs
         hostPathType: DirectoryOrCreate
         globalMounts:
           - path: /var/log/clickhouse-server
