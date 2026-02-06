@@ -68,7 +68,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "count(*)"
+              "options": "logs"
             },
             "properties": [
               {
@@ -149,7 +149,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | stats by (k_pod_name, k_host, k_container_image) count() | sort by (count(*) desc) | limit 20",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | stats by (k_pod_name, k_host, k_container_image) count() as logs | sort by (logs) desc | limit 20",
           "queryType": "stats",
           "refId": "A"
         }
@@ -308,7 +308,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
+          "expr": "_stream: {k_namespace_name=\"$namespace\", cluster=\"$cluster\"} app:=\"$app\" k_pod_name:~\"$pod\" k_host:~\"$node\" k_container_name:~\"$container\" $search | stats by (\"$count_by\") count() c | sort by (c) desc | limit 50",
           "legendFormat": "{{$count_by}}",
           "queryType": "stats",
           "refId": "A"
@@ -334,8 +334,8 @@
         "enableInfiniteScrolling": true,
         "enableLogDetails": true,
         "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": true,
+        "showCommonLabels": true,
+        "showLabels": false,
         "showTime": true,
         "sortOrder": "Descending",
         "wrapLogMessage": true
