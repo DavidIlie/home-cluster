@@ -244,6 +244,9 @@ spec:
         kubernetes-pod-logs:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-pod-logs.json
           datasource: VictoriaLogs
+        analytics-storage:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/analytics-storage.json
+          datasource: prometheus-home-cluster
     sidecar:
       dashboards:
         enabled: false

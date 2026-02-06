@@ -22,6 +22,7 @@ resources:
   - ./kromgo/ks.yaml
   - ./graphite-exporter/ks.yaml
   - ./claude-usage-tracker/ks.yaml
+  - ./analytics-storage-exporter/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops

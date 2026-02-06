@@ -1,0 +1,85 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: analytics-storage-exporter
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      exporter:
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: python
+              tag: 3.13-alpine
+            command: ["python3", "/scripts/exporter.py"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
+            securityContext:
+              privileged: true
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 8000
+                  periodSeconds: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 8000
+    service:
+      exporter:
+        controller: exporter
+        ports:
+          http:
+            port: 8000
+    serviceMonitor:
+      exporter:
+        serviceName: analytics-storage-exporter
+        endpoints:
+          - port: http
+            path: /metrics
+            interval: 5m
+    persistence:
+      scripts:
+        type: configMap
+        name: analytics-storage-exporter-script
+        globalMounts:
+          - path: /scripts/exporter.py
+            subPath: exporter.py
+            readOnly: true
+      storage:
+        type: hostPath
+        hostPath: /var/mnt/mdadm-analytics-storage
+        hostPathType: Directory
+        globalMounts:
+          - path: /storage
+            readOnly: true
