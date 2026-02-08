@@ -14,6 +14,7 @@ resources:
   - ./overseerr/ks.yaml
   - ./readarr/ks.yaml
   - ./kavita/ks.yaml
+  - ./jellyfin/ks.yaml
   # - ./stream-master/ks.yaml
   # - ./threadfin/ks.yaml
   # - ./recyclarr/ks.yaml

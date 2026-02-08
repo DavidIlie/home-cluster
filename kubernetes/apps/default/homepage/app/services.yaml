@@ -56,6 +56,10 @@
           type: tautulli
           url: http://tautulli.media.svc.cluster.local:80
           key: "{{HOMEPAGE_VAR_TAUTULLI_API_KEY}}"
+    - Jellyfin:
+        icon: jellyfin.png
+        href: https://jellyfin.davidhome.ro
+        description: Media Server
     - Plex:
         icon: plex.png
         href: https://plex.davidhome.ro
