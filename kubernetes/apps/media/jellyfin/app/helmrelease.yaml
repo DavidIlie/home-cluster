@@ -64,10 +64,8 @@ spec:
             resources:
               requests:
                 cpu: 100m
-                nvidia.com/gpu: 1
               limits:
                 memory: 8Gi
-                nvidia.com/gpu: 1
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
