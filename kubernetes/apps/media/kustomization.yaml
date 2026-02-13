@@ -17,7 +17,7 @@ resources:
   - ./jellyfin/ks.yaml
   # - ./stream-master/ks.yaml
   # - ./threadfin/ks.yaml
-  # - ./recyclarr/ks.yaml
+  - ./recyclarr/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops

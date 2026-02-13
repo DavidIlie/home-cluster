@@ -78,6 +78,10 @@
           type: prowlarr
           url: http://prowlarr.downloads.svc.cluster.local
           key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
+    - Qui:
+        icon: qbittorrent.png
+        href: https://qui.davidhome.ro
+        description: qBittorrent Web UI
     - qBittorrent:
         icon: qbittorrent.png
         href: https://qb.davidhome.ro

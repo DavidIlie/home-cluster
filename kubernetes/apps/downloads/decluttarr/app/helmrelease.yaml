@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: recyclarr
+  name: decluttarr
 spec:
   interval: 30m
   chart:
@@ -22,42 +22,27 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  dependsOn:
-    - name: openebs
-      namespace: openebs-system
   values:
     controllers:
-      recyclarr:
+      decluttarr:
         annotations:
           reloader.stakater.com/auto: "true"
-        type: cronjob
-        cronjob:
-          schedule: 0 0 * * *
-          backoffLimit: 2
-          concurrencyPolicy: Forbid
-          successfulJobsHistory: 1
-          failedJobsHistory: 1
-          ttlSecondsAfterFinished: 86400
         containers:
           app:
             image:
-              repository: ghcr.io/recyclarr/recyclarr
-              tag: 7.5.2@sha256:2550848d43a453f2c6adf3582f2198ac719f76670691d76de0819053103ef2fb
+              repository: ghcr.io/manimatter/decluttarr
+              tag: v2.0.0
             env:
               TZ: Europe/Bucharest
-            envFrom:
-              - secretRef:
-                  name: recyclarr-secret
-            args: ["sync"]
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
               limits:
-                memory: 256Mi
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -68,21 +53,13 @@ spec:
         seccompProfile: { type: RuntimeDefault }
     persistence:
       config:
-        existingClaim: recyclarr
-      config-file:
-        type: configMap
-        name: recyclarr-configmap
+        type: secret
+        name: decluttarr-secret
         globalMounts:
-          - path: /config/recyclarr.yml
-            subPath: recyclarr.yml
+          - path: /app/config/config.yaml
+            subPath: config.yaml
             readOnly: true
-      config-logs:
+      logs:
         type: emptyDir
         globalMounts:
-          - path: /config/logs
-      config-repositories:
-        type: emptyDir
-        globalMounts:
-          - path: /config/repositories
-      tmp:
-        type: emptyDir
+          - path: /app/logs
