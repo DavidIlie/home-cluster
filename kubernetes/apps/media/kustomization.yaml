@@ -18,6 +18,10 @@ resources:
   # - ./stream-master/ks.yaml
   # - ./threadfin/ks.yaml
   - ./recyclarr/ks.yaml
+  - ./huntarr/ks.yaml
+  - ./wizarr/ks.yaml
+  - ./calibre-web/ks.yaml
+  - ./lazylibrarian/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops

@@ -68,6 +68,22 @@
           type: plex
           url: http://plex.media.svc.cluster.local:32400
           key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
+    - Huntarr:
+        icon: huntarr.png
+        href: https://huntarr.davidhome.ro
+        description: Automated Media Search
+    - Wizarr:
+        icon: wizarr.png
+        href: https://wizarr.davidhome.ro
+        description: Media Server Invitations
+    - Calibre-Web:
+        icon: calibre-web.png
+        href: https://calibre.davidhome.ro
+        description: Ebook Library
+    - LazyLibrarian:
+        icon: lazylibrarian.png
+        href: https://lazylibrarian.davidhome.ro
+        description: Book Metadata Manager
 
 - Downloads:
     - Prowlarr:
