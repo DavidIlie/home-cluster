@@ -68,10 +68,6 @@
           type: plex
           url: http://plex.media.svc.cluster.local:32400
           key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
-    - Huntarr:
-        icon: huntarr.png
-        href: https://huntarr.davidhome.ro
-        description: Automated Media Search
     - Wizarr:
         icon: wizarr.png
         href: https://wizarr.davidhome.ro
