@@ -17,6 +17,10 @@ spec:
       protocol: TCP
       port: &react 3000
       targetPort: *react
+    - name: ws
+      protocol: TCP
+      port: &ws 3010
+      targetPort: *ws
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -35,6 +39,10 @@ ports:
     appProtocol: http
     protocol: TCP
     port: 3000
+  - name: ws
+    appProtocol: http
+    protocol: TCP
+    port: 3010
 endpoints:
   - addresses:
       - "192.168.2.3"
@@ -69,7 +77,18 @@ spec:
                 name: macbook
                 port:
                   number: 3000
+    - host: &ws ws.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: macbook
+                port:
+                  number: 3010
   tls:
     - hosts:
         - *host
         - *react
+        - *ws

@@ -22,5 +22,7 @@ Brewfile.lock.json
 .idea
 # wiki
 wiki
+# Playwright MCP
+.playwright-mcp
 # Bootstrap
 /config.yaml
