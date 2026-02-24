@@ -40,9 +40,12 @@ spec:
     service:
       app:
         controller: gokapi
+        type: ClusterIP
         ports:
           http:
             port: 53842
+    defaultPodOptions:
+      hostNetwork: true
     persistence:
       storage:
         type: nfs
