@@ -24,6 +24,15 @@ spec:
   values:
     controllers:
       gokapi:
+        initContainers:
+          init-dirs:
+            image:
+              repository: busybox
+              tag: latest
+            command:
+              - sh
+              - -c
+              - mkdir -p /share/gokapi/data /share/gokapi/config
         containers:
           app:
             image:
@@ -31,6 +40,8 @@ spec:
               tag: v2.2.2
             env:
               TZ: Europe/Bucharest
+              GOKAPI_DATA_DIR: /share/gokapi/data
+              GOKAPI_CONFIG_DIR: /share/gokapi/config
             resources:
               requests:
                 cpu: 10m
@@ -47,12 +58,9 @@ spec:
     defaultPodOptions:
       hostNetwork: true
     persistence:
-      storage:
+      share:
         type: nfs
         server: 192.168.25.3
-        path: /mnt/data/share/client_user/kubernetes/gokapi
+        path: /mnt/data/share
         globalMounts:
-          - path: /app/config
-            subPath: config
-          - path: /app/data
-            subPath: data
+          - path: /share
