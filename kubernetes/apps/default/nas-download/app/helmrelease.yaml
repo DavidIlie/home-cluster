@@ -65,12 +65,14 @@ spec:
         globalMounts:
           - path: /etc/nginx/nginx.conf
             subPath: nginx.conf
+    defaultPodOptions:
+      hostNetwork: true
     service:
       nginx:
         controller: nginx
         ports:
           http:
-            port: 80
+            port: 8080
     ingress:
       public:
         enabled: true
