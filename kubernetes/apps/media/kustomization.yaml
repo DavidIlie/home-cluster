@@ -22,6 +22,7 @@ resources:
   - ./calibre-web/ks.yaml
   - ./lazylibrarian/ks.yaml
   - ./plexo/ks.yaml
+  - ./plexo/image-automations/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
