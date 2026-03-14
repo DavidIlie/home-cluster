@@ -21,6 +21,7 @@ resources:
   - ./wizarr/ks.yaml
   - ./calibre-web/ks.yaml
   - ./lazylibrarian/ks.yaml
+  - ./plexo/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
