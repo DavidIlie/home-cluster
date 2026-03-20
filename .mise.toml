@@ -11,7 +11,7 @@ run = "uv pip install -r requirements.txt"
 [tools]
 # Template tools
 python = "3.14.3"
-uv = "0.10.11"
+uv = "0.10.12"
 # Operations tools
 "aqua:budimanjojo/talhelper" = "3.1.6"
 "aqua:cloudflare/cloudflared" = "2026.3.0"
