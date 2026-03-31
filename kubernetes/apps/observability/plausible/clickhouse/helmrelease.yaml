@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: clickhouse/clickhouse-server
-              tag: 25.12.8.9-alpine@sha256:f6200b2d040ae9af6b289bc1d10f2bddff7df97e77319d706953f7aa15751dfe
+              tag: 25.12.9.61-alpine@sha256:b86ee095d78e0a5509056b11b99160abd6ced1d82e841565015ef66fd7fea177
               pullPolicy: IfNotPresent
             probes:
               liveness: &probes
