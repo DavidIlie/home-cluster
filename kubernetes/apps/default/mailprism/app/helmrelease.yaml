@@ -1,0 +1,120 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mailprism
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      mailprism:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/davidilie/mailprism
+              tag: main
+            env:
+              TZ: Europe/Bucharest
+              NODE_ENV: production
+              DATA_DIR: /data
+              APP_URL: https://mailprism.davidhome.ro
+              MAIL_CLIENT_URL: https://mail.davidapps.dev
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/trpc/status.health
+                    port: &httpPort 3000
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/trpc/status.health
+                    port: *httpPort
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: mailprism
+        ports:
+          http:
+            port: *httpPort
+      mail:
+        controller: mailprism
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: 192.168.100.95
+        ports:
+          imap:
+            port: 993
+            protocol: TCP
+          smtp:
+            port: 587
+            protocol: TCP
+    ingress:
+      app:
+        className: internal
+        annotations:
+          gethomepage.dev/enabled: "false"
+          gatus.home-operations.com/endpoint: |-
+            name: Mailprism
+            group: Utilities
+            url: https://mailprism.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hosts:
+          - host: &host "mailprism.davidhome.ro"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts: [*host]
+    persistence:
+      data:
+        existingClaim: mailprism
+        globalMounts:
+          - path: /data
