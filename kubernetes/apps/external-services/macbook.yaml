@@ -17,6 +17,10 @@ spec:
       protocol: TCP
       port: &react 3000
       targetPort: *react
+    - name: react-proxy
+      protocol: TCP
+      port: &react-proxy 4167
+      targetPort: *react-proxy
     - name: ws
       protocol: TCP
       port: &ws 3010
@@ -39,6 +43,10 @@ ports:
     appProtocol: http
     protocol: TCP
     port: 3000
+  - name: react-proxy
+    appProtocol: http
+    protocol: TCP
+    port: 4167
   - name: ws
     appProtocol: http
     protocol: TCP
@@ -76,7 +84,7 @@ spec:
               service:
                 name: macbook
                 port:
-                  number: 3000
+                  number: 4167
     - host: &ws ws.davidhome.ro
       http:
         paths:
