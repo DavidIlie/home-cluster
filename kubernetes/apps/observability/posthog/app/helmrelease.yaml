@@ -125,10 +125,8 @@ spec:
         strategy: Recreate
         containers:
           app:
-            image:
-              repository: posthog/posthog-node
-              tag: latest@sha256:863e76e040ad41aef79f605c33ec71f1529bddf94cfd88941c935da9bde97235
-              pullPolicy: IfNotPresent
+            image: *posthogImage
+            command: ["./bin/plugin-server"]
             envFrom: *envFrom
             probes:
               liveness:
