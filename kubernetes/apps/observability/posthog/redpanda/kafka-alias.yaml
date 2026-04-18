@@ -1,0 +1,18 @@
+---
+# Alias service so plugins fallback default `kafka:9092` resolves to redpanda.
+# Some PostHog plugin-server producers use zod schema default broker `kafka:9092`
+# instead of `KAFKA_HOSTS` env. Cleanest fix: ExternalName SVC named `kafka`
+# in same namespace so `kafka:9092` lookup hits redpanda.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: observability
+spec:
+  type: ExternalName
+  externalName: posthog-redpanda.observability.svc.cluster.local
+  ports:
+    - name: kafka
+      port: 9092
+      targetPort: 9092
+      protocol: TCP
