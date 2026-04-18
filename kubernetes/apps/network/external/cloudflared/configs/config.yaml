@@ -31,6 +31,8 @@ ingress:
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "plausible.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "posthog.davidapps.dev"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "panel.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "mail.davidapps.dev"

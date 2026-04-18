@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: posthog-envs
+  namespace: observability
+data:
+  SITE_URL: https://posthog.davidapps.dev
+  DEPLOYMENT: hobby
+  IS_BEHIND_PROXY: "true"
+  TRUST_ALL_PROXIES: "true"
+  DISABLE_SECURE_SSL_REDIRECT: "true"
+  USE_GRANIAN: "true"
+  GRANIAN_WORKERS: "2"
+  POSTHOG_SKIP_MIGRATION_CHECKS: "1"
+  OTEL_SDK_DISABLED: "true"
+  OPT_OUT_CAPTURE: "false"
+  CLICKHOUSE_HOST: posthog-clickhouse.observability.svc.cluster.local
+  CLICKHOUSE_CLUSTER: posthog
+  CLICKHOUSE_SECURE: "false"
+  CLICKHOUSE_VERIFY: "false"
+  REDIS_URL: redis://dragonfly.databases.svc.cluster.local:6379/
+  CDP_REDIS_HOST: dragonfly.databases.svc.cluster.local
+  CDP_REDIS_PORT: "6379"
+  KAFKA_HOSTS: posthog-redpanda.observability.svc.cluster.local:9092
+  OBJECT_STORAGE_ENABLED: "true"
+  OBJECT_STORAGE_ENDPOINT: http://192.168.100.63:9000
+  OBJECT_STORAGE_PUBLIC_ENDPOINT: https://posthog.davidapps.dev
+  OBJECT_STORAGE_BUCKET: posthog
+  SESSION_RECORDING_V2_S3_ENDPOINT: http://192.168.100.63:9000
+  SESSION_RECORDING_V2_S3_BUCKET: posthog
+  RECORDING_API_URL: http://posthog-plugins.observability.svc.cluster.local:6738
+  CDP_API_URL: http://posthog-plugins.observability.svc.cluster.local:6738
+  INIT_POSTGRES_HOST: postgres17-rw.databases.svc.cluster.local
+  INIT_POSTGRES_DBNAME: posthog
+  INIT_POSTGRES_USER: posthog
+  INIT_POSTGRES_SUPER_USER: postgres

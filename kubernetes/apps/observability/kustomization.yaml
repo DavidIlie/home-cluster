@@ -11,6 +11,7 @@ resources:
   - ./grafana/ks.yaml
   - ./idrac-exporter/ks.yaml
   - ./plausible/ks.yaml
+  - ./posthog/ks.yaml
   - ./prometheus/ks.yaml
   - ./proxmox-exporter/ks.yaml
   - ./unpoller/ks.yaml

@@ -1,0 +1,227 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: posthog
+  namespace: observability
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      web:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18.3
+            envFrom: &envFrom
+              - secretRef:
+                  name: posthog-secret
+              - configMapRef:
+                  name: posthog-envs
+          migrate:
+            image: &posthogImage
+              repository: posthog/posthog
+              tag: latest@sha256:a6515294398ae7439639e718cee9eb9b2e81feca35b1df9aab48f080c5d2af7a
+              pullPolicy: IfNotPresent
+            command:
+              - /bin/sh
+              - -c
+              - |
+                set -eux
+                python manage.py migrate
+                python manage.py migrate_clickhouse
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                memory: 3Gi
+        containers:
+          app:
+            image: *posthogImage
+            command: ["./bin/docker-server"]
+            envFrom: *envFrom
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /_health
+                    port: 8000
+                  initialDelaySeconds: 60
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /_health
+                    port: 8000
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /_health
+                    port: 8000
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  failureThreshold: 60
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                memory: 3Gi
+      worker:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image: *posthogImage
+            command: ["./bin/docker-worker-celery", "--with-scheduler"]
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                memory: 3Gi
+      plugins:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: posthog/posthog-node
+              tag: latest@sha256:863e76e040ad41aef79f605c33ec71f1529bddf94cfd88941c935da9bde97235
+              pullPolicy: IfNotPresent
+            envFrom: *envFrom
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /_health
+                    port: 6738
+                  initialDelaySeconds: 60
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /_health
+                    port: 6738
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+            ports:
+              - name: http
+                containerPort: 6738
+                protocol: TCP
+            resources:
+              requests:
+                cpu: 250m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+        fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      tmp:
+        enabled: true
+        type: emptyDir
+        advancedMounts:
+          web:
+            app:
+              - path: /tmp
+            migrate:
+              - path: /tmp
+          worker:
+            app:
+              - path: /tmp
+          plugins:
+            app:
+              - path: /tmp
+    service:
+      web:
+        controller: web
+        ports:
+          http:
+            port: 8000
+      plugins:
+        controller: plugins
+        ports:
+          http:
+            port: 6738
+    ingress:
+      app:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/name: PostHog
+          gethomepage.dev/icon: posthog.png
+          gethomepage.dev/description: Product Analytics
+          gatus.home-operations.com/endpoint: |-
+            name: PostHog
+            group: Monitoring
+            url: https://posthog.davidapps.dev/_health
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+          nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+          nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+        hosts:
+          - host: &host posthog.davidapps.dev
+            paths:
+              - path: /
+                service:
+                  identifier: web
+                  port: http
+        tls:
+          - hosts: [*host]
