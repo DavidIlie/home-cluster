@@ -1,0 +1,192 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: posthog-temporal
+  namespace: observability
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      temporal:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        initContainers:
+          init-temporal-db:
+            image: &initImage
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18.3
+            env: &initEnvBase
+              INIT_POSTGRES_HOST: postgres17-rw.databases.svc.cluster.local
+              INIT_POSTGRES_USER: temporal
+              INIT_POSTGRES_SUPER_USER: postgres
+              INIT_POSTGRES_DBNAME: temporal
+            envFrom: &initEnvFrom
+              - secretRef:
+                  name: posthog-temporal-secret
+          init-visibility-db:
+            image: *initImage
+            env:
+              <<: *initEnvBase
+              INIT_POSTGRES_DBNAME: temporal_visibility
+            envFrom: *initEnvFrom
+        containers:
+          app:
+            image:
+              repository: temporalio/auto-setup
+              tag: "1.25.2"
+              pullPolicy: IfNotPresent
+            env:
+              DB: postgres12
+              DB_PORT: "5432"
+              POSTGRES_SEEDS: postgres17-rw.databases.svc.cluster.local
+              DBNAME: temporal
+              VISIBILITY_DBNAME: temporal_visibility
+              ENABLE_ES: "false"
+              SKIP_SCHEMA_SETUP: "false"
+              SKIP_DEFAULT_NAMESPACE_CREATION: "false"
+              DEFAULT_NAMESPACE: default
+              DEFAULT_NAMESPACE_RETENTION: 7d
+              TEMPORAL_ADDRESS: 0.0.0.0:7233
+            envFrom:
+              - secretRef:
+                  name: posthog-temporal-secret
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 7233
+                  initialDelaySeconds: 60
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 7233
+                  initialDelaySeconds: 20
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+            ports:
+              - name: frontend
+                containerPort: 7233
+                protocol: TCP
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+      ui:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: temporalio/ui
+              tag: "2.31.2"
+              pullPolicy: IfNotPresent
+            env:
+              TEMPORAL_ADDRESS: posthog-temporal-frontend.observability.svc.cluster.local:7233
+              TEMPORAL_CORS_ORIGINS: https://temporal.internal,http://localhost:3000
+              TEMPORAL_UI_PORT: "8080"
+            ports:
+              - name: http
+                containerPort: 8080
+                protocol: TCP
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: 8080
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: 8080
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      frontend:
+        controller: temporal
+        ports:
+          grpc:
+            port: 7233
+            targetPort: 7233
+            protocol: TCP
+      ui:
+        controller: ui
+        ports:
+          http:
+            port: 8080
+    ingress:
+      ui:
+        enabled: true
+        className: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/name: Temporal
+          gethomepage.dev/icon: mdi-timer-outline
+          gethomepage.dev/description: PostHog workflow engine
+          gatus.home-operations.com/endpoint: |-
+            name: Temporal UI
+            group: Monitoring
+            url: https://temporal.internal
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hosts:
+          - host: &host temporal.internal
+            paths:
+              - path: /
+                service:
+                  identifier: ui
+                  port: http
+        tls:
+          - hosts: [*host]

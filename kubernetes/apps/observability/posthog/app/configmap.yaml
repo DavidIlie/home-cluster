@@ -50,3 +50,10 @@ data:
   CELERY_MAX_TASKS_PER_CHILD: "100"
   CELERY_MAX_MEMORY_PER_CHILD: "1500000"
   CELERY_WORKER_PREFETCH_MULTIPLIER: "1"
+  # MMDB GeoIP (populated by geoipupdate sidecar into /share/GeoIP)
+  MMDB_FILE_LOCATION: /share/GeoIP/GeoLite2-City.mmdb
+  # Temporal (batch exports + data warehouse workflows)
+  TEMPORAL_HOST: posthog-temporal-frontend.observability.svc.cluster.local
+  TEMPORAL_PORT: "7233"
+  TEMPORAL_NAMESPACE: default
+  TEMPORAL_TASK_QUEUE: general-purpose-task-queue

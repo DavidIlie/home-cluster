@@ -60,10 +60,35 @@ spec:
                 memory: 1Gi
               limits:
                 memory: 3Gi
+          geoip: &geoipSidecar
+            image:
+              repository: ghcr.io/maxmind/geoipupdate
+              tag: v7.1@sha256:faecdca22579730ab0b7dea5aa9af350bb3c93cb9d39845c173639ead30346d2
+              pullPolicy: IfNotPresent
+            restartPolicy: Always
+            env:
+              GEOIPUPDATE_FREQUENCY: "8"
+              GEOIPUPDATE_PRESERVE_FILE_TIMES: "1"
+              GEOIPUPDATE_EDITION_IDS: GeoLite2-City
+            envFrom:
+              - secretRef:
+                  name: posthog-secret
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: [ls, /share/GeoIP/GeoLite2-City.mmdb]
+                  periodSeconds: 5
+                  failureThreshold: 60
         containers:
           app:
             image: *posthogImage
             command: ["./bin/docker-server"]
+            env:
+              # Web must NOT run async migrations scheduler (worker does).
+              SKIP_ASYNC_MIGRATIONS_SETUP: "1"
             envFrom: *envFrom
             probes:
               liveness:
@@ -108,10 +133,16 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         strategy: Recreate
+        initContainers:
+          geoip: *geoipSidecar
         containers:
           app:
             image: *posthogImage
             command: ["./bin/docker-worker-celery", "--with-scheduler"]
+            env:
+              # Worker owns async-migrations scheduler; auto-run on boot.
+              SKIP_ASYNC_MIGRATIONS_SETUP: "0"
+              AUTO_START_ASYNC_MIGRATIONS: "1"
             envFrom: *envFrom
             resources:
               requests:
@@ -123,6 +154,8 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         strategy: Recreate
+        initContainers:
+          geoip: *geoipSidecar
         containers:
           app:
             image:
@@ -163,6 +196,21 @@ spec:
                 memory: 512Mi
               limits:
                 memory: 2Gi
+      temporal-worker:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image: *posthogImage
+            command: ["./bin/temporal-django-worker"]
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                memory: 3Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: false
@@ -186,6 +234,28 @@ spec:
           plugins:
             app:
               - path: /tmp
+          temporal-worker:
+            app:
+              - path: /tmp
+      geoip:
+        enabled: true
+        type: emptyDir
+        advancedMounts:
+          web:
+            app:
+              - path: /share/GeoIP
+            geoip:
+              - path: /usr/share/GeoIP
+          worker:
+            app:
+              - path: /share/GeoIP
+            geoip:
+              - path: /usr/share/GeoIP
+          plugins:
+            app:
+              - path: /share/GeoIP
+            geoip:
+              - path: /usr/share/GeoIP
     service:
       web:
         controller: web
