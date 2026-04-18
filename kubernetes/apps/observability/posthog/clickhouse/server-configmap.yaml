@@ -50,6 +50,38 @@ data:
             </replica>
           </shard>
         </posthog_primary_replica>
+        <ai_events>
+          <shard>
+            <replica>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
+              <port>9000</port>
+            </replica>
+          </shard>
+        </ai_events>
+        <aux>
+          <shard>
+            <replica>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
+              <port>9000</port>
+            </replica>
+          </shard>
+        </aux>
+        <ops>
+          <shard>
+            <replica>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
+              <port>9000</port>
+            </replica>
+          </shard>
+        </ops>
+        <sessions>
+          <shard>
+            <replica>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
+              <port>9000</port>
+            </replica>
+          </shard>
+        </sessions>
       </remote_servers>
       <named_collections>
         <msk_cluster>
