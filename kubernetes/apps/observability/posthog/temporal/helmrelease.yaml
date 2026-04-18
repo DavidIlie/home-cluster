@@ -63,6 +63,7 @@ spec:
               DBNAME: temporal
               VISIBILITY_DBNAME: temporal_visibility
               ENABLE_ES: "false"
+              SKIP_DB_CREATE: "true"
               SKIP_SCHEMA_SETUP: "false"
               SKIP_DEFAULT_NAMESPACE_CREATION: "false"
               DEFAULT_NAMESPACE: default
