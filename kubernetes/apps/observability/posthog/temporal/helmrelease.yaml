@@ -68,7 +68,10 @@ spec:
               SKIP_DEFAULT_NAMESPACE_CREATION: "false"
               DEFAULT_NAMESPACE: default
               DEFAULT_NAMESPACE_RETENTION: 7d
-              TEMPORAL_ADDRESS: 0.0.0.0:7233
+              # Bind on all IPs so Service can route in. tctl auto-setup
+              # script connects on 127.0.0.1 via TEMPORAL_CLI_ADDRESS.
+              BIND_ON_IP: 0.0.0.0
+              TEMPORAL_CLI_ADDRESS: 127.0.0.1:7233
             envFrom:
               - secretRef:
                   name: posthog-temporal-secret
