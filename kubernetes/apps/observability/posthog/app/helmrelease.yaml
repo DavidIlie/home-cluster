@@ -116,9 +116,9 @@ spec:
             resources:
               requests:
                 cpu: 500m
-                memory: 1Gi
+                memory: 2Gi
               limits:
-                memory: 3Gi
+                memory: 5Gi
       plugins:
         annotations:
           reloader.stakater.com/auto: "true"
