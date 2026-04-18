@@ -24,6 +24,15 @@ data:
   CDP_REDIS_PORT: "6379"
   KAFKA_HOSTS: posthog-redpanda.observability.svc.cluster.local:9092
   KAFKA_PRODUCER_METADATA_BROKER_LIST: posthog-redpanda.observability.svc.cluster.local:9092
+  KAFKA_CONSUMER_METADATA_BROKER_LIST: posthog-redpanda.observability.svc.cluster.local:9092
+  KAFKA_CDP_PRODUCER_METADATA_BROKER_LIST: posthog-redpanda.observability.svc.cluster.local:9092
+  KAFKA_WAREHOUSE_PRODUCER_METADATA_BROKER_LIST: posthog-redpanda.observability.svc.cluster.local:9092
+  LOGS_REDIS_HOST: dragonfly.databases.svc.cluster.local
+  LOGS_REDIS_PORT: "6379"
+  LOGS_REDIS_TLS: "false"
+  TRACES_REDIS_HOST: dragonfly.databases.svc.cluster.local
+  TRACES_REDIS_PORT: "6379"
+  TRACES_REDIS_TLS: "false"
   OBJECT_STORAGE_ENABLED: "true"
   OBJECT_STORAGE_ENDPOINT: http://192.168.100.63:9000
   OBJECT_STORAGE_PUBLIC_ENDPOINT: https://posthog.davidapps.dev
