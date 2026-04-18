@@ -13,7 +13,7 @@ data:
         <posthog>
           <shard>
             <replica>
-              <host>posthog-clickhouse</host>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
               <port>9000</port>
             </replica>
           </shard>
@@ -21,7 +21,7 @@ data:
         <posthog_single_shard>
           <shard>
             <replica>
-              <host>posthog-clickhouse</host>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
               <port>9000</port>
             </replica>
           </shard>
@@ -29,7 +29,7 @@ data:
         <posthog_migrations>
           <shard>
             <replica>
-              <host>posthog-clickhouse</host>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
               <port>9000</port>
             </replica>
           </shard>
@@ -37,7 +37,7 @@ data:
         <posthog_writable>
           <shard>
             <replica>
-              <host>posthog-clickhouse</host>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
               <port>9000</port>
             </replica>
           </shard>
@@ -45,7 +45,7 @@ data:
         <posthog_primary_replica>
           <shard>
             <replica>
-              <host>posthog-clickhouse</host>
+              <host>posthog-clickhouse-0.posthog-clickhouse.observability.svc.cluster.local</host>
               <port>9000</port>
             </replica>
           </shard>
