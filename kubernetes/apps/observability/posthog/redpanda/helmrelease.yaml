@@ -28,8 +28,9 @@ spec:
               tag: v25.3.14
               pullPolicy: IfNotPresent
             command:
-              - redpanda
+              - rpk
             args:
+              - redpanda
               - start
               - --kafka-addr=internal://0.0.0.0:9092
               - --advertise-kafka-addr=internal://posthog-redpanda.observability.svc.cluster.local:9092
