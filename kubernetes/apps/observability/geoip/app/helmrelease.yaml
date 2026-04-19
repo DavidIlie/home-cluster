@@ -1,0 +1,82 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: geoip
+  namespace: observability
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      geoip:
+        annotations:
+          secret.reloader.stakater.com/reload: geoip-secret
+        strategy: Recreate
+        replicas: 1
+        containers:
+          app:
+            image:
+              repository: ghcr.io/maxmind/geoipupdate
+              tag: v7.1@sha256:faecdca22579730ab0b7dea5aa9af350bb3c93cb9d39845c173639ead30346d2
+              pullPolicy: IfNotPresent
+            # Wrap geoipupdate so a 429/LIMIT_EXCEEDED doesn't crashloop the
+            # writer pod — keep existing mmdb on the NFS volume, retry next cycle.
+            command:
+              - /bin/sh
+              - -c
+              - |
+                set -u
+                while true; do
+                  geoipupdate -v || echo "geoipupdate failed (keeping existing DB); sleeping"
+                  sleep 21600
+                done
+            env:
+              GEOIPUPDATE_FREQUENCY: "0"
+              GEOIPUPDATE_PRESERVE_FILE_TIMES: "1"
+              GEOIPUPDATE_EDITION_IDS: GeoLite2-City
+              GEOIPUPDATE_DB_DIR: /usr/share/GeoIP
+            envFrom:
+              - secretRef:
+                  name: geoip-secret
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: [ls, /usr/share/GeoIP/GeoLite2-City.mmdb]
+                  periodSeconds: 10
+                  failureThreshold: 360
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      geoip:
+        existingClaim: geoip-nfs
+        globalMounts:
+          - path: /usr/share/GeoIP

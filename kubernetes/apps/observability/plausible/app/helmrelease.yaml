@@ -22,30 +22,6 @@ spec:
         strategy: RollingUpdate
         annotations:
           secret.reloader.stakater.com/reload: plausible-envs
-        initContainers:
-          geoip:
-            image:
-              repository: ghcr.io/maxmind/geoipupdate
-              tag: v7.1@sha256:faecdca22579730ab0b7dea5aa9af350bb3c93cb9d39845c173639ead30346d2
-              pullPolicy: IfNotPresent
-            restartPolicy: Always
-            env:
-              GEOIPUPDATE_FREQUENCY: "8"
-              GEOIPUPDATE_PRESERVE_FILE_TIMES: "1"
-              GEOIPUPDATE_EDITION_IDS: GeoLite2-City
-            envFrom:
-              - secretRef:
-                  name: plausible-secret
-            securityContext:
-              readOnlyRootFilesystem: true
-            probes:
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  exec:
-                    command: [ls, /usr/share/GeoIP/GeoLite2-City.mmdb]
-                  periodSeconds: 5
         containers:
           app:
             image:
@@ -94,10 +70,10 @@ spec:
         enabled: true
         type: emptyDir
       geoip:
-        enabled: true
-        type: emptyDir
+        existingClaim: geoip-nfs
         globalMounts:
           - path: /usr/share/GeoIP
+            readOnly: true
     service:
       plausible:
         controller: plausible

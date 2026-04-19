@@ -10,6 +10,7 @@ resources:
   - ./dcgm-exporter/ks.yaml
   - ./grafana/ks.yaml
   - ./idrac-exporter/ks.yaml
+  - ./geoip/ks.yaml
   - ./plausible/ks.yaml
   - ./posthog/ks.yaml
   - ./prometheus/ks.yaml

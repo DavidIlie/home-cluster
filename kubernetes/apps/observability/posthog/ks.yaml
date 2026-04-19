@@ -82,6 +82,8 @@ spec:
       namespace: observability
     - name: posthog-temporal
       namespace: observability
+    - name: geoip
+      namespace: observability
     - name: cloudnative-pg-cluster
       namespace: databases
   interval: 30m
