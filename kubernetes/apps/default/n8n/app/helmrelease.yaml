@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: docker.io/n8nio/n8n
-              tag: 2.17.4
+              tag: 2.17.5
             env:
               GENERIC_TIMEZONE: Europe/Bucharest
               TZ: Europe/Bucharest
