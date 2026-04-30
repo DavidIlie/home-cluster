@@ -41,6 +41,16 @@ data:
   # 127.0.0.1:6379" because the client falls back to localhost.
   DATA_WAREHOUSE_REDIS_HOST: dragonfly.databases.svc.cluster.local
   DATA_WAREHOUSE_REDIS_PORT: "6379"
+  # Data warehouse staging S3 (deltalake / parquet writes during sync).
+  # PostHog uses a separate set of vars from OBJECT_STORAGE_* — the Rust
+  # object_store crate looks for these. Without them, syncs fail with
+  # "credential provider was not enabled / no providers in chain".
+  # Reuse the same MinIO bucket as session recordings.
+  BUCKET_URL: s3://posthog/data_warehouse
+  BUCKET_PATH: data_warehouse
+  DATAWAREHOUSE_BUCKET: posthog
+  DATAWAREHOUSE_BUCKET_DOMAIN: 192.168.100.63:9000
+  DATAWAREHOUSE_LOCAL_BUCKET_REGION: us-east-1
   OBJECT_STORAGE_ENABLED: "true"
   OBJECT_STORAGE_ENDPOINT: http://192.168.100.63:9000
   OBJECT_STORAGE_PUBLIC_ENDPOINT: https://posthog.davidapps.dev
