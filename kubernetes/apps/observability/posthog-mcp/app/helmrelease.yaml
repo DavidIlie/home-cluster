@@ -36,6 +36,23 @@ spec:
               repository: ghcr.io/davidilie/posthog-mcp
               tag: latest@sha256:bcfc6a650bee0c721b1ce84cf04b3abf7b61dc59c90fa4a59bcc04e2a37c574d
               pullPolicy: IfNotPresent
+            # Override the image CMD so we can inject --var flags. Vars declared
+            # in wrangler.jsonc outrank container env, so MCP_APPS_BASE_URL has
+            # to come through wrangler's CLI to actually take effect.
+            args:
+              - pnpm
+              - exec
+              - wrangler
+              - dev
+              - --ip
+              - 0.0.0.0
+              - --port
+              - "8787"
+              - --persist-to
+              - /data
+              - --no-show-interactive-dev-session
+              - --var
+              - MCP_APPS_BASE_URL:https://posthog-mcp.davidhome.ro
             env:
               # Self-hosted PostHog API endpoint the MCP server proxies to.
               POSTHOG_API_BASE_URL: https://posthog.davidhome.ro
