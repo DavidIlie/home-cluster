@@ -14,7 +14,10 @@ data:
   GRANIAN_WORKERS: "2"
   POSTHOG_SKIP_MIGRATION_CHECKS: "1"
   OTEL_SDK_DISABLED: "true"
-  OPT_OUT_CAPTURE: "false"
+  # Don't phone home self-telemetry to PostHog cloud.
+  OPT_OUT_CAPTURE: "true"
+  # Lock down public signup — single-tenant homelab instance.
+  DISABLE_SIGNUP: "true"
   CLICKHOUSE_HOST: posthog-clickhouse.observability.svc.cluster.local
   CLICKHOUSE_CLUSTER: posthog
   CLICKHOUSE_SECURE: "false"
