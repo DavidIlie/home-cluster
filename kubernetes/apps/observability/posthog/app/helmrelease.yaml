@@ -209,8 +209,13 @@ spec:
           reloader.stakater.com/auto: "true"
         strategy: Recreate
         containers:
+          # All containers share the pod network namespace, so only ONE can
+          # bind the combined metrics server (default port 8001). Keep it on
+          # \`general\` and disable on the other 11 via
+          # TEMPORAL_COMBINED_METRICS_SERVER_ENABLED=false.
+          #
           # Core "anything else" queue: deletion, usage, enrichment, analytics,
-          # hog flow workflows.
+          # hog flow workflows. This one keeps the Prometheus metrics endpoint.
           general: &temporalWorker
             image: *posthogImage
             command: ["./bin/temporal-django-worker"]
@@ -227,57 +232,68 @@ spec:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: data-warehouse-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Warehouse → CDP pipeline producer.
           cdp:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: data-warehouse-cdp-producer-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Scheduled batch exports (S3 / BigQuery / Snowflake destinations).
           batch-exports:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: batch-exports-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Data import signals (used by warehouse + video exports). Required
           # for warehouse sync workflows to receive lifecycle signals.
           video-export:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: video-export-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Insight alerts, subscriptions, scheduled exports of insights.
           analytics-platform:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: analytics-platform-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Web analytics + messaging (broadcasts, campaigns).
           messaging:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: messaging-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Session replay processing.
           session-replay:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: session-replay-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Tasks feature.
           tasks:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: tasks-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Weekly digest emails.
           weekly-digest:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: weekly-digest-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Health check workflows.
           health-check:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: health-check-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
           # Max AI assistant workflows.
           max-ai:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: max-ai-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
     defaultPodOptions:
       securityContext:
         runAsNonRoot: false
