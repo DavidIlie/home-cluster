@@ -86,3 +86,11 @@ data:
   TEMPORAL_PORT: "7233"
   TEMPORAL_NAMESPACE: default
   TEMPORAL_TASK_QUEUE: general-purpose-task-queue
+  # Cap concurrent activities per worker. PostHog's data warehouse activities
+  # do a single large deltalake write at the end of full_refresh syncs which
+  # briefly blocks the asyncio event loop; with the SDK default (~100), a
+  # busy worker stacks heartbeats but doesn't flush them within the hardcoded
+  # 2-min heartbeat window, killing workflows mid-write. 2 per replica + 2
+  # replicas = 4 in-flight, each with breathing room.
+  MAX_CONCURRENT_ACTIVITIES: "2"
+  MAX_CONCURRENT_WORKFLOW_TASKS: "4"
