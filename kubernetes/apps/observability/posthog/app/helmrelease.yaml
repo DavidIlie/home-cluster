@@ -125,10 +125,12 @@ spec:
                   timeoutSeconds: 10
                   failureThreshold: 60
             # No memory cap — node is beefy, let posthog burst freely.
+            # Request kept modest so the pod schedules on a node that's
+            # already heavily committed; bursts use spare CPU/RAM.
             resources:
               requests:
-                cpu: 4000m
-                memory: 4Gi
+                cpu: 1500m
+                memory: 2Gi
       worker:
         annotations:
           reloader.stakater.com/auto: "true"
