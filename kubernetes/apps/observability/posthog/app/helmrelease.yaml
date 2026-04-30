@@ -192,39 +192,20 @@ spec:
               requests:
                 cpu: 500m
                 memory: 1Gi
-      # PostHog routes Temporal workflows across many task queues; each must
-      # have a worker subscribed or workflows queue forever. start_temporal_worker
-      # only listens on one queue at a time, so we run one container per queue
-      # in a single pod (cheaper than one Deployment per queue — shared kernel
-      # + image cache, single PVC mount, single rollout cycle).
-      #
-      # Queues skipped on purpose:
-      #   - billing-task-queue:        cloud-only (BILLING_SERVICE_URL unset)
-      #   - ducklake-task-queue:       experimental
-      #   - llma-*-task-queue:         LLM analytics product, not in use
-      #   - event-screenshots / logs-alerting: niche / cloud
-      #   - no-sandbox-python-django:  sync batch exports, rarely used
-      # Light queues — one replica is fine, all of these are low-volume.
-      # data-warehouse-task-queue (the heavy one) is split out into its own
-      # controller below so we can scale it independently.
+      # Two queues only — matches what we actually use:
+      #   - general-purpose-task-queue: deletion, usage, enrichment, analytics
+      #   - data-warehouse-task-queue: source syncs (Stripe, Postgres, etc.)
+      # Single pod, single replica. Earlier multi-queue / multi-replica
+      # attempts caused churn that killed in-flight workflows before they
+      # could call validate_schema_and_update_table — orphaning parquet in
+      # MinIO without DataWarehouseTable rows registered.
       temporal-worker:
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
-        strategy: RollingUpdate
-        rollingUpdate:
-          unavailable: 0
-          surge: 1
+        strategy: Recreate
         containers:
-          # All containers share the pod network namespace, so each must bind
-          # a unique PROMETHEUS_METRICS_EXPORT_PORT (Temporal Rust SDK starts a
-          # Prometheus exporter regardless of TEMPORAL_COMBINED_METRICS_SERVER_ENABLED).
-          # Default 8001 → assign 8001-8012.
-          #
-          # Core "anything else" queue: deletion, usage, enrichment, analytics,
-          # hog flow workflows. Keeps the combined metrics server (Python +
-          # Rust merged on 8001) for Prometheus scraping.
-          general: &temporalWorker
+          general:
             image: *posthogImage
             command: ["./bin/temporal-django-worker"]
             env:
@@ -233,106 +214,20 @@ spec:
             envFrom: *envFrom
             resources:
               requests:
-                cpu: 100m
-                memory: 512Mi
-          # Warehouse → CDP pipeline producer.
-          cdp:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: data-warehouse-cdp-producer-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8003"
-          # Scheduled batch exports (S3 / BigQuery / Snowflake destinations).
-          batch-exports:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: batch-exports-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8004"
-          # Data import signals (used by warehouse + video exports). Required
-          # for warehouse sync workflows to receive lifecycle signals.
-          video-export:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: video-export-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8005"
-          # Insight alerts, subscriptions, scheduled exports of insights.
-          analytics-platform:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: analytics-platform-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8006"
-          # Web analytics + messaging (broadcasts, campaigns).
-          messaging:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: messaging-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8007"
-          # Session replay processing.
-          session-replay:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: session-replay-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8008"
-          # Tasks feature.
-          tasks:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: tasks-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8009"
-          # Weekly digest emails.
-          weekly-digest:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: weekly-digest-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8010"
-          # Health check workflows.
-          health-check:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: health-check-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8011"
-          # Max AI assistant workflows.
-          max-ai:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: max-ai-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8012"
-      # Dedicated controller for the heavy data-warehouse-task-queue.
-      # 4 replicas × MAX_CONCURRENT_ACTIVITIES=2 (from configmap) = 8 in-flight
-      # warehouse syncs, each with its own dedicated Python process / asyncio
-      # event loop. This is the right way to scale the warehouse work — adding
-      # more activities to one process just causes heartbeat starvation when
-      # the deltalake write blocks the loop.
-      temporal-worker-warehouse:
-        annotations:
-          reloader.stakater.com/auto: "true"
-        replicas: 4
-        strategy: RollingUpdate
-        rollingUpdate:
-          unavailable: 0
-          surge: 1
-        containers:
-          app:
+                cpu: 200m
+                memory: 1Gi
+          warehouse:
             image: *posthogImage
             command: ["./bin/temporal-django-worker"]
             env:
               TEMPORAL_TASK_QUEUE: data-warehouse-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8001"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8002"
             envFrom: *envFrom
             resources:
               requests:
-                cpu: 250m
-                memory: 1Gi
+                cpu: 500m
+                memory: 2Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: false
@@ -359,28 +254,7 @@ spec:
           temporal-worker:
             general:
               - path: /tmp
-            cdp:
-              - path: /tmp
-            batch-exports:
-              - path: /tmp
-            video-export:
-              - path: /tmp
-            analytics-platform:
-              - path: /tmp
-            messaging:
-              - path: /tmp
-            session-replay:
-              - path: /tmp
-            tasks:
-              - path: /tmp
-            weekly-digest:
-              - path: /tmp
-            health-check:
-              - path: /tmp
-            max-ai:
-              - path: /tmp
-          temporal-worker-warehouse:
-            app:
+            warehouse:
               - path: /tmp
       geoip:
         existingClaim: geoip-nfs
