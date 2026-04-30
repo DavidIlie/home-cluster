@@ -207,7 +207,15 @@ spec:
       temporal-worker:
         annotations:
           reloader.stakater.com/auto: "true"
-        strategy: Recreate
+        # 2 replicas spreads the 14 Stripe + 21 Postgres warehouse activities
+        # across two Python event loops. Single-replica was saturating the
+        # asyncio loop so heartbeats stacked but never flushed to Temporal,
+        # causing 2-min heartbeat timeouts even with 15 heartbeats/min logged.
+        replicas: 2
+        strategy: RollingUpdate
+        rollingUpdate:
+          unavailable: 0
+          surge: 1
         containers:
           # All containers share the pod network namespace, so each must bind
           # a unique PROMETHEUS_METRICS_EXPORT_PORT (Temporal Rust SDK starts a
