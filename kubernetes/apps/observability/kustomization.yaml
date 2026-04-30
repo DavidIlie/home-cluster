@@ -13,6 +13,7 @@ resources:
   - ./geoip/ks.yaml
   - ./plausible/ks.yaml
   - ./posthog/ks.yaml
+  - ./posthog-mcp/ks.yaml
   - ./prometheus/ks.yaml
   - ./proxmox-exporter/ks.yaml
   - ./unpoller/ks.yaml
