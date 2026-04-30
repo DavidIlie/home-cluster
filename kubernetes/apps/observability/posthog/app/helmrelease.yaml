@@ -25,13 +25,22 @@ spec:
       strategy: rollback
       retries: 3
   driftDetection:
-    mode: enabled
+    # warn (not enabled) — log drift in HR conditions but don't auto re-apply.
+    # Re-applying with strategy: RollingUpdate is still safe, but we don't want
+    # spurious unrelated kustomization reconciles to churn the deployment.
+    mode: warn
   values:
     controllers:
       web:
         annotations:
           reloader.stakater.com/auto: "true"
-        strategy: Recreate
+        # Rolling update with maxUnavailable=0 keeps the old web pod serving
+        # until the new one passes readiness — zero-downtime rolls. Web is
+        # stateless (Django + nginx-unit), so concurrent old+new is fine.
+        strategy: RollingUpdate
+        rollingUpdate:
+          unavailable: 0
+          surge: 1
         initContainers:
           init-db:
             image:
@@ -68,6 +77,11 @@ spec:
             env:
               # Web must NOT run async migrations scheduler (worker does).
               SKIP_ASYNC_MIGRATIONS_SETUP: "1"
+              # nginx-unit forks N Django workers in parallel at boot. Default
+              # 4 (NGINX_UNIT_APP_PROCESSES) x ~45s Django init each saturates
+              # 500m CPU and stretches cold-start to 4-5 min. 2 is plenty for
+              # homelab traffic and roughly halves cold-start.
+              NGINX_UNIT_APP_PROCESSES: "2"
             envFrom: *envFrom
             probes:
               liveness:
@@ -105,7 +119,7 @@ spec:
                   failureThreshold: 60
             resources:
               requests:
-                cpu: 500m
+                cpu: 1500m
                 memory: 2Gi
               limits:
                 memory: 6Gi
