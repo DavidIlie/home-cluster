@@ -204,14 +204,13 @@ spec:
       #   - llma-*-task-queue:         LLM analytics product, not in use
       #   - event-screenshots / logs-alerting: niche / cloud
       #   - no-sandbox-python-django:  sync batch exports, rarely used
+      # Light queues — one replica is fine, all of these are low-volume.
+      # data-warehouse-task-queue (the heavy one) is split out into its own
+      # controller below so we can scale it independently.
       temporal-worker:
         annotations:
           reloader.stakater.com/auto: "true"
-        # 2 replicas spreads the 14 Stripe + 21 Postgres warehouse activities
-        # across two Python event loops. Single-replica was saturating the
-        # asyncio loop so heartbeats stacked but never flushed to Temporal,
-        # causing 2-min heartbeat timeouts even with 15 heartbeats/min logged.
-        replicas: 2
+        replicas: 1
         strategy: RollingUpdate
         rollingUpdate:
           unavailable: 0
@@ -236,14 +235,6 @@ spec:
               requests:
                 cpu: 100m
                 memory: 512Mi
-          # Data warehouse syncs (Stripe / Postgres / Snowflake / Hubspot…).
-          # Without this, "Sync now" in the UI sits in Running forever.
-          warehouse:
-            <<: *temporalWorker
-            env:
-              TEMPORAL_TASK_QUEUE: data-warehouse-task-queue
-              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
-              PROMETHEUS_METRICS_EXPORT_PORT: "8002"
           # Warehouse → CDP pipeline producer.
           cdp:
             <<: *temporalWorker
@@ -315,6 +306,33 @@ spec:
               TEMPORAL_TASK_QUEUE: max-ai-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
               PROMETHEUS_METRICS_EXPORT_PORT: "8012"
+      # Dedicated controller for the heavy data-warehouse-task-queue.
+      # 4 replicas × MAX_CONCURRENT_ACTIVITIES=2 (from configmap) = 8 in-flight
+      # warehouse syncs, each with its own dedicated Python process / asyncio
+      # event loop. This is the right way to scale the warehouse work — adding
+      # more activities to one process just causes heartbeat starvation when
+      # the deltalake write blocks the loop.
+      temporal-worker-warehouse:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 4
+        strategy: RollingUpdate
+        rollingUpdate:
+          unavailable: 0
+          surge: 1
+        containers:
+          app:
+            image: *posthogImage
+            command: ["./bin/temporal-django-worker"]
+            env:
+              TEMPORAL_TASK_QUEUE: data-warehouse-task-queue
+              TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8001"
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 250m
+                memory: 1Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: false
@@ -341,8 +359,6 @@ spec:
           temporal-worker:
             general:
               - path: /tmp
-            warehouse:
-              - path: /tmp
             cdp:
               - path: /tmp
             batch-exports:
@@ -362,6 +378,9 @@ spec:
             health-check:
               - path: /tmp
             max-ai:
+              - path: /tmp
+          temporal-worker-warehouse:
+            app:
               - path: /tmp
       geoip:
         existingClaim: geoip-nfs
