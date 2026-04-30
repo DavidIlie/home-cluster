@@ -47,16 +47,21 @@ data:
   # "credential provider was not enabled / no providers in chain".
   # Reuse the same MinIO bucket as session recordings.
   #
-  # USE_LOCAL_SETUP is the gate that makes delta_table_helper actually
-  # pass DATAWAREHOUSE_LOCAL_* credentials to deltalake's storage_options.
-  # Without it the storage_options dict is empty and the Rust object_store
-  # crate falls through its credential provider chain and fails.
-  USE_LOCAL_SETUP: "true"
+  # delta_table_helper only injects DATAWAREHOUSE_LOCAL_* into deltalake's
+  # storage_options when settings.USE_LOCAL_SETUP is true — and that flag
+  # is hardcoded to (TEST or DEBUG), neither of which we want in prod.
+  # Instead we satisfy the Rust object_store credential chain via standard
+  # AWS_* env vars; the secret carries the matching key+secret.
   BUCKET_URL: s3://posthog/data_warehouse
   BUCKET_PATH: data_warehouse
   DATAWAREHOUSE_BUCKET: posthog
   DATAWAREHOUSE_BUCKET_DOMAIN: 192.168.100.63:9000
   DATAWAREHOUSE_LOCAL_BUCKET_REGION: us-east-1
+  AWS_ENDPOINT_URL: http://192.168.100.63:9000
+  AWS_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_ALLOW_HTTP: "true"
+  AWS_S3_ALLOW_UNSAFE_RENAME: "true"
   OBJECT_STORAGE_ENABLED: "true"
   OBJECT_STORAGE_ENDPOINT: http://192.168.100.63:9000
   OBJECT_STORAGE_PUBLIC_ENDPOINT: https://posthog.davidapps.dev
