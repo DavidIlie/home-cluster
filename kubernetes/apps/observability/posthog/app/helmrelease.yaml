@@ -209,18 +209,20 @@ spec:
           reloader.stakater.com/auto: "true"
         strategy: Recreate
         containers:
-          # All containers share the pod network namespace, so only ONE can
-          # bind the combined metrics server (default port 8001). Keep it on
-          # \`general\` and disable on the other 11 via
-          # TEMPORAL_COMBINED_METRICS_SERVER_ENABLED=false.
+          # All containers share the pod network namespace, so each must bind
+          # a unique PROMETHEUS_METRICS_EXPORT_PORT (Temporal Rust SDK starts a
+          # Prometheus exporter regardless of TEMPORAL_COMBINED_METRICS_SERVER_ENABLED).
+          # Default 8001 → assign 8001-8012.
           #
           # Core "anything else" queue: deletion, usage, enrichment, analytics,
-          # hog flow workflows. This one keeps the Prometheus metrics endpoint.
+          # hog flow workflows. Keeps the combined metrics server (Python +
+          # Rust merged on 8001) for Prometheus scraping.
           general: &temporalWorker
             image: *posthogImage
             command: ["./bin/temporal-django-worker"]
             env:
               TEMPORAL_TASK_QUEUE: general-purpose-task-queue
+              PROMETHEUS_METRICS_EXPORT_PORT: "8001"
             envFrom: *envFrom
             resources:
               requests:
@@ -233,18 +235,21 @@ spec:
             env:
               TEMPORAL_TASK_QUEUE: data-warehouse-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8002"
           # Warehouse → CDP pipeline producer.
           cdp:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: data-warehouse-cdp-producer-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8003"
           # Scheduled batch exports (S3 / BigQuery / Snowflake destinations).
           batch-exports:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: batch-exports-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8004"
           # Data import signals (used by warehouse + video exports). Required
           # for warehouse sync workflows to receive lifecycle signals.
           video-export:
@@ -252,48 +257,56 @@ spec:
             env:
               TEMPORAL_TASK_QUEUE: video-export-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8005"
           # Insight alerts, subscriptions, scheduled exports of insights.
           analytics-platform:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: analytics-platform-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8006"
           # Web analytics + messaging (broadcasts, campaigns).
           messaging:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: messaging-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8007"
           # Session replay processing.
           session-replay:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: session-replay-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8008"
           # Tasks feature.
           tasks:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: tasks-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8009"
           # Weekly digest emails.
           weekly-digest:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: weekly-digest-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8010"
           # Health check workflows.
           health-check:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: health-check-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8011"
           # Max AI assistant workflows.
           max-ai:
             <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: max-ai-task-queue
               TEMPORAL_COMBINED_METRICS_SERVER_ENABLED: "false"
+              PROMETHEUS_METRICS_EXPORT_PORT: "8012"
     defaultPodOptions:
       securityContext:
         runAsNonRoot: false
