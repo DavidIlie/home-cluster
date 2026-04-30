@@ -99,15 +99,16 @@ spec:
                   httpGet:
                     path: /_health
                     port: 8000
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 60
                   periodSeconds: 10
+                  timeoutSeconds: 10
                   failureThreshold: 60
             resources:
               requests:
                 cpu: 500m
-                memory: 1Gi
+                memory: 2Gi
               limits:
-                memory: 3Gi
+                memory: 6Gi
       worker:
         annotations:
           reloader.stakater.com/auto: "true"
