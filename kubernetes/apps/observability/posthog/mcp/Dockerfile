@@ -21,7 +21,7 @@
 #
 # Args:
 #   POSTHOG_REF — git ref / tag / sha of PostHog/posthog to build from
-ARG NODE_IMAGE=node:22-slim
+ARG NODE_IMAGE=node:24-slim
 
 FROM ${NODE_IMAGE} AS builder
 ARG POSTHOG_REF=master
