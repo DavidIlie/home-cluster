@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.23
 #
 # PostHog MCP server, packaged for self-hosted PostHog.
 #
