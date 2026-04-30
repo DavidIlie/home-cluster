@@ -66,10 +66,10 @@ spec:
             envFrom: *envFrom
             resources:
               requests:
-                cpu: 500m
-                memory: 1Gi
+                cpu: 2000m
+                memory: 2Gi
               limits:
-                memory: 3Gi
+                memory: 4Gi
         containers:
           app:
             image: *posthogImage
@@ -77,11 +77,13 @@ spec:
             env:
               # Web must NOT run async migrations scheduler (worker does).
               SKIP_ASYNC_MIGRATIONS_SETUP: "1"
-              # nginx-unit forks N Django workers in parallel at boot. Default
-              # 4 (NGINX_UNIT_APP_PROCESSES) x ~45s Django init each saturates
-              # 500m CPU and stretches cold-start to 4-5 min. 2 is plenty for
-              # homelab traffic and roughly halves cold-start.
+              # nginx-unit forks N Django workers in parallel at boot. 2 is
+              # enough for homelab traffic.
               NGINX_UNIT_APP_PROCESSES: "2"
+              # Preload Django in the unit prototype, then fork workers from it
+              # — second worker is ~instant instead of repeating the full
+              # import. Cuts cold-start roughly in half on multi-worker setups.
+              NGINX_UNIT_PRELOAD_CONFIG: "true"
             envFrom: *envFrom
             probes:
               liveness:
@@ -119,10 +121,10 @@ spec:
                   failureThreshold: 60
             resources:
               requests:
-                cpu: 1500m
-                memory: 2Gi
+                cpu: 4000m
+                memory: 4Gi
               limits:
-                memory: 6Gi
+                memory: 8Gi
       worker:
         annotations:
           reloader.stakater.com/auto: "true"
