@@ -46,6 +46,12 @@ data:
   # object_store crate looks for these. Without them, syncs fail with
   # "credential provider was not enabled / no providers in chain".
   # Reuse the same MinIO bucket as session recordings.
+  #
+  # USE_LOCAL_SETUP is the gate that makes delta_table_helper actually
+  # pass DATAWAREHOUSE_LOCAL_* credentials to deltalake's storage_options.
+  # Without it the storage_options dict is empty and the Rust object_store
+  # crate falls through its credential provider chain and fails.
+  USE_LOCAL_SETUP: "true"
   BUCKET_URL: s3://posthog/data_warehouse
   BUCKET_PATH: data_warehouse
   DATAWAREHOUSE_BUCKET: posthog
