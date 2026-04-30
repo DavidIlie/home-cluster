@@ -77,6 +77,8 @@ spec:
               limits:
                 memory: 1Gi
     defaultPodOptions:
+      imagePullSecrets:
+        - name: docker-regcred
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001

@@ -28,4 +28,5 @@ resources:
   - ./analytics-storage-exporter/ks.yaml
 components:
   - ../../flux/components/namespace
+  - ../../flux/components/regcred
   - ../../flux/components/sops
