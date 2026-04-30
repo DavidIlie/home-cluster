@@ -17,10 +17,6 @@ resources:
   - ./paperless/ks.yaml
   - ./stirling-pdf/ks.yaml
   - ./n8n/ks.yaml
-  - ./mealie/ks.yaml
-  - ./linkwarden/ks.yaml
-  - ./memos/ks.yaml
-  - ./openspeedtest/ks.yaml
   # - ./mailprism/ks.yaml
   # - ./roundcube/ks.yaml
 components:

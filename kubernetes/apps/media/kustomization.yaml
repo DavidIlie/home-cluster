@@ -10,17 +10,11 @@ resources:
   - ./sonarr/ks.yaml
   - ./plex/ks.yaml
   - ./bazarr/ks.yaml
-  - ./agregarr/ks.yaml
   - ./overseerr/ks.yaml
-  - ./readarr/ks.yaml
-  - ./kavita/ks.yaml
   - ./jellyfin/ks.yaml
   # - ./stream-master/ks.yaml
   # - ./threadfin/ks.yaml
   - ./recyclarr/ks.yaml
-  - ./wizarr/ks.yaml
-  - ./calibre-web/ks.yaml
-  - ./lazylibrarian/ks.yaml
   - ./plexo/ks.yaml
   - ./plexo/image-automations/ks.yaml
 components:
