@@ -192,13 +192,26 @@ spec:
               requests:
                 cpu: 500m
                 memory: 1Gi
-      # general-purpose queue: deletion, usage, enrichment, analytics, hog flow
+      # PostHog routes Temporal workflows across many task queues; each must
+      # have a worker subscribed or workflows queue forever. start_temporal_worker
+      # only listens on one queue at a time, so we run one container per queue
+      # in a single pod (cheaper than one Deployment per queue — shared kernel
+      # + image cache, single PVC mount, single rollout cycle).
+      #
+      # Queues skipped on purpose:
+      #   - billing-task-queue:        cloud-only (BILLING_SERVICE_URL unset)
+      #   - ducklake-task-queue:       experimental
+      #   - llma-*-task-queue:         LLM analytics product, not in use
+      #   - event-screenshots / logs-alerting: niche / cloud
+      #   - no-sandbox-python-django:  sync batch exports, rarely used
       temporal-worker:
         annotations:
           reloader.stakater.com/auto: "true"
         strategy: Recreate
         containers:
-          app:
+          # Core "anything else" queue: deletion, usage, enrichment, analytics,
+          # hog flow workflows.
+          general: &temporalWorker
             image: *posthogImage
             command: ["./bin/temporal-django-worker"]
             env:
@@ -206,62 +219,65 @@ spec:
             envFrom: *envFrom
             resources:
               requests:
-                cpu: 500m
-                memory: 2Gi
-      # data-warehouse queue: external data source syncs (Stripe, Postgres,
-      # Snowflake, Hubspot, etc.). Without a worker on this queue, "sync now"
-      # in the UI shows "Running" but never makes progress — the workflow
-      # sits in temporal queued forever.
-      temporal-worker-warehouse:
-        annotations:
-          reloader.stakater.com/auto: "true"
-        strategy: Recreate
-        containers:
-          app:
-            image: *posthogImage
-            command: ["./bin/temporal-django-worker"]
+                cpu: 100m
+                memory: 512Mi
+          # Data warehouse syncs (Stripe / Postgres / Snowflake / Hubspot…).
+          # Without this, "Sync now" in the UI sits in Running forever.
+          warehouse:
+            <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: data-warehouse-task-queue
-            envFrom: *envFrom
-            resources:
-              requests:
-                cpu: 500m
-                memory: 2Gi
-      # CDP producer queue: secondary warehouse activities (data feeding into
-      # the customer data platform pipeline).
-      temporal-worker-cdp:
-        annotations:
-          reloader.stakater.com/auto: "true"
-        strategy: Recreate
-        containers:
-          app:
-            image: *posthogImage
-            command: ["./bin/temporal-django-worker"]
+          # Warehouse → CDP pipeline producer.
+          cdp:
+            <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: data-warehouse-cdp-producer-task-queue
-            envFrom: *envFrom
-            resources:
-              requests:
-                cpu: 200m
-                memory: 1Gi
-      # batch-exports queue: scheduled exports out of PostHog (S3, BigQuery,
-      # Snowflake destinations, etc.). Cheap — only spins up when an export
-      # runs.
-      temporal-worker-batch-exports:
-        annotations:
-          reloader.stakater.com/auto: "true"
-        strategy: Recreate
-        containers:
-          app:
-            image: *posthogImage
-            command: ["./bin/temporal-django-worker"]
+          # Scheduled batch exports (S3 / BigQuery / Snowflake destinations).
+          batch-exports:
+            <<: *temporalWorker
             env:
               TEMPORAL_TASK_QUEUE: batch-exports-task-queue
-            envFrom: *envFrom
-            resources:
-              requests:
-                cpu: 200m
-                memory: 1Gi
+          # Data import signals (used by warehouse + video exports). Required
+          # for warehouse sync workflows to receive lifecycle signals.
+          video-export:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: video-export-task-queue
+          # Insight alerts, subscriptions, scheduled exports of insights.
+          analytics-platform:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: analytics-platform-task-queue
+          # Web analytics + messaging (broadcasts, campaigns).
+          messaging:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: messaging-task-queue
+          # Session replay processing.
+          session-replay:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: session-replay-task-queue
+          # Tasks feature.
+          tasks:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: tasks-task-queue
+          # Weekly digest emails.
+          weekly-digest:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: weekly-digest-task-queue
+          # Health check workflows.
+          health-check:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: health-check-task-queue
+          # Max AI assistant workflows.
+          max-ai:
+            <<: *temporalWorker
+            env:
+              TEMPORAL_TASK_QUEUE: max-ai-task-queue
     defaultPodOptions:
       securityContext:
         runAsNonRoot: false
@@ -286,16 +302,29 @@ spec:
             app:
               - path: /tmp
           temporal-worker:
-            app:
+            general:
               - path: /tmp
-          temporal-worker-warehouse:
-            app:
+            warehouse:
               - path: /tmp
-          temporal-worker-cdp:
-            app:
+            cdp:
               - path: /tmp
-          temporal-worker-batch-exports:
-            app:
+            batch-exports:
+              - path: /tmp
+            video-export:
+              - path: /tmp
+            analytics-platform:
+              - path: /tmp
+            messaging:
+              - path: /tmp
+            session-replay:
+              - path: /tmp
+            tasks:
+              - path: /tmp
+            weekly-digest:
+              - path: /tmp
+            health-check:
+              - path: /tmp
+            max-ai:
               - path: /tmp
       geoip:
         existingClaim: geoip-nfs
