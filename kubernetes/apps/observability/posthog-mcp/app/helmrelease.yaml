@@ -37,8 +37,13 @@ spec:
               tag: latest@sha256:bcfc6a650bee0c721b1ce84cf04b3abf7b61dc59c90fa4a59bcc04e2a37c574d
               pullPolicy: IfNotPresent
             # Override the image CMD so we can inject --var flags. Vars declared
-            # in wrangler.jsonc outrank container env, so MCP_APPS_BASE_URL has
-            # to come through wrangler's CLI to actually take effect.
+            # in wrangler.jsonc outrank container env, so anything we want the
+            # Worker to actually see has to come through wrangler's CLI.
+            #
+            # POSTHOG_API_BASE_URL must point at the *public* PostHog hostname
+            # because the MCP server publishes it in
+            # /.well-known/oauth-protected-resource as the authorization server,
+            # and the OAuth flow runs in the user's browser.
             args:
               - pnpm
               - exec
@@ -53,6 +58,8 @@ spec:
               - --no-show-interactive-dev-session
               - --var
               - MCP_APPS_BASE_URL:https://posthog-mcp.davidhome.ro
+              - --var
+              - POSTHOG_API_BASE_URL:https://posthog.davidapps.dev
             env:
               # Self-hosted PostHog API endpoint the MCP server proxies to.
               POSTHOG_API_BASE_URL: https://posthog.davidhome.ro
