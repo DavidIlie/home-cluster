@@ -192,6 +192,7 @@ spec:
               requests:
                 cpu: 500m
                 memory: 1Gi
+      # general-purpose queue: deletion, usage, enrichment, analytics, hog flow
       temporal-worker:
         annotations:
           reloader.stakater.com/auto: "true"
@@ -200,13 +201,67 @@ spec:
           app:
             image: *posthogImage
             command: ["./bin/temporal-django-worker"]
+            env:
+              TEMPORAL_TASK_QUEUE: general-purpose-task-queue
             envFrom: *envFrom
-            # No cap — external_data_source syncs (Stripe / GitHub / etc.) run
-            # here and can spike memory while paginating remote APIs.
             resources:
               requests:
                 cpu: 500m
                 memory: 2Gi
+      # data-warehouse queue: external data source syncs (Stripe, Postgres,
+      # Snowflake, Hubspot, etc.). Without a worker on this queue, "sync now"
+      # in the UI shows "Running" but never makes progress — the workflow
+      # sits in temporal queued forever.
+      temporal-worker-warehouse:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image: *posthogImage
+            command: ["./bin/temporal-django-worker"]
+            env:
+              TEMPORAL_TASK_QUEUE: data-warehouse-task-queue
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 500m
+                memory: 2Gi
+      # CDP producer queue: secondary warehouse activities (data feeding into
+      # the customer data platform pipeline).
+      temporal-worker-cdp:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image: *posthogImage
+            command: ["./bin/temporal-django-worker"]
+            env:
+              TEMPORAL_TASK_QUEUE: data-warehouse-cdp-producer-task-queue
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+      # batch-exports queue: scheduled exports out of PostHog (S3, BigQuery,
+      # Snowflake destinations, etc.). Cheap — only spins up when an export
+      # runs.
+      temporal-worker-batch-exports:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image: *posthogImage
+            command: ["./bin/temporal-django-worker"]
+            env:
+              TEMPORAL_TASK_QUEUE: batch-exports-task-queue
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: false
@@ -231,6 +286,15 @@ spec:
             app:
               - path: /tmp
           temporal-worker:
+            app:
+              - path: /tmp
+          temporal-worker-warehouse:
+            app:
+              - path: /tmp
+          temporal-worker-cdp:
+            app:
+              - path: /tmp
+          temporal-worker-batch-exports:
             app:
               - path: /tmp
       geoip:
