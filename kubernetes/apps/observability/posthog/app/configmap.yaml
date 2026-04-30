@@ -36,6 +36,11 @@ data:
   TRACES_REDIS_HOST: dragonfly.databases.svc.cluster.local
   TRACES_REDIS_PORT: "6379"
   TRACES_REDIS_TLS: "false"
+  # row_tracking for data imports (Stripe / Postgres warehouse syncs).
+  # Without these, activities crash with "[Errno 111] Connect call failed
+  # 127.0.0.1:6379" because the client falls back to localhost.
+  DATA_WAREHOUSE_REDIS_HOST: dragonfly.databases.svc.cluster.local
+  DATA_WAREHOUSE_REDIS_PORT: "6379"
   OBJECT_STORAGE_ENABLED: "true"
   OBJECT_STORAGE_ENDPOINT: http://192.168.100.63:9000
   OBJECT_STORAGE_PUBLIC_ENDPOINT: https://posthog.davidapps.dev
