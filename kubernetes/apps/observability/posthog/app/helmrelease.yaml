@@ -77,20 +77,17 @@ spec:
             env:
               # Web must NOT run async migrations scheduler (worker does).
               SKIP_ASYNC_MIGRATIONS_SETUP: "1"
-              # 4 unit workers: 2 was bottlenecking — when both got tied up
-              # on a slow outbound call (Stripe OAuth, etc.) /_health queued
-              # behind them and kubelet killed the pod. With preload, extra
-              # workers are cheap (fork from prototype, no repeat imports).
-              NGINX_UNIT_APP_PROCESSES: "4"
-              # Preload Django in the unit prototype, then fork workers from it
-              # — subsequent workers are ~instant instead of repeating the full
-              # import. Cold-start stays fast even at 4 workers.
+              # ONE unit worker only. Multiple workers all fork-of-import
+              # Django simultaneously, saturating CPU and stretching cold
+              # start past the startup probe budget — pod gets liveness-
+              # killed mid-boot in a loop. One worker means one boot;
+              # /_health serves as soon as Django is up.
+              NGINX_UNIT_APP_PROCESSES: "1"
               NGINX_UNIT_PRELOAD_CONFIG: "true"
             envFrom: *envFrom
             probes:
-              # Liveness deliberately tolerant — slow outbound integrations
-              # (Stripe OAuth scan, etc.) can pin workers for a minute.
-              # 30s period * 20 failures = 10 min before kubelet kills.
+              # Tolerant probes — Django can stall briefly on slow outbound
+              # calls (Stripe OAuth scan, etc.) without getting reaped.
               liveness:
                 enabled: true
                 custom: true
@@ -113,6 +110,10 @@ spec:
                   periodSeconds: 10
                   timeoutSeconds: 10
                   failureThreshold: 12
+              # Startup deliberately generous: 20 * 10s + 60s = 4-5 min budget
+              # per cold boot. With only 1 unit worker we should clear it well
+              # before that, but Stripe sync activity can transiently make
+              # /_health slow even after boot.
               startup:
                 enabled: true
                 custom: true
@@ -120,10 +121,10 @@ spec:
                   httpGet:
                     path: /_health
                     port: 8000
-                  initialDelaySeconds: 60
-                  periodSeconds: 10
+                  initialDelaySeconds: 90
+                  periodSeconds: 15
                   timeoutSeconds: 10
-                  failureThreshold: 60
+                  failureThreshold: 80
             # No memory cap — node is beefy, let posthog burst freely.
             # Request kept modest so the pod schedules on a node that's
             # already heavily committed; bursts use spare CPU/RAM.
