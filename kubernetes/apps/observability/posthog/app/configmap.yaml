@@ -18,6 +18,8 @@ data:
   OPT_OUT_CAPTURE: "true"
   # Lock down public signup — single-tenant homelab instance.
   DISABLE_SIGNUP: "true"
+  # Let invited users (and the superuser) create their own organizations.
+  MULTI_ORG_ENABLED: "True"
   CLICKHOUSE_HOST: posthog-clickhouse.observability.svc.cluster.local
   CLICKHOUSE_CLUSTER: posthog
   CLICKHOUSE_SECURE: "false"
