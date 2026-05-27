@@ -35,7 +35,7 @@ spec:
           init-temporal-db:
             image: &initImage
               repository: ghcr.io/home-operations/postgres-init
-              tag: 18.3
+              tag: 18.4
             env: &initEnvBase
               INIT_POSTGRES_HOST: postgres17-rw.databases.svc.cluster.local
               INIT_POSTGRES_USER: temporal
