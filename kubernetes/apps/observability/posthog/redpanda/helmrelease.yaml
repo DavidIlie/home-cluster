@@ -42,7 +42,9 @@ spec:
                   --reserve-memory 200M \
                   --overprovisioned \
                   --node-id 0 \
-                  --check=false
+                  --check=false \
+                  --set redpanda.partition_autobalancing_mode=node_add \
+                  --set redpanda.core_balancing_continuous=false
             env:
               ALLOW_PLAINTEXT_LISTENER: "true"
             probes:
