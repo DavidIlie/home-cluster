@@ -100,8 +100,21 @@
         '/postgresql/',
         '/cloudnative-pg/',
         '/dragonfly/',
+        '/redpanda/',
       ],
       automerge: false,
+    },
+    {
+      description: [
+        'Pin Redpanda < 25.3: v25.3+ defaults enable enterprise-gated',
+        'balancing features (partition_auto_balancing_continuous,',
+        'core_balancing_continuous) that block startup without a license.',
+        'v26 requires a license outright. Stay on the v25.1.x line that',
+        'matches PostHog upstream docker-compose until PostHog moves.',
+      ],
+      matchDatasources: ['docker'],
+      matchPackageNames: ['/redpanda/'],
+      allowedVersions: '<25.3.0',
     },
     {
       description: [
