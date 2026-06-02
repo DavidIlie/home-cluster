@@ -107,6 +107,19 @@ radarr:
         standard: standard
 
     quality_profiles:
+      # --- Existing TRaSH profiles (kept; movies stay on these, e.g. SQP-2) ---
+      - trash_id: 64fb5f9858489bdac2af690e27c8f42f # UHD Bluray + WEB
+      - trash_id: fd161a61e3ab826d3a22d53f935696dd # Remux + WEB 2160p
+      - trash_id: 9ca12ea80aa55ef916e3751f4b874151 # Remux + WEB 1080p
+      - trash_id: d1d67249d3890e49bc12e275d989a7e9 # HD Bluray + WEB
+      - trash_id: 0896c29d74de619df168d23b98104b22 # SQP-1 (1080p)
+      - trash_id: 5128baeb2b081b72126bc8482b2a86a0 # SQP-1 (2160p)
+      - trash_id: c3933358ba2356bafc41524f81471069 # SQP-2
+      - trash_id: 2cf36c1f0106ffac993be003ade51865 # SQP-3
+      - trash_id: 013f89e6da27519fe56cf482702a2db9 # SQP-4
+      - trash_id: a7bb1539fd147256b21b1098f3dc2016 # SQP-5
+
+      # --- New best-quality-with-fallback profiles (available as options) ---
       # DEFAULT: 4K-first with HD fallback: 2160p -> 1080p -> 720p
       - name: WEB-2160p + Fallback
         reset_unmatched_scores:
@@ -179,6 +192,8 @@ radarr:
           - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
           - f537cf427b64c38c8e36298f657e4828 # Scene
         assign_scores_to:
+          - name: SQP-1 (1080p)
+          - name: SQP-1 (2160p)
           - name: WEB-2160p + Fallback
           - name: Remux-2160p + Fallback
           - name: Remux-1080p + Fallback
@@ -187,6 +202,8 @@ radarr:
       - trash_ids:
           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
         assign_scores_to:
+          - name: SQP-1 (1080p)
+          - name: SQP-1 (2160p)
           - name: WEB-2160p + Fallback
           - name: Remux-2160p + Fallback
 
@@ -195,6 +212,12 @@ radarr:
           - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
           - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
         assign_scores_to:
+          - name: SQP-1 (2160p)
+            score: 2000
+          - name: Remux + WEB 2160p
+            score: 2000
+          - name: UHD Bluray + WEB
+            score: 2000
           - name: WEB-2160p + Fallback
             score: 2000
           - name: Remux-2160p + Fallback
