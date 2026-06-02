@@ -1,5 +1,9 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+# Profile strategy (Usenet-only, best quality with graceful fallback):
+#   - WEB-2160p + Fallback  -> DEFAULT (4K streaming, 2160p -> 1080p -> 720p)
+#   - Remux-2160p + Fallback -> ultimate 4K (remux -> bluray -> web, all the way down)
+#   - Remux-1080p + Fallback -> older / HD-only shows (e.g. sitcoms with no 4K)
 sonarr:
   sonarr:
     base_url: http://sonarr.media.svc.cluster.local
@@ -17,44 +21,77 @@ sonarr:
         anime: default
 
     quality_profiles:
-      - trash_id: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p
-      - trash_id: d1498e7d189fbe6c7110ceaabb7473e6 # WEB-2160p
-      - name: Remux-1080p
+      # DEFAULT: 4K-first with HD fallback: 2160p -> 1080p -> 720p (TRaSH Combined)
+      - trash_id: c4cadd6b35b95f62c3d47a408e53e2f7 # WEB-2160p (Combined)
         reset_unmatched_scores:
           enabled: true
-        min_format_score: 0
-        quality_sort: top
-        qualities:
-          - name: Bluray-1080p Remux
-      - name: ANY
+
+      # Ultimate 4K: remux -> bluray -> web 2160p, then full HD fallback
+      - name: Remux-2160p + Fallback
         reset_unmatched_scores:
           enabled: true
         upgrade:
           allowed: true
-          until_quality: WEB 1080p
+          until_quality: Bluray-2160p Remux
           until_score: 10000
+        min_format_score: 0
         quality_sort: top
         qualities:
+          - name: Bluray-2160p Remux
+          - name: Bluray-2160p
+          - name: WEB 2160p
+            qualities: ["WEBDL-2160p", "WEBRip-2160p"]
+          - name: Bluray-1080p Remux
+          - name: Bluray-1080p
           - name: WEB 1080p
             qualities: ["WEBDL-1080p", "WEBRip-1080p"]
-          - name: HDTV-1080p
+          - name: Bluray-720p
           - name: WEB 720p
             qualities: ["WEBDL-720p", "WEBRip-720p"]
+          - name: HDTV-1080p
           - name: HDTV-720p
-          - name: WEB 480p
-            qualities: ["WEBDL-480p", "WEBRip-480p"]
-          - name: DVD
-          - name: SDTV
+
+      # HD remux-first with full fallback: remux -> web -> bluray-1080p -> 720p
+      - name: Remux-1080p + Fallback
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Bluray-1080p Remux
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Bluray-1080p Remux
+          - name: WEB 1080p
+            qualities: ["WEBDL-1080p", "WEBRip-1080p"]
+          - name: Bluray-1080p
+          - name: WEB 720p
+            qualities: ["WEBDL-720p", "WEBRip-720p"]
+          - name: Bluray-720p
+          - name: HDTV-1080p
+          - name: HDTV-720p
 
     custom_formats:
+      # Unwanted release groups/tags — remove everywhere
       - trash_ids:
           - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
           - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+          - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
           - 06d66ab109d4d2eddb2794d21526d140 # Retags
           - 1b3994c551cbb92a2c781af061f4ab44 # Scene
         assign_scores_to:
-          - name: WEB-1080p
-          - name: ANY
+          - trash_id: c4cadd6b35b95f62c3d47a408e53e2f7 # WEB-2160p (Combined)
+          - name: Remux-2160p + Fallback
+          - name: Remux-1080p + Fallback
+      # Prefer FLUX over repacks on 4K profiles (matches onedr0p)
+      - trash_ids:
+          - 5d9fd1b1e06cd8a475462f40214b7df6 # FLUX
+        assign_scores_to:
+          - trash_id: c4cadd6b35b95f62c3d47a408e53e2f7 # WEB-2160p (Combined)
+            score: 100
+          - name: Remux-2160p + Fallback
+            score: 100
 
 radarr:
   radarr:
@@ -70,38 +107,95 @@ radarr:
         standard: standard
 
     quality_profiles:
-      - trash_id: 64fb5f9858489bdac2af690e27c8f42f # UHD Bluray + WEB
-      - trash_id: fd161a61e3ab826d3a22d53f935696dd # Remux + WEB 2160p
-      - trash_id: 9ca12ea80aa55ef916e3751f4b874151 # Remux + WEB 1080p
-      - trash_id: d1d67249d3890e49bc12e275d989a7e9 # HD Bluray + WEB
-      # SQP
-      - trash_id: 0896c29d74de619df168d23b98104b22 # SQP-1 (1080p)
-      - trash_id: 5128baeb2b081b72126bc8482b2a86a0 # SQP-1 (2160p)
-      - trash_id: c3933358ba2356bafc41524f81471069 # SQP-2
-      - trash_id: 2cf36c1f0106ffac993be003ade51865 # SQP-3
-      - trash_id: 013f89e6da27519fe56cf482702a2db9 # SQP-4
-      - trash_id: a7bb1539fd147256b21b1098f3dc2016 # SQP-5
+      # DEFAULT: 4K-first with HD fallback: 2160p -> 1080p -> 720p
+      - name: WEB-2160p + Fallback
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: WEB 2160p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: WEB 2160p
+            qualities: ["WEBDL-2160p", "WEBRip-2160p"]
+          - name: Bluray-2160p
+          - name: WEB 1080p
+            qualities: ["WEBDL-1080p", "WEBRip-1080p"]
+          - name: Bluray-1080p
+          - name: WEB 720p
+            qualities: ["WEBDL-720p", "WEBRip-720p"]
+          - name: Bluray-720p
+
+      # Ultimate 4K: remux -> bluray -> web 2160p, then full HD fallback
+      - name: Remux-2160p + Fallback
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Remux-2160p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Remux-2160p
+          - name: Bluray-2160p
+          - name: WEB 2160p
+            qualities: ["WEBDL-2160p", "WEBRip-2160p"]
+          - name: Remux-1080p
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            qualities: ["WEBDL-1080p", "WEBRip-1080p"]
+          - name: Bluray-720p
+          - name: WEB 720p
+            qualities: ["WEBDL-720p", "WEBRip-720p"]
+
+      # HD remux-first with full fallback: remux -> web -> bluray-1080p -> 720p
+      - name: Remux-1080p + Fallback
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Remux-1080p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Remux-1080p
+          - name: WEB 1080p
+            qualities: ["WEBDL-1080p", "WEBRip-1080p"]
+          - name: Bluray-1080p
+          - name: WEB 720p
+            qualities: ["WEBDL-720p", "WEBRip-720p"]
+          - name: Bluray-720p
 
     custom_formats:
+      # Unwanted release groups/tags — remove everywhere
       - trash_ids:
-          - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
           - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
           - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
           - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
           - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
           - f537cf427b64c38c8e36298f657e4828 # Scene
         assign_scores_to:
-          - name: SQP-1 (1080p)
-          - name: SQP-1 (2160p)
+          - name: WEB-2160p + Fallback
+          - name: Remux-2160p + Fallback
+          - name: Remux-1080p + Fallback
 
-      # DV priority boost — score DV above WEB Tier 01
+      # IMAX Enhanced — nice-to-have on the 4K profiles
+      - trash_ids:
+          - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
+        assign_scores_to:
+          - name: WEB-2160p + Fallback
+          - name: Remux-2160p + Fallback
+
+      # DV / HDR10+ priority boost on the 4K profiles (4K TV)
       - trash_ids:
           - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
           - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
         assign_scores_to:
-          - name: SQP-1 (2160p)
+          - name: WEB-2160p + Fallback
             score: 2000
-          - name: Remux + WEB 2160p
-            score: 2000
-          - name: UHD Bluray + WEB
+          - name: Remux-2160p + Fallback
             score: 2000
