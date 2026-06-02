@@ -31,9 +31,7 @@ sonarr:
         reset_unmatched_scores:
           enabled: true
         upgrade:
-          allowed: true
-          until_quality: Bluray-2160p Remux
-          until_score: 10000
+          allowed: false # don't replace existing files; grab best available for missing only
         min_format_score: 0
         quality_sort: top
         qualities:
@@ -56,9 +54,7 @@ sonarr:
         reset_unmatched_scores:
           enabled: true
         upgrade:
-          allowed: true
-          until_quality: Bluray-1080p Remux
-          until_score: 10000
+          allowed: false # don't replace existing files; grab best available for missing only
         min_format_score: 0
         quality_sort: top
         qualities:
@@ -146,9 +142,7 @@ radarr:
         reset_unmatched_scores:
           enabled: true
         upgrade:
-          allowed: true
-          until_quality: Remux-2160p
-          until_score: 10000
+          allowed: false # don't replace existing files; grab best available for missing only
         min_format_score: 0
         quality_sort: top
         qualities:
@@ -169,9 +163,7 @@ radarr:
         reset_unmatched_scores:
           enabled: true
         upgrade:
-          allowed: true
-          until_quality: Remux-1080p
-          until_score: 10000
+          allowed: false # don't replace existing files; grab best available for missing only
         min_format_score: 0
         quality_sort: top
         qualities:
