@@ -60,15 +60,17 @@ spec:
         serviceMonitorSelectorNilUsesHelmValues: false
         enableAdminAPI: true
         walCompression: true
+        # Cap head/TSDB growth so memory cannot creep past the limit again.
+        retention: 14d
+        retentionSize: 8GB
         remoteWrite:
           - url: "http://prometheus-home-cluster.observability.svc.cluster.local:9090/api/v1/write"
-        enableFeatures:
-          - memory-snapshot-on-shutdown
         resources:
           requests:
             cpu: 100m
+            memory: 3Gi
           limits:
-            memory: 2000Mi
+            memory: 6Gi
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
