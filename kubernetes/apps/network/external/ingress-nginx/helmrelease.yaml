@@ -48,6 +48,11 @@ spec:
         client-body-buffer-size: 100M
         client-body-timeout: 120
         client-header-timeout: 120
+        # Only intercept codes that mean the app couldn't serve anything
+        # (upstream down/unreachable) and forward to the themed error-pages
+        # backend. App-served 404/500 keep their own bodies (APIs intact).
+        # No-route-at-all 404s are handled by the default-backend-service arg.
+        custom-http-errors: "502,503,504"
         enable-brotli: "true"
         enable-ocsp: "true"
         enable-real-ip: "true"
@@ -82,6 +87,9 @@ spec:
             any: true
       extraArgs:
         default-ssl-certificate: "cert-manager/davidhome-ro-production-tls"
+        # Route no-match requests + intercepted 502/503/504 to the themed
+        # error-pages app in the default namespace.
+        default-backend-service: default/error-pages
       resources:
         requests:
           cpu: 100m

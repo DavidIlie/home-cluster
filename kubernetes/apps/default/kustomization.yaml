@@ -17,6 +17,8 @@ resources:
   - ./paperless/ks.yaml
   - ./stirling-pdf/ks.yaml
   - ./n8n/ks.yaml
+  - ./error-pages/ks.yaml
+  - ./image-automations/ks.yaml
   # - ./mailprism/ks.yaml
   # - ./roundcube/ks.yaml
 components:

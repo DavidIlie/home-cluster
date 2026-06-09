@@ -1,0 +1,29 @@
+---
+# Optional: auto-bump the deployed tag when CI pushes a new image.
+# Place under kubernetes/apps/default/image-automations/app/ and register it
+# in that directory's kustomization.yaml. Requires the docker-regcred secret.
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: error-pages
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/error-pages
+  interval: 1m0s
+  secretRef:
+    name: docker-regcred
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: error-pages
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: error-pages
+  filterTags:
+    pattern: "^.+-[a-f0-9]+-(?P<ts>[0-9]+)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
