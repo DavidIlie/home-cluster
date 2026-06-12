@@ -54,7 +54,7 @@ spec:
           app:
             image:
               repository: temporalio/auto-setup
-              tag: "1.29.6"
+              tag: "1.29.7"
               pullPolicy: IfNotPresent
             env:
               DB: postgres12
