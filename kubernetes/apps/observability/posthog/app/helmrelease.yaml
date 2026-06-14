@@ -54,7 +54,7 @@ spec:
           migrate:
             image: &posthogImage
               repository: posthog/posthog
-              tag: latest@sha256:93e9828a90f0f130f68f659e83c5bdc33cc99184b43ec5b63bd4314e70e68979
+              tag: latest@sha256:5d0f626e9a2d7c64b72b828edbbac7ec53f61015be49361824424910083f2fa2
               pullPolicy: IfNotPresent
             command:
               - /bin/sh
