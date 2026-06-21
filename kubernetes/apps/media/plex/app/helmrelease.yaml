@@ -36,6 +36,12 @@ spec:
               ADVERTISE_IP: "https://plex.davidhome.ro,http://david.home.ro:32400"
               PLEX_NO_AUTH_NETWORKS: 192.168.100.0/24
               TZ: "Europe/Bucharest"
+              # NVIDIA Container Toolkit CDI mode injects the GPU driver libs
+              # here, which isn't on the Plex transcoder's default search path,
+              # so libcuda.so.1 fails to load and HW transcode silently falls
+              # back to CPU. Point the loader at the CDI lib dir to fix NVENC.
+              # Ref: github.com/linuxserver/docker-plex/issues/432
+              LD_LIBRARY_PATH: "/usr/local/glibc/usr/lib:/lib:/usr/lib"
             probes:
               liveness:
                 enabled: true
