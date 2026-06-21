@@ -9,3 +9,4 @@ resources:
 components:
   - ../../flux/components/namespace
   - ../../flux/components/sops
+  - ../../flux/components/regcred
