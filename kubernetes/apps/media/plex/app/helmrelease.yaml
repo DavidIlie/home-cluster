@@ -75,13 +75,9 @@ spec:
                 cpu: 100m
                 memory: 2Gi
             securityContext:
-              # Full access so NVENC/CUDA can initialize on the GPU (was being
-              # blocked with EPERM -> forced CPU software transcodes -> OOM kills).
-              privileged: true
-              allowPrivilegeEscalation: true
-              readOnlyRootFilesystem: false
-              seccompProfile:
-                type: Unconfined
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
 
     defaultPodOptions:
       securityContext:
