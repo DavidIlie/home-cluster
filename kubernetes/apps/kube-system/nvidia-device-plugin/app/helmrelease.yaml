@@ -24,3 +24,17 @@ spec:
     runtimeClassName: nvidia
     nodeSelector:
       nvidia.feature.node.kubernetes.io/gpu: "true"
+    # Time-slicing: advertise the single RTX 2080 as 4 schedulable
+    # nvidia.com/gpu units so dcgm-exporter, Plex (NVENC) and future
+    # workloads can share it. Oversubscription only — no memory isolation.
+    config:
+      map:
+        default: |-
+          version: v1
+          flags:
+            migStrategy: none
+          sharing:
+            timeSlicing:
+              resources:
+                - name: nvidia.com/gpu
+                  replicas: 4

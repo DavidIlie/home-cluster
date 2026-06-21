@@ -35,8 +35,6 @@ spec:
             env:
               ADVERTISE_IP: "https://plex.davidhome.ro,http://david.home.ro:32400"
               PLEX_NO_AUTH_NETWORKS: 192.168.100.0/24
-              NVIDIA_DRIVER_CAPABILITIES: all
-              NVIDIA_VISIBLE_DEVICES: all
               TZ: "Europe/Bucharest"
             probes:
               liveness:
@@ -74,6 +72,13 @@ spec:
               requests:
                 cpu: 100m
                 memory: 2Gi
+                nvidia.com/gpu: 1
+              limits:
+                # Schedule the GPU via the nvidia-device-plugin (matches every
+                # working home-ops Plex config). The plugin injects the device +
+                # libs correctly for this image; the legacy NVIDIA_VISIBLE_DEVICES
+                # env path failed to load libcuda.so.1 -> CPU-only transcodes.
+                nvidia.com/gpu: 1
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
