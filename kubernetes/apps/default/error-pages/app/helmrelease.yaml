@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/error-pages
-              tag: latest # {"$imagepolicy": "flux-system:error-pages:tag"}
+              tag: main-2653882a-1782049224 # {"$imagepolicy": "flux-system:error-pages:tag"}
             env:
               HOST: 0.0.0.0
               PORT: &port 3000
