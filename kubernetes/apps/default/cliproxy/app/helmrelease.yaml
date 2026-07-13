@@ -107,3 +107,7 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /CLIProxyAPI/logs
+      static:
+        type: emptyDir
+        globalMounts:
+          - path: /CLIProxyAPI/static
