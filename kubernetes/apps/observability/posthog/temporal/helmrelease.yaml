@@ -114,7 +114,7 @@ spec:
           app:
             image:
               repository: temporalio/ui
-              tag: "2.52.0"
+              tag: "2.52.1"
               pullPolicy: IfNotPresent
             env:
               TEMPORAL_ADDRESS: posthog-temporal-frontend.observability.svc.cluster.local:7233
