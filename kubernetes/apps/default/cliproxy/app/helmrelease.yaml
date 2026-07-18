@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: docker.io/eceasy/cli-proxy-api
-              tag: v7.2.85
+              tag: v7.2.86
             env:
               TZ: Europe/Bucharest
             probes:
