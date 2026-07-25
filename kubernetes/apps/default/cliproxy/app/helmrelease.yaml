@@ -27,13 +27,72 @@ spec:
       cliproxy:
         replicas: 1
         strategy: Recreate
+        initContainers:
+          # Plugins are c-shared .so files loaded via dlopen. config.yaml is a read-only
+          # SOPS secret, so the Plugin Store UI cannot install them (it writes config).
+          # Instead the versions are pinned here and fetched into an emptyDir on every start.
+          # Failures are swallowed on purpose: a plugin download must never block cliproxy.
+          plugin-installer:
+            image:
+              repository: docker.io/library/alpine
+              tag: 3.22@sha256:14358309a308569c32bdc37e2e0e9694be33a9d99e68afb0f5ff33cc1f695dce
+            command:
+              - sh
+              - -c
+              - |
+                set -u
+
+                # renovate: datasource=github-releases depName=Fwindy/cpa-usage-statistics
+                USAGE_STATISTICS_VERSION=0.1.0
+                # renovate: datasource=github-releases depName=zhumengling/codex-token-usage
+                CODEX_TOKEN_USAGE_VERSION=0.1.42
+
+                install_plugin() {
+                  id="$1"; ver="$2"; url="$3"
+                  if [ -f "/plugins/${id}-v${ver}.so" ]; then
+                    echo "plugin ${id} ${ver} already present, skipping"
+                    return 0
+                  fi
+                  echo "fetching ${id} ${ver}"
+                  rm -f "/plugins/${id}"*.so
+                  if wget -q -O "/tmp/${id}.zip" "${url}" \
+                    && unzip -o -q "/tmp/${id}.zip" -d /tmp \
+                    && mv "/tmp/${id}.so" "/plugins/${id}-v${ver}.so"; then
+                    echo "installed ${id} ${ver}"
+                  else
+                    echo "WARNING: failed to install ${id} ${ver}, continuing without it"
+                  fi
+                  rm -f "/tmp/${id}.zip"
+                }
+
+                install_plugin usage-statistics "${USAGE_STATISTICS_VERSION}" \
+                  "https://github.com/Fwindy/cpa-usage-statistics/releases/download/v${USAGE_STATISTICS_VERSION}/usage-statistics_${USAGE_STATISTICS_VERSION}_linux_amd64.zip"
+                install_plugin codex-token-usage "${CODEX_TOKEN_USAGE_VERSION}" \
+                  "https://github.com/zhumengling/codex-token-usage/releases/download/v${CODEX_TOKEN_USAGE_VERSION}/codex-token-usage_${CODEX_TOKEN_USAGE_VERSION}_linux_amd64.zip"
+
+                ls -la /plugins
+                exit 0
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
         containers:
           app:
             image:
               repository: docker.io/eceasy/cli-proxy-api
-              tag: v7.2.99
+              tag: v7.2.99@sha256:7e828ffc1c56ff9fc9fb5e1cdeb802f902c1449c7a43b702c13a7b9bf26fca28
             env:
               TZ: Europe/Bucharest
+              # Both usage plugins resolve their SQLite directory from $HOME by
+              # default, which is not set for uid 1000. Point them at the PVC.
+              USAGE_STATISTICS_DIR: /CLIProxyAPI/plugin-data/usage-statistics
+              CPA_TOKEN_USAGE_DIR: /CLIProxyAPI/plugin-data/codex-token-usage
             probes:
               liveness: &probes
                 enabled: true
@@ -103,6 +162,21 @@ spec:
         existingClaim: cliproxy
         globalMounts:
           - path: /CLIProxyAPI/auths
+      # Plugin binaries, re-fetched by the plugin-installer initContainer on every start.
+      plugins:
+        type: emptyDir
+        advancedMounts:
+          cliproxy:
+            plugin-installer:
+              - path: /plugins
+            app:
+              - path: /CLIProxyAPI/plugins
+      # SQLite databases written by the usage plugins. Survives restarts so usage
+      # history is not lost. NOTE: not covered by VolSync (that backs up ${APP_PVC}).
+      plugin-data:
+        existingClaim: cliproxy-plugin-data
+        globalMounts:
+          - path: /CLIProxyAPI/plugin-data
       logs:
         type: emptyDir
         globalMounts:
@@ -111,3 +185,8 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /CLIProxyAPI/static
+      # readOnlyRootFilesystem is on, so the plugin installer needs a writable scratch dir.
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

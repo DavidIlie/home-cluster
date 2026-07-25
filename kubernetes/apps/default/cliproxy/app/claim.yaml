@@ -9,3 +9,15 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: openebs-hostpath
+---
+# SQLite usage history written by the usage-statistics / codex-token-usage plugins.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cliproxy-plugin-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: openebs-hostpath
