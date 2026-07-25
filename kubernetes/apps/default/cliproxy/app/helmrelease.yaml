@@ -47,28 +47,30 @@ spec:
                 # renovate: datasource=github-releases depName=zhumengling/codex-token-usage
                 CODEX_TOKEN_USAGE_VERSION=0.1.42
 
+                # NOTE: $$ escapes the $ so Flux's strict-mode envsubst leaves these
+                # shell variables alone during postBuild substitution.
                 install_plugin() {
-                  id="$1"; ver="$2"; url="$3"
-                  if [ -f "/plugins/${id}-v${ver}.so" ]; then
-                    echo "plugin ${id} ${ver} already present, skipping"
+                  id="$${1}"; ver="$${2}"; url="$${3}"
+                  if [ -f "/plugins/$${id}-v$${ver}.so" ]; then
+                    echo "plugin $${id} $${ver} already present, skipping"
                     return 0
                   fi
-                  echo "fetching ${id} ${ver}"
-                  rm -f "/plugins/${id}"*.so
-                  if wget -q -O "/tmp/${id}.zip" "${url}" \
-                    && unzip -o -q "/tmp/${id}.zip" -d /tmp \
-                    && mv "/tmp/${id}.so" "/plugins/${id}-v${ver}.so"; then
-                    echo "installed ${id} ${ver}"
+                  echo "fetching $${id} $${ver}"
+                  rm -f "/plugins/$${id}"*.so
+                  if wget -q -O "/tmp/$${id}.zip" "$${url}" \
+                    && unzip -o -q "/tmp/$${id}.zip" -d /tmp \
+                    && mv "/tmp/$${id}.so" "/plugins/$${id}-v$${ver}.so"; then
+                    echo "installed $${id} $${ver}"
                   else
-                    echo "WARNING: failed to install ${id} ${ver}, continuing without it"
+                    echo "WARNING: failed to install $${id} $${ver}, continuing without it"
                   fi
-                  rm -f "/tmp/${id}.zip"
+                  rm -f "/tmp/$${id}.zip"
                 }
 
-                install_plugin usage-statistics "${USAGE_STATISTICS_VERSION}" \
-                  "https://github.com/Fwindy/cpa-usage-statistics/releases/download/v${USAGE_STATISTICS_VERSION}/usage-statistics_${USAGE_STATISTICS_VERSION}_linux_amd64.zip"
-                install_plugin codex-token-usage "${CODEX_TOKEN_USAGE_VERSION}" \
-                  "https://github.com/zhumengling/codex-token-usage/releases/download/v${CODEX_TOKEN_USAGE_VERSION}/codex-token-usage_${CODEX_TOKEN_USAGE_VERSION}_linux_amd64.zip"
+                install_plugin usage-statistics "$${USAGE_STATISTICS_VERSION}" \
+                  "https://github.com/Fwindy/cpa-usage-statistics/releases/download/v$${USAGE_STATISTICS_VERSION}/usage-statistics_$${USAGE_STATISTICS_VERSION}_linux_amd64.zip"
+                install_plugin codex-token-usage "$${CODEX_TOKEN_USAGE_VERSION}" \
+                  "https://github.com/zhumengling/codex-token-usage/releases/download/v$${CODEX_TOKEN_USAGE_VERSION}/codex-token-usage_$${CODEX_TOKEN_USAGE_VERSION}_linux_amd64.zip"
 
                 ls -la /plugins
                 exit 0
