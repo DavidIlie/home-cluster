@@ -27,6 +27,11 @@ spec:
       cliproxy:
         replicas: 1
         strategy: Recreate
+        annotations:
+          # config.yaml is mounted with subPath, and subPath mounts never receive
+          # kubelet secret updates -- without this, edits to secret.sops.yaml sit
+          # in git looking applied while the pod keeps the old config forever.
+          reloader.stakater.com/auto: "true"
         initContainers:
           # Plugins are c-shared .so files loaded via dlopen. config.yaml is a read-only
           # SOPS secret, so the Plugin Store UI cannot install them (it writes config).
