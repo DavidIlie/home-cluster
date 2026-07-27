@@ -25,6 +25,7 @@ resources:
   - ./graphite-exporter/ks.yaml
   - ./claude-usage-tracker/ks.yaml
   - ./analytics-storage-exporter/ks.yaml
+  - ./cliproxy-exporter/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/regcred

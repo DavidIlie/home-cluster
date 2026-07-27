@@ -1,0 +1,243 @@
+---
+# =============================================================================
+# Hand-written ServiceMonitors (chart's serviceMonitor.targets[] is disabled).
+#
+# WHY NOT THE CHART: the chart renders metricRelabelings only from
+# `additionalMetricsRelabels`, which is a map[label]value and can therefore
+# only produce `action: replace`. It cannot express `labeldrop`. The labeldrop
+# below is the defence-in-depth that guarantees a raw upstream API key can
+# never reach the TSDB even if someone later edits the module config and maps
+# a leaky field. Once a secret is in Prometheus it is also in remote-write, in
+# Grafana, and effectively unrecallable - so this guard is worth the extra file.
+#
+# Discovery: kube-prometheus-stack sets every *SelectorNilUsesHelmValues to
+# false, and the live Prometheus CR has serviceMonitorSelector: {} and
+# serviceMonitorNamespaceSelector: {}. No `release:` label is required.
+#
+# Metrics land in prometheus-kube-stack (14d / 8GB) AND, via remoteWrite, in
+# prometheus-home-cluster, which is the datasource the dashboard uses.
+# prometheus-home-cluster runs with NO --storage.tsdb.retention.* flag, which
+# means the Prometheus DEFAULT of 15d - not "uncapped". Neither instance can
+# answer a month-long question, which is why the plugin's own window=30d
+# gauges are scraped below.
+#
+# THREE TARGETS, one per module. `token_usage_quota` used to be a fourth on a
+# URL byte-identical to token_usage_lifetime, i.e. two full SQLite
+# re-aggregations a minute for nothing; its metrics were merged into the
+# lifetime module.
+#
+# The exporter reaches CLIProxyAPI through the IN-CLUSTER Service
+# (cliproxy.default.svc.cluster.local:8317), never the public ingress.
+# An HTTP GET starts with "G", which is not a RESP prefix (*$+-:), so cliproxy's
+# first-byte protocol sniffer can never misroute it into the Redis handler.
+# =============================================================================
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cliproxy-exporter-auth-files
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cliproxy-exporter
+      app.kubernetes.io/instance: cliproxy-exporter
+  namespaceSelector:
+    matchNames: [observability]
+  endpoints:
+    - port: http
+      scheme: http
+      path: /probe
+      interval: 1m
+      scrapeTimeout: 30s
+      params:
+        module: [auth_files]
+        # Tier 1. Works with no plugin at all.
+        target: ["http://cliproxy.default.svc.cluster.local:8317/v0/management/auth-files"]
+      metricRelabelings:
+        # HARD SECRET GUARD. These label names are the known leak vectors:
+        #   account   - auth.AccountInfo()[1]; the RAW upstream provider key
+        #               when account_type == "api_key"
+        #   api_key   - the downstream client's inbound key
+        #   source    - account identity in the summary API; can be a raw key
+        #               (the safe auth-files field is exported as `auth_source`)
+        #   key_id    - safeExportLabel() masks ONLY sk-* and fails open
+        #   auth_file - on-disk credential path
+        # NOTE: repeated verbatim in each document on purpose - YAML anchors do
+        # NOT cross `---` document boundaries.
+        - regex: "^(account|api_key|source|key_id|auth_file)$"
+          action: labeldrop
+        # CASE-NORMALISE `provider`. The upstream JSON is inconsistent:
+        # auth-files and summary accounts[] say "claude"/"codex", while
+        # summary models[]/providers[] say "Claude"/"Codex". Without this,
+        # any on(provider) join or {provider="claude"} filter silently splits
+        # the data in two. Applied on every target so both tiers agree.
+        - sourceLabels: [provider]
+          targetLabel: provider
+          action: lowercase
+      # Rewrite `instance` to the probed URL so series identify
+      # CLIProxyAPI, not the exporter pod. `target` distinguishes the
+      # scrapes, which all share job="cliproxy-exporter" (the Service name).
+      relabelings:
+        - sourceLabels: [__param_target]
+          targetLabel: instance
+        - targetLabel: target
+          replacement: auth-files
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cliproxy-exporter-token-usage-lifetime
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cliproxy-exporter
+      app.kubernetes.io/instance: cliproxy-exporter
+  namespaceSelector:
+    matchNames: [observability]
+  endpoints:
+    - port: http
+      scheme: http
+      path: /probe
+      interval: 1m
+      scrapeTimeout: 30s
+      params:
+        module: [token_usage_lifetime]
+        # window=all => lifetime counters + quota gauges from the plugin's
+        # SQLite. limit=200 bounds accounts[]/models[]/providers[]; the
+        # reconciliation alert catches truncation.
+        # NEVER add refresh=true or sync=true - both bypass the
+        # revision-keyed cache and force a full SQLite re-aggregation.
+        target: ["http://cliproxy.default.svc.cluster.local:8317/v0/management/plugins/codex-token-usage/summary?window=all&limit=200"]
+      metricRelabelings:
+        # HARD SECRET GUARD. These label names are the known leak vectors:
+        #   account   - auth.AccountInfo()[1]; the RAW upstream provider key
+        #               when account_type == "api_key"
+        #   api_key   - the downstream client's inbound key
+        #   source    - account identity in the summary API; can be a raw key
+        #               (the safe auth-files field is exported as `auth_source`)
+        #   key_id    - safeExportLabel() masks ONLY sk-* and fails open
+        #   auth_file - on-disk credential path
+        # NOTE: repeated verbatim in each document on purpose - YAML anchors do
+        # NOT cross `---` document boundaries.
+        - regex: "^(account|api_key|source|key_id|auth_file)$"
+          action: labeldrop
+        # CASE-NORMALISE `provider` - see the note on the auth-files monitor.
+        - sourceLabels: [provider]
+          targetLabel: provider
+          action: lowercase
+      # Rewrite `instance` to the probed URL so series identify
+      # CLIProxyAPI, not the exporter pod. `target` distinguishes the
+      # scrapes, which all share job="cliproxy-exporter" (the Service name).
+      relabelings:
+        - sourceLabels: [__param_target]
+          targetLabel: instance
+        - targetLabel: target
+          replacement: token-usage-lifetime
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cliproxy-exporter-token-usage-rolling
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cliproxy-exporter
+      app.kubernetes.io/instance: cliproxy-exporter
+  namespaceSelector:
+    matchNames: [observability]
+  endpoints:
+    - port: http
+      scheme: http
+      path: /probe
+      interval: 5m
+      scrapeTimeout: 30s
+      params:
+        module: [token_usage_rolling]
+        # window=24h => rolling gauges. Anything outside
+        # {today,7d,30d,all} falls through to 24h in windowStart(),
+        # so this literal is valid. `today` was rejected: it is a
+        # calendar day that discontinuously resets at local midnight.
+        target: ["http://cliproxy.default.svc.cluster.local:8317/v0/management/plugins/codex-token-usage/summary?window=24h&limit=200"]
+      metricRelabelings:
+        # HARD SECRET GUARD. These label names are the known leak vectors:
+        #   account   - auth.AccountInfo()[1]; the RAW upstream provider key
+        #               when account_type == "api_key"
+        #   api_key   - the downstream client's inbound key
+        #   source    - account identity in the summary API; can be a raw key
+        #               (the safe auth-files field is exported as `auth_source`)
+        #   key_id    - safeExportLabel() masks ONLY sk-* and fails open
+        #   auth_file - on-disk credential path
+        # NOTE: repeated verbatim in each document on purpose - YAML anchors do
+        # NOT cross `---` document boundaries.
+        - regex: "^(account|api_key|source|key_id|auth_file)$"
+          action: labeldrop
+        # CASE-NORMALISE `provider` - see the note on the auth-files monitor.
+        - sourceLabels: [provider]
+          targetLabel: provider
+          action: lowercase
+      # Rewrite `instance` to the probed URL so series identify
+      # CLIProxyAPI, not the exporter pod. `target` distinguishes the
+      # scrapes, which all share job="cliproxy-exporter" (the Service name).
+      relabelings:
+        - sourceLabels: [__param_target]
+          targetLabel: instance
+        - targetLabel: target
+          replacement: token-usage-rolling
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cliproxy-exporter-token-usage-30d
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cliproxy-exporter
+      app.kubernetes.io/instance: cliproxy-exporter
+  namespaceSelector:
+    matchNames: [observability]
+  endpoints:
+    - port: http
+      scheme: http
+      path: /probe
+      # 15m. This is a month-to-date figure; it does not need resolution, and
+      # each scrape can cost a full SQLite re-aggregation over 30 days of rows
+      # whenever the store revision has changed.
+      interval: 15m
+      scrapeTimeout: 30s
+      params:
+        module: [token_usage_30d]
+        # window=30d is a REAL window in the plugin (windowStart switches on
+        # today|7d|30d|all). This is the only month-scale figure available:
+        # prometheus-home-cluster keeps 15d and kube-stack 14d, so no
+        # increase(...[30d]) is computable, and the lifetime cost counters are
+        # not reset-safe enough to substitute.
+        target: ["http://cliproxy.default.svc.cluster.local:8317/v0/management/plugins/codex-token-usage/summary?window=30d&limit=200"]
+      metricRelabelings:
+        # HARD SECRET GUARD. These label names are the known leak vectors:
+        #   account   - auth.AccountInfo()[1]; the RAW upstream provider key
+        #               when account_type == "api_key"
+        #   api_key   - the downstream client's inbound key
+        #   source    - account identity in the summary API; can be a raw key
+        #               (the safe auth-files field is exported as `auth_source`)
+        #   key_id    - safeExportLabel() masks ONLY sk-* and fails open
+        #   auth_file - on-disk credential path
+        # NOTE: repeated verbatim in each document on purpose - YAML anchors do
+        # NOT cross `---` document boundaries.
+        - regex: "^(account|api_key|source|key_id|auth_file)$"
+          action: labeldrop
+        # CASE-NORMALISE `provider` - see the note on the auth-files monitor.
+        - sourceLabels: [provider]
+          targetLabel: provider
+          action: lowercase
+      # Rewrite `instance` to the probed URL so series identify
+      # CLIProxyAPI, not the exporter pod. `target` distinguishes the
+      # scrapes, which all share job="cliproxy-exporter" (the Service name).
+      relabelings:
+        - sourceLabels: [__param_target]
+          targetLabel: instance
+        - targetLabel: target
+          replacement: token-usage-30d

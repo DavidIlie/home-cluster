@@ -1,0 +1,780 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app cliproxy-exporter
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: prometheus-json-exporter
+      version: 0.19.2
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    fullnameOverride: *app
+    # nameOverride also drives the pod/service selector labels, which the
+    # hand-written ServiceMonitors in servicemonitors.yaml must match exactly:
+    #   app.kubernetes.io/name: cliproxy-exporter
+    #   app.kubernetes.io/instance: cliproxy-exporter
+    nameOverride: *app
+
+    # -----------------------------------------------------------------------
+    # Management key, mounted as a DIRECTORY (not subPath) so that kubelet
+    # secret refreshes reach the file. prometheus/common's file-secret round
+    # tripper re-reads credentials_file on every request, so rotating the SOPS
+    # secret takes effect WITHOUT a pod restart (verified in a standalone
+    # container; NOT re-verified under this pod's securityContext).
+    #
+    # !! defaultMode 0440 ONLY WORKS TOGETHER WITH podSecurityContext.fsGroup !!
+    # Kubernetes secret-volume files are owned root:root unless fsGroup is set.
+    # With runAsUser 65534 and no fsGroup, mode 0400 is unreadable by the
+    # exporter, prometheus/common fails to load the credentials file on EVERY
+    # request, all four probes return HTTP 503, and up == 0 on all targets.
+    # MEASURED IN THIS CLUSTER (busybox, runAsUser/runAsGroup 65534):
+    #   0400, no fsGroup      -> `-r-------- 0 0`      -> Permission denied
+    #   0440 + fsGroup 65534  -> `lrwxrwxrwx 0 65534`  -> read OK
+    # If you ever remove fsGroup below, this MUST become 0444.
+    # -----------------------------------------------------------------------
+    additionalVolumes:
+      - name: management-key
+        secret:
+          secretName: cliproxy-exporter-secret
+          defaultMode: 0440
+    additionalVolumeMounts:
+      - name: management-key
+        mountPath: /etc/cliproxy
+        readOnly: true
+
+    # The chart's own serviceMonitor.targets[] is deliberately NOT used.
+    # It can only emit `action: replace` metric relabelings (its
+    # additionalMetricsRelabels is a map), so it cannot express the
+    # `labeldrop` that guarantees a raw API key can never become a label.
+    # Hand-written ServiceMonitors live in servicemonitors.yaml.
+    serviceMonitor:
+      enabled: false
+
+    prometheusRule:
+      enabled: true
+      rules:
+        # --- Pipeline liveness -------------------------------------------
+        # json_exporter has NO probe_success metric. A fetch failure is HTTP
+        # 503 and a config fault is a panic/empty reply; in both cases NO
+        # samples are ingested, so `up` is the only signal. VERIFIED: a wrong
+        # management key yields HTTP 503.
+        - alert: CLIProxyExporterDown
+          expr: up{job="cliproxy-exporter"} == 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: 'CLIProxy json-exporter target {{"{{$labels.target}}"}} is down'
+            description: >-
+              Scrape target {{"{{$labels.target}}"}} ({{"{{$labels.instance}}"}}) has
+              been failing for 15m. Usual causes: the management key in
+              observability/cliproxy-exporter-secret drifted from the one in
+              default/cliproxy, the cliproxy pod is down, or the
+              codex-token-usage plugin failed to load.
+
+        # --- Silent-schema-drift detection --------------------------------
+        # VERIFIED: renaming an upstream JSON field makes the probe return
+        # HTTP 200 with up==1 while the series silently DISAPPEARS. `up` alone
+        # cannot catch this, so absent() is mandatory, not optional.
+        - alert: CLIProxyAuthMetricsMissing
+          expr: absent(cliproxy_auth_requests_success_total)
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CLIProxy Tier-1 auth metrics have disappeared"
+            description: >-
+              cliproxy_auth_requests_success_total is absent while the probe
+              still returns 200. This means /v0/management/auth-files changed
+              shape. Check the json_exporter module `auth_files`.
+
+        - alert: CLIProxyUsageMetricsMissing
+          expr: absent(cliproxy_usage_tokens_total)
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CLIProxy Tier-2 token metrics have disappeared"
+            description: >-
+              cliproxy_usage_tokens_total is absent while the probe still
+              returns 200. Either the codex-token-usage plugin stopped loading
+              (its binary is fetched at pod start by an initContainer that
+              swallows download failures) or its /summary schema changed.
+
+        # --- Data-correctness guards --------------------------------------
+        # `by (scope)` is mandatory: without it the aggregation drops every
+        # label and {{$labels.scope}} renders empty.
+        # The `and on (scope) ... > 0` half suppresses the false positive where
+        # a scope simply had no traffic: costAvailable() is
+        # `totalTokens > 0 && unpricedTokens == 0`, so an EMPTY scope reports
+        # false. Only a scope that is actually being used can be "incomplete".
+        - alert: CLIProxyCostIncomplete
+          expr: |
+            (min by (scope) (cliproxy_usage_cost_available) == 0)
+              and on (scope) (sum by (scope) (cliproxy_usage_requests_total) > 0)
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: 'CLIProxy cost data is incomplete for scope {{"{{$labels.scope}}"}}'
+            description: >-
+              Some tokens billed to scope {{"{{$labels.scope}}"}} had no entry in
+              the LiteLLM price table (unpriced_tokens > 0), so
+              cliproxy_usage_cost_usd_total UNDERSTATES real spend for that
+              scope. Treat every cost panel as a lower bound until this clears.
+              NOTE: this tracks SCOPE-level unpriced tokens. An individual model
+              can carry cost_available=false with zero tokens and not trip this.
+
+        # Detects `limit` truncation of models[]: the per-model series should
+        # sum to the scope totals. Sustained drift means silent undercounting.
+        # The `> 0` guard stops a false positive on a brand-new/empty database,
+        # where 0 / clamp_min(0,1) = 0 would sit permanently below 0.95.
+        - alert: CLIProxyModelReconciliationDrift
+          expr: |
+            (sum(cliproxy_usage_model_requests_total) / clamp_min(sum(cliproxy_usage_requests_total), 1)) < 0.95
+              and sum(cliproxy_usage_requests_total) > 0
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "CLIProxy per-model metrics do not reconcile with totals"
+            description: >-
+              sum(per-model requests) / sum(scope totals) has dropped below
+              0.95, which usually means the summary API's `limit` parameter is
+              truncating models[]. Raise `limit` on the ServiceMonitor targets.
+
+        - alert: CLIProxyCredentialUnhealthy
+          expr: cliproxy_auth_info{status=~"error|disabled"} == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: 'CLIProxy credential {{"{{$labels.email}}"}} ({{"{{$labels.provider}}"}}) is {{"{{$labels.status}}"}}'
+            description: >-
+              Credential {{"{{$labels.auth_id}}"}} has been in status
+              {{"{{$labels.status}}"}} for 30m. Requests routed to it will fail.
+
+        - alert: CLIProxyQuotaNearExhaustion
+          expr: cliproxy_account_primary_used_percent >= 90
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: 'CLIProxy account {{"{{$labels.email}}"}} at {{"{{$value}}"}}% primary quota'
+            description: >-
+              Codex primary quota for {{"{{$labels.email}}"}} is at {{"{{$value}}"}}%.
+
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities: { drop: ["ALL"] }
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      runAsGroup: 65534
+      # LOAD-BEARING. Without fsGroup the secret volume is owned root:root and
+      # the 0440 management-key file above is unreadable by uid 65534, which
+      # takes the entire integration to up == 0. See the comment on
+      # additionalVolumes. Do not remove without switching defaultMode to 0444.
+      fsGroup: 65534
+      seccompProfile: { type: RuntimeDefault }
+
+    # =====================================================================
+    # json_exporter modules.
+    #
+    # VERIFIED END-TO-END in a container running the real
+    # quay.io/prometheuscommunity/json-exporter:v0.7.0 against payloads
+    # captured live from this cluster (../verify/payloads/): every module
+    # returns HTTP 200, no panics, no secret-shaped label values.
+    #
+    # `allow_missing_key` IS NOT A json_exporter OPTION and was removed. It is
+    # not a field on config.Metric (config/config.go:24-33) and LoadConfig uses
+    # non-strict yaml.Unmarshal, so it was silently discarded - confirmed in the
+    # exporter's own "Loaded config file" startup log, which never showed it.
+    # Real behaviour for a missing/null JSON path: the collector logs, the one
+    # affected series is dropped, the probe still returns HTTP 200. MEASURED:
+    # `{ .xai_models[*] }` against a JSON `null` -> 200, no series, no error,
+    # and the sibling blocks in the same module still emitted normally.
+    #
+    # THREE INVARIANTS THIS CONFIG DEPENDS ON - do not break them:
+    #
+    # 1. IDENTICAL `help` FOR A SHARED METRIC NAME.
+    #    The final metric name is `<name>_<values key>`. When two blocks
+    #    produce the same final name they MUST carry byte-identical `help`,
+    #    or client_golang's MustRegister PANICS the request handler. That is
+    #    worse than an HTTP 500: the connection is reset with no error body.
+    #    MEASURED: differing per-scope help strings panicked two modules.
+    #
+    # 2. SCOPE IS A DISJOINT PARTITION, NOT A DECORATION.
+    #    `totals` is Codex-OAuth ONLY; `provider_totals` is everything else
+    #    (Claude, Gemini...); `xai_totals` is xAI. Live on this cluster right
+    #    now: totals = 7 req / $0.148, provider_totals = 1 req / $0.007.
+    #    Reading `totals` as "my usage" would hide 100% of Claude spend.
+    #    ALWAYS sum across the `scope` label for a cluster-wide figure.
+    #
+    # 3. WINDOW SEMANTICS ARE NEVER MIXED.
+    #    window=all      -> counters only (lifetime sums, PVC-backed, survive
+    #                       restarts).
+    #    window=24h/30d  -> gauges only (bounded-window aggregates). Reading
+    #                       avg_latency_ms from window=all would give a
+    #                       lifetime average that asymptotically freezes while
+    #                       looking like monitoring.
+    #
+    # 4. *_cost_usd_total IS NOT STRICTLY MONOTONIC. READ THIS BEFORE ADDING A
+    #    rate()/increase() COST PANEL.
+    #    codex-token-usage stores NO cost column - `usage_events` (schema.go)
+    #    has token columns only. applyCosts() (pricing.go:177) recomputes cost
+    #    on EVERY summary call by re-running SUM(tokens) and multiplying by the
+    #    CURRENT LiteLLM price map, which is re-fetched from
+    #    raw.githubusercontent.com every 6h (live: 2391 prices, interval 6h).
+    #    An upstream price cut, model rename, or removed price entry therefore
+    #    RETROACTIVELY LOWERS the counter. Prometheus reads that as a counter
+    #    reset and `increase(...[24h])` then reports ~the whole post-reset
+    #    lifetime value as 24h spend.
+    #    => Headline spend figures MUST come from the reset-immune window
+    #       gauges (cliproxy_usage_window_cost_usd,
+    #       cliproxy_usage_window_model_cost_usd), which are computed
+    #       plugin-side over the window and have no counter semantics at all.
+    #       The lifetime counters stay for instant reads and cumulative trends.
+    #
+    # NOT SCRAPED, deliberately:
+    #   /v0/management/usage-queue     -> PopOldest() DESTRUCTIVELY removes
+    #                                     records from a shared FIFO with no
+    #                                     ack/peek/cursor. Would steal data
+    #                                     from the management panel.
+    #   RESP SUBSCRIBE usage           -> Enqueue() early-returns when any
+    #                                     subscriber exists, permanently
+    #                                     emptying the HTTP queue for others.
+    #   /v0/management/api-key-usage   -> inner map KEYS are `base_url|api_key`
+    #                                     in plaintext. Also {} here (all OAuth).
+    #   /plugins/usage-statistics/...  -> raw per-request rows, keyed by an
+    #                                     unmasked API key; json_exporter
+    #                                     cannot aggregate and k8s JSONPath
+    #                                     cannot read map keys.
+    #   key_summaries[].key_id         -> safeExportLabel() masks ONLY `sk-`
+    #                                     prefixed values and returns anything
+    #                                     else verbatim, so it fails open.
+    #   recent_requests[]              -> "HH:MM-HH:MM" server-local labels with
+    #                                     no date: churn every 10m, go stale at
+    #                                     200m, then RESURRECT next day with
+    #                                     different data. increase(...[10m]) on
+    #                                     the counters is strictly better.
+    #
+    # NEVER add refresh=true or sync=true to a target URL: both bypass the
+    # revision-keyed cache and force a full SQLite re-aggregation per scrape.
+    # =====================================================================
+    configuration:
+      config: |
+        ---
+        modules:
+
+          # ===============================================================
+          # TIER 1 - /v0/management/auth-files
+          # Works with no plugin at all. Not gated by usage-statistics-enabled.
+          # Counters are in-memory (json:"-") and reset to 0 on cliproxy
+          # restart; that is textbook counter semantics and rate()/increase()
+          # handle it. success+failed is NOT a lifetime total.
+          # ===============================================================
+          auth_files:
+            http_client_config:
+              authorization:
+                type: Bearer
+                credentials_file: /etc/cliproxy/management-key
+            metrics:
+              - name: cliproxy_auth_requests
+                type: object
+                help: Upstream requests per CLIProxyAPI credential since cliproxy process start.
+                path: '{ .files[*] }'
+                valuetype: counter
+                labels:
+                  auth_index: '{ .auth_index }'
+                  auth_id: '{ .id }'
+                  provider: '{ .provider }'
+                  account_type: '{ .account_type }'
+                  email: '{ .email }'
+                values:
+                  success_total: '{ .success }'
+                  failed_total: '{ .failed }'
+
+              # Info metric. `status` is a string enum, and json_exporter can
+              # only turn a value into a float (ParseFloat then ParseBool), so
+              # strings MUST be labels or they are silently dropped.
+              # `status_message` is intentionally NOT exported: free text of
+              # unbounded cardinality.
+              - name: cliproxy_auth
+                type: object
+                help: CLIProxyAPI credential identity and health (always 1).
+                path: '{ .files[*] }'
+                valuetype: gauge
+                labels:
+                  auth_index: '{ .auth_index }'
+                  auth_id: '{ .id }'
+                  provider: '{ .provider }'
+                  status: '{ .status }'
+                  account_type: '{ .account_type }'
+                  email: '{ .email }'
+                  # Named auth_source, NOT source, so that the universal
+                  # `labeldrop ^source$` cannot collide with this safe field
+                  # ("file"/"memory"). In the summary API `source` is the
+                  # account identity and can be a raw key.
+                  auth_source: '{ .source }'
+                values:
+                  info: 1
+
+              # disabled = operator action; unavailable = transient quota or
+              # cooldown. Semantically different, kept as separate series.
+              # Booleans are auto-converted to 1/0.
+              - name: cliproxy_auth
+                type: object
+                help: CLIProxyAPI credential availability flags.
+                path: '{ .files[*] }'
+                valuetype: gauge
+                labels:
+                  auth_index: '{ .auth_index }'
+                  provider: '{ .provider }'
+                values:
+                  disabled: '{ .disabled }'
+                  unavailable: '{ .unavailable }'
+
+          # ===============================================================
+          # TIER 2a - summary?window=all  ->  COUNTERS ONLY
+          # ===============================================================
+          token_usage_lifetime:
+            http_client_config:
+              authorization:
+                type: Bearer
+                credentials_file: /etc/cliproxy/management-key
+            metrics:
+              - name: cliproxy_usage
+                type: object
+                help: Lifetime usage totals. Disjoint by scope label (codex|other|xai); sum across scopes for a cluster total.
+                path: '{ .totals }'
+                valuetype: counter
+                labels:
+                  scope: codex
+                values: &lifetime_values
+                  requests_total: '{ .requests }'
+                  failed_total: '{ .failed }'
+                  rate_limited_total: '{ .rate_limited }'
+                  input_tokens_total: '{ .input_tokens }'
+                  output_tokens_total: '{ .output_tokens }'
+                  reasoning_tokens_total: '{ .reasoning_tokens }'
+                  cache_read_tokens_total: '{ .cache_read_tokens }'
+                  cache_creation_tokens_total: '{ .cache_creation_tokens }'
+                  tokens_total: '{ .total_tokens }'
+                  cost_usd_total: '{ .cost_usd }'
+                  slow_requests_total: '{ .slow_requests }'
+                  slow_ttft_requests_total: '{ .slow_ttft_requests }'
+
+              - name: cliproxy_usage
+                type: object
+                help: Lifetime usage totals. Disjoint by scope label (codex|other|xai); sum across scopes for a cluster total.
+                path: '{ .provider_totals }'
+                valuetype: counter
+                labels:
+                  scope: other
+                values: *lifetime_values
+
+              - name: cliproxy_usage
+                type: object
+                help: Lifetime usage totals. Disjoint by scope label (codex|other|xai); sum across scopes for a cluster total.
+                path: '{ .xai_totals }'
+                valuetype: counter
+                labels:
+                  scope: xai
+                values: *lifetime_values
+
+              # Cost-coverage flag. cost_usd is computed plugin-side against a
+              # LiteLLM table refreshed from raw.githubusercontent.com every 6h;
+              # tokens on an unpriced model raise unpriced_tokens rather than
+              # erroring. Every cost panel MUST be read next to this.
+              #
+              # EXACT SEMANTICS (pricing.go:508):
+              #   costAvailable(total, unpriced) = total > 0 && unpriced == 0
+              # so it is 0 both when a priced model is missing from the table
+              # AND when the scope simply had no traffic. It is NOT "every
+              # model in models[] has cost_available=true" - live right now,
+              # gpt-5.6-terra has cost_available=false (zero tokens) while
+              # totals.cost_available is true. The CLIProxyCostIncomplete
+              # alert carries a `requests > 0` guard for exactly this reason.
+              #
+              # Emitted for all three scopes so the alert's `on (scope)` join
+              # has a matching series for every scope that can carry traffic.
+              - name: cliproxy_usage_cost
+                type: object
+                help: 1 when this scope had traffic and every billed token resolved to a price (unpriced_tokens == 0); 0 when some tokens were unpriced OR the scope had no traffic.
+                path: '{ .totals }'
+                valuetype: gauge
+                labels:
+                  scope: codex
+                values:
+                  available: '{ .cost_available }'
+
+              - name: cliproxy_usage_cost
+                type: object
+                help: 1 when this scope had traffic and every billed token resolved to a price (unpriced_tokens == 0); 0 when some tokens were unpriced OR the scope had no traffic.
+                path: '{ .provider_totals }'
+                valuetype: gauge
+                labels:
+                  scope: other
+                values:
+                  available: '{ .cost_available }'
+
+              - name: cliproxy_usage_cost
+                type: object
+                help: 1 when this scope had traffic and every billed token resolved to a price (unpriced_tokens == 0); 0 when some tokens were unpriced OR the scope had no traffic.
+                path: '{ .xai_totals }'
+                valuetype: gauge
+                labels:
+                  scope: xai
+                values:
+                  available: '{ .cost_available }'
+
+              # models[] carries no `failed` field - omitted rather than faked.
+              # The static, disjoint `scope` label is what prevents a duplicate
+              # series (and therefore a panic) when the same model name appears
+              # in two scopes.
+              - name: cliproxy_usage_model
+                type: object
+                help: Lifetime per-model usage. Disjoint by scope label; sum across scopes for a cluster total.
+                path: '{ .models[*] }'
+                valuetype: counter
+                labels: &model_labels
+                  model: '{ .model }'
+                  alias: '{ .alias }'
+                  provider: '{ .provider }'
+                  scope: codex
+                values: &model_values
+                  requests_total: '{ .requests }'
+                  input_tokens_total: '{ .input_tokens }'
+                  output_tokens_total: '{ .output_tokens }'
+                  reasoning_tokens_total: '{ .reasoning_tokens }'
+                  cache_read_tokens_total: '{ .cache_read_tokens }'
+                  cache_creation_tokens_total: '{ .cache_creation_tokens }'
+                  tokens_total: '{ .total_tokens }'
+                  cost_usd_total: '{ .cost_usd }'
+                  slow_requests_total: '{ .slow_requests }'
+                  slow_ttft_requests_total: '{ .slow_ttft_requests }'
+
+              - name: cliproxy_usage_model
+                type: object
+                help: Lifetime per-model usage. Disjoint by scope label; sum across scopes for a cluster total.
+                path: '{ .provider_models[*] }'
+                valuetype: counter
+                labels:
+                  <<: *model_labels
+                  scope: other
+                values: *model_values
+
+              # xai_models[] is JSON `null` on this cluster today, which costs
+              # nothing: MEASURED against the live payload, a null path yields
+              # HTTP 200 with the series simply absent and no effect on the
+              # sibling blocks. It is mapped anyway so that the moment an xAI
+              # credential is added, xai requests land in BOTH sides of
+              # CLIProxyModelReconciliationDrift. Scraping .xai_totals (in the
+              # denominator) without .xai_models[*] (in the numerator) would
+              # park that alert permanently below 0.95.
+              - name: cliproxy_usage_model
+                type: object
+                help: Lifetime per-model usage. Disjoint by scope label; sum across scopes for a cluster total.
+                path: '{ .xai_models[*] }'
+                valuetype: counter
+                labels:
+                  <<: *model_labels
+                  scope: xai
+                values: *model_values
+
+              # providers[] is the "other" scope only (Claude, Gemini, ...).
+              # This is the ONLY per-Claude token/cost breakdown available.
+              - name: cliproxy_usage_provider
+                type: object
+                help: Lifetime per-provider usage (non-Codex scope only).
+                path: '{ .providers[*] }'
+                valuetype: counter
+                labels:
+                  provider: '{ .provider }'
+                values:
+                  requests_total: '{ .requests }'
+                  failed_total: '{ .failed }'
+                  rate_limited_total: '{ .rate_limited }'
+                  input_tokens_total: '{ .input_tokens }'
+                  output_tokens_total: '{ .output_tokens }'
+                  reasoning_tokens_total: '{ .reasoning_tokens }'
+                  cache_read_tokens_total: '{ .cache_read_tokens }'
+                  cache_creation_tokens_total: '{ .cache_creation_tokens }'
+                  tokens_total: '{ .total_tokens }'
+                  cost_usd_total: '{ .cost_usd }'
+                  slow_requests_total: '{ .slow_requests }'
+                  slow_ttft_requests_total: '{ .slow_ttft_requests }'
+
+              # HONEST GAP: accounts[] is queryAccounts(..., "codex") - Codex
+              # scope only. There is no provider_accounts[] array, so per-account
+              # TOKEN and COST data does NOT exist for Claude or Gemini.
+              # Per-account REQUEST counts for all providers still come from
+              # Tier 1's cliproxy_auth_requests_*_total (join on auth_index).
+              # `plan_type` is omitempty and genuinely ABSENT here, so it is not
+              # mapped. `source` and `auth_file` are never mapped (leak vectors).
+              - name: cliproxy_usage_account
+                type: object
+                help: Lifetime per-account usage. CODEX SCOPE ONLY - no equivalent exists for Claude/Gemini.
+                path: '{ .accounts[*] }'
+                valuetype: counter
+                labels: &account_labels
+                  auth_index: '{ .auth_index }'
+                  provider: '{ .provider }'
+                  email: '{ .email }'
+                values: &account_values
+                  requests_total: '{ .requests }'
+                  failed_total: '{ .failed }'
+                  rate_limited_total: '{ .rate_limited }'
+                  input_tokens_total: '{ .input_tokens }'
+                  output_tokens_total: '{ .output_tokens }'
+                  reasoning_tokens_total: '{ .reasoning_tokens }'
+                  cache_read_tokens_total: '{ .cache_read_tokens }'
+                  cache_creation_tokens_total: '{ .cache_creation_tokens }'
+                  tokens_total: '{ .total_tokens }'
+                  cost_usd_total: '{ .cost_usd }'
+
+              # `null` today; mapped for the same reason as .xai_models[*].
+              - name: cliproxy_usage_account
+                type: object
+                help: Lifetime per-account usage. CODEX SCOPE ONLY - no equivalent exists for Claude/Gemini.
+                path: '{ .xai_accounts[*] }'
+                valuetype: counter
+                labels: *account_labels
+                values: *account_values
+
+              # ---------------------------------------------------------------
+              # Quota GAUGES. Formerly a separate `token_usage_quota` module on
+              # an IDENTICAL URL, i.e. two full SQLite re-aggregations a minute
+              # for no benefit. The stated reason for splitting ("a schema
+              # change in accounts[] cannot take down the counters") never held:
+              # the counters above already read .accounts[*], and json_exporter
+              # drops only the affected series rather than failing the module.
+              # Merged - one target instead of two.
+              # ---------------------------------------------------------------
+              - name: cliproxy_account
+                type: object
+                help: Codex quota state per account. Absent for non-Codex providers.
+                path: '{ .accounts[*] }'
+                valuetype: gauge
+                labels: *account_labels
+                values:
+                  primary_used_percent: '{ .primary_used_percent }'
+                  secondary_used_percent: '{ .secondary_used_percent }'
+                  secondary_quota_remaining_estimate: '{ .secondary_quota_remaining_estimate }'
+                  primary_window_tokens: '{ .primary_window_tokens }'
+
+              - name: cliproxy_account
+                type: object
+                help: Account runtime status as reported by the plugin (always 1).
+                path: '{ .accounts[*] }'
+                valuetype: gauge
+                labels:
+                  auth_index: '{ .auth_index }'
+                  provider: '{ .provider }'
+                  email: '{ .email }'
+                  runtime_status: '{ .runtime_status }'
+                values:
+                  info: 1
+
+          # ===============================================================
+          # TIER 2b - summary?window=24h  ->  GAUGES ONLY
+          # window=24h is a true rolling window. `today` was rejected because it
+          # is a calendar day that discontinuously resets at local midnight.
+          #
+          # THESE GAUGES ARE THE ONLY RESET-IMMUNE SPEND FIGURES. See invariant
+          # 4 above: cost is recomputed from the CURRENT price table on every
+          # summary call, so the lifetime cost counters can move DOWN and
+          # increase()/rate() over them can be off by ~the lifetime total. The
+          # plugin computes these window figures itself, so they need no
+          # counter semantics at all.
+          # ===============================================================
+          token_usage_rolling:
+            http_client_config:
+              authorization:
+                type: Bearer
+                credentials_file: /etc/cliproxy/management-key
+            metrics:
+              - name: cliproxy_usage_window
+                type: object
+                help: Bounded-window usage gauges, computed plugin-side over the `window` label. Disjoint by scope; averages are window means, not quantiles.
+                path: '{ .totals }'
+                valuetype: gauge
+                labels:
+                  scope: codex
+                  window: 24h
+                values: &rolling_values
+                  avg_latency_ms: '{ .avg_latency_ms }'
+                  avg_ttft_ms: '{ .avg_ttft_ms }'
+                  output_tokens_per_second: '{ .output_tokens_per_second }'
+                  slow_requests: '{ .slow_requests }'
+                  slow_ttft_requests: '{ .slow_ttft_requests }'
+                  requests: '{ .requests }'
+                  failed: '{ .failed }'
+                  tokens: '{ .total_tokens }'
+                  cost_usd: '{ .cost_usd }'
+
+              - name: cliproxy_usage_window
+                type: object
+                help: Bounded-window usage gauges, computed plugin-side over the `window` label. Disjoint by scope; averages are window means, not quantiles.
+                path: '{ .provider_totals }'
+                valuetype: gauge
+                labels:
+                  scope: other
+                  window: 24h
+                values: *rolling_values
+
+              - name: cliproxy_usage_window
+                type: object
+                help: Bounded-window usage gauges, computed plugin-side over the `window` label. Disjoint by scope; averages are window means, not quantiles.
+                path: '{ .xai_totals }'
+                valuetype: gauge
+                labels:
+                  scope: xai
+                  window: 24h
+                values: *rolling_values
+
+              # Per-model window gauges. These exist specifically so the
+              # "what is burning money right now" panel does NOT have to
+              # rate() a cost counter that can move backwards when the LiteLLM
+              # price table changes (invariant 4).
+              - name: cliproxy_usage_window_model
+                type: object
+                help: Bounded-window per-model usage gauges, computed plugin-side over the `window` label. Disjoint by scope.
+                path: '{ .models[*] }'
+                valuetype: gauge
+                labels: &window_model_labels
+                  model: '{ .model }'
+                  provider: '{ .provider }'
+                  scope: codex
+                  window: 24h
+                values: &window_model_values
+                  requests: '{ .requests }'
+                  tokens: '{ .total_tokens }'
+                  cost_usd: '{ .cost_usd }'
+
+              - name: cliproxy_usage_window_model
+                type: object
+                help: Bounded-window per-model usage gauges, computed plugin-side over the `window` label. Disjoint by scope.
+                path: '{ .provider_models[*] }'
+                valuetype: gauge
+                labels:
+                  <<: *window_model_labels
+                  scope: other
+                values: *window_model_values
+
+              - name: cliproxy_usage_window_model
+                type: object
+                help: Bounded-window per-model usage gauges, computed plugin-side over the `window` label. Disjoint by scope.
+                path: '{ .xai_models[*] }'
+                valuetype: gauge
+                labels:
+                  <<: *window_model_labels
+                  scope: xai
+                values: *window_model_values
+
+          # ===============================================================
+          # TIER 2c - summary?window=30d  ->  GAUGES ONLY
+          #
+          # Month-to-date, and the ONLY figure on this dashboard that is
+          # simultaneously (a) longer than either Prometheus instance keeps
+          # (15d home-cluster, 14d kube-stack) and (b) immune to the cost
+          # recomputation described in invariant 4. Without it there is no
+          # trustworthy answer to "how much did I spend this month".
+          #
+          # `30d` is a real window in the plugin (summary.go windowStart
+          # switches on today|7d|30d|all; anything else falls through to 24h),
+          # so this is not silently a second 24h scrape.
+          # Scraped on a slow interval - it moves slowly and costs a full
+          # SQLite re-aggregation whenever the store revision changes.
+          # ===============================================================
+          token_usage_30d:
+            http_client_config:
+              authorization:
+                type: Bearer
+                credentials_file: /etc/cliproxy/management-key
+            metrics:
+              - name: cliproxy_usage_window
+                type: object
+                help: Bounded-window usage gauges, computed plugin-side over the `window` label. Disjoint by scope; averages are window means, not quantiles.
+                path: '{ .totals }'
+                valuetype: gauge
+                labels:
+                  scope: codex
+                  window: 30d
+                values: *rolling_values
+
+              - name: cliproxy_usage_window
+                type: object
+                help: Bounded-window usage gauges, computed plugin-side over the `window` label. Disjoint by scope; averages are window means, not quantiles.
+                path: '{ .provider_totals }'
+                valuetype: gauge
+                labels:
+                  scope: other
+                  window: 30d
+                values: *rolling_values
+
+              - name: cliproxy_usage_window
+                type: object
+                help: Bounded-window usage gauges, computed plugin-side over the `window` label. Disjoint by scope; averages are window means, not quantiles.
+                path: '{ .xai_totals }'
+                valuetype: gauge
+                labels:
+                  scope: xai
+                  window: 30d
+                values: *rolling_values
+
+              - name: cliproxy_usage_window_model
+                type: object
+                help: Bounded-window per-model usage gauges, computed plugin-side over the `window` label. Disjoint by scope.
+                path: '{ .models[*] }'
+                valuetype: gauge
+                labels:
+                  <<: *window_model_labels
+                  window: 30d
+                values: *window_model_values
+
+              - name: cliproxy_usage_window_model
+                type: object
+                help: Bounded-window per-model usage gauges, computed plugin-side over the `window` label. Disjoint by scope.
+                path: '{ .provider_models[*] }'
+                valuetype: gauge
+                labels:
+                  <<: *window_model_labels
+                  scope: other
+                  window: 30d
+                values: *window_model_values
+
+              - name: cliproxy_usage_window_model
+                type: object
+                help: Bounded-window per-model usage gauges, computed plugin-side over the `window` label. Disjoint by scope.
+                path: '{ .xai_models[*] }'
+                valuetype: gauge
+                labels:
+                  <<: *window_model_labels
+                  scope: xai
+                  window: 30d
+                values: *window_model_values
