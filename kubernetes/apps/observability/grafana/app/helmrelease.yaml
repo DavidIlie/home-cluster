@@ -255,6 +255,9 @@ spec:
         analytics-storage:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/analytics-storage.json
           datasource: prometheus-kube-stack
+        cliproxy-usage:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/cliproxy-usage.json
+          datasource: prometheus-home-cluster
     sidecar:
       dashboards:
         enabled: false
