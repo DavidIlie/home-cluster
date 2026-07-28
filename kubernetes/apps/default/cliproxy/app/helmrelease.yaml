@@ -178,8 +178,9 @@ spec:
               - path: /plugins
             app:
               - path: /CLIProxyAPI/plugins
-      # SQLite databases written by the usage plugins. Survives restarts so usage
-      # history is not lost. NOTE: not covered by VolSync (that backs up ${APP_PVC}).
+      # SQLite usage history written by codex-token-usage. Survives restarts, and
+      # is backed up by the dedicated ReplicationSource in volsync-plugin-data.yaml
+      # (the shared volsync component only covers ${APP_PVC}).
       plugin-data:
         existingClaim: cliproxy-plugin-data
         globalMounts:
