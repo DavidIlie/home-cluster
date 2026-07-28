@@ -1,0 +1,42 @@
+---
+# Second backup target. The reusable volsync component only handles ${APP_PVC}
+# (the auths PVC), so the plugin usage history needs its own ReplicationSource.
+# This PVC holds the codex-token-usage SQLite DB -- with usage_retention_days
+# set to 3650, losing it means losing years of token/cost history.
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: cliproxy-plugin-data
+spec:
+  sourcePVC: cliproxy-plugin-data
+  trigger:
+    schedule: "0 */6 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: cliproxy-plugin-data-volsync-secret
+    retain:
+      hourly: 6
+      daily: 7
+      weekly: 4
+      monthly: 3
+    copyMethod: Direct
+    # cliproxy runs as 1000 and owns every file on this PVC. The shared
+    # component defaults the mover to 568, which reads these files only because
+    # they happen to be 0644 -- pinning 1000 here removes that dependency.
+    moverSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    cacheStorageClassName: openebs-hostpath
+    cacheCapacity: 2Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cliproxy-plugin-data-volsync-secret
+type: Opaque
+stringData:
+  RESTIC_REPOSITORY: "s3:http://192.168.100.63:9000/volsync/cliproxy-plugin-data"
+  RESTIC_PASSWORD: "${VOLSYNC_RESTIC_PASSWORD}"
+  AWS_ACCESS_KEY_ID: "${VOLSYNC_S3_ACCESS_KEY}"
+  AWS_SECRET_ACCESS_KEY: "${VOLSYNC_S3_SECRET_KEY}"

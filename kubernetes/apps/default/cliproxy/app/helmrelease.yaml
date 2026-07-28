@@ -47,8 +47,6 @@ spec:
               - |
                 set -u
 
-                # renovate: datasource=github-releases depName=Fwindy/cpa-usage-statistics
-                USAGE_STATISTICS_VERSION=0.1.0
                 # renovate: datasource=github-releases depName=zhumengling/codex-token-usage
                 CODEX_TOKEN_USAGE_VERSION=0.1.42
 
@@ -72,8 +70,10 @@ spec:
                   rm -f "/tmp/$${id}.zip"
                 }
 
-                install_plugin usage-statistics "$${USAGE_STATISTICS_VERSION}" \
-                  "https://github.com/Fwindy/cpa-usage-statistics/releases/download/v$${USAGE_STATISTICS_VERSION}/usage-statistics_$${USAGE_STATISTICS_VERSION}_linux_amd64.zip"
+                # NOTE: Fwindy/cpa-usage-statistics was removed deliberately. On
+                # CPA v7.2.99+ it loads, registers and serves its route but never
+                # receives a usage record, so it always answers {} -- it burned a
+                # download and a dlopen for nothing. codex-token-usage covers this.
                 install_plugin codex-token-usage "$${CODEX_TOKEN_USAGE_VERSION}" \
                   "https://github.com/zhumengling/codex-token-usage/releases/download/v$${CODEX_TOKEN_USAGE_VERSION}/codex-token-usage_$${CODEX_TOKEN_USAGE_VERSION}_linux_amd64.zip"
 
@@ -96,9 +96,9 @@ spec:
               tag: v7.2.103@sha256:3343e88941446164b0e975441332fd8975f139282e2d2b3109ee9d211004499f
             env:
               TZ: Europe/Bucharest
-              # Both usage plugins resolve their SQLite directory from $HOME by
-              # default, which is not set for uid 1000. Point them at the PVC.
-              USAGE_STATISTICS_DIR: /CLIProxyAPI/plugin-data/usage-statistics
+              # The plugin resolves its SQLite directory from $HOME by default,
+              # which is not set for uid 1000. Point it at the PVC. This is
+              # env-only -- there is no YAML config key for it.
               CPA_TOKEN_USAGE_DIR: /CLIProxyAPI/plugin-data/codex-token-usage
             probes:
               liveness: &probes
