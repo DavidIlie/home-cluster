@@ -15,8 +15,8 @@ spec:
         namespace: flux-system
   values:
     image:
-      repository: ghcr.io/davidilie/cloudflare_exporter
-      tag: 64d366f3
+      repository: ghcr.io/lablabs/cloudflare-exporter
+      tag: latest@sha256:c213cded2db6b49d3199d1cfa660fba5469ca66309596fbc87c24acd269834a7
     env:
       - name: CF_API_KEY
         valueFrom:
