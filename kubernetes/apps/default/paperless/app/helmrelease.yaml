@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
-              tag: 2.20.15
+              tag: 3.0.4
             env:
               # Application
               PAPERLESS_URL: https://paperless.davidhome.ro
@@ -54,13 +54,13 @@ spec:
               PAPERLESS_EXPORT_DIR: /data/nas/export
               PAPERLESS_MEDIA_ROOT: /data/local/media
               # Consumer Settings
-              PAPERLESS_CONSUMER_POLLING: "60"
+              PAPERLESS_CONSUMER_POLLING_INTERVAL: "60"
               PAPERLESS_CONSUMER_RECURSIVE: "true"
               PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "true"
               # OCR
               PAPERLESS_OCR_LANGUAGE: eng
               PAPERLESS_OCR_LANGUAGES: eng
-              PAPERLESS_OCR_SKIP_ARCHIVE_FILE: with_text
+              PAPERLESS_ARCHIVE_FILE_GENERATION: auto
               # Tika & Gotenberg (document conversion)
               PAPERLESS_TIKA_ENABLED: "true"
               PAPERLESS_TIKA_ENDPOINT: http://tika.default.svc.cluster.local:9998
