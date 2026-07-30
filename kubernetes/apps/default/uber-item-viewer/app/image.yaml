@@ -22,3 +22,5 @@ metadata:
 spec:
   image: ghcr.io/davidilie/uber-item-viewer
   interval: 1m0s
+  secretRef:
+    name: docker-regcred
