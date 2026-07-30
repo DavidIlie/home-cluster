@@ -79,8 +79,8 @@ spec:
     substitute:
       APP: *app
       APP_PVC: *app
-      MOVER_UID: "0"
-      MOVER_GID: "0"
+      MOVER_UID: "1000"
+      MOVER_GID: "1000"
       MOVER_FSGROUP: "0"
     substituteFrom:
       - kind: Secret
