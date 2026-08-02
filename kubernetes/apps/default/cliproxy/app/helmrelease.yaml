@@ -93,7 +93,7 @@ spec:
           app:
             image:
               repository: docker.io/eceasy/cli-proxy-api
-              tag: v7.2.113@sha256:019532ec2bff117a2da63366ac99d04c1984cd5b2849033b401e22f2c5751cd0
+              tag: v7.2.115@sha256:afcdee40b89cf148326e08b76be9c50e9692d009d9e191f8da14f200df94f7b2
             env:
               TZ: Europe/Bucharest
               # The plugin resolves its SQLite directory from $HOME by default,
