@@ -1,0 +1,79 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-control-metrics
+  labels:
+    nextjs.davidilie.dev/metrics: "true"
+    nextjs.davidilie.dev/runtime: control
+spec:
+  selector:
+    app.kubernetes.io/name: nextjs-control
+  ports:
+    - name: metrics
+      port: 3000
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-web-metrics
+  labels:
+    nextjs.davidilie.dev/metrics: "true"
+    nextjs.davidilie.dev/runtime: web
+spec:
+  selector:
+    app.kubernetes.io/name: nextjs-adapter-test
+    app.kubernetes.io/component: web
+  ports:
+    - name: metrics
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-api-metrics
+  labels:
+    nextjs.davidilie.dev/metrics: "true"
+    nextjs.davidilie.dev/runtime: api
+spec:
+  selector:
+    app.kubernetes.io/name: nextjs-adapter-test
+    app.kubernetes.io/component: api
+  ports:
+    - name: metrics
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-legacy-metrics
+  labels:
+    nextjs.davidilie.dev/metrics: "true"
+    nextjs.davidilie.dev/runtime: legacy
+spec:
+  selector:
+    app.kubernetes.io/name: nextjs-adapter-test
+    app.kubernetes.io/component: legacy
+  ports:
+    - name: metrics
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-heavy-metrics
+  labels:
+    nextjs.davidilie.dev/metrics: "true"
+    nextjs.davidilie.dev/runtime: heavy
+spec:
+  selector:
+    app.kubernetes.io/name: nextjs-adapter-test
+    app.kubernetes.io/component: heavy
+  ports:
+    - name: metrics
+      port: 3000
+      targetPort: 3000

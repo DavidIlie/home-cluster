@@ -1,0 +1,15 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: nextjs-adapter-test
+spec:
+  endpoints:
+    - dnsName: nextjs-adapter-test.davidhome.ro
+      recordType: CNAME
+      targets:
+        - external.davidhome.ro
+    - dnsName: nextjs-control.davidhome.ro
+      recordType: CNAME
+      targets:
+        - external.davidhome.ro

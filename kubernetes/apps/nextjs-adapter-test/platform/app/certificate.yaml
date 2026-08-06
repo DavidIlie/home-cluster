@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nextjs-test
+spec:
+  secretName: nextjs-test-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - nextjs-adapter-test.davidhome.ro
+    - nextjs-control.davidhome.ro

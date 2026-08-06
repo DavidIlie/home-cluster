@@ -1,0 +1,146 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextjs-control
+  labels:
+    app.kubernetes.io/name: nextjs-control
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nextjs-control
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nextjs-control
+        app.kubernetes.io/component: control
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: nextjs
+          image: ghcr.io/davidilie/nextjs-adapter-k8s-testbed/control@sha256:e1750f9f9f97a1d9bf91a327407a49f26c307c697252e76923f353a08afd4915
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_VARIANT
+              value: control
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: nextjs-test-runtime
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: nextjs-test-runtime
+                  key: REDIS_URL
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: nextjs-test-runtime
+                  key: WEBHOOK_SECRET
+            - name: LOAD_TEST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nextjs-test-runtime
+                  key: LOAD_TEST_TOKEN
+            - name: OTEL_SERVICE_NAME
+              value: nextjs-adapter-testbed-control
+            - name: HOSTNAME
+              value: 0.0.0.0
+            - name: K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: PORT
+              value: "3000"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /api/health?mode=readiness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /api/health?mode=liveness
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 3
+          startupProbe:
+            httpGet:
+              path: /api/health?mode=liveness
+              port: http
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 60
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: next-cache
+              mountPath: /app/.next/cache
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: next-cache
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+      terminationGracePeriodSeconds: 45
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: nextjs-control
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-control
+  labels:
+    app.kubernetes.io/name: nextjs-control
+spec:
+  selector:
+    app.kubernetes.io/name: nextjs-control
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: nextjs-control
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nextjs-control
