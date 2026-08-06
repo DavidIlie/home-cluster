@@ -7,3 +7,4 @@ resources:
   - ./envoy-gateway/config/ks.yaml
 components:
   - ../../flux/components/namespace
+  - ../../flux/components/sops
