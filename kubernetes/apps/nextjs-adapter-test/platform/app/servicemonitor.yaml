@@ -1,0 +1,75 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nextjs-control
+spec:
+  selector:
+    matchLabels:
+      nextjs.davidilie.dev/metrics: "true"
+      nextjs.davidilie.dev/runtime: control
+  endpoints:
+    - port: metrics
+      path: /api/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nextjs-web
+spec:
+  selector:
+    matchLabels:
+      nextjs.davidilie.dev/metrics: "true"
+      nextjs.davidilie.dev/runtime: web
+  endpoints:
+    - port: metrics
+      path: /api/metrics/web
+      interval: 30s
+      scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nextjs-api
+spec:
+  selector:
+    matchLabels:
+      nextjs.davidilie.dev/metrics: "true"
+      nextjs.davidilie.dev/runtime: api
+  endpoints:
+    - port: metrics
+      path: /api/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nextjs-legacy
+spec:
+  selector:
+    matchLabels:
+      nextjs.davidilie.dev/metrics: "true"
+      nextjs.davidilie.dev/runtime: legacy
+  endpoints:
+    - port: metrics
+      path: /api/metrics/legacy
+      interval: 30s
+      scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nextjs-heavy
+spec:
+  selector:
+    matchLabels:
+      nextjs.davidilie.dev/metrics: "true"
+      nextjs.davidilie.dev/runtime: heavy
+  endpoints:
+    - port: metrics
+      path: /api/metrics/heavy
+      interval: 30s
+      scrapeTimeout: 10s
