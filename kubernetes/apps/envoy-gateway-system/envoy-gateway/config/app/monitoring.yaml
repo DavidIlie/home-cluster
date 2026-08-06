@@ -1,0 +1,26 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: envoy-gateway
+spec:
+  selector:
+    matchLabels:
+      control-plane: envoy-gateway
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nextjs-envoy
+spec:
+  selector:
+    matchLabels:
+      nextjs.davidilie.dev/metrics: envoy
+  endpoints:
+    - port: metrics
+      path: /stats/prometheus
+      interval: 30s
