@@ -1,0 +1,47 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: nextjs-shared-proxy
+spec:
+  mergeGateways: true
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        name: nextjs-envoy
+        replicas: 2
+        container:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+        pod:
+          labels:
+            nextjs.davidilie.dev/gateway: shared
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: ScheduleAnyway
+              labelSelector:
+                matchLabels:
+                  nextjs.davidilie.dev/gateway: shared
+      envoyService:
+        name: nextjs-envoy
+        type: LoadBalancer
+        externalTrafficPolicy: Cluster
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: nextjs-adapter-test.davidhome.ro,nextjs-control.davidhome.ro
+          lbipam.cilium.io/ips: 192.168.100.90
+      envoyPDB:
+        name: nextjs-envoy
+        minAvailable: 1
+      envoyServiceAccount:
+        name: nextjs-envoy
+  telemetry:
+    metrics:
+      prometheus:
+        disable: false

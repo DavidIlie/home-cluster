@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-envoy-metrics
+  labels:
+    nextjs.davidilie.dev/metrics: envoy
+spec:
+  selector:
+    nextjs.davidilie.dev/gateway: shared
+  ports:
+    - name: metrics
+      port: 19001
+      protocol: TCP
+      targetPort: 19001
