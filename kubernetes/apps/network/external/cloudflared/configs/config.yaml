@@ -5,6 +5,14 @@ originRequest:
 ingress:
   - hostname: "davidhome.ro"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "nextjs-adapter-test.davidhome.ro"
+    service: https://nextjs-envoy.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "nextjs-adapter-test.davidhome.ro"
+  - hostname: "nextjs-control.davidhome.ro"
+    service: https://nextjs-envoy.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "nextjs-control.davidhome.ro"
   - hostname: "*.davidhome.ro"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "dave.tips"
