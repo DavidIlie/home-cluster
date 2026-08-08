@@ -80,6 +80,7 @@ spec:
                 memory: 2Gi
                 nvidia.com/gpu: 1
               limits:
+                memory: 24Gi
                 # Schedule the GPU via the nvidia-device-plugin (matches every
                 # working home-ops Plex config). The plugin injects the device +
                 # libs correctly for this image; the legacy NVIDIA_VISIBLE_DEVICES
