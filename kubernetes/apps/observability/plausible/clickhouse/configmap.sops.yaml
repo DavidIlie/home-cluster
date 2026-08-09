@@ -4,20 +4,20 @@ metadata:
   name: plausible-clickhouse-users
   namespace: observability
 data:
-  users.xml: ENC[AES256_GCM,data:gJBSAnsUFciKZ884L6nCu9770YTQzvkgkgk3ZYHJSitkhMMW/cRaf4CPAerky5DHmPROBHWzV1QJQ+AA02btHpEfEGy0HcpRmofdnfwuzLvcWzskMJa4WLT5F0vQaLIS7usMKMt3vFZEG60PVok9BZ4vFl46bERloFT5PHHFQEL+gSlFjrPheIvvTUYLNMhWc7JfXnerZg650x5yyDFIoc0X/IjrMuwxGxkPhLmfWd3XxL0vtrsBhJJCCOmM/hUyeSDssO13++A1p9bjeAE7GagRZxrheRmoCFeshPKRJULs+P6Rr10HRa5bDaAArRxX5XkVwUFs3cBb1mYuLGionIeeIb1cIpLCFnbLGNylc2gGX0IK47vL/APp7THTPpnTqfNzUCz5visaMcEy7wITq9O7Zb6Qqth0JsWkkeOBTrEFzOkAei6aA/d+6MxRbD+fJRwzeK/3mCT6N6oe7k3MqH6XsslnI17atDmL+SeskBla6p9/nlZXf42e2GzPvmpAJlnktKEGAwk2e34PmcVbiDVnGQnPHwxrU+DXChiDubdfPWH6WZCqkeycG+f5aHLCiZprVtxMsN6B2pWIYlWTiUSeoQhP+iS6YaMX7epMqv0UdPGPXyHwH442Y8N3H4eKFGs285ty8cHwVj0jaufH9qEqeyv1UnHwhr5TFwCGnr1DOUlC1oF8YDKlT+HIogl6a6MlaZnjEnyYqog8yQmC4yzYA5sKjktbaHUgW9He59oDaAab/6ykEc/k1reQLgOa823IKv1YgWWO,iv:0rPtip1v0qOy4pu8SG0PBnPMlq3VvJLRIeKq1Rl1aIM=,tag:eAarNzhRMs/yNn5fsm1RZg==,type:str]
+  users.xml: ENC[AES256_GCM,data:grY4MfyL8ynr1/7SaIt4FWhwOSuFOmCtb6B879Lyioqi34IXEO/BgjCsiwetvXeTql4u+KjXCK69qLeBJF4fqS4uamA2huDzNCavYp6PVO/eTqELkbRJYzyoqNHLKkwtRvWrM6D3pHyEwudm37iCf17N3YNI1nEz7P0YboyWeuMwjNlLE0NYkm6oOh84DQ8X7KKNMMg+TiI64uN8ZkGCZsWkxkj867c8jQxiSxsHVYZHnSA6Dq9Oc0a9bbdJki0SFPp+8rvIu5xQEyh7RkQGZO2xZW5/2lr326CqYNLBupaa7uT0UgPT9qh5zc6gT9CyxA7QblzrA5D2slainQSNlbofzrMiyQTK+lrvDPE3x6J4lGQwabcgFJ5S16ftjcxOGMQ0lYPKccNbps5iwGAOdbhWHYIDazOjQSjtod5d/Fw+iiOqphQ8bfwXH7aXCO6AcTXjHNadpO2c51nSpsE606eN68vK+iTdJMUWvjaqkbqoDl9JK5jefQXxC4eMwx/4MPG2MrbWz3EP+RdTYVoL9K5a6QRJssGQv6T6JEr4HW+rehC79WkuN58FgY97DZ1Hhon23lMrOU9tlXyE26jYlX2AuRgmbbLm2nL68QDn3XaQ664tfKMqDPJLWKmv+O0X9ggeyG7aANP3ylp0lEE=,iv:CqL0bjg4tpTNGy66UtBlwljXUqKDfY/derKsJeGN73M=,tag:iIWOx0+Ur5CRsjoVpV93Sg==,type:str]
 sops:
   age:
     - enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAzY1FTTE90bzQ4WE5DbUll
-        ZW9OazRuQkhVRzdwQXNyTmZMU1dJeE5lQTFvCjY4ZUV3d0VaWTRYQ0hleEdTT0F1
-        T3ROc0EyQlNrVHBlckpWc3AxUkJQNUUKLS0tIFpLeEhlNzU2d3JGVStyNVNWS0tL
-        OGlJTEEyNHpnT3U1VU4wbFlPWVM0UVkKRGyMtx+wLgV3VAYvWiMfmkeiDq/gRhVS
-        BNx7ilSlMTZYrOw4f/Zs6vchAKpbK2bW6gDC9TpahiHBHx5p1Kt6+w==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAxVjRXYjdRUExuWnBaYWVL
+        MEI2UVJLTndEM2ZlaTM5YitoamFMUjlFSlRZCnZNcldWN0gwc09HckdPdXNabmtt
+        SWk5Qjl5VUcvV3piQW4wTHluSitkVEEKLS0tIHFya0I5ZjZUT0krS3RFbTcxOTc2
+        Q2VBYlpnQ3ZsSnZRTzFvcEhXaFpyN1EKFKg1AANdY4kjCaSSmt+Do/6Nq4klI0Q4
+        9LnTBhFO7ed+3pB8oVE/OuHa6RzI8Mz7WtofDzKIz1S6AStyp0KBQQ==
         -----END AGE ENCRYPTED FILE-----
       recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
   encrypted_regex: ^(data|stringData)$
-  lastmodified: "2026-08-09T13:44:41Z"
-  mac: ENC[AES256_GCM,data:efPWrqBr9+Q6bQ8MY9dH0wqFhN9G3jMpyDGBkjcm4PA7NaXI257KmAsVGXU6nZilele1rLgzDFPhnOfChbczWDmURhk0TjpPzAp+Q6jr4Imuy2nWRGfGMxO+VEc/y0sdCS1ysACV0ix9UkxkXlLsVXSfr3BT3MCnMWk6OLdPYLg=,iv:mmToqUGqZmZSiWbZzxrqqjhntIh7cf1BmluvbP2g73I=,tag:OPRwW/elElYdcxJVjznL0A==,type:str]
+  lastmodified: "2026-08-09T14:55:45Z"
+  mac: ENC[AES256_GCM,data:43BBF+hs05GIUKFg22JFbUjPHrsIG2PyWJitTzP6oIRmTQTwbZcaQN+pSTjFOaBz226rdVMG7nHaAH+L8RoDV6PrijyYrEv97D8DOBs8NNQ7lyk79bZkkeRoCaZffAhIkQJlLjqmLoTC/sifSALhYuYYgGzGPtv92xd3iuk+shU=,iv:HJ04/R0NEYW5MC1ymqbBdLOXOLh1J/lSKcwLwPvYHRs=,tag:PPUWHCnlVYGgLDWlXEwU3A==,type:str]
   mac_only_encrypted: true
   version: 3.13.3

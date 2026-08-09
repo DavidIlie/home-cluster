@@ -42,11 +42,8 @@ spec:
               QBT_Application__MemoryWorkingSetLimit: 3500
               QBT_Preferences__WebUI__AlternativeUIEnabled: false
               QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
-              # LAN only. The pod CIDR is deliberately excluded: ingress-nginx
-              # presents its own 10.42.x.x address, which auto-authenticated
-              # every request through qb.davidhome.ro as admin.
               QBT_Preferences__WebUI__AuthSubnetWhitelist: |-
-                192.168.100.0/24
+                10.42.0.0/16, 192.168.100.0/24
               QBT_Preferences__WebUI__LocalHostAuth: false
               QBT_BitTorrent__Session__Interface: eth0
               QBT_BitTorrent__Session__InterfaceAddress:
