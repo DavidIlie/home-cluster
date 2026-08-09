@@ -37,7 +37,7 @@ spec:
               tag: v1.13.2
             env:
               TZ: Europe/Bucharest
-              HOMEPAGE_ALLOWED_HOSTS: "*"
+              HOMEPAGE_ALLOWED_HOSTS: hp.davidhome.ro
             envFrom:
               - secretRef:
                   name: homepage-secret
@@ -49,6 +49,11 @@ spec:
                   httpGet:
                     path: /api/healthcheck
                     port: &port 3000
+                    # kubelet probes send `Host: <podIP>:3000`, which
+                    # HOMEPAGE_ALLOWED_HOSTS would reject.
+                    httpHeaders:
+                      - name: Host
+                        value: hp.davidhome.ro
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1

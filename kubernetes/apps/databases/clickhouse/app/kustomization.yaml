@@ -5,3 +5,4 @@ namespace: databases
 resources:
   - ./helmrelease.yaml
   - ./configmap.yaml
+  - ./users-configmap.sops.yaml

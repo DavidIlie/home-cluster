@@ -21,7 +21,11 @@ spec:
       plausible:
         strategy: RollingUpdate
         annotations:
-          secret.reloader.stakater.com/reload: plausible-envs
+          # NOTE: this used to say `plausible-envs`, a Secret that has never
+          # existed, so reloader silently never restarted this Deployment on a
+          # credential change. The Secret actually consumed via envFrom below
+          # is `plausible-secret`.
+          secret.reloader.stakater.com/reload: plausible-secret
         containers:
           app:
             image:
@@ -112,6 +116,14 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+          # GET on the ingest path is answered by Plausible itself with 404
+          # (it only accepts POST) - proves the ingress reaches the app.
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Events
+            group: Monitoring
+            url: https://e.davidhome.ro/api/event
+            interval: 1m
+            conditions: ["[STATUS] == 404"]
         hosts:
           - host: &events e.davidhome.ro
             paths:
@@ -128,6 +140,13 @@ spec:
       backupevents:
         enabled: true
         className: external
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Events (Backup)
+            group: Monitoring
+            url: https://e.dave.tips/api/event
+            interval: 1m
+            conditions: ["[STATUS] == 404"]
         hosts:
           - host: &backupevents e.dave.tips
             paths:
@@ -141,6 +160,12 @@ spec:
         annotations:
           nginx.ingress.kubernetes.io/use-regex: "true"
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.manual.revenue.js
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Script (Manual)
+            group: Monitoring
+            url: https://manualjs.dave.tips/
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &manual manualjs.dave.tips
             paths:
@@ -155,6 +180,12 @@ spec:
         annotations:
           nginx.ingress.kubernetes.io/use-regex: "true"
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.file-downloads.outbound-links.pageview-props.revenue.tagged-events.js
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Script
+            group: Monitoring
+            url: https://js.dave.tips/
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &script js.dave.tips
             paths:

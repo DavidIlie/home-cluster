@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plausible-clickhouse-users
+  namespace: observability
+data:
+  users.xml: ENC[AES256_GCM,data:gJBSAnsUFciKZ884L6nCu9770YTQzvkgkgk3ZYHJSitkhMMW/cRaf4CPAerky5DHmPROBHWzV1QJQ+AA02btHpEfEGy0HcpRmofdnfwuzLvcWzskMJa4WLT5F0vQaLIS7usMKMt3vFZEG60PVok9BZ4vFl46bERloFT5PHHFQEL+gSlFjrPheIvvTUYLNMhWc7JfXnerZg650x5yyDFIoc0X/IjrMuwxGxkPhLmfWd3XxL0vtrsBhJJCCOmM/hUyeSDssO13++A1p9bjeAE7GagRZxrheRmoCFeshPKRJULs+P6Rr10HRa5bDaAArRxX5XkVwUFs3cBb1mYuLGionIeeIb1cIpLCFnbLGNylc2gGX0IK47vL/APp7THTPpnTqfNzUCz5visaMcEy7wITq9O7Zb6Qqth0JsWkkeOBTrEFzOkAei6aA/d+6MxRbD+fJRwzeK/3mCT6N6oe7k3MqH6XsslnI17atDmL+SeskBla6p9/nlZXf42e2GzPvmpAJlnktKEGAwk2e34PmcVbiDVnGQnPHwxrU+DXChiDubdfPWH6WZCqkeycG+f5aHLCiZprVtxMsN6B2pWIYlWTiUSeoQhP+iS6YaMX7epMqv0UdPGPXyHwH442Y8N3H4eKFGs285ty8cHwVj0jaufH9qEqeyv1UnHwhr5TFwCGnr1DOUlC1oF8YDKlT+HIogl6a6MlaZnjEnyYqog8yQmC4yzYA5sKjktbaHUgW9He59oDaAab/6ykEc/k1reQLgOa823IKv1YgWWO,iv:0rPtip1v0qOy4pu8SG0PBnPMlq3VvJLRIeKq1Rl1aIM=,tag:eAarNzhRMs/yNn5fsm1RZg==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAzY1FTTE90bzQ4WE5DbUll
+        ZW9OazRuQkhVRzdwQXNyTmZMU1dJeE5lQTFvCjY4ZUV3d0VaWTRYQ0hleEdTT0F1
+        T3ROc0EyQlNrVHBlckpWc3AxUkJQNUUKLS0tIFpLeEhlNzU2d3JGVStyNVNWS0tL
+        OGlJTEEyNHpnT3U1VU4wbFlPWVM0UVkKRGyMtx+wLgV3VAYvWiMfmkeiDq/gRhVS
+        BNx7ilSlMTZYrOw4f/Zs6vchAKpbK2bW6gDC9TpahiHBHx5p1Kt6+w==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-08-09T13:44:41Z"
+  mac: ENC[AES256_GCM,data:efPWrqBr9+Q6bQ8MY9dH0wqFhN9G3jMpyDGBkjcm4PA7NaXI257KmAsVGXU6nZilele1rLgzDFPhnOfChbczWDmURhk0TjpPzAp+Q6jr4Imuy2nWRGfGMxO+VEc/y0sdCS1ysACV0ix9UkxkXlLsVXSfr3BT3MCnMWk6OLdPYLg=,iv:mmToqUGqZmZSiWbZzxrqqjhntIh7cf1BmluvbP2g73I=,tag:OPRwW/elElYdcxJVjznL0A==,type:str]
+  mac_only_encrypted: true
+  version: 3.13.3

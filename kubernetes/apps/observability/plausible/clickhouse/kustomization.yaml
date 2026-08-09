@@ -4,5 +4,5 @@ kind: Kustomization
 namespace: observability
 resources:
   - ./helmrelease.yaml
-  - ./configmap.yaml
+  - ./configmap.sops.yaml
   - ./server-configmap.yaml
