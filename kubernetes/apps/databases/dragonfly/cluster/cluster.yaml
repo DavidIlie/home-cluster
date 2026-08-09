@@ -6,6 +6,10 @@ metadata:
   namespace: databases
 spec:
   image: ghcr.io/dragonflydb/dragonfly:v1.40.1
+  # operator v1.6.1 defaults to a same-namespace-only NetworkPolicy which
+  # blocks every cross-namespace consumer (paperless etc.) — restore the
+  # pre-1.6 behavior of no NetworkPolicy
+  networkPolicyEnabled: false
   replicas: 1
   env:
     - name: MAX_MEMORY
