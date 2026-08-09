@@ -3,7 +3,6 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: portainer
-  namespace: flux-system
 spec:
   interval: 6h
   dependsOn:
@@ -23,7 +22,7 @@ spec:
         cpu: 10m
         memory: 64Mi
     persistence:
-      enabeld: true
+      enabled: true
       size: 1G
       storageClass: openebs-hostpath
     ingress:

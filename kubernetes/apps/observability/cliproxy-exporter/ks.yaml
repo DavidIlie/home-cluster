@@ -21,6 +21,7 @@ spec:
     namespace: flux-system
   wait: false
   interval: 30m
+  retryInterval: 1m
   timeout: 5m
 # NOTE: no `decryption:` block here on purpose. It is injected globally by the
 # patch in kubernetes/flux/cluster/ks.yaml onto every Kustomization. Adding it

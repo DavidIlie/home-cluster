@@ -10,6 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 30m
+  retryInterval: 1m
   path: ./kubernetes/apps/ai/searxng/app
   prune: true
   dependsOn:
@@ -21,4 +22,4 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 10m
-  wait: false
+  wait: true

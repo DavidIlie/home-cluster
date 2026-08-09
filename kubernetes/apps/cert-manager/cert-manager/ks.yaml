@@ -15,9 +15,10 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: false
+  wait: true
   targetNamespace: *namespace
   interval: 30m
+  retryInterval: 1m
   timeout: 5m
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
@@ -30,6 +31,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: cert-manager
+      namespace: *namespace
   path: ./kubernetes/apps/cert-manager/cert-manager/issuers
   prune: false
   sourceRef:
@@ -39,6 +43,7 @@ spec:
   wait: true
   targetNamespace: *namespace
   interval: 30m
+  retryInterval: 1m
   timeout: 5m
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
@@ -62,4 +67,5 @@ spec:
     namespace: flux-system
   wait: true
   interval: 30m
+  retryInterval: 1m
   timeout: 5m

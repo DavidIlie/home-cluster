@@ -63,6 +63,16 @@ spec:
         # Cap head/TSDB growth so memory cannot creep past the limit again.
         retention: 14d
         retentionSize: 8GB
+        # Persist the TSDB; on emptyDir every restart wiped 14d of data and
+        # ate up to 8GB of the Talos EPHEMERAL partition.
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: openebs-hostpath
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 20Gi
         remoteWrite:
           - url: "http://prometheus-home-cluster.observability.svc.cluster.local:9090/api/v1/write"
         resources:

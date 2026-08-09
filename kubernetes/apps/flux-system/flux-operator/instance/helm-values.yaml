@@ -2,6 +2,10 @@
 instance:
   cluster:
     networkPolicy: false
+  distribution:
+    # Pinned: the chart default is "2.x", which silently auto-upgrades the
+    # controllers across any 2.x minor with no PR to review.
+    version: 2.9.4
   components:
     - source-controller
     - kustomize-controller

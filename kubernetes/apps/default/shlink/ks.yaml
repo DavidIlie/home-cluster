@@ -10,6 +10,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: cloudnative-pg-cluster
+      namespace: databases
   path: ./kubernetes/apps/default/shlink/app
   prune: true
   sourceRef:
@@ -18,6 +21,7 @@ spec:
     namespace: flux-system
   wait: false
   interval: 30m
+  retryInterval: 1m
   timeout: 5m
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
@@ -42,4 +46,5 @@ spec:
     namespace: flux-system
   wait: false
   interval: 30m
+  retryInterval: 1m
   timeout: 5m

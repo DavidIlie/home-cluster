@@ -13,6 +13,7 @@ spec:
     - name: volsync
       namespace: volsync-system
   interval: 30m
+  retryInterval: 1m
   path: ./kubernetes/apps/infastructure/scrypted/app
   prune: true
   sourceRef:
