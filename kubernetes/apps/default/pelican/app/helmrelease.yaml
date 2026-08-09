@@ -47,13 +47,17 @@ spec:
             envFrom:
               - secretRef:
                   name: pelican-secret
+            # NOTE: tcpSocket, not httpGet. Caddy listens on :80 only and 302s
+            # every path to https://<host>/login; kubelet *follows* probe
+            # redirects, so an httpGet probe ends up dialling :443 and fails
+            # with connection refused. A TCP probe proves the listener is up
+            # without chasing the redirect.
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /
+                  tcpSocket:
                     port: &port 80
                   initialDelaySeconds: 0
                   periodSeconds: 30
@@ -64,8 +68,7 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /
+                  tcpSocket:
                     port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 5
