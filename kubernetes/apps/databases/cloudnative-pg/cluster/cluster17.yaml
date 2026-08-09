@@ -6,6 +6,7 @@ metadata:
   name: postgres17
 spec:
   instances: 1
+  enablePDB: false # single node: PDB guarantees nothing, only deadlocks drains
   imageName: ghcr.io/cloudnative-pg/postgresql:17.2-32
   primaryUpdateStrategy: unsupervised
   storage:
@@ -43,7 +44,7 @@ spec:
       endpointURL: http://192.168.100.63:9000
       # Note: serverName version needs to be inclemented
       # when recovering from an existing cnpg cluster
-      serverName: &currentCluster postgres16
+      serverName: &currentCluster postgres17
       s3Credentials:
         accessKeyId:
           name: cloudnative-pg-secret

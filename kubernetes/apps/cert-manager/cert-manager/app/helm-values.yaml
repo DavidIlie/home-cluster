@@ -8,3 +8,14 @@ prometheus:
   enabled: true
   servicemonitor:
     enabled: true
+resources:
+  requests:
+    memory: 48Mi
+webhook:
+  resources:
+    requests:
+      memory: 48Mi
+cainjector:
+  resources:
+    requests:
+      memory: 96Mi

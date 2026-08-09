@@ -11,3 +11,6 @@ spec:
   interval: 1h
   values:
     replicaCount: 1
+    resources:
+      requests:
+        memory: 192Mi

@@ -53,6 +53,14 @@ spec:
             port: http-webhook
           initialDelaySeconds: 10
           timeoutSeconds: 5
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
     policy: sync
     sources: ["service", "ingress"]
     domainFilters: ["davidhome.ro"]

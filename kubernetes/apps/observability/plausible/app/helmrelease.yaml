@@ -55,6 +55,10 @@ spec:
                 enabled: true
             securityContext:
               readOnlyRootFilesystem: true
+            resources:
+              requests:
+                cpu: 50m
+                memory: 768Mi
         pod:
           terminationGracePeriodSeconds: 1
           securityContext:

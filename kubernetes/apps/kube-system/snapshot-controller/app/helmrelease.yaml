@@ -27,5 +27,8 @@ spec:
     controller:
       serviceMonitor:
         create: true
+      resources:
+        requests:
+          memory: 32Mi
     webhook:
       enabled: false

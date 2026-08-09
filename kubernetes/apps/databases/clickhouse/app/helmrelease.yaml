@@ -44,6 +44,11 @@ spec:
               readiness: *probes
             securityContext:
               privileged: true
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 8Gi
             ports:
               - name: http
                 containerPort: 8123

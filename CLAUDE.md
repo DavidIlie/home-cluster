@@ -4,12 +4,13 @@
 
 This is a **production home Kubernetes cluster** running on **Talos Linux** with **Flux GitOps**. Every push to this repository automatically updates the live cluster - exercise caution with all changes.
 
-- **Repository:** https://github.com/DavidIlie/home-cluster
-- **Cluster OS:** Talos Linux v1.10.x
-- **Kubernetes Version:** v1.33.x
+- **Repository:** https://github.com/DavidIlie/home-cluster (**PUBLIC**)
+- **Cluster OS:** Talos Linux v1.12.x (live: v1.12.1)
+- **Kubernetes Version:** v1.35.x (live: v1.35.0)
 - **GitOps:** Flux v2 (operator + instance pattern)
 - **Secrets:** SOPS with Age encryption
 - **Updates:** Renovate bot
+- **Reference cluster:** https://github.com/onedr0p/home-ops - use it as the reference for patterns and conventions when planning or writing anything here
 
 ## Critical Rules
 
@@ -17,6 +18,11 @@ This is a **production home Kubernetes cluster** running on **Talos Linux** with
 - **Talos OS version** - Manual updates only
 - **Kubernetes version** - Manual updates only
 - If a package update requires a newer Kubernetes version, **do not proceed** - flag it for manual review
+
+### NEVER Commit Plaintext Credentials
+- **This repository is PUBLIC.** Anything committed unencrypted is world-readable forever.
+- Passwords, API keys, tokens and connection strings go **only** in `*.sops.yaml` files (`secret.sops.yaml`, `configmap.sops.yaml`)
+- Never inline a credential in `helmrelease.yaml`, `helm-values.yaml`, a plain `configmap.yaml`, or an env var default
 
 ### Before Any Change
 1. This is a **LIVE cluster** - every merge affects production
@@ -124,7 +130,7 @@ For each PR, investigate:
    - Check if new secrets are required
 
 4. **Check Kubernetes version requirements:**
-   - If the update requires a newer K8s version than v1.33.x → **FLAG AS BLOCKED**
+   - If the update requires a newer K8s version than v1.35.x → **FLAG AS BLOCKED**
    - Do NOT recommend merging
 
 #### Step 4: Present Findings and Ask for Consent
@@ -273,8 +279,9 @@ Present the created files for review before committing. Ask: **"Here are the fil
 - **Node IP:** 192.168.100.180
 - **Pod CIDR:** 10.42.0.0/16
 - **Service CIDR:** 10.24.0.0/16
-- **Ingress External:** 192.168.100.91
-- **Ingress Internal:** Uses internal DNS
+- **Ingress External:** 192.168.100.92 (`external-ingress-nginx-controller`, `network`)
+- **Ingress Internal:** 192.168.100.91 (`internal-ingress-nginx-controller`, `network`)
+- **Envoy Gateway:** 192.168.100.90 (`nextjs-envoy`, `envoy-gateway-system`) - GatewayClass `eg`, used by `nextjs-adapter-test` only for now
 
 ### Ingress Classes
 - `external` - Public-facing via Cloudflare tunnel
@@ -332,10 +339,11 @@ spec:
     substitute:
       APP: *app
       APP_PVC: *app  # Or custom PVC name if different
+      MOVER_UID: "1000"      # MUST match the app's runAsUser
+      MOVER_FSGROUP: "1000"  # MUST match the app's fsGroup
     substituteFrom:
       - kind: Secret
-        name: volsync-secret
-        namespace: volsync-system
+        name: volsync-secret  # NO namespace field - see below
 ```
 
 2. Add to `app/kustomization.yaml`:
@@ -343,6 +351,16 @@ spec:
 components:
   - ../../../../flux/components/volsync
 ```
+
+**`substituteFrom` secrets must live in the Kustomization's OWN namespace.** Flux ignores a `namespace:`
+field under `postBuild.substituteFrom` - it always resolves the Secret in `metadata.namespace` of the
+Kustomization. So an app in `default` needs `volsync-secret` in `default`, not in `volsync-system`.
+
+**`MOVER_UID`/`MOVER_FSGROUP` are mandatory whenever the app does not run as UID 568.** The volsync
+component defaults to `568`; if the app writes its PVC as a different UID the mover cannot read the data,
+restic still writes a snapshot, and the **backup is silently incomplete**. Check the app's
+`podSecurityContext` before enabling VolSync, and verify with `status.lastSyncTime` on the
+ReplicationSource - a `Ready` Kustomization proves nothing.
 
 **Backup schedule:** Every 6 hours
 **Retention:** 6 hourly, 7 daily, 4 weekly, 3 monthly
@@ -360,19 +378,23 @@ All tools are managed via `mise` and available in the project environment:
 | Tool | Version | Purpose |
 |------|---------|---------|
 | `kubectl` | 1.32.1 | Kubernetes cluster management |
-| `flux` | 2.6.4 | GitOps operations |
-| `helm` | 4.0.5 | Helm chart management |
-| `helmfile` | 1.2.3 | Declarative Helm deployments |
-| `sops` | 3.11.0 | Secret encryption/decryption |
+| `flux` | 2.9.4 | GitOps operations |
+| `helm` | 4.2.3 | Helm chart management |
+| `helmfile` | 1.7.3 | Declarative Helm deployments |
+| `sops` | 3.13.3 | Secret encryption/decryption |
 | `age` | 1.3.1 | Encryption backend for SOPS |
-| `talosctl` | 1.10.7 | Talos node management |
-| `talhelper` | 3.1.2 | Talos config generation |
+| `talosctl` | 1.13.7 | Talos node management |
+| `talhelper` | 3.1.16 | Talos config generation |
 | `kustomize` | 5.6.0 | Kustomization builds |
-| `kubeconform` | 0.7.0 | YAML validation |
-| `task` | 3.46.4 | Task runner |
-| `yq` | 4.50.1 | YAML processing |
+| `kubeconform` | 0.8.0 | YAML validation |
+| `task` | 3.52.0 | Task runner |
+| `yq` | 4.53.3 | YAML processing |
 | `jq` | 1.7.1 | JSON processing |
-| `cloudflared` | 2026.1.1 | Cloudflare tunnel CLI |
+| `cloudflared` | 2026.7.3 | Cloudflare tunnel CLI |
+| `uv` | 0.12.3 | Python package/tool runner |
+
+Source of truth is `.mise.toml`; run `mise ls --current` to confirm. Note `kubectl` (1.32.1) lags the
+live cluster (v1.35.0) - fine for most operations, but expect skew warnings.
 
 ## Common Operations
 

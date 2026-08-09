@@ -24,6 +24,10 @@ spec:
       retries: 3
   values:
     fullnameOverride: smartctl-exporter
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
     serviceMonitor:
       enabled: true
     prometheusRules:

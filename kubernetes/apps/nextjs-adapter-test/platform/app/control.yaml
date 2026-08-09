@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: nextjs-control
 spec:
-  replicas: 3
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -112,13 +112,6 @@ spec:
         - name: tmp
           emptyDir: {}
       terminationGracePeriodSeconds: 45
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: ScheduleAnyway
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: nextjs-control
 ---
 apiVersion: v1
 kind: Service
@@ -134,13 +127,3 @@ spec:
       port: 3000
       targetPort: http
       protocol: TCP
----
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: nextjs-control
-spec:
-  minAvailable: 2
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: nextjs-control

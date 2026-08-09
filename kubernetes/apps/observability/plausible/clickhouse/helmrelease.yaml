@@ -48,6 +48,15 @@ spec:
               - name: metrics
                 containerPort: 9363
                 protocol: TCP
+            # Was BestEffort with an empty resources block — 132 restarts with
+            # exit 137. The limit also caps ClickHouse's own cgroup-derived
+            # max_server_memory_usage instead of it sizing against node RAM.
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
     persistence:
       event-data:
         enabled: true

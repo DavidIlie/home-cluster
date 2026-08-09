@@ -23,7 +23,7 @@ spec:
   values:
     controllers:
       error-pages:
-        replicas: 2
+        replicas: 1
         pod:
           imagePullSecrets:
             - name: docker-regcred

@@ -18,6 +18,10 @@ spec:
         name: portainer
         namespace: flux-system
   values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
     persistence:
       enabeld: true
       size: 1G

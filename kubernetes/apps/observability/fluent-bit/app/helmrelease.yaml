@@ -104,6 +104,12 @@ spec:
           compress gzip
           log_response_payload false
 
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
     serviceMonitor:
       enabled: true
     logLevel: warn

@@ -29,6 +29,10 @@ spec:
         value: Europe/Bucharest
       - name: FREE_TIER
         value: "true"
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
     serviceMonitor:
       enabled: true
   interval: 10m0s

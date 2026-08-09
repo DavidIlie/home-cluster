@@ -30,6 +30,12 @@ spec:
               - -c
               - |
                 mkdir -p /tmp/nginx_temp/client_temp /tmp/nginx_temp/proxy_temp /tmp/nginx_temp/fastcgi_temp /tmp/nginx_temp/uwsgi_temp /tmp/nginx_temp/scgi_temp && chmod -R 777 /tmp/nginx_temp
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
         containers:
           app:
             image:
@@ -40,6 +46,12 @@ spec:
               - nginx
               - -g
               - daemon off;
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 256Mi
         pod:
           securityContext:
             runAsUser: 0
