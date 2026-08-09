@@ -19,8 +19,7 @@ envoy:
   enabled: false
 dashboards:
   enabled: true
-hubble:
-  enabled: false
+# NOTE: hubble is configured inline in helmrelease.yaml (inline values win over valuesFrom)
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
