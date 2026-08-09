@@ -73,6 +73,13 @@ spec:
       prometheus:
         enabled: true
         className: internal
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            name: Prometheus (home-cluster)
+            group: Monitoring
+            url: https://prometheus.davidhome.ro/-/healthy
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &app prometheus.davidhome.ro
             paths:

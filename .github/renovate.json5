@@ -12,6 +12,7 @@
   ],
   dependencyDashboard: true,
   dependencyDashboardTitle: 'Renovate Dashboard 🤖',
+  pinDigests: true,
   suppressNotifications: [
     'prEditedNotification',
     'prIgnoreNotification',

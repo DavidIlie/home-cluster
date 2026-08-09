@@ -5,6 +5,14 @@ metadata:
   name: flux-webhook
   annotations:
     external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+    # GET /hook/ is answered by the notification-controller receiver with 404
+    # (it only serves POST on /hook/<id>) - proves the tunnel + ingress path works.
+    gatus.home-operations.com/endpoint: |-
+      name: Flux Webhook
+      group: Infrastructure
+      url: https://flux-webhook.davidhome.ro/hook/
+      interval: 1m
+      conditions: ["[STATUS] == 404"]
 spec:
   ingressClassName: external
   rules:

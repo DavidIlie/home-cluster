@@ -80,6 +80,12 @@ spec:
           gethomepage.dev/name: go2rtc
           gethomepage.dev/icon: go2rtc.png
           gethomepage.dev/description: Camera Streaming
+          gatus.home-operations.com/endpoint: |-
+            name: go2rtc
+            group: Infrastructure
+            url: https://go2rtc.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: go2rtc.davidhome.ro
             paths:

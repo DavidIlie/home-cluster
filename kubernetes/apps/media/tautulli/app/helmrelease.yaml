@@ -81,6 +81,12 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
+          gatus.home-operations.com/endpoint: |-
+            name: Tautulli
+            group: Media
+            url: https://tautulli.davidhome.ro/status
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "tautulli.davidhome.ro"
             paths:

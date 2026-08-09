@@ -41,6 +41,40 @@ spec:
               OLLAMA_ORIGINS: "*"
               OLLAMA_LOG_LEVEL: debug
               OLLAMA_MODELS: &modelPath /models
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 11434
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 60
             securityContext:
               privileged: true
             resources:
@@ -56,7 +90,7 @@ spec:
         controller: backend
         ports:
           http:
-            port: 11434
+            port: *port
     persistence:
       models:
         enabled: true

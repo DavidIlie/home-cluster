@@ -47,6 +47,30 @@ spec:
             envFrom:
               - secretRef:
                   name: pelican-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 80
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 60
             securityContext:
               privileged: true
             resources:
@@ -58,7 +82,7 @@ spec:
         controller: pelican
         ports:
           http:
-            port: 80
+            port: *port
           https:
             port: 443
     ingress:

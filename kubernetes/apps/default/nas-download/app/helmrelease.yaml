@@ -46,6 +46,30 @@ spec:
               - nginx
               - -g
               - daemon off;
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
             resources:
               requests:
                 cpu: 10m
@@ -84,7 +108,7 @@ spec:
         controller: nginx
         ports:
           http:
-            port: 8080
+            port: *port
     ingress:
       public:
         enabled: true
@@ -116,6 +140,13 @@ spec:
       temp:
         enabled: true
         className: external
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            name: NAS Download (mbretrofit)
+            group: Services
+            url: https://dl.mbretrofit.it
+            interval: 1m
+            conditions: ["[STATUS] == any(200, 403)"]
         hosts:
           - host: dl.mbretrofit.it
             paths:

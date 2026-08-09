@@ -113,6 +113,12 @@ spec:
           gethomepage.dev/name: Gatus
           gethomepage.dev/icon: gatus.png
           gethomepage.dev/description: Service Status
+          gatus.home-operations.com/endpoint: |-
+            name: Gatus
+            group: Monitoring
+            url: https://status.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "status.davidhome.ro"
             paths:

@@ -76,6 +76,15 @@ kind: Ingress
 metadata:
   name: &app macbook-internal
   namespace: external-services
+  annotations:
+    # The backend is a laptop - expect this to go red whenever it is asleep or
+    # off the network. 5m interval keeps the noise down.
+    gatus.home-operations.com/endpoint: |-
+      name: MacBook (t3 code)
+      group: Infrastructure
+      url: https://mbp-t3code.davidhome.ro
+      interval: 5m
+      conditions: ["[STATUS] == any(200, 302, 401)"]
 spec:
   ingressClassName: internal
   rules:

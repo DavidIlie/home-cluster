@@ -96,6 +96,12 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
+          gatus.home-operations.com/endpoint: |-
+            name: Radarr
+            group: Media
+            url: https://radarr.davidhome.ro/ping
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "radarr.davidhome.ro"
             paths:

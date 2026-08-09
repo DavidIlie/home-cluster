@@ -70,7 +70,7 @@ spec:
         controller: graphite-exporter
         type: LoadBalancer
         annotations:
-          io.cilium/lb-ipam-ips: 192.168.100.97
+          lbipam.cilium.io/ips: 192.168.100.97
         ports:
           http:
             port: 9108

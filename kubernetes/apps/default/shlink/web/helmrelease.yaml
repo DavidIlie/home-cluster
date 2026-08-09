@@ -62,6 +62,12 @@ spec:
           gethomepage.dev/name: Shlink Web
           gethomepage.dev/icon: shlink.png
           gethomepage.dev/description: URL Shortener Admin
+          gatus.home-operations.com/endpoint: |-
+            name: Shlink Web
+            group: Services
+            url: https://shlink.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "shlink.davidhome.ro"
             paths:

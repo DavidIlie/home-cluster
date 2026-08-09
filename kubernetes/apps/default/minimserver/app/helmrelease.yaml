@@ -26,7 +26,8 @@ spec:
       minimserver:
         pod:
           hostNetwork: true
-        strategy: RollingUpdate
+        # NOTE: hostNetwork singleton - a surging pod cannot bind :9790 while the old one holds it
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -34,6 +35,30 @@ spec:
             image:
               repository: tromatik/docker-minimserver
               tag: latest
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 9790
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 60
             securityContext:
               privileged: true
             resources:
@@ -54,7 +79,7 @@ spec:
         controller: minimserver
         ports:
           http:
-            port: 9790
+            port: *port
     ingress:
       app:
         className: internal
@@ -64,6 +89,12 @@ spec:
           gethomepage.dev/name: MinimServer
           gethomepage.dev/icon: mdi-music-box
           gethomepage.dev/description: DLNA Music Server
+          gatus.home-operations.com/endpoint: |-
+            name: MinimServer
+            group: Media
+            url: https://dlna.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "dlna.davidhome.ro"
             paths:

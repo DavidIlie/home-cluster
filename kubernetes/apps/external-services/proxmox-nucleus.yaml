@@ -88,6 +88,12 @@ metadata:
     gethomepage.dev/icon: proxmox.png
     gethomepage.dev/description: Proxmox Menux Interface
     gethomepage.dev/pod-selector: ""
+    gatus.home-operations.com/endpoint: |-
+      name: Proxmox Menux
+      group: Hardware
+      url: https://nucleus-menux.davidhome.ro
+      interval: 1m
+      conditions: ["[STATUS] == any(200, 302, 301)"]
 spec:
   ingressClassName: internal
   rules:

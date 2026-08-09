@@ -73,6 +73,16 @@ spec:
       prometheus:
         enabled: true
         className: internal
+        annotations:
+          # NOTE: the hostname's DNS record is owned by the LoadBalancer Service below
+          # (external-dns hostname annotation -> 192.168.100.95), not by this Ingress,
+          # so the reachable URL is http on :9090 rather than https on :443.
+          gatus.home-operations.com/endpoint: |-
+            name: Prometheus (davidapps-cluster)
+            group: Monitoring
+            url: http://prometheus-davidapps.davidhome.ro:9090/-/healthy
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &app prometheus-davidapps.davidhome.ro
             paths:
@@ -89,7 +99,7 @@ spec:
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: prometheus-davidapps.davidhome.ro
-          io.cilium/lb-ipam-ips: 192.168.100.95
+          lbipam.cilium.io/ips: 192.168.100.95
         ports:
           http:
             port: *port

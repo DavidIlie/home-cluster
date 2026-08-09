@@ -30,6 +30,30 @@ spec:
             image:
               repository: docker.io/apache/tika
               tag: 3.3.1.0
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /tika
+                    port: &port 9998
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /tika
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
             resources:
               requests:
                 cpu: 10m
@@ -41,4 +65,4 @@ spec:
         controller: tika
         ports:
           http:
-            port: 9998
+            port: *port

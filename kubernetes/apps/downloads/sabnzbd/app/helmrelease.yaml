@@ -104,6 +104,12 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
+          gatus.home-operations.com/endpoint: |-
+            name: SABnzbd
+            group: Downloads
+            url: https://sab.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host sab.davidhome.ro
             paths:

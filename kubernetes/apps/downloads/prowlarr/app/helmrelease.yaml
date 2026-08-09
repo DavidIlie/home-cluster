@@ -93,6 +93,12 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
+          gatus.home-operations.com/endpoint: |-
+            name: Prowlarr
+            group: Downloads
+            url: https://prowlarr.davidhome.ro/ping
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "prowlarr.davidhome.ro"
             paths:
