@@ -28,3 +28,7 @@ spec:
       podMonitor:
         enabled: true
         namespace: "{{ .Release.Namespace }}"
+      deployment:
+        resources:
+          requests:
+            memory: 128Mi

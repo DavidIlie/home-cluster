@@ -47,6 +47,8 @@ spec:
               requests:
                 memory: 2G
                 cpu: 2000m
+              limits:
+                memory: 8Gi
         pod:
           runtimeClassName: nvidia
     service:

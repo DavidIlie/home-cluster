@@ -41,6 +41,10 @@ spec:
       - --events
       - --ignore-ingress-tls-spec
       - --ingress-class=external
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
     policy: sync
     sources: ["crd", "ingress"]
     txtPrefix: k8s.

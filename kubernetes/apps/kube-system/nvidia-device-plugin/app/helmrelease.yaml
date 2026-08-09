@@ -22,6 +22,9 @@ spec:
       repository: nvcr.io/nvidia/k8s-device-plugin
       tag: v0.19.3
     runtimeClassName: nvidia
+    resources:
+      requests:
+        memory: 32Mi
     nodeSelector:
       nvidia.feature.node.kubernetes.io/gpu: "true"
     # Time-slicing: advertise the single RTX 2080 as 4 schedulable

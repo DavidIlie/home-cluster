@@ -49,6 +49,10 @@ spec:
                   name: pelican-secret
             securityContext:
               privileged: true
+            resources:
+              requests:
+                cpu: 25m
+                memory: 320Mi
     service:
       pelican:
         controller: pelican

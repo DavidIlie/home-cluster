@@ -46,10 +46,25 @@ spec:
         prometheus:
           serviceMonitor:
             enabled: true
+        resources:
+          requests:
+            memory: 48Mi
       ui:
         enabled: true
         rollOutPods: true
+        backend:
+          resources:
+            requests:
+              memory: 32Mi
+        frontend:
+          resources:
+            requests:
+              memory: 32Mi
         ingress:
           enabled: true
           className: internal
           hosts: ["hubble.davidhome.ro"]
+    operator:
+      resources:
+        requests:
+          memory: 160Mi

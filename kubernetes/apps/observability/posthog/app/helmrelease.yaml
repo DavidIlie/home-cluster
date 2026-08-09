@@ -125,13 +125,16 @@ spec:
                   periodSeconds: 15
                   timeoutSeconds: 10
                   failureThreshold: 80
-            # No memory cap — node is beefy, let posthog burst freely.
             # Request kept modest so the pod schedules on a node that's
-            # already heavily committed; bursts use spare CPU/RAM.
+            # already heavily committed; bursts use spare CPU/RAM. Capped at
+            # 6Gi so an unbounded web burst can't push the node into a
+            # Talos OOMController SIGKILL of unrelated cgroups.
             resources:
               requests:
                 cpu: 1500m
                 memory: 2Gi
+              limits:
+                memory: 6Gi
       worker:
         annotations:
           reloader.stakater.com/auto: "true"
@@ -145,12 +148,15 @@ spec:
               SKIP_ASYNC_MIGRATIONS_SETUP: "0"
               AUTO_START_ASYNC_MIGRATIONS: "1"
             envFrom: *envFrom
-            # No cap — celery memory grows with task variety (async migrations,
-            # batch exports, hog functions); let it use the box.
+            # Celery memory grows with task variety (async migrations, batch
+            # exports, hog functions), so the cap is generous — but it is a
+            # cap: uncapped it was a top contributor to node-wide OOM kills.
             resources:
               requests:
                 cpu: 1000m
                 memory: 3Gi
+              limits:
+                memory: 8Gi
       plugins:
         annotations:
           reloader.stakater.com/auto: "true"

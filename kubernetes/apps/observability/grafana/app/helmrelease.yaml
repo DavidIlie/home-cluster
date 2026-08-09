@@ -25,6 +25,10 @@ spec:
   values:
     deploymentStrategy:
       type: Recreate
+    resources:
+      requests:
+        cpu: 25m
+        memory: 256Mi
     admin:
       existingSecret: grafana-admin-secret
     env:

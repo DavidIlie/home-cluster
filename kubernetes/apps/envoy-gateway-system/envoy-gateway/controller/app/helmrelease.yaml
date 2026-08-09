@@ -25,7 +25,7 @@ spec:
     crds:
       enabled: true
     deployment:
-      replicas: 2
+      replicas: 1
       envoyGateway:
         resources:
           requests:
@@ -33,15 +33,5 @@ spec:
             memory: 256Mi
           limits:
             memory: 1Gi
-      pod:
-        topologySpreadConstraints:
-          - maxSkew: 1
-            topologyKey: kubernetes.io/hostname
-            whenUnsatisfiable: ScheduleAnyway
-            labelSelector:
-              matchLabels:
-                control-plane: envoy-gateway
-    podDisruptionBudget:
-      minAvailable: 1
     service:
       type: ClusterIP

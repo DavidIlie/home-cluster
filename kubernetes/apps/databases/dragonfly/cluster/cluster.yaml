@@ -23,13 +23,3 @@ spec:
       cpu: 100m
     limits:
       memory: 4096Mi
-  affinity:
-    podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - topologyKey: kubernetes.io/hostname
-          labelSelector:
-            matchExpressions:
-              - key: app
-                operator: In
-                values:
-                  - dragonfly

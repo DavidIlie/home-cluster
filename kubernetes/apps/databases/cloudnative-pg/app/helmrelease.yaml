@@ -24,6 +24,9 @@ spec:
   values:
     crds:
       create: true
+    resources:
+      requests:
+        memory: 160Mi
     monitoring:
       podMonitorEnabled: true
       grafanaDashboard:
