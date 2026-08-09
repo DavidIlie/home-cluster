@@ -74,9 +74,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: Homepage
-    group: Services
-    url: http://homepage.default.svc.cluster.local:3000/api/healthcheck
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
+  # NOTE: Homepage is checked via its Ingress annotation instead. Its
+  # HOMEPAGE_ALLOWED_HOSTS allow-list rejects a request whose Host header is
+  # the cluster-internal Service name, so an in-cluster probe returns 400.
