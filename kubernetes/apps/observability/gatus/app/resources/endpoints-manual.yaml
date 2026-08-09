@@ -1,4 +1,10 @@
 ---
+# Endpoints that cannot be discovered from an Ingress.
+#
+# IMPORTANT: gatus requires every (name, group) pair to be unique across this
+# file AND every `gatus.home-operations.com/endpoint` Ingress annotation.
+# A duplicate makes gatus panic on startup, so anything that has an annotated
+# Ingress must NOT be repeated here.
 endpoints:
   # Databases
   - name: Dragonfly
@@ -39,66 +45,10 @@ endpoints:
     conditions:
       - "[STATUS] == any(200, 401, 403)"
 
-  # Internal Services (no external ingress)
-  - name: Radarr
-    group: Media
-    url: http://radarr.media.svc.cluster.local:80/ping
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: Sonarr
-    group: Media
-    url: http://sonarr.media.svc.cluster.local:80/ping
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: Bazarr
-    group: Media
-    url: http://bazarr.media.svc.cluster.local:6767/health
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: Tautulli
-    group: Media
-    url: http://tautulli.media.svc.cluster.local:80/status
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
+  # Services with no Ingress at all
   - name: Agregarr
     group: Media
     url: http://agregarr.media.svc.cluster.local:7171/api/v1/status
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: MinimServer
-    group: Media
-    url: http://minimserver.default.svc.cluster.local:9790
-    interval: 1m
-    conditions:
-      - "[STATUS] == any(200, 302, 401)"
-
-  - name: qBittorrent
-    group: Downloads
-    url: http://qbittorrent.downloads.svc.cluster.local:80
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: SABnzbd
-    group: Downloads
-    url: http://sabnzbd.downloads.svc.cluster.local:80/api?mode=version
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: Prowlarr
-    group: Downloads
-    url: http://prowlarr.downloads.svc.cluster.local:80/ping
     interval: 1m
     conditions:
       - "[STATUS] == 200"
@@ -120,20 +70,6 @@ endpoints:
   - name: SearXNG
     group: AI
     url: http://searxng.ai.svc.cluster.local:8080
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: go2rtc
-    group: Infrastructure
-    url: http://go2rtc.infastructure.svc.cluster.local:1984
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  - name: Shlink Web
-    group: Services
-    url: http://shlink-web.default.svc.cluster.local:8080
     interval: 1m
     conditions:
       - "[STATUS] == 200"
