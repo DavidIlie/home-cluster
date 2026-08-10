@@ -61,6 +61,8 @@ spec:
       requests:
         cpu: 10m
         memory: 64Mi
+    extraArgs:
+      - --txt-wildcard-replacement=wildcard
     policy: sync
     sources: ["service", "ingress"]
     domainFilters: ["davidhome.ro"]
