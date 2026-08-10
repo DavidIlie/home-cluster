@@ -7,17 +7,26 @@ data:
   users.xml: ENC[AES256_GCM,data:TuB83Eb9RHEv+1C87/q1O9fYJzkjAa4wLXM9GuIsVUSPRqOvvZ/cdTsUj4hGwMlNsVKEgh7vlHbMaboWWRRGXy3DzrA4X5jcd8K6aK1ltM10KfHBt5c82YqGMUHnWZbVW7sRyY52EjKEASNXenEq+vchVNp7zhRN0fvvMrT42EF7eNfX87+VDGmQURQ1cpupsGmW2ukZNJD4sH1fnNAExBoawtyBFwFPeSuq6rXZbl7+4ZASSCrmUrKExfZqtPDzRwu/vMdIylTzmLO5fE/DrcYzItTe38qAXpIEaLI9BaKZN8Y0st2OvxB4Rlu7aHeF541pdQ8BSd9+4YSbHmlguAbPLZh9CPfbMkvC4AzChE4GB2E0KFXY/KhHGlysDlhoCtQdc80SwyBZK+fM0aqS+yuc058VIgJ3Ffj6vJz/G9Tq92/8cpzAWWA83qNEFrCfxlB9MDucFsGs/EyMt095PENaCHUFSG86siKYZ2Nu33PYWzBJj3TmsXTn+7OuYeEWONtWf5+61o3t50uO3OsOlcnceciY/vs=,iv:AyCpuhGzqh5jSgeG7S1YL8YFpt49nFhP2FTjoNHTn1A=,tag:xRMOXfIhP2zs2P2YiLrs1Q==,type:str]
 sops:
   age:
-    - enc: |
+    - recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
+      enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSByci81MVdhZ3BSRXF6SHht
-        YTJ2TWovakVsSzBObVYwNG1QOUlRNFdmTjFVCldNWW1HQWh4dzhnV04reTNMQUVk
-        bmFXNUVXVC93UytVbnJmcGlZWFl6cXMKLS0tIEhibS9STHdJRjFTRVBJdkY0YTdq
-        QnZGeW9xblRmNEI1NzVyeGg4TlJNNEUK9q16cFyv7Cx+nhlDLAwki7bCtjJ7yt+M
-        4E/81JMO+kvKT6I2mbWJssi0fbqrbIvD/UJa8oc8I2bphzuqMkkEHg==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBEcXhrOGhBcDFqbWdPaVAr
+        S011R3RMdzlId29XajRuRzFKL0NONGJvQW0wCmhOUVlNMmdzNXZvRHBEeXUySFN6
+        cmU5WWN2ZHQrSnMzZVU3dXplSHhZZ3MKLS0tIEdEcDdaTjdMVlphQjJJZzU2MHRJ
+        NnhFbnBuY0RwVHpZWmEzNXZTNWdLaEkKSxPqDSz1omvpvBUKsvbbJTVfwU0rS8jx
+        gkcL99YNQIad4ehfQc3sGOM1K7Qs+OLYEXneSmfeBNOiG6SXlLTXhA==
         -----END AGE ENCRYPTED FILE-----
-      recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
-  encrypted_regex: ^(data|stringData)$
+    - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiUUdLWHpRbDVCRmxmUWRh
+        QVdRajFRSDJCSkNXekdsSmZMVW1UY2k2blZFCnkwS3habEJyckhvSUora1F6RzUw
+        Z3FuVk16SEJQbmJMZ2tzOGFMaTljdkkKLS0tIFRCeE5PVjhycUhiQ0gzelJOays2
+        QTBsSEUwSkNaanQ1aGFyUFVGRFhhV0kK4TUQe9TYjy1FtKJGLRqJb1cUvx7B4Fj5
+        Bit0rOcL47qoqk1kv2MHFT+yX97wyJBThyxBaguEB3QA+JMxI54oxQ==
+        -----END AGE ENCRYPTED FILE-----
   lastmodified: "2026-08-09T14:55:45Z"
   mac: ENC[AES256_GCM,data:gLlzgKrisK7J5iEIX9lZJR5gC5buUKvPnpG54QVxlC4Q8hmq2wUT9Z2jwwFk+dj0G1HMblOlVnuH5o+1wgG9lPMuNbzlnhjJ+hyhBh55NVyKmTrn1JBq0RiTJoavghYrtv4uMatqo9KurmYJcDl4z7B8UEmokkzw+jHGcsslUyM=,iv:uHz99+epO3A4fyF1zprvpquuS+P2Frwr0+yEWP6adYk=,tag:ZO1O8yuGEg7ZAB8BJdPhug==,type:str]
+  encrypted_regex: ^(data|stringData)$
   mac_only_encrypted: true
   version: 3.13.3
