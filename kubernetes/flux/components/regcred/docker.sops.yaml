@@ -8,23 +8,14 @@ metadata:
 type: kubernetes.io/dockerconfigjson
 sops:
   age:
-    - recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBNRDArT2NBeS9GaHdOR2hy
-        SkowOXBsR3NrRnRKWGhBQlh3REJiTGFXaDNVCkdpRXB2TXI5OHVlTjRZWUhmV0pG
-        V2QvWmEyRTNTYi9WNDhyY050cXpSeVkKLS0tIHJhMkE0R1JONy9ZNlkrV1d5N0Zu
-        bFphT2FpOTdXYW9WZ2VGQktHa0NVNE0KwnJyfvYtxh5e0/Eljv/dYWCyiS9z4PX+
-        mAYdrIKQ/t3IJ9d1zffORLEoMio9czPdnN4JEzHuPLegfbW0NuvKFw==
-        -----END AGE ENCRYPTED FILE-----
     - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBpWDJUVldrM1ZEdjQ1eENp
-        TDFtQTVJVTEwWWt3MVRLMWFPKzd1R2VFM2dRCmkvbm1wTVBTME9ITGdJN2xxWW5v
-        ZmQzNE9LTFpFUVJEdEpvaXVBRUV6dkEKLS0tIGl4UTRqdDc4QkZ3clBEQ0VDOUhr
-        QzAyZUJmKzk5RjR3ZUpUV3p1WXZFZFUKOpnA3dAeK2dFLNBvGA9Ktyn26oyyTacf
-        DisgBO9UZVATa2ukLG/Bs/yhkSy47X5dxjqCLvadCX6I895GJsg01w==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBnUGdtSVh1d09EdytWaUtD
+        bjRVdGVwRlJXUFFPTWdKUGtxUGxBT0w1NkNNCmNsMXRHb1RkS0NWN2VNeENDd09h
+        VDhDNStDbzMzVmhzSnYwMURsbjVXY2MKLS0tIHFyZTk2NTAxckZFeWxBbFZ5d0ky
+        QnljVWp5RmRjck1IQ28xRlpJcXMya1EKk7tJpPAtoPeOHLTLdCIpz7tzpK3w7xRN
+        PzW/o2rNO5MYUwHF2GaHZFYviie7ueQajZ+wXBukKzxtFHwZhSAFRQ==
         -----END AGE ENCRYPTED FILE-----
   lastmodified: "2025-02-01T15:20:11Z"
   mac: ENC[AES256_GCM,data:48eNM9hBberPCea3I7o5UzLDiZDNeji6ZAtq54+19ML/4fXNhXq+LXD15fDLyRh2vnEV6Yt1dlWW7elsGAcOWO0w6A46t+KG601pO2EiNvK4SxgVQq8j1QskqmD9h+b2KKT4OInjPpTXEVneG7TYLRdprefO+Pjgzi/zltaJFAQ=,iv:uGvB3CpuwpV7s82p4HvCUmLgvya56FazVa5T8/mpQUQ=,tag:Pi2tAcrXOg/5lJ3IyTdaWQ==,type:str]

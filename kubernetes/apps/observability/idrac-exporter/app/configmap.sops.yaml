@@ -6,23 +6,14 @@ data:
   idrac.yml: ENC[AES256_GCM,data:KEULkADowf+sKI3NKlb9W1v6TXhN3ikPWSwdTKvGRPJgT+l4oTSuwsguqzsOQ9q3CQwGuNknp7psZu4m+qHfwL5Rc+XzgA6iMoMKWb2HhwG/rFWZVIzvfcQ8SIwEyOBCZXex1fsvXNVUWSXDyJchR2Z4W0CYUbpojQ==,iv:cBgzH0mzqYnqes2i9NTdByGLUoUKaST9XkAA8WrjTVI=,tag:Rdu8h70L1O4nPttT7P9qCg==,type:str]
 sops:
   age:
-    - recipient: age1y7qev2y6htku2fv659svnevvk6d42luh2cexk03u2veje5vasy4smv4mc7
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB1TlJIY3Z6TXFVQTVUNEVK
-        N01sUVZHOEFTR1lPdENxOFFBYlZoc3RvQlFNCndtelVvZjB4WlF1ODB2THAyTjRR
-        M1VSR1VndDcyMDRYM1JTVXRaenI2cUEKLS0tIHphWDM1VmdDVXpiOWQwNXJjQVlp
-        dDMxMFdGU0pvOWU0elEvRnc2V0NxNTQKo1JchzjB/grIxzSBvgUUg/1uu0maGbdw
-        xPYB7Nqezf+r/aVxh2yG6hF8N2VJiY1FO5UQY/UtXpg7ZVZvUvjARw==
-        -----END AGE ENCRYPTED FILE-----
     - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBEMXlPTTNrNHF2bkJwTGZI
-        cFdrcnVKS0RUb1dqNkhLVEU2VS80dDJIN0FVCmMyUHp3STl1cTBQN25pMC8vOERh
-        OEtHQ200ZUJhc0x2bUh0V2VaS3dVRUUKLS0tIHc2SnJ2amVYL3JvYjFtQWdxcEJG
-        OEFuWEpyOU5vdlhIRjFEK2o5R3hHd2sKYJLXEOc78Oz/sF9ESRrIne4eh2EmzrVz
-        phAsaRCC1aTZNXJAcz4rg8hTWg1PrR3lYdDX5g2huhoaSRWAVvi1+w==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBWaGhqbzhEdXluVVQ4eE84
+        YnVpNjF5emZFSmk5UXgyNFFpSWhtZEVlZ2owCmZqOUh2OWs3amNray9VRlRDT2Fk
+        YTRYd3FaUmFuNDBnNkkycjQ4YlQ5QkkKLS0tIEJHbjRCdnpuS0pxZGE1d25YTjFl
+        U290RHZveUE1NlBEMDR5UE9JdEdDTU0K982/3zIw0c9XaCrDqcr65Brnut9Vq+IX
+        Zdaj1lR4VU55Mf4XQShUtXLIapEEZiObSNtupEC9mxIDxpdivSsfYg==
         -----END AGE ENCRYPTED FILE-----
   lastmodified: "2025-07-31T13:16:23Z"
   mac: ENC[AES256_GCM,data:MTKycnFZjpwlLfydppjzqO28Lm5KnOAC+C3/NVyn+t/0DpznHS72DX/qCUKqCqeBqw7jnR3HCFJUyBdFHi8AhHLqirxuRhKtQT+8oQBJ4eQiZUEQ5YwaCvxj8DSgwk3uEB22jBIXgYPWiXw5iS2rEIjcDKb8lUKOCt68q+v1I1M=,iv:z5z84D7b5YOG4CIDaw9XCYYSTqAOackzeI/D6rBR+/Y=,tag:c2ibAzvDGWeIUqeo5VmusQ==,type:str]
