@@ -120,6 +120,10 @@
         description: Log Explorer (VMUI)
 
 - Utilities:
+    - Home Cluster:
+        icon: mdi-server-network
+        href: https://davidhome.ro
+        description: Home cluster documentation
     - IT Tools:
         icon: it-tools.png
         href: https://it-tools.davidhome.ro

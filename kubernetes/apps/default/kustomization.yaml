@@ -6,6 +6,7 @@ namespace: default
 resources:
   - ./volsync-secret.sops.yaml
   - ./echo-server/ks.yaml
+  - ./md-renderer/ks.yaml
   - ./personal-dashboard/ks.yaml
   - ./minimserver/ks.yaml
   - ./nas-download/ks.yaml
