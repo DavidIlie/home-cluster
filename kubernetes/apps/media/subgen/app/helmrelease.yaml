@@ -1,0 +1,112 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: subgen
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      subgen:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          runtimeClassName: nvidia
+        containers:
+          app:
+            image:
+              repository: docker.io/mccloud/subgen
+              tag: latest@sha256:2841515a3b409677669f0a10d77d49160bffb8111db91640fb33a4db06b3396c
+            env:
+              TZ: Europe/Bucharest
+              PUID: "1000"
+              PGID: "1000"
+              WEBHOOKPORT: &port 9000
+              TRANSCRIBE_DEVICE: cuda
+              COMPUTE_TYPE: float16
+              WHISPER_MODEL: medium
+              WHISPER_THREADS: "4"
+              CONCURRENT_TRANSCRIPTIONS: "1"
+              TRANSCRIBE_OR_TRANSLATE: transcribe
+              MODEL_PATH: /models
+              CLEAR_VRAM_ON_COMPLETE: "true"
+              MODEL_CLEANUP_DELAY: "60"
+              APPEND: "false"
+              UPDATE: "false"
+              DEBUG: "false"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: *port
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 90
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 500m
+                memory: 2Gi
+                nvidia.com/gpu: 1
+              limits:
+                cpu: "4"
+                memory: 10Gi
+                nvidia.com/gpu: 1
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: subgen
+        ports:
+          http:
+            port: *port
+    persistence:
+      models:
+        existingClaim: subgen-models
+        globalMounts:
+          - path: /models
+      media:
+        existingClaim: storage-nfs
+        globalMounts:
+          - path: /share
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

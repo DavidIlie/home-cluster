@@ -10,6 +10,7 @@ resources:
   - ./sonarr/ks.yaml
   - ./plex/ks.yaml
   - ./bazarr/ks.yaml
+  - ./subgen/ks.yaml
   - ./overseerr/ks.yaml
   - ./jellyfin/ks.yaml
   # - ./stream-master/ks.yaml
