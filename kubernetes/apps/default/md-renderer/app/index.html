@@ -14,14 +14,17 @@
     />
     <style>
       :root {
-        color-scheme: light dark;
-        --accent: #22c55e;
-        --canvas: #f6f8fa;
-        --surface: #ffffff;
-        --text: #1f2328;
-        --muted: #59636e;
-        --border: #d0d7de;
-        --code: #eff1f3;
+        color-scheme: dark;
+        --accent: #3fb950;
+        --accent-muted: rgb(46 160 67 / 15%);
+        --canvas: #0d1117;
+        --surface: #161b22;
+        --surface-raised: #1c2128;
+        --text: #e6edf3;
+        --muted: #8b949e;
+        --border: #30363d;
+        --code: #21262d;
+        --sidebar-width: 286px;
       }
 
       * { box-sizing: border-box; }
@@ -35,7 +38,7 @@
       .app-nav {
         position: fixed;
         top: 18px;
-        right: max(24px, calc((100vw - 980px) / 2));
+        right: 24px;
         z-index: 20;
         margin: 0;
       }
@@ -47,7 +50,7 @@
         padding: 0 14px;
         border: 1px solid var(--border);
         border-radius: 999px;
-        background: color-mix(in srgb, var(--surface) 88%, transparent);
+        background: rgb(22 27 34 / 88%);
         color: var(--text);
         font-size: 14px;
         font-weight: 600;
@@ -57,15 +60,56 @@
 
       .app-nav a:hover { border-color: var(--accent); color: var(--accent); }
 
-      .markdown-section {
-        max-width: 980px;
-        min-height: calc(100vh - 64px);
-        margin: 32px auto;
-        padding: clamp(28px, 6vw, 72px);
-        border: 1px solid var(--border);
-        border-radius: 18px;
+      .sidebar {
+        width: var(--sidebar-width);
+        border-right: 1px solid var(--border);
         background: var(--surface);
-        box-shadow: 0 18px 50px rgb(31 35 40 / 7%);
+        color: var(--muted);
+      }
+
+      .sidebar > h1 {
+        margin: 34px 24px 22px;
+        color: var(--text);
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        text-align: left;
+      }
+
+      .sidebar-nav { padding: 0 14px 28px; }
+
+      .sidebar-nav li { margin: 3px 0; }
+
+      .sidebar-nav a {
+        display: block;
+        padding: 8px 10px;
+        border-radius: 7px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .sidebar-nav a:hover,
+      .sidebar-nav li.active > a {
+        border-right: 0;
+        background: var(--accent-muted);
+        color: var(--text);
+      }
+
+      .sidebar-toggle {
+        background: var(--surface);
+      }
+
+      .sidebar-toggle span { background-color: var(--accent); }
+
+      .content { left: var(--sidebar-width); }
+
+      .markdown-section {
+        max-width: 940px;
+        min-height: calc(100vh - 64px);
+        margin: 0 auto;
+        padding: 92px clamp(28px, 6vw, 72px) 72px;
+        background: var(--canvas);
         color: var(--text);
       }
 
@@ -73,13 +117,21 @@
       .markdown-section h2,
       .markdown-section h3 {
         color: var(--text);
-        font-weight: 700;
+        font-weight: 650;
         letter-spacing: -0.02em;
       }
 
-      .markdown-section h2 { border-bottom-color: var(--border); }
-      .markdown-section a { color: #15803d; font-weight: 500; }
+      .markdown-section h1 { font-size: 2rem; }
+      .markdown-section h2 {
+        margin-top: 2.2em;
+        padding-bottom: 0.4em;
+        border-bottom-color: var(--border);
+      }
+      .markdown-section a { color: #58a6ff; font-weight: 500; }
+      .markdown-section a:hover { color: #79c0ff; }
       .markdown-section hr { border-color: var(--border); }
+      .markdown-section p,
+      .markdown-section li { color: #c9d1d9; }
 
       .markdown-section img {
         max-width: 100%;
@@ -95,30 +147,22 @@
         border-spacing: 0;
         border: 1px solid var(--border);
         border-radius: 10px;
+        background: var(--surface);
       }
 
-      .markdown-section tr:nth-child(2n) { background: var(--canvas); }
+      .markdown-section tr:nth-child(2n) { background: var(--surface-raised); }
       .markdown-section th,
-      .markdown-section td { border-color: var(--border); }
+      .markdown-section td { border-color: var(--border); color: #c9d1d9; }
+      .markdown-section th { border-color: var(--border); color: var(--text); }
       .markdown-section code { background: var(--code); color: var(--text); }
+
+      .progress { background-color: var(--accent); }
 
       #docsify-darklight-theme { right: 20px !important; bottom: 20px !important; }
 
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --canvas: #0d1117;
-          --surface: #161b22;
-          --text: #e6edf3;
-          --muted: #8b949e;
-          --border: #30363d;
-          --code: #21262d;
-        }
-
-        .markdown-section a { color: #3fb950; }
-      }
-
       @media (max-width: 700px) {
         .app-nav { position: absolute; top: 12px; right: 12px; }
+        .content { left: 0; }
         .markdown-section {
           min-height: 100vh;
           margin: 0;
