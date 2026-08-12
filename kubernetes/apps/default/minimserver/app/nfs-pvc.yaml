@@ -1,0 +1,29 @@
+---
+# App-private index, same tree as paperless/geoip/kopia — not next to Music
+# on the public share.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: &name minimserver-index-nfs
+spec:
+  storageClassName: *name
+  capacity:
+    storage: 1Mi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: "192.168.25.3"
+    path: /mnt/data/share/client_user/kubernetes/minimserver
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: &name minimserver-index-nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: *name
+  resources:
+    requests:
+      storage: 1Mi

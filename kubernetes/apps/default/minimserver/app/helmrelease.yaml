@@ -30,11 +30,38 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          seed-config:
+            image:
+              repository: docker.io/library/busybox
+              tag: "1.37"
+            command:
+              - /bin/sh
+              - -c
+              - |
+                set -eu
+                CFG=/opt/minimserver/data/minimserver.config
+                mkdir -p /opt/minimserver/data
+                rm -f "${CFG}.lock"
+                touch "$CFG"
+                if ! grep -q '^minimserver.contentDir' "$CFG"; then
+                  echo 'minimserver.contentDir = /media' >> "$CFG"
+                  echo "seeded contentDir=/media"
+                else
+                  echo "contentDir already set: $(grep '^minimserver.contentDir' "$CFG")"
+                fi
         containers:
           app:
             image:
-              repository: tromatik/docker-minimserver
+              repository: ghcr.io/davidilie/minimserver
               tag: latest
+            env:
+              TZ: Europe/Bucharest
+              MINIM_INDEX_ROLE: primary
+              MINIM_SHARED_INDEX: /index
+              MINIM_WATCH_INTERVAL: "60"
+              MINIM_SCAN_PREFETCH_THREADS: "16"
+              MINIM_TRUST_CACHE_ON_BROWSE: "true"
             probes:
               liveness: &probes
                 enabled: true
@@ -60,20 +87,32 @@ spec:
                   timeoutSeconds: 5
                   failureThreshold: 60
             securityContext:
-              privileged: true
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
-                memory: 10Mi
+                memory: 256Mi
               limits:
                 memory: 750Mi
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: docker-regcred
     persistence:
+      data:
+        existingClaim: minimserver-data
+        globalMounts:
+          - path: /opt/minimserver/data
       music:
         type: nfs
         server: 192.168.25.3
         path: /mnt/data/share/Music
         globalMounts:
           - path: /media
+      index:
+        existingClaim: minimserver-index-nfs
+        globalMounts:
+          - path: /index
     service:
       app:
         controller: minimserver
