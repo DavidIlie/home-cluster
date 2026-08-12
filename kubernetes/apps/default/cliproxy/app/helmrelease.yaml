@@ -48,7 +48,7 @@ spec:
                 set -u
 
                 # renovate: datasource=github-releases depName=zhumengling/codex-token-usage
-                CODEX_TOKEN_USAGE_VERSION=0.1.42
+                CODEX_TOKEN_USAGE_VERSION=0.1.43
 
                 # NOTE: $$ escapes the $ so Flux's strict-mode envsubst leaves these
                 # shell variables alone during postBuild substitution.
