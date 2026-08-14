@@ -11,6 +11,7 @@ spec:
   template:
     metadata:
       annotations:
+        davidapps.dev/config-revision: gate-seed-hex-v1
         reloader.stakater.com/auto: "true"
       labels:
         app.kubernetes.io/name: davidapps-gate
