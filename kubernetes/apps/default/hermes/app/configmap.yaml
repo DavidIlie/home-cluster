@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-known-hosts
+data:
+  known_hosts: |
+    electron.code.davidapps.dev ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILod2A5Q4sQdsb6kn/t1KOP/tpvKMhIRFolDQLfFu0rU
+    proton.code.davidapps.dev ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILV9z5WwZK4B3oEOdmHaRJKGPDTXIy5YQdYNKNUzG68k
+    neutron.code.davidapps.dev ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGtzuXUtkhKMIpzAKohJ/Ij6yqewScmUAjCO/8/HuGrn

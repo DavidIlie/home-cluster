@@ -1,0 +1,46 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hermes
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes
+  policyTypes: [Ingress, Egress]
+  ingress:
+    # The only listener is the kubelet health endpoint; Hermes has no web UI.
+    - from:
+        - ipBlock:
+            cidr: 192.168.100.180/32
+      ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Discord Gateway/API and the authenticated Fleetview MCP endpoint use TLS.
+    - ports:
+        - port: 443
+          protocol: TCP
+    # The dedicated key is accepted only by these three Workspace addresses.
+    - to:
+        - ipBlock:
+            cidr: 192.168.100.110/32
+        - ipBlock:
+            cidr: 192.168.100.111/32
+        - ipBlock:
+            cidr: 192.168.100.112/32
+      ports:
+        - port: 22
+          protocol: TCP

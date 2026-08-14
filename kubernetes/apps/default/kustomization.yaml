@@ -21,6 +21,7 @@ resources:
   - ./n8n/ks.yaml
   - ./error-pages/ks.yaml
   - ./image-automations/ks.yaml
+  - ./hermes/ks.yaml
   # - ./mailprism/ks.yaml
   # - ./roundcube/ks.yaml
 components:
