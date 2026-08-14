@@ -105,8 +105,8 @@ spec:
         - port: 3000
           protocol: TCP
 ---
-# Cilium gives the local, host-networked API server an entity identity rather
-# than the node IP identity used by a standard ipBlock rule.
+# Cilium gives local host-networked endpoints an entity identity rather than
+# the node IP identity used by a standard ipBlock rule.
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -121,4 +121,10 @@ spec:
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+    - toEntities:
+        - host
+      toPorts:
+        - ports:
+            - port: "32400"
               protocol: TCP
