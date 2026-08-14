@@ -374,6 +374,11 @@ spec:
           conditions: ["[STATUS] == 200"]
       hosts: ["monitoring.davidapps.dev"]
     persistence:
-      enabled: false
+      enabled: true
+      type: pvc
+      storageClassName: openebs-hostpath
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
     testFramework:
       enabled: false
