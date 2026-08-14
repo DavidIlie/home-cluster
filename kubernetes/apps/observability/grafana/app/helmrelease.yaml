@@ -25,7 +25,8 @@ spec:
   values:
     image:
       tag: 12.3.10
-      sha: sha256:91032506559aa7477105b5835c5a17475b4909635fbe240bd6aff50512717a5b
+      # The chart prefixes this field with `sha256:` when composing the image.
+      sha: 91032506559aa7477105b5835c5a17475b4909635fbe240bd6aff50512717a5b
     deploymentStrategy:
       type: Recreate
     resources:
