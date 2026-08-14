@@ -182,6 +182,14 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/apps-kidays
+          - name: telemetry-platform
+            orgId: 1
+            folder: Observability / Telemetry
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/telemetry-platform
     dashboards:
       default:
         uap-insights:
@@ -363,6 +371,9 @@ spec:
       apps-kidays:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-overview.json
+      telemetry-platform:
+        overview:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/telemetry-platform.json
     sidecar:
       dashboards:
         enabled: false

@@ -187,7 +187,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 4,
@@ -237,7 +237,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=~\"zerocut\"}[$__rate_interval])))",
@@ -254,7 +254,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 4,
@@ -304,7 +304,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(rate(traces_spanmetrics_calls_total{service=~\"zerocut\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=~\"zerocut\"}[$__rate_interval])), 0.000001)",
@@ -447,7 +447,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -493,7 +493,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"zerocut\"}[$__rate_interval]))",
@@ -510,7 +510,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -556,7 +556,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"zerocut\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
@@ -671,8 +671,8 @@
       "title": "Active release and container image",
       "type": "table",
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "type": "datasource",
+        "uid": "-- Mixed --"
       },
       "gridPos": {
         "h": 7,
@@ -728,7 +728,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "max by (service, service_version) (traces_target_info{service=~\"zerocut\"})",

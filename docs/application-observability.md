@@ -2,7 +2,8 @@
 
 This stack deliberately does not use PostHog. It keeps application telemetry in the existing home-cluster observability systems:
 
-- Prometheus stores Kubernetes metrics, application OTLP metrics, and Tempo-derived span metrics.
+- The DavidApps Prometheus stores Kubernetes metrics, gateway metrics, and application OTLP metrics.
+- The home Prometheus stores Tempo health and Tempo-derived span metrics.
 - VictoriaLogs stores Kubernetes container logs, OTLP logs, and Faro browser logs.
 - Tempo stores distributed traces on the analytics SSD and produces span-metrics and service-graph series.
 - Grafana is the shared UI and correlates traces with VictoriaLogs by `trace_id`.
@@ -13,11 +14,13 @@ This stack deliberately does not use PostHog. It keeps application telemetry in 
 | --- | --- | --- |
 | Workloads in davidapps-cluster | `alloy.observability.svc.cluster.local:4317` | OTLP/gRPC |
 | Workloads in davidapps-cluster | `http://alloy.observability.svc.cluster.local:4318` | OTLP/HTTP |
-| Browsers | `https://telemetry.davidapps.dev/collect` | Grafana Faro |
+| Browsers and mobile clients | Project-specific randomized gateway host | Faro or OTLP/HTTP |
 | davidapps Alloy | `192.168.100.98:4317` | OTLP/gRPC to home Tempo |
 | Agents on the home LAN | `http://192.168.100.98:3200/api/mcp` | Tempo MCP |
 
-The Faro endpoint is deployed before any application SDK is connected. Its CORS allowlist contains only the current ZeroCut, MB Retrofit, and Kidays production origins.
+The public gateway is deployed before any application SDK is connected. Each project gets an unrelated hostname, a public routing key, an exact browser-origin allowlist, and rate limits. See [the agent query protocol](./runbooks/application-telemetry-agent-queries.md#project-registry) for the registry. The former `telemetry.davidapps.dev` endpoint is only a migration fallback.
+
+Public gateway routes are stateless: they validate and forward data to Alloy, which then sends metrics to Prometheus, logs to VictoriaLogs, and traces to Tempo. The gateway creates no PVC. Tempo continues to use the retained `tempo-analytics` volume on `/var/mnt/mdadm-analytics-storage/tempo/data`; VictoriaLogs and the standalone Prometheus instances keep their existing analytics-SSD paths.
 
 Alloy parses Faro records before forwarding them, so fields such as `app_name`, `app_version`, `app_environment`, `page_url`, `session_id`, and browser or custom context are indexed individually in VictoriaLogs. Faro `traceID` and `spanID` values are also normalized to the shared `trace_id` and `span_id` field names used by Grafana correlation links. Set the Faro app version to the deployed Git commit SHA when each project is connected.
 
@@ -48,6 +51,7 @@ Grafana provisions these folders and dashboard UIDs:
 | `Apps / ZeroCut` | `zerocut-overview` | `personal-projects/zerocut` |
 | `Apps / MB Retrofit` | `mbretrofit-overview` | Main and Zenzefi deployments |
 | `Apps / Kidays` | `kidays-overview` | Web and Convex backend deployments |
+| `Observability / Telemetry` | `telemetry-platform` | Gateway outcomes, Tempo ingestion health, Faro volume, and gateway errors |
 
 Kubernetes availability, resource, image, restart, and container-log panels work before application instrumentation. Span latency, span error-rate, and active-commit panels populate after the project sends traces with the resource contract above.
 
@@ -67,3 +71,5 @@ Useful requests include:
 - “Find traces for `kidays-fr-app` slower than two seconds and group them by route.”
 
 The MCP servers are intentionally read-only. Changes to dashboards, alert rules, retention, or collectors remain GitOps changes in this repository or `davidapps-cluster`.
+
+For a repeatable source-selection and correlation workflow, use the [application telemetry agent query protocol](./runbooks/application-telemetry-agent-queries.md).

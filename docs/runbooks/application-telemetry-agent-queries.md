@@ -1,0 +1,260 @@
+# Application telemetry agent query protocol
+
+Use this protocol when an operator asks an agent to investigate application performance, failures, logs, browser behavior, or the active release. The telemetry systems are read-only investigation inputs; configuration changes remain GitOps changes.
+
+## Source routing
+
+Choose the source from the question before querying. Do not substitute one Prometheus for the other.
+
+| Question | Source | Grafana datasource UID | Read-only endpoint |
+| --- | --- | --- | --- |
+| Deployment health, pods, restarts, gateway requests, application OTLP metrics | DavidApps Prometheus | prometheus-davidapps-cluster | http://prometheus-davidapps.davidhome.ro:9090 |
+| Tempo receiver health and Tempo-derived span metrics | Home Prometheus | prometheus-home-cluster | https://prometheus.davidhome.ro |
+| Kubernetes, OTLP, Faro, and gateway logs | VictoriaLogs | victoria-logs | https://vlogs.davidhome.ro |
+| Trace search and trace retrieval | Tempo | tempo | https://tempo.davidhome.ro |
+
+The local agent configuration also exposes observability_grafana, observability_logs, and observability_traces. Prefer those read-only MCP servers when available. Use the HTTP examples below as a deterministic fallback or to verify a tool result.
+
+## Project registry
+
+The gateway routing keys are public project identifiers, not credentials. They are safe in client bundles. The gateway still enforces the exact host, allowed browser origins, per-project signal policy, body limit, and rate limit.
+
+| Project ID | Public base URL | Public key | Kubernetes scope | Trace service pattern |
+| --- | --- | --- | --- | --- |
+| zerocut | https://c7r2nx5q.zerocut.gg | dtpk_zc_J7q2NV5rc4 | personal-projects / zerocut | zerocut |
+| mbretrofit-tools | https://v4m8kp2d.mbretrofit.it | dtpk_mb_R4m8KP2dv9 | personal-projects / mbretrofit-tools and mbretrofit-tools-zenzefi | mbretrofit-tools or mbretrofit-tools-zenzefi |
+| kidays | https://j9w3fh6s.kidays.fr | dtpk_kd_W9j3FH6sk2 | kidays-fr / kidays-fr-app and kidays-fr-convex-backend | kidays-fr-app or kidays-fr-convex-backend |
+| davidapps-services | https://q2t7zb4n.davidapps.dev | dtpk_da_Q2t7ZB4nc8 | shared DavidApps services | service-specific |
+
+Each base URL exposes POST /collect, POST /v1/traces, POST /v1/logs, and OPTIONS for browser preflight. Send the matching public key as the `x-api-key` header; the web and React Native packages do this from their `publicKey` option. OTLP metrics are disabled on these public routes. Server-side workloads should continue to send OTLP to the private Alloy service.
+
+## Investigation sequence
+
+1. State the project, environment, and exact time range. Use UTC in API requests and include the comparison window when the question is about a regression.
+2. Check deployment availability and restarts in DavidApps Prometheus.
+3. Check gateway outcomes if the issue might be ingestion, origin, rate limiting, or upstream forwarding.
+4. Check span throughput, latency, errors, and service.version in Home Prometheus.
+5. Search VictoriaLogs for the same service and window. Preserve every trace_id found.
+6. Retrieve representative traces from Tempo, including at least one failure and one slow request when both exist.
+7. Map service.version to the repository commit. Report the full SHA and a commit URL where the repository is known.
+8. Report evidence, empty-result caveats, and the next discriminating query. Do not describe an empty telemetry result as proof that an incident did not occur.
+
+## PromQL recipes
+
+Gateway outcomes for one hour:
+
+~~~promql
+sum by (project, route, result) (
+  increase(telemetry_gateway_requests_total{project="zerocut"}[1h])
+)
+~~~
+
+Gateway forwarding failures:
+
+~~~promql
+sum by (project, route, result) (
+  rate(telemetry_gateway_requests_total{result=~"upstream_error|unavailable"}[5m])
+)
+~~~
+
+Deployment availability:
+
+~~~promql
+max by (namespace, deployment) (
+  kube_deployment_status_replicas_available{
+    namespace="personal-projects",
+    deployment=~"zerocut"
+  }
+)
+~~~
+
+Restarts in the selected dashboard interval:
+
+~~~promql
+sum by (namespace, pod) (
+  increase(kube_pod_container_status_restarts_total{
+    namespace="personal-projects",
+    pod=~"zerocut-.*"
+  }[$__rate_interval])
+)
+~~~
+
+Trace throughput by operation:
+
+~~~promql
+sum by (service, span_name) (
+  rate(traces_spanmetrics_calls_total{service=~"zerocut"}[5m])
+)
+~~~
+
+p95 trace latency:
+
+~~~promql
+histogram_quantile(
+  0.95,
+  sum by (le, service, span_name) (
+    rate(traces_spanmetrics_latency_bucket{service=~"zerocut"}[5m])
+  )
+)
+~~~
+
+Trace error ratio:
+
+~~~promql
+sum by (service) (
+  rate(traces_spanmetrics_calls_total{
+    service=~"zerocut",
+    status_code="STATUS_CODE_ERROR"
+  }[5m])
+)
+/
+clamp_min(
+  sum by (service) (
+    rate(traces_spanmetrics_calls_total{service=~"zerocut"}[5m])
+  ),
+  0.000001
+)
+~~~
+
+Active traced release:
+
+~~~promql
+max by (service, service_namespace, service_version, deployment_environment_name) (
+  traces_target_info{service=~"zerocut"}
+)
+~~~
+
+Tempo ingestion loss:
+
+~~~promql
+sum by (transport) (rate(tempo_receiver_refused_spans[5m]))
+~~~
+
+~~~promql
+sum by (reason) (rate(tempo_discarded_spans_total[5m]))
+~~~
+
+## LogsQL recipes
+
+Recent application errors:
+
+~~~logsql
+_stream: {k_namespace_name="personal-projects", cluster="davidapps-cluster"}
+  app:~"zerocut"
+  _msg:~"(?i)(error|exception|fatal|panic)"
+| fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id
+| sort desc
+| limit 200
+~~~
+
+Faro exceptions and error logs:
+
+~~~logsql
+collector:"alloy"
+  app_name:"zerocut"
+  kind:~"exception|log"
+  _msg:~"(?i)(error|exception|fatal|panic)"
+| fields _time, _msg, kind, level, app_name, app_version, page_url, session_id, trace_id
+| sort desc
+| limit 200
+~~~
+
+Gateway forwarding errors:
+
+~~~logsql
+_stream: {cluster="davidapps-cluster"}
+  app:~"telemetry-gateway"
+  _msg:~"(?i)(error|exception|fatal|panic|upstream|unavailable)"
+| fields _time, _msg, app, k_pod_name, trace_id
+| sort desc
+| limit 200
+~~~
+
+When a log has trace_id, retrieve that trace directly before doing a broad trace search.
+
+## TraceQL recipes
+
+Traces for a service:
+
+~~~traceql
+{ resource.service.name = "zerocut" }
+~~~
+
+Slow server spans:
+
+~~~traceql
+{ resource.service.name = "zerocut" && span:duration > 2s && span:kind = server }
+~~~
+
+Failed spans:
+
+~~~traceql
+{ resource.service.name = "zerocut" && span:status = error }
+~~~
+
+One active release:
+
+~~~traceql
+{ resource.service.name = "zerocut" && resource.service.version = "FULL_GIT_SHA" }
+~~~
+
+## HTTP fallback
+
+Prometheus instant query:
+
+~~~sh
+TELEMETRY_PROMETHEUS_URL="https://prometheus.davidhome.ro"
+curl -fsSG "$TELEMETRY_PROMETHEUS_URL/api/v1/query" \
+  --data-urlencode 'query=sum by (service) (rate(traces_spanmetrics_calls_total[5m]))' \
+  | jq '.data.result'
+~~~
+
+VictoriaLogs query:
+
+~~~sh
+curl -fsSG "https://vlogs.davidhome.ro/select/logsql/query" \
+  --data-urlencode 'query=_stream:{cluster="davidapps-cluster"} app:~"zerocut" | fields _time, _msg, trace_id | sort desc | limit 200' \
+  --data-urlencode 'start=-1h' \
+  --data-urlencode 'limit=200'
+~~~
+
+Tempo search:
+
+~~~sh
+curl -fsSG "https://tempo.davidhome.ro/api/search" \
+  --data-urlencode 'q={ resource.service.name = "zerocut" }' \
+  --data-urlencode 'limit=20' \
+  | jq '.traces'
+~~~
+
+Tempo trace retrieval:
+
+~~~sh
+TELEMETRY_TRACE_ID="replace-with-32-hex-character-trace-id"
+curl -fsS "https://tempo.davidhome.ro/api/traces/$TELEMETRY_TRACE_ID" \
+  -H 'Accept: application/json'
+~~~
+
+## Release links
+
+For a non-empty service.version:
+
+- ZeroCut: https://github.com/DavidIlie/zerocut/commit/FULL_GIT_SHA
+- MB Retrofit: https://github.com/davidilie/mbretrofit-tools/commit/FULL_GIT_SHA
+
+Kidays does not currently have a repository URL encoded in this repository. Report its service.version verbatim and do not invent a commit link.
+
+## Response contract
+
+An investigation response should include:
+
+- Project, environment, UTC window, and comparison window.
+- Deployment state and gateway outcome counts.
+- Request/span volume, p95 latency, and error ratio, with the datasource named.
+- Representative error logs with secrets and personal data redacted.
+- Correlated trace IDs and the slow or failing span.
+- Active service.version and commit link when known.
+- Gaps: missing instrumentation, sampling, retention, or an empty signal source.
+- One evidence-based conclusion and the next action.
+
+Never paste authorization headers, cookies, request bodies, email addresses, phone numbers, or raw personal identifiers into an issue, commit, or chat response.
