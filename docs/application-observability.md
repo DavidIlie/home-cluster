@@ -4,7 +4,7 @@ This stack deliberately does not use PostHog. It keeps application telemetry in 
 
 - Prometheus stores Kubernetes metrics, application OTLP metrics, and Tempo-derived span metrics.
 - VictoriaLogs stores Kubernetes container logs, OTLP logs, and Faro browser logs.
-- Tempo stores distributed traces and produces span-metrics and service-graph series.
+- Tempo stores distributed traces on the analytics SSD and produces span-metrics and service-graph series.
 - Grafana is the shared UI and correlates traces with VictoriaLogs by `trace_id`.
 
 ## Shared endpoints
