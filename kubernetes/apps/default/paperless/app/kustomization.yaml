@@ -6,6 +6,7 @@ resources:
   - ./claim.yaml
   - ./nfs-pvc.yaml
   - ./secret.sops.yaml
+  - ./oidc-secret.sops.yaml
   - ./helmrelease.yaml
 components:
   - ../../../../flux/components/volsync

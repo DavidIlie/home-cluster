@@ -17,6 +17,8 @@ spec:
         name: portainer
         namespace: flux-system
   values:
+    service:
+      type: ClusterIP
     resources:
       requests:
         cpu: 10m
