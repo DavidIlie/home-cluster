@@ -60,6 +60,8 @@ spec:
         serviceMonitorSelectorNilUsesHelmValues: false
         enableAdminAPI: true
         walCompression: true
+        externalLabels:
+          cluster: home-cluster
         # Cap head/TSDB growth so memory cannot creep past the limit again.
         retention: 14d
         retentionSize: 8GB

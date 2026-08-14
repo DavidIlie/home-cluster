@@ -9,6 +9,7 @@ resources:
   - ./cloudflare-exporter/ks.yaml
   - ./dcgm-exporter/ks.yaml
   - ./grafana/ks.yaml
+  - ./tempo/ks.yaml
   - ./idrac-exporter/ks.yaml
   - ./geoip/ks.yaml
   - ./plausible/ks.yaml

@@ -1,0 +1,38 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: tempo
+spec:
+  groups:
+    - name: tempo.availability
+      rules:
+        - alert: TempoUnavailable
+          expr: kube_statefulset_status_replicas_ready{namespace="observability",statefulset="tempo"} < 1
+          for: 5m
+          labels:
+            severity: critical
+            service: tempo
+          annotations:
+            summary: Tempo is unavailable
+            description: The home trace store has had no ready replica for five minutes.
+        - alert: TempoPersistentVolumeUnavailable
+          expr: kube_persistentvolumeclaim_status_phase{namespace="observability",persistentvolumeclaim="storage-tempo-0",phase="Bound"} != 1
+          for: 5m
+          labels:
+            severity: critical
+            service: tempo
+          annotations:
+            summary: Tempo trace storage is not bound
+            description: Restore the Tempo PVC before trace ingestion exhausts local ephemeral storage.
+    - name: tempo.capacity
+      rules:
+        - alert: TempoMemoryHigh
+          expr: container_memory_working_set_bytes{namespace="observability",pod=~"tempo-.*",container="tempo"} / container_spec_memory_limit_bytes{namespace="observability",pod=~"tempo-.*",container="tempo"} > 0.85
+          for: 10m
+          labels:
+            severity: warning
+            service: tempo
+          annotations:
+            summary: Tempo memory use is above 85 percent
+            description: Inspect trace volume, cardinality, and metrics-generator load before the pod is OOM-killed.

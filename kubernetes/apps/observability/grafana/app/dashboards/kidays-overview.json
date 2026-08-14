@@ -1,0 +1,759 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "type": "link",
+      "title": "Open Kidays",
+      "url": "https://app.kidays.fr",
+      "targetBlank": true,
+      "includeVars": false,
+      "keepTime": false
+    },
+    {
+      "type": "link",
+      "title": "Trace search",
+      "url": "/explore?schemaVersion=1&panes=%7B%22trace%22:%7B%22datasource%22:%22tempo%22%7D%7D",
+      "targetBlank": true,
+      "includeVars": false,
+      "keepTime": true
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Replica availability",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_deployment_status_replicas_available{namespace=\"kidays-fr\",deployment=~\"kidays-fr-app|kidays-fr-convex-backend\"}) / clamp_min(sum(kube_deployment_spec_replicas{namespace=\"kidays-fr\",deployment=~\"kidays-fr-app|kidays-fr-convex-backend\"}), 1)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Restarts",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"kidays-fr\",pod=~\"(kidays-fr-app|kidays-fr-convex-backend)-.*\"}[$__rate_interval]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "p95 span latency",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=~\"kidays-fr-app|kidays-fr-convex-backend\"}[$__rate_interval])))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Span error rate",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service=~\"kidays-fr-app|kidays-fr-convex-backend\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=~\"kidays-fr-app|kidays-fr-convex-backend\"}[$__rate_interval])), 0.000001)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "CPU by pod",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"kidays-fr\",pod=~\"(kidays-fr-app|kidays-fr-convex-backend)-.*\",container!=\"POD\",image!=\"\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Memory by pod",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"kidays-fr\",pod=~\"(kidays-fr-app|kidays-fr-convex-backend)-.*\",container!=\"POD\",image!=\"\"})",
+          "legendFormat": "{{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Request/span throughput",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"kidays-fr-app|kidays-fr-convex-backend\"}[$__rate_interval]))",
+          "legendFormat": "{{service}} · {{span_name}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Error throughput",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"kidays-fr-app|kidays-fr-convex-backend\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
+          "legendFormat": "{{service}} · {{span_name}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Application log volume",
+      "type": "timeseries",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 35,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "sum"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "_stream: {k_namespace_name=\"kidays-fr\", cluster=\"davidapps-cluster\"} app:~\"kidays-fr-app|kidays-fr-convex-backend\" | stats by (app) count()",
+          "legendFormat": "{{app}}",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Recent error logs",
+      "type": "logs",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": true,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": true,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "_stream: {k_namespace_name=\"kidays-fr\", cluster=\"davidapps-cluster\"} app:~\"kidays-fr-app|kidays-fr-convex-backend\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _msg, _time, app, k_pod_name, k_container_name, trace_id | sort desc | limit 200",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Active release and container image",
+      "type": "table",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": [],
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max by (namespace, pod, container, image, image_id) (kube_pod_container_info{namespace=\"kidays-fr\",pod=~\"(kidays-fr-app|kidays-fr-convex-backend)-.*\"})",
+          "legendFormat": "{{pod}} / {{container}}",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max by (service, service_version) (traces_target_info{service=~\"kidays-fr-app|kidays-fr-convex-backend\"})",
+          "legendFormat": "{{service}} @ {{service_version}}",
+          "range": false,
+          "instant": true,
+          "refId": "B"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "apps",
+    "kidays",
+    "otel"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h"
+    ]
+  },
+  "timezone": "browser",
+  "title": "Kidays / Production overview",
+  "uid": "kidays-overview",
+  "version": 1,
+  "weekStart": ""
+}

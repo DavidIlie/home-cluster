@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-otlp
+  annotations:
+    lbipam.cilium.io/ips: 192.168.100.98
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: tempo
+    app.kubernetes.io/instance: tempo
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+      appProtocol: kubernetes.io/h2c
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+      appProtocol: http

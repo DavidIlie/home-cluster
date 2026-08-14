@@ -77,6 +77,35 @@ spec:
             uid: victoria-logs
             access: proxy
             url: http://victoria-logs-server.observability.svc.cluster.local:9428
+            jsonData:
+              derivedFields:
+                - name: trace_id
+                  matcherType: label
+                  matcherRegex: trace_id
+                  url: '${__value.raw}'
+                  urlDisplayLabel: View trace
+                  datasourceUid: tempo
+            isDefault: false
+          - name: Tempo
+            type: tempo
+            uid: tempo
+            access: proxy
+            url: http://tempo.observability.svc.cluster.local:3200
+            jsonData:
+              tracesToLogsV2:
+                datasourceUid: victoria-logs
+                spanStartTimeShift: -1m
+                spanEndTimeShift: 1m
+                filterByTraceID: false
+                filterBySpanID: false
+                customQuery: true
+                query: 'trace_id:="${__trace.traceId}"'
+              nodeGraph:
+                enabled: true
+              search:
+                hide: false
+              traceQuery:
+                timeShiftEnabled: true
             isDefault: false
     dashboardProviders:
       dashboardproviders.yaml:
@@ -90,6 +119,38 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/default
+          - name: apps-fleet
+            orgId: 1
+            folder: Apps / Fleet
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/apps-fleet
+          - name: apps-zerocut
+            orgId: 1
+            folder: Apps / ZeroCut
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/apps-zerocut
+          - name: apps-mbretrofit
+            orgId: 1
+            folder: Apps / MB Retrofit
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/apps-mbretrofit
+          - name: apps-kidays
+            orgId: 1
+            folder: Apps / Kidays
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/apps-kidays
     dashboards:
       default:
         uap-insights:
@@ -262,6 +323,18 @@ spec:
         cliproxy-usage:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/cliproxy-usage.json
           datasource: prometheus-home-cluster
+      apps-fleet:
+        overview:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/apps-fleet.json
+      apps-zerocut:
+        overview:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-overview.json
+      apps-mbretrofit:
+        overview:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/mbretrofit-overview.json
+      apps-kidays:
+        overview:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-overview.json
     sidecar:
       dashboards:
         enabled: false

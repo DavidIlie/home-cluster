@@ -12,6 +12,7 @@ resources:
   - ./openebs.yaml
   - ./portainer.yaml
   - ./grafana.yaml
+  - ./grafana-community.yaml
   - ./cloudflare-exporter.yaml
   - ./nvidia-charts.yaml
   - ./cloudnative-pg.yaml
