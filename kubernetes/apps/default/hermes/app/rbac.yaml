@@ -12,12 +12,12 @@ rules:
   - apiGroups: [""]
     resources: [nodes, namespaces, pods, services, persistentvolumeclaims, events]
     verbs: [get, list, watch]
+  # Deliberately omit patch/update on workload controllers and Flux objects.
+  # Kubernetes RBAC cannot restrict a patch to only a rollout or reconcile
+  # annotation, so either permission would also authorize spec replacement.
   - apiGroups: [apps]
     resources: [deployments, statefulsets, daemonsets]
-    verbs: [get, list, watch, patch]
-  - apiGroups: [apps]
-    resources: [deployments/scale, statefulsets/scale]
-    verbs: [get, patch, update]
+    verbs: [get, list, watch]
   - apiGroups: [batch]
     resources: [jobs, cronjobs]
     verbs: [get, list, watch]
@@ -26,10 +26,10 @@ rules:
     verbs: [get, list, watch]
   - apiGroups: [kustomize.toolkit.fluxcd.io]
     resources: [kustomizations]
-    verbs: [get, list, watch, patch]
+    verbs: [get, list, watch]
   - apiGroups: [helm.toolkit.fluxcd.io]
     resources: [helmreleases]
-    verbs: [get, list, watch, patch]
+    verbs: [get, list, watch]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
