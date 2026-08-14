@@ -29,8 +29,8 @@ spec:
           type: RuntimeDefault
       containers:
         - name: gate
-          # DEPLOYMENT BLOCKER: replace this old central-cluster image with the
-          # digest produced by the current davidapps-auth release.
+          # Keep the regional checker pinned to the same released gate build as
+          # the central identity platform.
           image: ghcr.io/davidilie/davidapps-auth-gate:main-11@sha256:51bd268b9b4e9de4c55b019762385f20727af11fcfabcdd8e7b9c6ce037d7ed0
           imagePullPolicy: IfNotPresent
           env:
