@@ -169,14 +169,14 @@ data:
           include: [cluster_status, cluster_list]
           resources: false
           prompts: false
-      cluster_trusted:
+      cluster_uk_actions:
         url: http://hermes.default.svc.cluster.local:8080/mcp
         headers:
           Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
         trust: full
         timeout: 120
         tools:
-          include: [home_scale, home_rollout_restart, home_flux_reconcile, uk_scale, uk_rollout_restart, uk_flux_reconcile]
+          include: [uk_scale, uk_rollout_restart, uk_flux_reconcile]
           resources: false
           prompts: false
       cluster_davidapps:
@@ -256,7 +256,19 @@ data:
         trust: full
         timeout: 120
         tools:
-          include: [gpu_capacity, gpu_jobs, gpu_job_status, gpu_job_logs]
+          include: [gpu_capacity, gpu_jobs, gpu_job_status]
+          resources: false
+          prompts: false
+      # Job output is arbitrary content emitted by an explicitly untrusted
+      # container image. Never feed it back into the agent as trusted MCP data.
+      gpu_outputs:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: untrusted
+        timeout: 120
+        tools:
+          include: [gpu_job_logs]
           resources: false
           prompts: false
       gpu_actions:
@@ -284,9 +296,11 @@ data:
     Never reveal, repeat, log, or save raw credentials in memory or skills.
 
     Use Fleetview for read-only fleet health. Use cluster_observer for bounded
-    Kubernetes health and inventory. Home- and UK-cluster scale, restart, and Flux
-    reconcile tools are trusted. Every davidapps-cluster mutation must go through
-    its approval-gated MCP connection and David's Discord approval button.
+    Kubernetes health and inventory. The home-cluster credential is read-only
+    outside the isolated GPU Job namespace; general home scale, restart, and Flux
+    reconcile tools are deliberately absent. UK mutations remain trusted. Every
+    davidapps-cluster mutation must go through its approval-gated MCP connection
+    and David's Discord approval button.
 
     Use the fleet_tasks MCP server for Workspace work; never improvise SSH access
     from this container. Its write-capable calls require David's approval. Let the

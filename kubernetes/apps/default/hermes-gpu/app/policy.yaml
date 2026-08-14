@@ -35,9 +35,9 @@ kind: NetworkPolicy
 metadata:
   name: hermes-gpu-default-deny
 spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: hermes-gpu-job
+  # This must select every pod. Selecting only the expected Job label lets a
+  # caller with Job-create permission omit that label and escape isolation.
+  podSelector: {}
   policyTypes: [Ingress, Egress]
 ---
 apiVersion: networking.k8s.io/v1
