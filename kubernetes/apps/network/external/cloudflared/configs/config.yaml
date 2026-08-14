@@ -13,6 +13,10 @@ ingress:
     service: https://nextjs-envoy.envoy-gateway-system.svc.cluster.local:443
     originRequest:
       originServerName: "nextjs-control.davidhome.ro"
+  - hostname: "adapter-demo.davidhome.ro"
+    service: https://nextjs-envoy.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "adapter-demo.davidhome.ro"
   - hostname: "*.davidhome.ro"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "dave.tips"

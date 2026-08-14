@@ -1,0 +1,1955 @@
+---
+# Source: donezo/templates/network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: donezo-routing-service
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: routing-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+                app.kubernetes.io/name: "envoy"
+                gateway.envoyproxy.io/owning-gatewayclass: "eg"
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "envoy-gateway-system"
+      ports:
+        - protocol: TCP
+          port: 8443
+    - from:
+        - ipBlock:
+            cidr: "192.168.100.0/24"
+      ports:
+        - protocol: TCP
+          port: 8081
+---
+# Source: donezo/templates/network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  # N61: through sanitizeK8sName like every OTHER name in the chart — this was the one
+  # resource name built by bare concatenation, so a composed name past the 63-char cap (or
+  # one needing a trailing-hyphen strip) produced a name the API server rejects.
+  name: donezo-web
+  labels:
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED — see the label comment in deployment.ts.
+    app.kubernetes.io/component: "web"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "web"
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+                app.kubernetes.io/name: "envoy"
+                gateway.envoyproxy.io/owning-gatewayclass: "eg"
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "envoy-gateway-system"
+        - ipBlock:
+            cidr: "192.168.100.0/24"
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "web"
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "api"
+      ports:
+        - protocol: TCP
+          port: 3000
+---
+# Source: donezo/templates/network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  # N61: through sanitizeK8sName like every OTHER name in the chart — this was the one
+  # resource name built by bare concatenation, so a composed name past the 63-char cap (or
+  # one needing a trailing-hyphen strip) produced a name the API server rejects.
+  name: donezo-api
+  labels:
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED — see the label comment in deployment.ts.
+    app.kubernetes.io/component: "api"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "api"
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+                app.kubernetes.io/name: "envoy"
+                gateway.envoyproxy.io/owning-gatewayclass: "eg"
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "envoy-gateway-system"
+        - ipBlock:
+            cidr: "192.168.100.0/24"
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "web"
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "api"
+      ports:
+        - protocol: TCP
+          port: 3000
+
+---
+# Source: donezo/templates/api-active-service.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: donezo-api-pdb
+  annotations:
+    helm.sh/resource-policy: ""
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "api"
+spec:
+  # N65. Without a PDB the eviction API will drain every replica of a pool at once, and
+  # GKE node auto-upgrade plus Autopilot bin-packing are routine voluntary-eviction
+  # sources. The chart already went to trouble over the ROLLOUT path (maxUnavailable: 0,
+  # minReadySeconds, preStop) while leaving the involuntary path unguarded.
+  # minAvailable: 1 (not a percentage): with a single-replica pool a percentage rounds up
+  # to 1 and blocks node drains forever, which turns an upgrade into a stuck cluster;
+  # minAvailable: 1 on a 1-replica pool is the documented "unhealthyPodEvictionPolicy"
+  # trade-off we accept — it delays a drain rather than dropping the pool to zero.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "api"
+
+---
+# Source: donezo/templates/routing-service-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: donezo-routing-service-pdb
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+spec:
+  # N65. A single node drain could otherwise evict every routing-service replica through
+  # the eviction API at once. With middleware present the callout is fail-closed, so that
+  # is a total 500 for the release — the one tier where "degraded" is not an option.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: routing-service
+
+---
+# Source: donezo/templates/web-active-service.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: donezo-web-pdb
+  annotations:
+    helm.sh/resource-policy: ""
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+spec:
+  # N65. Without a PDB the eviction API will drain every replica of a pool at once, and
+  # GKE node auto-upgrade plus Autopilot bin-packing are routine voluntary-eviction
+  # sources. The chart already went to trouble over the ROLLOUT path (maxUnavailable: 0,
+  # minReadySeconds, preStop) while leaving the involuntary path unguarded.
+  # minAvailable: 1 (not a percentage): with a single-replica pool a percentage rounds up
+  # to 1 and blocks node drains forever, which turns an upgrade into a stuck cluster;
+  # minAvailable: 1 on a 1-replica pool is the documented "unhealthyPodEvictionPolicy"
+  # trade-off we accept — it delays a drain rather than dropping the pool to zero.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "web"
+
+---
+# Source: donezo/templates/cutover-rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: donezo-cutover-sa
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+---
+# Source: donezo/templates/composition-plan.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: donezo-composition-bmst139qui84vac
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+    adapter-k8s.dev/composition-digest: "sha256:fd36ec922c4e23cc9a5352e6180f2ca2f1fdd51ee20d3929cbc6bf96e9ff85ee"
+  labels:
+    adapter-k8s.dev/release: "donezo"
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: composition-plan
+    app.kubernetes.io/version: "bmst139qui84vac"
+immutable: true
+data:
+  plan.json: |-
+    {"apiVersion":"adapter-k8s.nextjs.org/v1alpha1","kind":"CompositionPlan","metadata":{"buildId":"bmst139qui84vac","namespace":"adapter-demo","releaseName":"donezo"},"operations":{"cache":{"kind":"external","lifecycle":"operator-managed"},"cdn":{"kind":"none"},"cleanup":{"external":[],"kubernetes":{"contributedObjects":[{"lifecycle":"helm","ownership":{"helmRelease":{"name":"donezo","namespace":"adapter-demo"},"releaseLabel":{"key":"adapter-k8s.dev/release","value":"donezo"}},"ref":{"apiVersion":"gateway.networking.k8s.io/v1","name":"donezo-gateway","namespace":"adapter-demo","resource":"gateways"}},{"lifecycle":"helm","ownership":{"helmRelease":{"name":"donezo","namespace":"adapter-demo"},"releaseLabel":{"key":"adapter-k8s.dev/release","value":"donezo"}},"ref":{"apiVersion":"gateway.networking.k8s.io/v1","name":"donezo-routes","namespace":"adapter-demo","resource":"httproutes"}},{"lifecycle":"helm","ownership":{"helmRelease":{"name":"donezo","namespace":"adapter-demo"},"releaseLabel":{"key":"adapter-k8s.dev/release","value":"donezo"}},"ref":{"apiVersion":"gateway.networking.k8s.io/v1","name":"donezo-http-redirect","namespace":"adapter-demo","resource":"httproutes"}},{"lifecycle":"helm","ownership":{"helmRelease":{"name":"donezo","namespace":"adapter-demo"},"releaseLabel":{"key":"adapter-k8s.dev/release","value":"donezo"}},"ref":{"apiVersion":"cert-manager.io/v1","name":"donezo-tls","namespace":"adapter-demo","resource":"certificates"}},{"lifecycle":"helm","ownership":{"helmRelease":{"name":"donezo","namespace":"adapter-demo"},"releaseLabel":{"key":"adapter-k8s.dev/release","value":"donezo"}},"ref":{"apiVersion":"gateway.envoyproxy.io/v1alpha1","name":"donezo-routing-extproc","namespace":"adapter-demo","resource":"envoyextensionpolicies"}}],"strategy":"adapter-release-v1"},"retained":[]},"diagnostics":[],"logs":[{"containers":"all","kind":"kubernetes-pods","namespace":"adapter-demo","selector":{"releaseName":"donezo"}}],"network":{"missingSourcePolicy":"fail","nodeCidrs":{"cidrs":["192.168.100.0/24"],"kind":"static"},"podCidrs":{"cidrs":["10.42.0.0/16"],"kind":"static"}},"resources":{"objects":[{"apiVersion":"gateway.networking.k8s.io/v1","body":{"spec":{"gatewayClassName":"eg","listeners":[{"allowedRoutes":{"namespaces":{"from":"Same"}},"hostname":"adapter-demo.davidhome.ro","name":"http","port":80,"protocol":"HTTP"},{"allowedRoutes":{"namespaces":{"from":"Same"}},"hostname":"adapter-demo.davidhome.ro","name":"https","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"donezo-tls"}],"mode":"Terminate"}}]}},"kind":"Gateway","metadata":{"labels":{"adapter-k8s.dev/release":"donezo","app.kubernetes.io/name":"donezo"},"name":"donezo-gateway","namespace":"adapter-demo"},"resource":"gateways"},{"apiVersion":"gateway.networking.k8s.io/v1","body":{"spec":{"hostnames":["adapter-demo.davidhome.ro"],"parentRefs":[{"name":"donezo-gateway","sectionName":"https"}],"rules":[{"backendRefs":[{"name":"donezo-origin","port":3000}],"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]}},"kind":"HTTPRoute","metadata":{"labels":{"adapter-k8s.dev/release":"donezo","app.kubernetes.io/name":"donezo"},"name":"donezo-routes","namespace":"adapter-demo"},"resource":"httproutes"},{"apiVersion":"gateway.networking.k8s.io/v1","body":{"spec":{"hostnames":["adapter-demo.davidhome.ro"],"parentRefs":[{"name":"donezo-gateway","sectionName":"http"}],"rules":[{"filters":[{"requestRedirect":{"scheme":"https","statusCode":301},"type":"RequestRedirect"}]}]}},"kind":"HTTPRoute","metadata":{"labels":{"adapter-k8s.dev/release":"donezo","app.kubernetes.io/name":"donezo"},"name":"donezo-http-redirect","namespace":"adapter-demo"},"resource":"httproutes"},{"apiVersion":"cert-manager.io/v1","body":{"spec":{"dnsNames":["adapter-demo.davidhome.ro"],"issuerRef":{"kind":"ClusterIssuer","name":"letsencrypt-production"},"secretName":"donezo-tls"}},"kind":"Certificate","metadata":{"labels":{"adapter-k8s.dev/release":"donezo","app.kubernetes.io/name":"donezo"},"name":"donezo-tls","namespace":"adapter-demo"},"resource":"certificates"},{"apiVersion":"gateway.envoyproxy.io/v1alpha1","body":{"spec":{"extProc":[{"backendRefs":[{"name":"donezo-routing-service","port":8443}],"failOpen":false,"messageTimeout":"4s","processingMode":{"request":{}}}],"targetRefs":[{"group":"gateway.networking.k8s.io","kind":"HTTPRoute","name":"donezo-routes"}]}},"kind":"EnvoyExtensionPolicy","metadata":{"labels":{"adapter-k8s.dev/release":"donezo","app.kubernetes.io/component":"routing-service","app.kubernetes.io/name":"donezo"},"name":"donezo-routing-extproc","namespace":"adapter-demo"},"resource":"envoyextensionpolicies"}],"readiness":[{"condition":{"observedGeneration":"must-equal-metadata-generation","status":"True","type":"Programmed"},"conditionsAt":{"kind":"object"},"kind":"kubernetes-condition","object":{"apiVersion":"gateway.networking.k8s.io/v1","name":"donezo-gateway","namespace":"adapter-demo","resource":"gateways"},"timeoutSeconds":600},{"condition":{"observedGeneration":"must-equal-metadata-generation","status":"True","type":"Accepted"},"conditionsAt":{"kind":"parents"},"kind":"kubernetes-condition","object":{"apiVersion":"gateway.networking.k8s.io/v1","name":"donezo-routes","namespace":"adapter-demo","resource":"httproutes"},"timeoutSeconds":600},{"condition":{"observedGeneration":"must-equal-metadata-generation","status":"True","type":"Accepted"},"conditionsAt":{"kind":"parents"},"kind":"kubernetes-condition","object":{"apiVersion":"gateway.networking.k8s.io/v1","name":"donezo-http-redirect","namespace":"adapter-demo","resource":"httproutes"},"timeoutSeconds":600},{"condition":{"observedGeneration":"must-equal-metadata-generation","status":"True","type":"Ready"},"conditionsAt":{"kind":"object"},"kind":"kubernetes-condition","object":{"apiVersion":"cert-manager.io/v1","name":"donezo-tls","namespace":"adapter-demo","resource":"certificates"},"timeoutSeconds":600},{"condition":{"observedGeneration":"must-equal-metadata-generation","status":"True","type":"Accepted"},"conditionsAt":{"controllerName":"gateway.envoyproxy.io/gatewayclass-controller","kind":"ancestors"},"kind":"kubernetes-condition","object":{"apiVersion":"gateway.envoyproxy.io/v1alpha1","name":"donezo-routing-extproc","namespace":"adapter-demo","resource":"envoyextensionpolicies"},"timeoutSeconds":600}]},"routing":{"dataplane":{"kind":"external-ext-proc","readiness":[{"condition":{"observedGeneration":"must-equal-metadata-generation","status":"True","type":"Accepted"},"conditionsAt":{"controllerName":"gateway.envoyproxy.io/gatewayclass-controller","kind":"ancestors"},"kind":"kubernetes-condition","object":{"apiVersion":"gateway.envoyproxy.io/v1alpha1","name":"donezo-routing-extproc","namespace":"adapter-demo","resource":"envoyextensionpolicies"},"timeoutSeconds":600}],"transport":"h2c"},"failurePolicy":"closed","protocol":"envoy-ext-proc-v3"}},"requirements":{"kubernetes":{"minimumVersion":"1.33.0","resources":[{"apiVersion":"apps/v1","optional":false,"resource":"deployments"},{"apiVersion":"autoscaling/v2","optional":false,"resource":"horizontalpodautoscalers"},{"apiVersion":"cert-manager.io/v1","optional":false,"resource":"certificates"},{"apiVersion":"gateway.envoyproxy.io/v1alpha1","optional":false,"resource":"envoyextensionpolicies"},{"apiVersion":"gateway.networking.k8s.io/v1","optional":false,"resource":"gateways"},{"apiVersion":"gateway.networking.k8s.io/v1","optional":false,"resource":"httproutes"},{"apiVersion":"networking.k8s.io/v1","optional":false,"resource":"networkpolicies"},{"apiVersion":"policy/v1","optional":false,"resource":"poddisruptionbudgets"},{"apiVersion":"v1","optional":false,"resource":"services"}]}},"target":{"access":{"context":"admin@kubernetes","kind":"kubeconfig-context"},"fingerprint":"sha256:635a5ef6dfc649e2e72bb22608a26248863c31cc2d7559278775c0b4ed6b1dd6","identity":{"kind":"kubernetes-namespace-uid","namespace":"kube-system","uid":"79238877-7aa7-41a2-becc-8d20dc087037"},"registry":{"authentication":{"kind":"ambient-credentials"},"digestLookup":{"kind":"oci-distribution"},"repository":"ghcr.io/davidilie/adapter-k8s-demo"}}}
+
+---
+# Source: donezo/templates/emit-metadata-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: donezo-emit-meta-bmst139qui84vac-26b726c3
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: emit-metadata
+    app.kubernetes.io/version: "bmst139qui84vac"
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+data:
+  emit-metadata.json: |-
+    {
+      "emitVersion": 1,
+      "buildId": "bmst139qui84vac",
+      "previousBuildId": null,
+      "releaseName": "donezo",
+      "namespace": "adapter-demo",
+      "registry": "ghcr.io/davidilie/adapter-k8s-demo",
+      "digests": {
+        "api": "sha256:36f3cb9408b2929327b096ab8e5226b9d26f26929db600de6d3f521a33a4e02c",
+        "routingService": "sha256:1e216d906092ee63d7e9880282b725d2c217f835586da039bf4a0d9e893ba4fd",
+        "web": "sha256:36f3cb9408b2929327b096ab8e5226b9d26f26929db600de6d3f521a33a4e02c"
+      },
+      "cdnTag": "build-26b726c34a98d159ced34ce6ecda7182c832c9a5312bf00add139040329cc19a",
+      "poolTopology": [
+        "web",
+        "api"
+      ],
+      "defaultPool": "web",
+      "targetPlatforms": {
+        "bmst139qui84vac": "linux/amd64"
+      },
+      "secretsMode": "sops",
+      "imagePullSecrets": [
+        "docker-regcred"
+      ],
+      "cutover": "job",
+      "hasRouteExtJob": false,
+      "hasEnvoyExtensionPolicy": false,
+      "cdnEnabled": false,
+      "hasPortableOrigin": true
+    }
+
+---
+# Source: donezo/templates/routing-manifest-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: donezo-routing-manifest
+data:
+  routing-manifest.json: |
+    {
+      "routeGraph": {
+        "beforeMiddleware": [
+          {
+            "source": "/:path+/",
+            "sourceRegex": "(?i:^(?:\\/((?:[^\\/]+?)(?:\\/(?:[^\\/]+?))*))\\/$)",
+            "headers": {
+              "Location": "/$1"
+            },
+            "status": 308,
+            "priority": true
+          }
+        ],
+        "beforeFiles": [],
+        "afterFiles": [],
+        "dynamicRoutes": [
+          {
+            "source": "/todos/[id]",
+            "sourceRegex": "^[/]?/todos/(?<nxtPid>[^/]+?)\\.segments/todos/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+            "destination": "/todos/[id].segments/todos/$d$id$segment?nxtPid=$nxtPid"
+          },
+          {
+            "source": "/todos/[id].rsc",
+            "sourceRegex": "^[/]?/todos/(?<nxtPid>[^/]+?)(?<rscSuffix>\\.rsc|\\.segments/.+\\.segment\\.rsc)(?:/)?$",
+            "destination": "/todos/[id]$rscSuffix?nxtPid=$nxtPid"
+          },
+          {
+            "source": "/todos/[id]",
+            "sourceRegex": "^[/]?/todos/(?<nxtPid>[^/]+?)(?:/)?$",
+            "destination": "/todos/[id]?nxtPid=$nxtPid"
+          }
+        ],
+        "onMatch": [
+          {
+            "sourceRegex": "(?i:/_next/static/(?:[^/]+/pages|pages|chunks|immutable|runtime|css|image|media|bmst139qui84vac)/.+)",
+            "headers": {
+              "cache-control": "public,max-age=31536000,immutable"
+            }
+          }
+        ],
+        "fallback": [],
+        "shouldNormalizeNextData": false,
+        "rsc": {
+          "header": "rsc",
+          "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "prefetchHeader": "next-router-prefetch",
+          "didPostponeHeader": "x-nextjs-postponed",
+          "contentTypeHeader": "text/x-component",
+          "suffix": ".rsc",
+          "prefetchSegmentHeader": "next-router-segment-prefetch",
+          "prefetchSegmentSuffix": ".segment.rsc",
+          "prefetchSegmentDirSuffix": ".segments",
+          "clientParamParsing": true,
+          "dynamicRSCPrerender": true
+        }
+      },
+      "pathnames": [
+        "/",
+        "/404",
+        "/500",
+        "/_global-error",
+        "/_global-error.rsc",
+        "/_global-error.segments/__PAGE__.segment.rsc",
+        "/_global-error.segments/_full.segment.rsc",
+        "/_global-error.segments/_tree.segment.rsc",
+        "/_middleware",
+        "/_next/static/bmst139qui84vac/_buildManifest.js",
+        "/_next/static/bmst139qui84vac/_clientMiddlewareManifest.js",
+        "/_next/static/bmst139qui84vac/_ssgManifest.js",
+        "/_next/static/immutable/chunks/0cz1d0mv5g_q7.js",
+        "/_next/static/immutable/chunks/22m5o90rv1f1c.css",
+        "/_next/static/immutable/chunks/2v44l33p3813e.js",
+        "/_next/static/immutable/chunks/310vm2bl3xxpt.js",
+        "/_next/static/immutable/chunks/3gjp9tpl_092r.js",
+        "/_next/static/immutable/chunks/3p19-9re25y67.js",
+        "/_next/static/immutable/chunks/3t785h_9t5l15.js",
+        "/_next/static/immutable/chunks/3waqbfmmni2mf.js",
+        "/_next/static/immutable/chunks/40tcvrebdadss.js",
+        "/_next/static/immutable/chunks/43l1657jc4697.js",
+        "/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js",
+        "/_not-found",
+        "/_not-found.rsc",
+        "/api/session",
+        "/api/session.rsc",
+        "/api/status",
+        "/api/status.rsc",
+        "/auth/callback",
+        "/auth/callback.rsc",
+        "/auth/callback.segments/_full.segment.rsc",
+        "/auth/callback.segments/_tree.segment.rsc",
+        "/auth/callback.segments/auth/callback/__PAGE__.segment.rsc",
+        "/index.rsc",
+        "/index.segments/__PAGE__.segment.rsc",
+        "/index.segments/_full.segment.rsc",
+        "/index.segments/_tree.segment.rsc",
+        "/todos/[id]",
+        "/todos/[id].rsc",
+        "/todos/[id].segments/_full.segment.rsc",
+        "/todos/[id].segments/_tree.segment.rsc",
+        "/todos/[id].segments/todos/$d$id/__PAGE__.segment.rsc"
+      ],
+      "i18n": null,
+      "buildId": "bmst139qui84vac",
+      "builtAt": "2026-08-14T14:14:34.310Z",
+      "basePath": "",
+      "trailingSlash": false,
+      "middleware": {
+        "filePath": ".next/server/middleware.js",
+        "runtime": "nodejs",
+        "matchers": [
+          {
+            "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/todos(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
+            "missing": [
+              {
+                "type": "header",
+                "key": "x-prerender-revalidate",
+                "value": "aab555e9c290d29d84666c0abad5a3e4"
+              }
+            ],
+            "originalSource": "/todos/:path*"
+          }
+        ]
+      },
+      "poolAssignments": {
+        "/_not-found.rsc": "web",
+        "/_not-found": "web",
+        "/_global-error.rsc": "web",
+        "/_global-error": "web",
+        "/auth/callback.rsc": "web",
+        "/auth/callback": "web",
+        "/index.rsc": "web",
+        "/": "web",
+        "/todos/[id].rsc": "web",
+        "/todos/[id]": "web",
+        "/api/session": "api",
+        "/api/session.rsc": "api",
+        "/api/status": "api",
+        "/api/status.rsc": "api",
+        "/index.segments/_tree.segment.rsc": "web",
+        "/index.segments/_full.segment.rsc": "web",
+        "/index.segments/__PAGE__.segment.rsc": "web",
+        "/_global-error.segments/_tree.segment.rsc": "web",
+        "/_global-error.segments/_full.segment.rsc": "web",
+        "/_global-error.segments/__PAGE__.segment.rsc": "web",
+        "/auth/callback.segments/_tree.segment.rsc": "web",
+        "/auth/callback.segments/_full.segment.rsc": "web",
+        "/auth/callback.segments/auth/callback/__PAGE__.segment.rsc": "web",
+        "/todos/[id].segments/_tree.segment.rsc": "web",
+        "/todos/[id].segments/_full.segment.rsc": "web",
+        "/todos/[id].segments/todos/$d$id/__PAGE__.segment.rsc": "web",
+        "/404": "web",
+        "/500": "web",
+        "/_middleware": "web",
+        "/_next/static/bmst139qui84vac/_buildManifest.js": "web",
+        "/_next/static/bmst139qui84vac/_clientMiddlewareManifest.js": "web",
+        "/_next/static/bmst139qui84vac/_ssgManifest.js": "web",
+        "/_next/static/immutable/chunks/0cz1d0mv5g_q7.js": "web",
+        "/_next/static/immutable/chunks/22m5o90rv1f1c.css": "web",
+        "/_next/static/immutable/chunks/2v44l33p3813e.js": "web",
+        "/_next/static/immutable/chunks/310vm2bl3xxpt.js": "web",
+        "/_next/static/immutable/chunks/3gjp9tpl_092r.js": "web",
+        "/_next/static/immutable/chunks/3p19-9re25y67.js": "web",
+        "/_next/static/immutable/chunks/3t785h_9t5l15.js": "web",
+        "/_next/static/immutable/chunks/3waqbfmmni2mf.js": "web",
+        "/_next/static/immutable/chunks/40tcvrebdadss.js": "web",
+        "/_next/static/immutable/chunks/43l1657jc4697.js": "web",
+        "/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js": "web"
+      },
+      "pprRoutes": {
+        "/": {
+          "postponedState": "2046:[1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/3p19-9re25y67.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null",
+          "fallbackFilePath": ".next/server/app/index.html",
+          "chainHeaders": {
+            "next-resume": "1"
+          },
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/page,_N_T_/,_N_T_/index"
+          },
+          "initialStatus": 200,
+          "tags": [
+            "_N_T_/layout",
+            "_N_T_/page",
+            "_N_T_/",
+            "_N_T_/index"
+          ],
+          "allowQuery": []
+        },
+        "/todos/[id]": {
+          "postponedState": "2900:41[[\"id\",[\"%%drp:id:4547b914c3e42%%\",\"d\"]]][1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/40tcvrebdadss.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"todos\",[[\"Context\",\"todos\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"id|%%drp:id:4547b914c3e42%%|d\",[[\"Context\",\"id|%%drp:id:4547b914c3e42%%|d\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Fragment\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null",
+          "fallbackFilePath": ".next/server/app/todos/[id].html",
+          "chainHeaders": {
+            "next-resume": "1"
+          },
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/todos/layout,_N_T_/todos/[id]/layout,_N_T_/todos/[id]/page"
+          },
+          "initialStatus": 200,
+          "tags": [
+            "_N_T_/layout",
+            "_N_T_/todos/layout",
+            "_N_T_/todos/[id]/layout",
+            "_N_T_/todos/[id]/page"
+          ],
+          "allowQuery": []
+        }
+      },
+      "pprStatePrerenders": {
+        "/index.rsc": {
+          "postponedState": "2046:[1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/3p19-9re25y67.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null"
+        },
+        "/todos/[id].rsc": {
+          "postponedState": "2900:41[[\"id\",[\"%%drp:id:4547b914c3e42%%\",\"d\"]]][1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/40tcvrebdadss.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"todos\",[[\"Context\",\"todos\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"id|%%drp:id:4547b914c3e42%%|d\",[[\"Context\",\"id|%%drp:id:4547b914c3e42%%|d\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Fragment\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null"
+        }
+      },
+      "pprCapableRoutes": {},
+      "nextVersion": "16.3.0"
+    }
+
+---
+# Source: donezo/templates/routing-manifest-snapshot-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: donezo-rm-bmst139qui84vac-26b726c3
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "routing-manifest-snapshot"
+  annotations:
+    helm.sh/resource-policy: "keep"
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+data:
+  routing-manifest.json: |
+    {
+      "routeGraph": {
+        "beforeMiddleware": [
+          {
+            "source": "/:path+/",
+            "sourceRegex": "(?i:^(?:\\/((?:[^\\/]+?)(?:\\/(?:[^\\/]+?))*))\\/$)",
+            "headers": {
+              "Location": "/$1"
+            },
+            "status": 308,
+            "priority": true
+          }
+        ],
+        "beforeFiles": [],
+        "afterFiles": [],
+        "dynamicRoutes": [
+          {
+            "source": "/todos/[id]",
+            "sourceRegex": "^[/]?/todos/(?<nxtPid>[^/]+?)\\.segments/todos/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+            "destination": "/todos/[id].segments/todos/$d$id$segment?nxtPid=$nxtPid"
+          },
+          {
+            "source": "/todos/[id].rsc",
+            "sourceRegex": "^[/]?/todos/(?<nxtPid>[^/]+?)(?<rscSuffix>\\.rsc|\\.segments/.+\\.segment\\.rsc)(?:/)?$",
+            "destination": "/todos/[id]$rscSuffix?nxtPid=$nxtPid"
+          },
+          {
+            "source": "/todos/[id]",
+            "sourceRegex": "^[/]?/todos/(?<nxtPid>[^/]+?)(?:/)?$",
+            "destination": "/todos/[id]?nxtPid=$nxtPid"
+          }
+        ],
+        "onMatch": [
+          {
+            "sourceRegex": "(?i:/_next/static/(?:[^/]+/pages|pages|chunks|immutable|runtime|css|image|media|bmst139qui84vac)/.+)",
+            "headers": {
+              "cache-control": "public,max-age=31536000,immutable"
+            }
+          }
+        ],
+        "fallback": [],
+        "shouldNormalizeNextData": false,
+        "rsc": {
+          "header": "rsc",
+          "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "prefetchHeader": "next-router-prefetch",
+          "didPostponeHeader": "x-nextjs-postponed",
+          "contentTypeHeader": "text/x-component",
+          "suffix": ".rsc",
+          "prefetchSegmentHeader": "next-router-segment-prefetch",
+          "prefetchSegmentSuffix": ".segment.rsc",
+          "prefetchSegmentDirSuffix": ".segments",
+          "clientParamParsing": true,
+          "dynamicRSCPrerender": true
+        }
+      },
+      "pathnames": [
+        "/",
+        "/404",
+        "/500",
+        "/_global-error",
+        "/_global-error.rsc",
+        "/_global-error.segments/__PAGE__.segment.rsc",
+        "/_global-error.segments/_full.segment.rsc",
+        "/_global-error.segments/_tree.segment.rsc",
+        "/_middleware",
+        "/_next/static/bmst139qui84vac/_buildManifest.js",
+        "/_next/static/bmst139qui84vac/_clientMiddlewareManifest.js",
+        "/_next/static/bmst139qui84vac/_ssgManifest.js",
+        "/_next/static/immutable/chunks/0cz1d0mv5g_q7.js",
+        "/_next/static/immutable/chunks/22m5o90rv1f1c.css",
+        "/_next/static/immutable/chunks/2v44l33p3813e.js",
+        "/_next/static/immutable/chunks/310vm2bl3xxpt.js",
+        "/_next/static/immutable/chunks/3gjp9tpl_092r.js",
+        "/_next/static/immutable/chunks/3p19-9re25y67.js",
+        "/_next/static/immutable/chunks/3t785h_9t5l15.js",
+        "/_next/static/immutable/chunks/3waqbfmmni2mf.js",
+        "/_next/static/immutable/chunks/40tcvrebdadss.js",
+        "/_next/static/immutable/chunks/43l1657jc4697.js",
+        "/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js",
+        "/_not-found",
+        "/_not-found.rsc",
+        "/api/session",
+        "/api/session.rsc",
+        "/api/status",
+        "/api/status.rsc",
+        "/auth/callback",
+        "/auth/callback.rsc",
+        "/auth/callback.segments/_full.segment.rsc",
+        "/auth/callback.segments/_tree.segment.rsc",
+        "/auth/callback.segments/auth/callback/__PAGE__.segment.rsc",
+        "/index.rsc",
+        "/index.segments/__PAGE__.segment.rsc",
+        "/index.segments/_full.segment.rsc",
+        "/index.segments/_tree.segment.rsc",
+        "/todos/[id]",
+        "/todos/[id].rsc",
+        "/todos/[id].segments/_full.segment.rsc",
+        "/todos/[id].segments/_tree.segment.rsc",
+        "/todos/[id].segments/todos/$d$id/__PAGE__.segment.rsc"
+      ],
+      "i18n": null,
+      "buildId": "bmst139qui84vac",
+      "builtAt": "2026-08-14T14:14:34.310Z",
+      "basePath": "",
+      "trailingSlash": false,
+      "middleware": {
+        "filePath": ".next/server/middleware.js",
+        "runtime": "nodejs",
+        "matchers": [
+          {
+            "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/todos(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
+            "missing": [
+              {
+                "type": "header",
+                "key": "x-prerender-revalidate",
+                "value": "aab555e9c290d29d84666c0abad5a3e4"
+              }
+            ],
+            "originalSource": "/todos/:path*"
+          }
+        ]
+      },
+      "poolAssignments": {
+        "/_not-found.rsc": "web",
+        "/_not-found": "web",
+        "/_global-error.rsc": "web",
+        "/_global-error": "web",
+        "/auth/callback.rsc": "web",
+        "/auth/callback": "web",
+        "/index.rsc": "web",
+        "/": "web",
+        "/todos/[id].rsc": "web",
+        "/todos/[id]": "web",
+        "/api/session": "api",
+        "/api/session.rsc": "api",
+        "/api/status": "api",
+        "/api/status.rsc": "api",
+        "/index.segments/_tree.segment.rsc": "web",
+        "/index.segments/_full.segment.rsc": "web",
+        "/index.segments/__PAGE__.segment.rsc": "web",
+        "/_global-error.segments/_tree.segment.rsc": "web",
+        "/_global-error.segments/_full.segment.rsc": "web",
+        "/_global-error.segments/__PAGE__.segment.rsc": "web",
+        "/auth/callback.segments/_tree.segment.rsc": "web",
+        "/auth/callback.segments/_full.segment.rsc": "web",
+        "/auth/callback.segments/auth/callback/__PAGE__.segment.rsc": "web",
+        "/todos/[id].segments/_tree.segment.rsc": "web",
+        "/todos/[id].segments/_full.segment.rsc": "web",
+        "/todos/[id].segments/todos/$d$id/__PAGE__.segment.rsc": "web",
+        "/404": "web",
+        "/500": "web",
+        "/_middleware": "web",
+        "/_next/static/bmst139qui84vac/_buildManifest.js": "web",
+        "/_next/static/bmst139qui84vac/_clientMiddlewareManifest.js": "web",
+        "/_next/static/bmst139qui84vac/_ssgManifest.js": "web",
+        "/_next/static/immutable/chunks/0cz1d0mv5g_q7.js": "web",
+        "/_next/static/immutable/chunks/22m5o90rv1f1c.css": "web",
+        "/_next/static/immutable/chunks/2v44l33p3813e.js": "web",
+        "/_next/static/immutable/chunks/310vm2bl3xxpt.js": "web",
+        "/_next/static/immutable/chunks/3gjp9tpl_092r.js": "web",
+        "/_next/static/immutable/chunks/3p19-9re25y67.js": "web",
+        "/_next/static/immutable/chunks/3t785h_9t5l15.js": "web",
+        "/_next/static/immutable/chunks/3waqbfmmni2mf.js": "web",
+        "/_next/static/immutable/chunks/40tcvrebdadss.js": "web",
+        "/_next/static/immutable/chunks/43l1657jc4697.js": "web",
+        "/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js": "web"
+      },
+      "pprRoutes": {
+        "/": {
+          "postponedState": "2046:[1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/3p19-9re25y67.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null",
+          "fallbackFilePath": ".next/server/app/index.html",
+          "chainHeaders": {
+            "next-resume": "1"
+          },
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/page,_N_T_/,_N_T_/index"
+          },
+          "initialStatus": 200,
+          "tags": [
+            "_N_T_/layout",
+            "_N_T_/page",
+            "_N_T_/",
+            "_N_T_/index"
+          ],
+          "allowQuery": []
+        },
+        "/todos/[id]": {
+          "postponedState": "2900:41[[\"id\",[\"%%drp:id:4547b914c3e42%%\",\"d\"]]][1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/40tcvrebdadss.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"todos\",[[\"Context\",\"todos\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"id|%%drp:id:4547b914c3e42%%|d\",[[\"Context\",\"id|%%drp:id:4547b914c3e42%%|d\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Fragment\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null",
+          "fallbackFilePath": ".next/server/app/todos/[id].html",
+          "chainHeaders": {
+            "next-resume": "1"
+          },
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/todos/layout,_N_T_/todos/[id]/layout,_N_T_/todos/[id]/page"
+          },
+          "initialStatus": 200,
+          "tags": [
+            "_N_T_/layout",
+            "_N_T_/todos/layout",
+            "_N_T_/todos/[id]/layout",
+            "_N_T_/todos/[id]/page"
+          ],
+          "allowQuery": []
+        }
+      },
+      "pprStatePrerenders": {
+        "/index.rsc": {
+          "postponedState": "2046:[1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/3p19-9re25y67.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null"
+        },
+        "/todos/[id].rsc": {
+          "postponedState": "2900:41[[\"id\",[\"%%drp:id:4547b914c3e42%%\",\"d\"]]][1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/immutable/chunks/22m5o90rv1f1c.css\":null},\"scriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null,\"/_next/static/immutable/chunks/3t785h_9t5l15.js\":null,\"/_next/static/immutable/chunks/2v44l33p3813e.js\":null,\"/_next/static/immutable/chunks/43l1657jc4697.js\":null,\"/_next/static/immutable/chunks/turbopack-16nshf631jy2q.js\":null,\"/_next/static/immutable/chunks/3waqbfmmni2mf.js\":null,\"/_next/static/immutable/chunks/40tcvrebdadss.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/immutable/chunks/310vm2bl3xxpt.js\":null}},\"replayNodes\":[[\"sy\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"id\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ic\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aZ\",0,[[\"aQ\",0,[[\"aY\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"todos\",[[\"Context\",\"todos\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"id|%%drp:id:4547b914c3e42%%|d\",[[\"Context\",\"id|%%drp:id:4547b914c3e42%%|d\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Fragment\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[null,0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"F\",0,[[\"E\",0,[[\"Fragment\",0,[[\"o\",0,[[\"Fragment\",0,[[\"H\",0,[[\"Suspense\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"G\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"main\",0,[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null"
+        }
+      },
+      "pprCapableRoutes": {},
+      "nextVersion": "16.3.0"
+    }
+
+---
+# Source: donezo/templates/cutover-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: donezo-cutover
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+rules:
+  # E1 selector cutover + revert: read the exact live selectors, patch them by NAME.
+  # E6 deletes superseded builds' versioned Services.
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "patch", "delete"]
+  # D1/D2 rollout waits (get/list/watch), N64 live replica read (get), edge revert
+  # patches the routing Deployment (patch), E6 deletes superseded builds' Deployments.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch", "delete"]
+  # kubectl scale (D6 pre-cutover capacity match, E5 park-at-zero) hits the scale
+  # subresource.
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["patch", "update"]
+  # D6 warm-up lifts/restores HPA bounds (patch); E5 deletes the outgoing HPA; the
+  # revert path recreates one (create).
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "create", "patch", "delete"]
+  # D7 readiness gate lists pods by label and reads their Ready condition; the failure
+  # diagnostics run the in-pod /readyz probe (pods/exec) and read pod logs.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  # D3 waits on the route-ext registration Job; E6 GCs superseded route-ext Jobs.
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "delete"]
+  # The state ConfigMap (N20/N21/N23/S19: read + create/replace under resourceVersion
+  # precondition), routing-manifest snapshot retention (get/create/patch via apply +
+  # annotate/label), and E6's snapshot/plan CM pruning (delete).
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
+  # Edge revert probes the target build's per-build dispatch Secret BY NAME before
+  # moving the secretKeyRef (N87); E6 prunes unreferenced dispatch Secrets.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "delete"]
+  # E6's retained stable-resource sweep lists PodDisruptionBudgets by label, reads each
+  # to confirm it selects the pool it claims to, and deletes the obsolete ones. Without
+  # this rule the sweep is forbidden — non-fatal (it runs after the state commit and is
+  # best-effort), but every Job logs the failure and removed pools' PDBs are never GC'd.
+  # HealthCheckPolicies need no rule: the cluster-scoped CRD probe fails first under the
+  # Job's namespaced Role and drops that kind from the sweep entirely.
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "delete"]
+  # D4/D5 generation-guarded Accepted gate — read-only.
+  - apiGroups: ["gateway.envoyproxy.io"]
+    resources: ["envoyextensionpolicies"]
+    verbs: ["get"]
+  # Composition-plan readiness (waitForCompositionPlanReadiness): HTTPRoute
+  # Accepted/ResolvedRefs, Gateway address, Ingress, cert-manager Certificate Ready,
+  # and EndpointSlice capacity. Read-only — the Job refuses promotion until they are
+  # ready; it never repairs them. Cross-namespace parent Gateways are not readable
+  # from this namespaced Role; HTTPRoute status in this namespace is the gate.
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes", "gateways"]
+    verbs: ["get", "list"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates"]
+    verbs: ["get", "list"]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["get", "list"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list"]
+---
+# Source: donezo/templates/cutover-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: donezo-cutover
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: donezo-cutover
+subjects:
+  - kind: ServiceAccount
+    name: donezo-cutover-sa
+
+---
+# Source: donezo/templates/api-active-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-api
+  # Explicit empty policy lets Helm clear a previous rollback-retention keep annotation when a
+  # removed pool re-enters the current topology. Omission is not enough under three-way/SSA merge.
+  # GitOps PR2 (§4.2): under cutover.mode: job the version selector renders at the
+  # PREVIOUS build (sync is not cutover — the Job repoints it after the gates pass) and
+  # the pending annotation marks this Service as awaiting the Job's promotion.
+  annotations:
+    helm.sh/resource-policy: ""
+    adapter-k8s.io/cutover: pending
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/managed-by: adapter-k8s-active
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/version: "bmst139qui84vac"
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+# Source: donezo/templates/api-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-api-bmst139qui84vac
+  # GitOps PR2 keep-at-birth (§4.2): a PER-BUILD resource must protect itself from the
+  # sync that applies the NEXT bundle — see renderKeepAtBirthAnnotations.
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED — an unquoted pool name like "on"/"no"/"true"/"123" renders a YAML
+    # boolean/int that the apiserver refuses to unmarshal into map[string]string.
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/version: "bmst139qui84vac"
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/version: "bmst139qui84vac"
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+# Source: donezo/templates/origin-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-origin
+  # GitOps PR2 (§4.2): under cutover.mode: job the selector below renders at the
+  # PREVIOUS build/default pool (sync is not cutover — the Job repoints it), and the
+  # pending annotation marks the Service as awaiting promotion.
+  annotations:
+    adapter-k8s.io/cutover: pending
+  labels:
+    adapter-k8s.dev/release: "donezo"
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: origin
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+
+---
+# Source: donezo/templates/routing-service-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-routing-service
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+  annotations: {}
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+  ports:
+    - port: 8443
+      targetPort: 8443
+      name: grpc
+      appProtocol: grpc
+
+---
+# Source: donezo/templates/web-active-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-web
+  # Explicit empty policy lets Helm clear a previous rollback-retention keep annotation when a
+  # removed pool re-enters the current topology. Omission is not enough under three-way/SSA merge.
+  # GitOps PR2 (§4.2): under cutover.mode: job the version selector renders at the
+  # PREVIOUS build (sync is not cutover — the Job repoints it after the gates pass) and
+  # the pending annotation marks this Service as awaiting the Job's promotion.
+  annotations:
+    helm.sh/resource-policy: ""
+    adapter-k8s.io/cutover: pending
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/managed-by: adapter-k8s-active
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+# Source: donezo/templates/web-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-web-bmst139qui84vac
+  # GitOps PR2 keep-at-birth (§4.2): a PER-BUILD resource must protect itself from the
+  # sync that applies the NEXT bundle — see renderKeepAtBirthAnnotations.
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED — an unquoted pool name like "on"/"no"/"true"/"123" renders a YAML
+    # boolean/int that the apiserver refuses to unmarshal into map[string]string.
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+# Source: donezo/templates/api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: donezo-api-bmst139qui84vac
+  # GitOps PR2 keep-at-birth (§4.2): under cutover.mode: job every PER-BUILD resource
+  # protects itself from the sync that applies the NEXT bundle — without these the
+  # reconciler prunes the SERVING build's Deployment before the cutover Job ever runs
+  # (zero endpoints at sync time). The cutover Job owns GC, exactly as deploy E5/E6 do.
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    adapter-k8s.dev/release: "donezo"
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED. A pool named "on"/"no"/"y"/"off"/"true"/"123" renders a YAML boolean or
+    # int here; `helm template` accepts it (exit 0) and the apiserver then rejects the
+    # whole chart — "json: cannot unmarshal bool into Go struct field
+    # ObjectMeta.metadata.labels of type string" (sigs.k8s.io/yaml -> go-yaml v2, which
+    # implements YAML 1.1 booleans). buildId was already quoted in this block; the pool
+    # name was the one value that wasn't.
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/version: "bmst139qui84vac"
+spec:
+  replicas: 1
+  # N63. The other half of the 502/503 fix: a pool Deployment DOES get rolled by an
+  # image/pod-template change. With the default
+  # RollingUpdate 25%/25% the pool can dip BELOW its live replica count while the active
+  # Service still selects it. maxUnavailable: 0 + maxSurge: 1 never dips, and
+  # minReadySeconds gives the GFE time to health-check each new pod into the NEG before the
+  # next one is replaced — the same shape the routing tier already used.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "api"
+      app.kubernetes.io/version: "bmst139qui84vac"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "donezo"
+        app.kubernetes.io/component: "api"
+        app.kubernetes.io/version: "bmst139qui84vac"
+    spec:
+      # The pool server never calls the Kubernetes API — don't mount a SA token.
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: "docker-regcred"
+      # The adapter emits a single-platform image for this build. Pin scheduling to
+      # the matching node architecture in mixed-architecture clusters.
+      nodeSelector:
+        kubernetes.io/arch: "amd64"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      # N63: keep the pod alive while the GFE reprograms the NEG to stop sending it
+      # traffic (preStop below), then allow the drain to finish before SIGKILL.
+      terminationGracePeriodSeconds: 210
+      # N65: spread a build's replicas across nodes. ScheduleAnyway (not DoNotSchedule):
+      # a soft constraint never blocks a scale-up on a small/single-node pool, which would
+      # turn a capacity event into an outage; it only stops the scheduler from stacking
+      # every replica on one node, where a single drain takes the whole pool out.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "api"
+              app.kubernetes.io/version: "bmst139qui84vac"
+      containers:
+        - name: pool-server
+          image: "ghcr.io/davidilie/adapter-k8s-demo/nextjs-app@sha256:36f3cb9408b2929327b096ab8e5226b9d26f26929db600de6d3f521a33a4e02c"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          lifecycle:
+            preStop:
+              # N63. Google, "Troubleshoot load balancing in GKE": "Apply a preStop hook
+              # that will ensure the Pod is alive for 120 seconds longer while the Pod's
+              # endpoint is drained in the load balancer." Without it the pool closes its
+              # listener the moment SIGTERM lands and in-flight requests the GFE is still
+              # routing here become 502s (and requests to the deleted endpoint, 503s).
+              exec:
+                command: ["/bin/sh", "-c", "sleep 120"]
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: NEXT_BUILD_ID
+              value: "bmst139qui84vac"
+            - name: POOL_NAME
+              value: "api"
+            # The pool server derives cross-pool proxy target names from
+            # RELEASE_NAME; without it proxyToPool defaults to "nextjs" and
+            # can't reach sibling pools in any release not named that.
+            - name: RELEASE_NAME
+              value: "donezo"
+            - name: INTERNAL_HEADER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-ihs-bmst139qui84vac-26b726c3
+                  key: secret
+            - name: VALKEY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-valkey
+                  key: url
+                  optional: true
+            - name: VALKEY_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-valkey
+                  key: auth
+                  optional: true
+            - name: VALKEY_CA_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-valkey
+                  key: ca
+                  optional: true
+            - name: APP_ORIGIN
+              value: "https://adapter-demo.davidhome.ro"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: "adapter-demo-runtime"
+                  key: "DATABASE_URL"
+          volumeMounts:
+            # readOnlyRootFilesystem makes / read-only; Next still needs a writable
+            # scratch dir, so /tmp is an emptyDir. NOT in-memory: a bare `emptyDir: {}`
+            # is backed by the NODE's disk (an in-memory one needs `medium: Memory`,
+            # which would charge the pages to the container's memory limit) — the comment
+            # here claimed otherwise for a long time. Both volumes carry a sizeLimit so
+            # unbounded growth is an eviction with a reason, not a mystery.
+            - name: tmp
+              mountPath: /tmp
+            # Without the shared Valkey incremental handler wired (cache disabled, or an
+            # edge-middleware app), Next falls back to its FILESYSTEM incremental cache at
+            # .next/cache — which must exist writable or renders fail with EROFS. Per-pod
+            # and ephemeral: correct (if unshared) degradation, never durable state. It
+            # grows without bound in that fallback, hence the sizeLimit below.
+            - name: next-cache
+              mountPath: /app/.next/cache
+          # N71. Probe timings are explicit, not inherited. The HTTP listener only comes up
+          # at the END of startPoolServer (after .env loading and awaited instrumentation
+          # registration), so everything before listen() is connection-refused: with the
+          # old `initialDelaySeconds: 10` + default period 10 + default failureThreshold 3,
+          # a slow-booting pool was restarted at ~30 s, forever. A startupProbe suspends
+          # liveness until the pod answers once (30 * 5 s = 150 s of boot budget), and
+          # timeoutSeconds is raised off the default 1 s, which failed any probe issued
+          # while the event loop was blocked by module loading or a heavy render.
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "192Mi"
+              # Explicit so the emptyDir sizeLimits above are charged against a number the
+              # operator chose rather than a platform default (Autopilot otherwise applies
+              # its own and evicts silently once it is exceeded).
+              ephemeral-storage: "2Gi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+        - name: next-cache
+          emptyDir:
+            sizeLimit: 1Gi
+
+---
+# Source: donezo/templates/routing-service-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: donezo-routing-service
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+spec:
+  # Zero-downtime rollout behind a standalone NEG. The routing service is the ext_proc
+  # backend; when it rolls to a new build image, old pods must not drain from the NEG
+  # before new pods are health-checked into it by the GCP load balancer — otherwise the
+  # fail-closed callout 500s for the sync window (observed ~90s on a redeploy). Never drop
+  # below desired replicas, and count a new pod as "available" only after it has been Ready
+  # long enough for the LB backend health check to pass.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: routing-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "donezo"
+        app.kubernetes.io/component: routing-service
+        app.kubernetes.io/version: "bmst139qui84vac"
+    spec:
+      # The routing service never calls the Kubernetes API — don't mount a SA token.
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: "docker-regcred"
+      nodeSelector:
+        kubernetes.io/arch: "amd64"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      # N63. Give a terminating pod time to keep serving in-flight callouts while the LB
+      # stops routing to it (preStop below), before SIGTERM/kill. Was 25s/40s while the
+      # comment above measured a ~90s NEG sync — the value contradicted the measurement.
+      # Now matched to Google's guidance for NEG-backed pods ("Troubleshoot load balancing
+      # in GKE": preStop sleep 120, terminationGracePeriodSeconds 3.5 minutes), which is
+      # also comfortably above the observed drain.
+      terminationGracePeriodSeconds: 210
+      # N65. The tier defaults to 2 replicas that the scheduler is free to co-locate, and
+      # the callout is fail-CLOSED whenever the app has middleware — losing both replicas
+      # is a total 500, not degraded service. Soft (ScheduleAnyway) so a small cluster
+      # never fails to schedule the second replica.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: routing-service
+      containers:
+        - name: routing-service
+          image: "ghcr.io/davidilie/adapter-k8s-demo/routing-service@sha256:1e216d906092ee63d7e9880282b725d2c217f835586da039bf4a0d9e893ba4fd"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          lifecycle:
+            preStop:
+              # Keep serving while GCP reprograms the NEG to drain this terminating pod.
+              # Without this, in-flight ext_proc callouts land on a pod that's already gone.
+              exec:
+                command: ["/bin/sh", "-c", "sleep 120"]
+          ports:
+            - containerPort: 8443
+              name: grpc
+            - containerPort: 8081
+              name: health
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: NEXT_BUILD_ID
+              value: "bmst139qui84vac"
+            - name: PORT
+              value: "8443"
+            - name: HEALTH_PORT
+              value: "8081"
+            - name: ROUTING_TRANSPORT
+              value: "h2c"
+            - name: ROUTING_FAIL_OPEN
+              value: "false"
+            - name: ROUTING_REQUEST_TIMEOUT_MS
+              value: "4000"
+            - name: CONFIG_DIR
+              value: /config
+            # The per-replica TLS cert generated at container start needs the release
+            # name + namespace to build its CN/SAN (cert lands in /tmp/tls).
+            - name: RELEASE_NAME
+              value: "donezo"
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: INTERNAL_HEADER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-ihs-bmst139qui84vac-26b726c3
+                  key: secret
+            - name: APP_ORIGIN
+              value: "https://adapter-demo.davidhome.ro"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: "adapter-demo-runtime"
+                  key: "DATABASE_URL"
+          volumeMounts:
+            - name: routing-manifest
+              mountPath: /config
+            # readOnlyRootFilesystem makes / read-only; the runtime TLS cert
+            # generation writes under /tmp/tls, backed by this emptyDir. NOT in-memory
+            # (that needs `medium: Memory`) — node disk, bounded by the sizeLimit below.
+            - name: tmp
+              mountPath: /tmp
+          # httpGet, not a socket check: a wedged event loop still accepts a TCP
+          # connection but fails to *serve* /healthz, so a broken-but-listening pod
+          # gets evicted from the NEG instead of silently failing callouts.
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "384Mi"
+      volumes:
+        - name: routing-manifest
+          configMap:
+            # PER-BUILD, deliberately (2026-07-30): mounting the stable mutable CM raced
+            # kubelet's ConfigMap-update propagation on every deploy — a new pod could mount
+            # the pre-upgrade manifest and the match guard crashed it. A per-build name is a
+            # fresh GET with no propagation window. Rollback re-points to the previous
+            # build's snapshot, which its retained render names automatically.
+            name: donezo-rm-bmst139qui84vac-26b726c3
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+# Source: donezo/templates/web-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: donezo-web-bmst139qui84vac
+  # GitOps PR2 keep-at-birth (§4.2): under cutover.mode: job every PER-BUILD resource
+  # protects itself from the sync that applies the NEXT bundle — without these the
+  # reconciler prunes the SERVING build's Deployment before the cutover Job ever runs
+  # (zero endpoints at sync time). The cutover Job owns GC, exactly as deploy E5/E6 do.
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    adapter-k8s.dev/release: "donezo"
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED. A pool named "on"/"no"/"y"/"off"/"true"/"123" renders a YAML boolean or
+    # int here; `helm template` accepts it (exit 0) and the apiserver then rejects the
+    # whole chart — "json: cannot unmarshal bool into Go struct field
+    # ObjectMeta.metadata.labels of type string" (sigs.k8s.io/yaml -> go-yaml v2, which
+    # implements YAML 1.1 booleans). buildId was already quoted in this block; the pool
+    # name was the one value that wasn't.
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+spec:
+  replicas: 1
+  # N63. The other half of the 502/503 fix: a pool Deployment DOES get rolled by an
+  # image/pod-template change. With the default
+  # RollingUpdate 25%/25% the pool can dip BELOW its live replica count while the active
+  # Service still selects it. maxUnavailable: 0 + maxSurge: 1 never dips, and
+  # minReadySeconds gives the GFE time to health-check each new pod into the NEG before the
+  # next one is replaced — the same shape the routing tier already used.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "web"
+      app.kubernetes.io/version: "bmst139qui84vac"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "donezo"
+        app.kubernetes.io/component: "web"
+        app.kubernetes.io/version: "bmst139qui84vac"
+    spec:
+      # The pool server never calls the Kubernetes API — don't mount a SA token.
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: "docker-regcred"
+      # The adapter emits a single-platform image for this build. Pin scheduling to
+      # the matching node architecture in mixed-architecture clusters.
+      nodeSelector:
+        kubernetes.io/arch: "amd64"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      # N63: keep the pod alive while the GFE reprograms the NEG to stop sending it
+      # traffic (preStop below), then allow the drain to finish before SIGKILL.
+      terminationGracePeriodSeconds: 210
+      # N65: spread a build's replicas across nodes. ScheduleAnyway (not DoNotSchedule):
+      # a soft constraint never blocks a scale-up on a small/single-node pool, which would
+      # turn a capacity event into an outage; it only stops the scheduler from stacking
+      # every replica on one node, where a single drain takes the whole pool out.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "web"
+              app.kubernetes.io/version: "bmst139qui84vac"
+      containers:
+        - name: pool-server
+          image: "ghcr.io/davidilie/adapter-k8s-demo/nextjs-app@sha256:36f3cb9408b2929327b096ab8e5226b9d26f26929db600de6d3f521a33a4e02c"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          lifecycle:
+            preStop:
+              # N63. Google, "Troubleshoot load balancing in GKE": "Apply a preStop hook
+              # that will ensure the Pod is alive for 120 seconds longer while the Pod's
+              # endpoint is drained in the load balancer." Without it the pool closes its
+              # listener the moment SIGTERM lands and in-flight requests the GFE is still
+              # routing here become 502s (and requests to the deleted endpoint, 503s).
+              exec:
+                command: ["/bin/sh", "-c", "sleep 120"]
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: NEXT_BUILD_ID
+              value: "bmst139qui84vac"
+            - name: POOL_NAME
+              value: "web"
+            # The pool server derives cross-pool proxy target names from
+            # RELEASE_NAME; without it proxyToPool defaults to "nextjs" and
+            # can't reach sibling pools in any release not named that.
+            - name: RELEASE_NAME
+              value: "donezo"
+            - name: INTERNAL_HEADER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-ihs-bmst139qui84vac-26b726c3
+                  key: secret
+            - name: VALKEY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-valkey
+                  key: url
+                  optional: true
+            - name: VALKEY_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-valkey
+                  key: auth
+                  optional: true
+            - name: VALKEY_CA_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-valkey
+                  key: ca
+                  optional: true
+            - name: APP_ORIGIN
+              value: "https://adapter-demo.davidhome.ro"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: "adapter-demo-runtime"
+                  key: "DATABASE_URL"
+          volumeMounts:
+            # readOnlyRootFilesystem makes / read-only; Next still needs a writable
+            # scratch dir, so /tmp is an emptyDir. NOT in-memory: a bare `emptyDir: {}`
+            # is backed by the NODE's disk (an in-memory one needs `medium: Memory`,
+            # which would charge the pages to the container's memory limit) — the comment
+            # here claimed otherwise for a long time. Both volumes carry a sizeLimit so
+            # unbounded growth is an eviction with a reason, not a mystery.
+            - name: tmp
+              mountPath: /tmp
+            # Without the shared Valkey incremental handler wired (cache disabled, or an
+            # edge-middleware app), Next falls back to its FILESYSTEM incremental cache at
+            # .next/cache — which must exist writable or renders fail with EROFS. Per-pod
+            # and ephemeral: correct (if unshared) degradation, never durable state. It
+            # grows without bound in that fallback, hence the sizeLimit below.
+            - name: next-cache
+              mountPath: /app/.next/cache
+          # N71. Probe timings are explicit, not inherited. The HTTP listener only comes up
+          # at the END of startPoolServer (after .env loading and awaited instrumentation
+          # registration), so everything before listen() is connection-refused: with the
+          # old `initialDelaySeconds: 10` + default period 10 + default failureThreshold 3,
+          # a slow-booting pool was restarted at ~30 s, forever. A startupProbe suspends
+          # liveness until the pod answers once (30 * 5 s = 150 s of boot budget), and
+          # timeoutSeconds is raised off the default 1 s, which failed any probe issued
+          # while the event loop was blocked by module loading or a heavy render.
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+              # Explicit so the emptyDir sizeLimits above are charged against a number the
+              # operator chose rather than a platform default (Autopilot otherwise applies
+              # its own and evicts silently once it is exceeded).
+              ephemeral-storage: "2Gi"
+            limits:
+              cpu: "1"
+              memory: "768Mi"
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+        - name: next-cache
+          emptyDir:
+            sizeLimit: 1Gi
+
+---
+# Source: donezo/templates/api-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: donezo-api-bmst139qui84vac-hpa
+  # GitOps PR2 keep-at-birth (§4.2): per-build resource — see deployment.ts.
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    adapter-k8s.dev/release: "donezo"
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/version: "bmst139qui84vac"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: donezo-api-bmst139qui84vac
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# Source: donezo/templates/routing-service-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: donezo-routing-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: donezo-routing-service
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# Source: donezo/templates/web-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: donezo-web-bmst139qui84vac-hpa
+  # GitOps PR2 keep-at-birth (§4.2): per-build resource — see deployment.ts.
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    adapter-k8s.dev/release: "donezo"
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: donezo-web-bmst139qui84vac
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# Source: donezo/templates/cutover-job.yaml
+# The in-cluster cutover Job (design §4.2, PLAIN by design — real-cluster gap #4):
+# applied with the bundle like any other resource, no Argo hook/sync-wave semantics
+# required for correctness. It runs the same gate battery as imperative deploy (exact-
+# version rollout waits, route-ext Job completion, generation-guarded policy Accepted,
+# HPA warm-up, per-pool /readyz capacity), then patches the stable Service selectors to
+# this build, commits the state ConfigMap (cluster-only mode), invalidates CDN, and
+# parks the previous build — exiting nonzero (after restoring the edge) on any gate
+# failure, which the reconciler surfaces as a failed Job.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: donezo-cutover-26b726c34a98
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+  annotations:
+    # The name carries only a digest of the build id — record the full id for operators
+    # (an annotation, not a label: build ids may exceed the 63-char label-value cap).
+    adapter-k8s.dev/build-id: "bmst139qui84vac"
+spec:
+  # One retry absorbs a transient pod-level failure (node drain, image pull blip); a
+  # PERSISTENTLY failing build is handled by the poison pill in the entrypoint (the Job
+  # records the failed build id in the state ConfigMap and refuses re-promotion without
+  # cutover.forcePromotion), so retries can never flap the HPA warm-up indefinitely.
+  backoffLimit: 1
+  # NO ttlSecondsAfterFinished: the per-build name is the idempotency key — a re-sync of
+  # the same bundle must find the completed Job, not a swept one it would re-create.
+  template:
+    metadata:
+      # The same name/component pair as the Job object, so `kubectl logs -l
+      # app.kubernetes.io/component=cutover-job` reaches the PODS (the batch
+      # controller only stamps its own job-name labels). Deliberately NOT matched by any
+      # NetworkPolicy podSelector (those pair the name label with routing-service/pool
+      # components), so the pod's apiserver egress stays unrestricted.
+      labels:
+        app.kubernetes.io/name: "donezo"
+        app.kubernetes.io/component: cutover-job
+    spec:
+      serviceAccountName: donezo-cutover-sa
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: "docker-regcred"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cutover
+          image: "ghcr.io/davidilie/adapter-k8s-demo/cutover@sha256:1aee076467df76999d22062102e3ef989c4b2d8c45ab049f9a7506662e733cf6"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: RELEASE_NAME
+              value: "donezo"
+            # The Job promotes in its own namespace — downward API, never a values echo
+            # that could disagree with where the bundle was actually applied.
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: EMIT_METADATA_PATH
+              value: /etc/adapter-k8s/emit-metadata.json
+            # Poison-pill override (design §8 risk 4): re-promote a build this release's
+            # state ConfigMap records as a FAILED promotion. Off by default.
+            - name: FORCE_PROMOTION
+              value: "false"
+          volumeMounts:
+            - name: emit-metadata
+              mountPath: /etc/adapter-k8s
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: emit-metadata
+          configMap:
+            name: donezo-emit-meta-bmst139qui84vac-26b726c3
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+
+---
+# Source: donezo/templates/target-003-certificate-donezo-tls.yaml
+{
+  "apiVersion": "cert-manager.io/v1",
+  "kind": "Certificate",
+  "metadata": {
+    "name": "donezo-tls",
+    "namespace": "adapter-demo",
+    "labels": {
+      "app.kubernetes.io/name": "donezo",
+      "adapter-k8s.dev/release": "donezo"
+    }
+  },
+  "spec": {
+    "secretName": "donezo-tls",
+    "dnsNames": [
+      "adapter-demo.davidhome.ro"
+    ],
+    "issuerRef": {
+      "name": "letsencrypt-production",
+      "kind": "ClusterIssuer"
+    }
+  }
+}
+
+---
+# Source: donezo/templates/target-004-envoyextensionpolicy-donezo-routing-extproc.yaml
+{
+  "apiVersion": "gateway.envoyproxy.io/v1alpha1",
+  "kind": "EnvoyExtensionPolicy",
+  "metadata": {
+    "name": "donezo-routing-extproc",
+    "namespace": "adapter-demo",
+    "labels": {
+      "app.kubernetes.io/name": "donezo",
+      "app.kubernetes.io/component": "routing-service",
+      "adapter-k8s.dev/release": "donezo"
+    }
+  },
+  "spec": {
+    "targetRefs": [
+      {
+        "group": "gateway.networking.k8s.io",
+        "kind": "HTTPRoute",
+        "name": "donezo-routes"
+      }
+    ],
+    "extProc": [
+      {
+        "backendRefs": [
+          {
+            "name": "donezo-routing-service",
+            "port": 8443
+          }
+        ],
+        "processingMode": {
+          "request": {}
+        },
+        "failOpen": false,
+        "messageTimeout": "4s"
+      }
+    ]
+  }
+}
+
+---
+# Source: donezo/templates/target-000-gateway-donezo-gateway.yaml
+{
+  "apiVersion": "gateway.networking.k8s.io/v1",
+  "kind": "Gateway",
+  "metadata": {
+    "name": "donezo-gateway",
+    "namespace": "adapter-demo",
+    "labels": {
+      "app.kubernetes.io/name": "donezo",
+      "adapter-k8s.dev/release": "donezo"
+    }
+  },
+  "spec": {
+    "gatewayClassName": "eg",
+    "listeners": [
+      {
+        "name": "http",
+        "protocol": "HTTP",
+        "port": 80,
+        "hostname": "adapter-demo.davidhome.ro",
+        "allowedRoutes": {
+          "namespaces": {
+            "from": "Same"
+          }
+        }
+      },
+      {
+        "name": "https",
+        "protocol": "HTTPS",
+        "port": 443,
+        "hostname": "adapter-demo.davidhome.ro",
+        "tls": {
+          "mode": "Terminate",
+          "certificateRefs": [
+            {
+              "kind": "Secret",
+              "name": "donezo-tls"
+            }
+          ]
+        },
+        "allowedRoutes": {
+          "namespaces": {
+            "from": "Same"
+          }
+        }
+      }
+    ]
+  }
+}
+
+---
+# Source: donezo/templates/target-001-httproute-donezo-routes.yaml
+{
+  "apiVersion": "gateway.networking.k8s.io/v1",
+  "kind": "HTTPRoute",
+  "metadata": {
+    "name": "donezo-routes",
+    "namespace": "adapter-demo",
+    "labels": {
+      "app.kubernetes.io/name": "donezo",
+      "adapter-k8s.dev/release": "donezo"
+    }
+  },
+  "spec": {
+    "parentRefs": [
+      {
+        "name": "donezo-gateway",
+        "sectionName": "https"
+      }
+    ],
+    "hostnames": [
+      "adapter-demo.davidhome.ro"
+    ],
+    "rules": [
+      {
+        "matches": [
+          {
+            "path": {
+              "type": "PathPrefix",
+              "value": "/"
+            }
+          }
+        ],
+        "backendRefs": [
+          {
+            "name": "donezo-origin",
+            "port": 3000
+          }
+        ]
+      }
+    ]
+  }
+}
+
+---
+# Source: donezo/templates/target-002-httproute-donezo-http-redirect.yaml
+{
+  "apiVersion": "gateway.networking.k8s.io/v1",
+  "kind": "HTTPRoute",
+  "metadata": {
+    "name": "donezo-http-redirect",
+    "namespace": "adapter-demo",
+    "labels": {
+      "app.kubernetes.io/name": "donezo",
+      "adapter-k8s.dev/release": "donezo"
+    }
+  },
+  "spec": {
+    "parentRefs": [
+      {
+        "name": "donezo-gateway",
+        "sectionName": "http"
+      }
+    ],
+    "hostnames": [
+      "adapter-demo.davidhome.ro"
+    ],
+    "rules": [
+      {
+        "filters": [
+          {
+            "type": "RequestRedirect",
+            "requestRedirect": {
+              "scheme": "https",
+              "statusCode": 301
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

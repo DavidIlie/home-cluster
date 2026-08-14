@@ -1,0 +1,45 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: donezo-secrets
+  namespace: adapter-demo
+spec:
+  interval: 30m
+  retryInterval: 1m
+  path: ./kubernetes/apps/adapter-demo/donezo/app/bundle/secrets
+  targetNamespace: adapter-demo
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  dependsOn:
+    - name: adapter-demo-platform
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  wait: true
+  timeout: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: donezo
+  namespace: adapter-demo
+spec:
+  interval: 30m
+  retryInterval: 1m
+  path: ./kubernetes/apps/adapter-demo/donezo/app
+  targetNamespace: adapter-demo
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  dependsOn:
+    - name: adapter-demo-platform
+    - name: donezo-secrets
+  wait: true
+  timeout: 65m

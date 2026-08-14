@@ -1,0 +1,109 @@
+{{- if eq .Values.cutover.mode "job" }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: donezo-cutover-sa
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: donezo-cutover
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+rules:
+  # E1 selector cutover + revert: read the exact live selectors, patch them by NAME.
+  # E6 deletes superseded builds' versioned Services.
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "patch", "delete"]
+  # D1/D2 rollout waits (get/list/watch), N64 live replica read (get), edge revert
+  # patches the routing Deployment (patch), E6 deletes superseded builds' Deployments.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch", "delete"]
+  # kubectl scale (D6 pre-cutover capacity match, E5 park-at-zero) hits the scale
+  # subresource.
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["patch", "update"]
+  # D6 warm-up lifts/restores HPA bounds (patch); E5 deletes the outgoing HPA; the
+  # revert path recreates one (create).
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "create", "patch", "delete"]
+  # D7 readiness gate lists pods by label and reads their Ready condition; the failure
+  # diagnostics run the in-pod /readyz probe (pods/exec) and read pod logs.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  # D3 waits on the route-ext registration Job; E6 GCs superseded route-ext Jobs.
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "delete"]
+  # The state ConfigMap (N20/N21/N23/S19: read + create/replace under resourceVersion
+  # precondition), routing-manifest snapshot retention (get/create/patch via apply +
+  # annotate/label), and E6's snapshot/plan CM pruning (delete).
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
+  # Edge revert probes the target build's per-build dispatch Secret BY NAME before
+  # moving the secretKeyRef (N87); E6 prunes unreferenced dispatch Secrets.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "delete"]
+  # E6's retained stable-resource sweep lists PodDisruptionBudgets by label, reads each
+  # to confirm it selects the pool it claims to, and deletes the obsolete ones. Without
+  # this rule the sweep is forbidden — non-fatal (it runs after the state commit and is
+  # best-effort), but every Job logs the failure and removed pools' PDBs are never GC'd.
+  # HealthCheckPolicies need no rule: the cluster-scoped CRD probe fails first under the
+  # Job's namespaced Role and drops that kind from the sweep entirely.
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "delete"]
+  # D4/D5 generation-guarded Accepted gate — read-only.
+  - apiGroups: ["gateway.envoyproxy.io"]
+    resources: ["envoyextensionpolicies"]
+    verbs: ["get"]
+  # Composition-plan readiness (waitForCompositionPlanReadiness): HTTPRoute
+  # Accepted/ResolvedRefs, Gateway address, Ingress, cert-manager Certificate Ready,
+  # and EndpointSlice capacity. Read-only — the Job refuses promotion until they are
+  # ready; it never repairs them. Cross-namespace parent Gateways are not readable
+  # from this namespaced Role; HTTPRoute status in this namespace is the gate.
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes", "gateways"]
+    verbs: ["get", "list"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates"]
+    verbs: ["get", "list"]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["get", "list"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: donezo-cutover
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: donezo-cutover
+subjects:
+  - kind: ServiceAccount
+    name: donezo-cutover-sa
+{{- end }}

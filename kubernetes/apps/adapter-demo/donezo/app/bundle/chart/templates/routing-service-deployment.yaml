@@ -1,0 +1,182 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: donezo-routing-service
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+spec:
+  # Zero-downtime rollout behind a standalone NEG. The routing service is the ext_proc
+  # backend; when it rolls to a new build image, old pods must not drain from the NEG
+  # before new pods are health-checked into it by the GCP load balancer — otherwise the
+  # fail-closed callout 500s for the sync window (observed ~90s on a redeploy). Never drop
+  # below desired replicas, and count a new pod as "available" only after it has been Ready
+  # long enough for the LB backend health check to pass.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: routing-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "donezo"
+        app.kubernetes.io/component: routing-service
+        app.kubernetes.io/version: "bmst139qui84vac"
+    spec:
+      # The routing service never calls the Kubernetes API — don't mount a SA token.
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: "docker-regcred"
+      nodeSelector:
+        kubernetes.io/arch: "amd64"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      # N63. Give a terminating pod time to keep serving in-flight callouts while the LB
+      # stops routing to it (preStop below), before SIGTERM/kill. Was 25s/40s while the
+      # comment above measured a ~90s NEG sync — the value contradicted the measurement.
+      # Now matched to Google's guidance for NEG-backed pods ("Troubleshoot load balancing
+      # in GKE": preStop sleep 120, terminationGracePeriodSeconds 3.5 minutes), which is
+      # also comfortably above the observed drain.
+      terminationGracePeriodSeconds: 210
+      # N65. The tier defaults to 2 replicas that the scheduler is free to co-locate, and
+      # the callout is fail-CLOSED whenever the app has middleware — losing both replicas
+      # is a total 500, not degraded service. Soft (ScheduleAnyway) so a small cluster
+      # never fails to schedule the second replica.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: routing-service
+      containers:
+        - name: routing-service
+          image: "ghcr.io/davidilie/adapter-k8s-demo/routing-service{{ with .Values.routingService.image.digest }}@{{ . }}{{ else }}:bmst139qui84vac{{ end }}"
+          imagePullPolicy: {{ with .Values.routingService.image.digest }}IfNotPresent{{ else }}Always{{ end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          lifecycle:
+            preStop:
+              # Keep serving while GCP reprograms the NEG to drain this terminating pod.
+              # Without this, in-flight ext_proc callouts land on a pod that's already gone.
+              exec:
+                command: ["/bin/sh", "-c", "sleep 120"]
+          ports:
+            - containerPort: 8443
+              name: grpc
+            - containerPort: 8081
+              name: health
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: NEXT_BUILD_ID
+              value: "bmst139qui84vac"
+            - name: PORT
+              value: "8443"
+            - name: HEALTH_PORT
+              value: "8081"
+            - name: ROUTING_TRANSPORT
+              value: "h2c"
+            - name: ROUTING_FAIL_OPEN
+              value: "false"
+            - name: ROUTING_REQUEST_TIMEOUT_MS
+              value: "4000"
+            - name: CONFIG_DIR
+              value: /config
+            # The per-replica TLS cert generated at container start needs the release
+            # name + namespace to build its CN/SAN (cert lands in /tmp/tls).
+            - name: RELEASE_NAME
+              value: "donezo"
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: INTERNAL_HEADER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: donezo-ihs-bmst139qui84vac-26b726c3
+                  key: secret
+            - name: APP_ORIGIN
+              value: "https://adapter-demo.davidhome.ro"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: "adapter-demo-runtime"
+                  key: "DATABASE_URL"
+          volumeMounts:
+            - name: routing-manifest
+              mountPath: /config
+            # readOnlyRootFilesystem makes / read-only; the runtime TLS cert
+            # generation writes under /tmp/tls, backed by this emptyDir. NOT in-memory
+            # (that needs `medium: Memory`) — node disk, bounded by the sizeLimit below.
+            - name: tmp
+              mountPath: /tmp
+          # httpGet, not a socket check: a wedged event loop still accepts a TCP
+          # connection but fails to *serve* /healthz, so a broken-but-listening pod
+          # gets evicted from the NEG instead of silently failing callouts.
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "384Mi"
+      volumes:
+        - name: routing-manifest
+          configMap:
+            # PER-BUILD, deliberately (2026-07-30): mounting the stable mutable CM raced
+            # kubelet's ConfigMap-update propagation on every deploy — a new pod could mount
+            # the pre-upgrade manifest and the match guard crashed it. A per-build name is a
+            # fresh GET with no propagation window. Rollback re-points to the previous
+            # build's snapshot, which its retained render names automatically.
+            name: donezo-rm-bmst139qui84vac-26b726c3
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: donezo-routing-service-pdb
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+spec:
+  # N65. A single node drain could otherwise evict every routing-service replica through
+  # the eviction API at once. With middleware present the callout is fail-closed, so that
+  # is a total 500 for the release — the one tier where "degraded" is not an option.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: routing-service

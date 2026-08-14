@@ -1,0 +1,5 @@
+apiVersion: v2
+name: donezo
+description: Next.js application deployed via @next-community/adapter-k8s
+version: 0.1.0-bmst139qui84vac-b26b726c3
+appVersion: "0.1.0-bmst139qui84vac-b26b726c3"

@@ -1,0 +1,44 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: donezo
+  namespace: adapter-demo
+spec:
+  interval: 30m
+  timeout: 60m
+  chart:
+    spec:
+      chart: ./kubernetes/apps/adapter-demo/donezo/app/bundle/chart
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+      reconcileStrategy: Revision
+      valuesFiles:
+        - ./kubernetes/apps/adapter-demo/donezo/app/bundle/values/values.yaml
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  driftDetection:
+    mode: enabled
+    ignore:
+      - target:
+          kind: Service
+        paths:
+          - /spec/selector
+  # flux-local renders local GitRepository charts without chart.spec.valuesFiles.
+  # Keep the strict-policy CIDRs inline so CI exercises the same network boundary;
+  # Flux merges these over the immutable generated values file at reconciliation.
+  values:
+    global:
+      networkPolicy:
+        podCidrs:
+          - 10.42.0.0/16
+        nodeCidrs:
+          - 192.168.100.0/24
+        strict: true

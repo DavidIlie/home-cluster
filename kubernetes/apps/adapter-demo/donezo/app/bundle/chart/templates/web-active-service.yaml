@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-web
+  # Explicit empty policy lets Helm clear a previous rollback-retention keep annotation when a
+  # removed pool re-enters the current topology. Omission is not enough under three-way/SSA merge.
+  # GitOps PR2 (§4.2): under cutover.mode: job the version selector renders at the
+  # PREVIOUS build (sync is not cutover — the Job repoints it after the gates pass) and
+  # the pending annotation marks this Service as awaiting the Job's promotion.
+  annotations:
+    helm.sh/resource-policy: ""{{- if eq .Values.cutover.mode "job" }}
+    adapter-k8s.io/cutover: pending
+{{- end }}
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/managed-by: adapter-k8s-active
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "{{ if eq .Values.cutover.mode "job" }}{{ .Values.previousBuildId }}{{ else }}{{ .Values.activeBuildId }}{{ end }}"
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: donezo-web-pdb
+  annotations:
+    helm.sh/resource-policy: ""
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+spec:
+  # N65. Without a PDB the eviction API will drain every replica of a pool at once, and
+  # GKE node auto-upgrade plus Autopilot bin-packing are routine voluntary-eviction
+  # sources. The chart already went to trouble over the ROLLOUT path (maxUnavailable: 0,
+  # minReadySeconds, preStop) while leaving the involuntary path unguarded.
+  # minAvailable: 1 (not a percentage): with a single-replica pool a percentage rounds up
+  # to 1 and blocks node drains forever, which turns an upgrade into a stuck cluster;
+  # minAvailable: 1 on a 1-replica pool is the documented "unhealthyPodEvictionPolicy"
+  # trade-off we accept — it delays a drain rather than dropping the pool to zero.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "web"

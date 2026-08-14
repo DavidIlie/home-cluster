@@ -1,0 +1,48 @@
+{
+  "apiVersion": "gateway.networking.k8s.io/v1",
+  "kind": "Gateway",
+  "metadata": {
+    "name": "donezo-gateway",
+    "namespace": "adapter-demo",
+    "labels": {
+      "app.kubernetes.io/name": "donezo",
+      "adapter-k8s.dev/release": "donezo"
+    }
+  },
+  "spec": {
+    "gatewayClassName": "eg",
+    "listeners": [
+      {
+        "name": "http",
+        "protocol": "HTTP",
+        "port": 80,
+        "hostname": "adapter-demo.davidhome.ro",
+        "allowedRoutes": {
+          "namespaces": {
+            "from": "Same"
+          }
+        }
+      },
+      {
+        "name": "https",
+        "protocol": "HTTPS",
+        "port": 443,
+        "hostname": "adapter-demo.davidhome.ro",
+        "tls": {
+          "mode": "Terminate",
+          "certificateRefs": [
+            {
+              "kind": "Secret",
+              "name": "donezo-tls"
+            }
+          ]
+        },
+        "allowedRoutes": {
+          "namespaces": {
+            "from": "Same"
+          }
+        }
+      }
+    ]
+  }
+}
