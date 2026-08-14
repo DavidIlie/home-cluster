@@ -46,6 +46,11 @@ metadata:
   namespace: external-services
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-ssl-name: nucleus.davidapps.local
+    nginx.ingress.kubernetes.io/proxy-ssl-secret: external-services/proxmox-nucleus-ca
+    nginx.ingress.kubernetes.io/proxy-ssl-server-name: "on"
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
+    nginx.ingress.kubernetes.io/proxy-ssl-verify-depth: "1"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Hardware
     gethomepage.dev/name: Proxmox
@@ -57,8 +62,6 @@ metadata:
       group: Hardware
       url: https://nucleus.davidhome.ro
       interval: 1m
-      client:
-        insecure: true
       conditions: ["[STATUS] == any(200, 302, 301)"]
 spec:
   ingressClassName: internal
