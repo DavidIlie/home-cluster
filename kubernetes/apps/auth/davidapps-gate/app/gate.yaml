@@ -1,0 +1,130 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: davidapps-gate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: davidapps-gate
+  template:
+    metadata:
+      annotations:
+        reloader.stakater.com/auto: "true"
+      labels:
+        app.kubernetes.io/name: davidapps-gate
+        app.kubernetes.io/part-of: davidapps-auth
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      imagePullSecrets:
+        - name: docker-regcred
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gate
+          # DEPLOYMENT BLOCKER: replace this old central-cluster image with the
+          # digest produced by the current davidapps-auth release.
+          image: ghcr.io/davidilie/davidapps-auth-gate:main-2@sha256:58650f5b1acbe6add5d56149d3ca84824af4c9949ca3d8caeea5a2dbbf5a4aa3
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: davidapps-gate-config
+                  key: DATABASE_URL
+            - name: GATE_ED25519_SEED
+              valueFrom:
+                secretKeyRef:
+                  name: davidapps-gate-config
+                  key: GATE_ED25519_SEED
+            - name: HANDOFF_STATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: davidapps-gate-config
+                  key: HANDOFF_STATE_KEY
+            - name: REVOCATION_HMAC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: davidapps-gate-config
+                  key: REVOCATION_HMAC_KEY
+            - name: SHARE_LINK_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: davidapps-gate-config
+                  key: SHARE_LINK_SIGNING_KEY
+            - name: DRAGONFLY_URL
+              value: redis://davidapps-replay.auth.svc.cluster.local:6379/0
+            - name: GATE_ED25519_KEY_ID
+              value: gate-home-v1
+            - name: HANDOFF_JWKS_URL
+              value: https://id.davidapps.dev/api/auth/jwks
+            - name: REVOCATION_GATE_ID
+              value: gate-home
+            - name: REVOCATION_POLL_URL
+              value: https://id.davidapps.dev/internal/revocations
+            - name: SHARE_LINK_KEY_ID
+              value: prod-v1
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: database-ca
+              mountPath: /etc/davidapps/db-ca
+              readOnly: true
+      volumes:
+        - name: database-ca
+          secret:
+            secretName: davidapps-gate-config
+            defaultMode: 0444
+            items:
+              - key: ca.crt
+                path: ca.crt
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: davidapps-gate
+spec:
+  selector:
+    app.kubernetes.io/name: davidapps-gate
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
