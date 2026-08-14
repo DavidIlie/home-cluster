@@ -15,7 +15,7 @@ This stack deliberately does not use PostHog. It keeps application telemetry in 
 | Workloads in davidapps-cluster | `http://alloy.observability.svc.cluster.local:4318` | OTLP/HTTP |
 | Browsers | `https://telemetry.davidapps.dev/collect` | Grafana Faro |
 | davidapps Alloy | `192.168.100.98:4317` | OTLP/gRPC to home Tempo |
-| Agents on the home LAN | `https://tempo.davidhome.ro/api/mcp` | Tempo MCP |
+| Agents on the home LAN | `http://192.168.100.98:3200/api/mcp` | Tempo MCP |
 
 The Faro endpoint is deployed before any application SDK is connected. Its CORS allowlist contains only the current ZeroCut, MB Retrofit, and Kidays production origins.
 

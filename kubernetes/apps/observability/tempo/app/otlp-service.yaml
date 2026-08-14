@@ -11,6 +11,10 @@ spec:
     app.kubernetes.io/name: tempo
     app.kubernetes.io/instance: tempo
   ports:
+    - name: query-http
+      port: 3200
+      protocol: TCP
+      targetPort: 3200
     - name: otlp-grpc
       port: 4317
       targetPort: 4317
