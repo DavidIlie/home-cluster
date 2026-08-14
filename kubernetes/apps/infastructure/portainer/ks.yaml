@@ -6,6 +6,9 @@ metadata:
   name: &app portainer
   namespace: &namespace infastructure
 spec:
+  dependsOn:
+    - name: volsync
+      namespace: volsync-system
   targetNamespace: *namespace
   commonMetadata:
     labels:
@@ -20,3 +23,13 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
+  postBuild:
+    substitute:
+      APP: *app
+      APP_PVC: portainer
+      MOVER_UID: "0"
+      MOVER_GID: "0"
+      MOVER_FSGROUP: "0"
+    substituteFrom:
+      - kind: Secret
+        name: volsync-secret
