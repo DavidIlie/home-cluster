@@ -32,7 +32,7 @@ spec:
             image:
               repository: ghcr.io/home-operations/postgres-init
               tag: 18.4
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
                   name: paperless-secret
         containers:
@@ -71,11 +71,20 @@ spec:
               PAPERLESS_DBENGINE: postgresql
               # Auth
               PAPERLESS_ACCOUNT_ALLOW_SIGNUPS: "false"
-              PAPERLESS_AUTO_LOGIN_USERNAME: admin
+              PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
+              PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
+              PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"
+              PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS: "false"
+              PAPERLESS_DISABLE_REGULAR_LOGIN: "false"
+              PAPERLESS_REDIRECT_LOGIN_TO_SSO: "false"
               # User permissions
               USERMAP_UID: "1000"
               USERMAP_GID: "1000"
-            envFrom: *envFrom
+            envFrom:
+              - secretRef:
+                  name: paperless-secret
+              - secretRef:
+                  name: paperless-oidc-secret
             probes:
               liveness:
                 enabled: true

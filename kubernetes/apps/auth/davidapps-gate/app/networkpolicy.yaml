@@ -1,0 +1,63 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: davidapps-gate
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: davidapps-gate
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: network
+      ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: davidapps-replay
+      ports:
+        - port: 6379
+          protocol: TCP
+    # Standard NetworkPolicy cannot select an FQDN. The central database load
+    # balancer must separately restrict TCP 5432 by regional source address.
+    - ports:
+        - port: 5432
+          protocol: TCP
+    # Public JWKS and revocation polling both use HTTPS.
+    - ports:
+        - port: 443
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: davidapps-replay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: davidapps-replay
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: davidapps-gate
+      ports:
+        - port: 6379
+          protocol: TCP
+  egress: []

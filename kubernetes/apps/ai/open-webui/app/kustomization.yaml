@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./claim.yaml
   - ./secret.sops.yaml
+  - ./oidc-secret.sops.yaml
   - ./helmrelease.yaml
 components:
   - ../../../../flux/components/volsync

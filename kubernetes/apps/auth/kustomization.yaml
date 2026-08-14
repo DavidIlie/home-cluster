@@ -2,10 +2,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: auth
 resources:
-  - ./secret.sops.yaml
-  - ./oidc-secret.sops.yaml
-  - ./claim.yaml
-  - ./helmrelease.yaml
+  - ./davidapps-gate/ks.yaml
 components:
-  - ../../../../flux/components/volsync
+  - ../../flux/components/namespace
+  - ../../flux/components/regcred
+  - ../../flux/components/sops

@@ -32,7 +32,7 @@ spec:
             image:
               repository: ghcr.io/home-operations/postgres-init
               tag: 18.4
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
                   name: openwebui
         containers:
@@ -76,7 +76,40 @@ spec:
                 value: "32"
               - name: ENABLE_MEMORIES
                 value: "true"
-            envFrom: *envFrom
+              # DavidApps OIDC (local password login remains available)
+              - name: WEBUI_URL
+                value: https://chat.davidhome.ro
+              - name: ENABLE_OAUTH
+                value: "true"
+              - name: ENABLE_OAUTH_PERSISTENT_CONFIG
+                value: "false"
+              - name: ENABLE_OAUTH_SIGNUP
+                value: "true"
+              - name: ENABLE_PASSWORD_AUTH
+                value: "true"
+              - name: ENABLE_LOGIN_FORM
+                value: "true"
+              - name: OAUTH_AUTO_REDIRECT
+                value: "false"
+              - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+                value: "false"
+              - name: OPENID_PROVIDER_URL
+                value: https://id.davidapps.dev/.well-known/openid-configuration
+              - name: OPENID_REDIRECT_URI
+                value: https://chat.davidhome.ro/oauth/oidc/callback
+              - name: OAUTH_PROVIDER_NAME
+                value: DavidApps
+              - name: OAUTH_SCOPES
+                value: openid profile email
+              - name: OAUTH_CODE_CHALLENGE_METHOD
+                value: S256
+              - name: OAUTH_SUB_CLAIM
+                value: sub
+            envFrom:
+              - secretRef:
+                  name: openwebui
+              - secretRef:
+                  name: open-webui-oidc-secret
             probes:
               liveness:
                 enabled: true
