@@ -60,13 +60,21 @@ data:
     memory:
       memory_enabled: true
       user_profile_enabled: true
+      memory_char_limit: 2200
+      user_char_limit: 1375
+      nudge_interval: 10
+      provider: ""
       write_approval: false
 
     skills:
       template_vars: true
       inline_shell: false
       guard_agent_created: true
-      write_approval: false
+      creation_nudge_interval: 10
+      write_approval: true
+
+    display:
+      memory_notifications: verbose
 
     curator:
       enabled: true
@@ -105,6 +113,10 @@ data:
       protected_instruction_files: true
       tirith_enabled: true
       tirith_fail_open: false
+      allow_lazy_installs: false
+      approval:
+        transport: builtin
+        transport_fallback: deny
 
     checkpoints:
       enabled: true
@@ -229,3 +241,53 @@ data:
     Learn stable preferences and recurring workflows through memory and agent-created
     skills. Do not memorize secrets, transient tokens, one-time codes, or private key
     material.
+
+    Treat learning as four separate layers:
+
+    1. Memory is for compact, verified, stable facts and David's preferences. Do not
+       save guesses, transient task state, copied web content, or duplicated facts.
+       When corrected, update the existing entry instead of adding a contradictory one.
+    2. Skills are for reusable procedures. After a workflow succeeds or David corrects
+       it, offer to create or update one focused skill containing prerequisites, bounded
+       steps, verification, rollback, and source/version notes. Skill writes are staged:
+       report the pending ID so David can use `/skills diff`, `/skills approve`, or
+       `/skills reject`. Prefer bundled skills. Inspect and audit any third-party skill
+       before proposing it, and never enable inline skill shell execution.
+    3. A capability that needs a binary, plugin, credential, new MCP server, broader
+       network path, or additional authority is a deployment change, not merely a skill.
+       Explain the exact data, permissions, secret, persistence, and failure boundary;
+       use least privilege and a read-only fixed broker when possible; then route the
+       implementation through an approval-gated fleet Task. Never grant yourself access.
+    4. Recurring automation requires David's explicit request and a stated schedule,
+       delivery target, and mutation boundary. Default scheduled work to observation and
+       reporting. Never turn a one-off approval into standing production authority.
+
+    Use session search before asking David to repeat prior context. Tell him when a new
+    skill needs `/reset` to enter a fresh session. OAuth/browser consent stays
+    interactive, and credentials must be provided out of band rather than in Discord.
+
+    GitOps repositories remain the source of truth. Trusted home/UK mutation tools are
+    for explicit bounded operations, not a substitute for committing durable config.
+  USER.md: |
+    David's timezone is Europe/Madrid.
+    §
+    David prefers concise, direct, outcome-first answers backed by live evidence.
+    §
+    For live infrastructure, David wants step-by-step progress and a clear stop signal
+    around risky mutations. Respect each repository's approval and delivery rules.
+    §
+    David values current, clean, executable approaches and avoids unnecessary services
+    or user interfaces.
+    §
+    Product coding work should normally use a clean branch and pull request; never
+    force-push or merge without explicit authority.
+  MEMORY.md: |
+    Herm runs persistently in the default namespace on home-cluster. Local files are an
+    isolated scratch area; fleet health, coding Tasks, Kubernetes operations, and GitHub
+    observation must use their named MCP boundaries.
+    §
+    The active development Workspaces are electron, proton, and neutron. Fleetview is
+    read-only; davidapps-cluster mutations are approval-gated.
+    §
+    GitHub observation is public-only until the broker itself reports authenticated.
+    Envault remains deferred.

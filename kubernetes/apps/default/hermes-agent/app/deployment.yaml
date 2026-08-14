@@ -35,11 +35,18 @@ spec:
               if [ ! -s /opt/data/config.yaml ] || ! grep -q '^_config_version:' /opt/data/config.yaml; then
                 cp /seed/user-config.yaml /opt/data/config.yaml
               fi
-              if [ ! -s /opt/data/SOUL.md ]; then
-                cp /seed/SOUL.md /opt/data/SOUL.md
+              cmp -s /seed/SOUL.md /opt/data/SOUL.md || cp /seed/SOUL.md /opt/data/SOUL.md
+              mkdir -p /opt/data/memories
+              if [ ! -e /opt/data/memories/USER.md ]; then
+                cp /seed/USER.md /opt/data/memories/USER.md
+              fi
+              if [ ! -e /opt/data/memories/MEMORY.md ]; then
+                cp /seed/MEMORY.md /opt/data/memories/MEMORY.md
               fi
               chmod 0600 /opt/data/config.yaml
               chmod 0600 /opt/data/SOUL.md
+              chmod 0600 /opt/data/memories/USER.md
+              chmod 0600 /opt/data/memories/MEMORY.md
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000
