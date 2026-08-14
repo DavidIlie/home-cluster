@@ -63,3 +63,21 @@ spec:
       ports:
         - port: 6443
           protocol: TCP
+---
+# Cilium gives the local, host-networked API server an entity identity rather
+# than the node IP identity used by a standard ipBlock rule.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hermes-kube-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
