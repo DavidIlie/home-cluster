@@ -47,8 +47,10 @@ data:
         - cronjob
 
     discord:
-      require_mention: true
-      free_response_channels: "1537861134076350465"
+      # The channel is already exact-allowlisted below. Leaving it in
+      # free_response_channels makes upstream Hermes deliberately skip
+      # auto-thread creation, so disable mention gating globally instead.
+      require_mention: false
       allowed_channels: "1537861134076350465"
       auto_thread: true
       thread_require_mention: false
