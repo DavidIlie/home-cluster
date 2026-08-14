@@ -32,9 +32,13 @@ spec:
             - |
               umask 077
               mkdir -p /opt/data/workspace
+              if [ ! -s /opt/data/config.yaml ] || ! grep -q '^_config_version:' /opt/data/config.yaml; then
+                cp /seed/user-config.yaml /opt/data/config.yaml
+              fi
               if [ ! -s /opt/data/SOUL.md ]; then
                 cp /seed/SOUL.md /opt/data/SOUL.md
               fi
+              chmod 0600 /opt/data/config.yaml
               chmod 0600 /opt/data/SOUL.md
           securityContext:
             runAsNonRoot: true
@@ -54,8 +58,7 @@ spec:
             - name: data
               mountPath: /opt/data
             - name: managed
-              mountPath: /seed/SOUL.md
-              subPath: SOUL.md
+              mountPath: /seed
               readOnly: true
       containers:
         - name: app

@@ -52,3 +52,12 @@ spec:
       ports:
         - port: 22
           protocol: TCP
+    # The fleet gateway talks directly to the two external Kubernetes APIs.
+    - to:
+        - ipBlock:
+            cidr: 192.168.100.169/32
+        - ipBlock:
+            cidr: 10.4.0.182/32
+      ports:
+        - port: 6443
+          protocol: TCP

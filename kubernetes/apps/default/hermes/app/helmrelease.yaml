@@ -33,13 +33,17 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              tag: e1de575@sha256:eeb907455f8c8e308dda38c3fb29c91b3f33c120fc9ac10fd70fc7357fb10527
+              tag: bf57c6d@sha256:7ec7732c180226aa2c845af1f07a660bf4418aad095569f0c1534206b0cc108c
             command: ["/bin/sh", "-ec"]
             args:
               - |
                 cp /run/secrets/source/fleetview-token /run/secrets/hermes/fleetview-token
                 cp /run/secrets/source/mcp-token /run/secrets/hermes/mcp-token
                 cp /run/secrets/source/ssh-private-key /run/secrets/hermes/ssh-private-key
+                cp /run/secrets/source/davidapps-kube-token /run/secrets/hermes/davidapps-kube-token
+                cp /run/secrets/source/davidapps-kube-ca /run/secrets/hermes/davidapps-kube-ca
+                cp /run/secrets/source/uk-kube-token /run/secrets/hermes/uk-kube-token
+                cp /run/secrets/source/uk-kube-ca /run/secrets/hermes/uk-kube-ca
                 chmod 0600 /run/secrets/hermes/*
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -63,6 +67,12 @@ spec:
               HERMES_SSH_USER: hermes
               HERMES_SSH_HOME: /home/hermes
               HERMES_MONITOR_INTERVAL: 15s
+              HERMES_KUBE_DAVIDAPPS_SERVER: https://192.168.100.169:6443
+              HERMES_KUBE_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-kube-token
+              HERMES_KUBE_DAVIDAPPS_CA_FILE: /run/secrets/hermes/davidapps-kube-ca
+              HERMES_KUBE_UK_SERVER: https://10.4.0.182:6443
+              HERMES_KUBE_UK_TOKEN_FILE: /run/secrets/hermes/uk-kube-token
+              HERMES_KUBE_UK_CA_FILE: /run/secrets/hermes/uk-kube-ca
             probes:
               liveness: &probe
                 enabled: true
@@ -103,8 +113,11 @@ spec:
                 cpu: 500m
                 memory: 256Mi
             securityContext: *securityContext
+    serviceAccount:
+      create: false
+      name: hermes-fleet-operator
     defaultPodOptions:
-      automountServiceAccountToken: false
+      automountServiceAccountToken: true
       imagePullSecrets:
         - name: docker-regcred
       securityContext:
