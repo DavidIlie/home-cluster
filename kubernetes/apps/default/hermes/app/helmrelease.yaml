@@ -33,12 +33,12 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              tag: fa29767@sha256:750d364c33d3b8ada243d37f222f46308deb28490b72772d3dc1f64ed5382e68
+              tag: e1de575@sha256:eeb907455f8c8e308dda38c3fb29c91b3f33c120fc9ac10fd70fc7357fb10527
             command: ["/bin/sh", "-ec"]
             args:
               - |
-                cp /run/secrets/source/discord-token /run/secrets/hermes/discord-token
                 cp /run/secrets/source/fleetview-token /run/secrets/hermes/fleetview-token
+                cp /run/secrets/source/mcp-token /run/secrets/hermes/mcp-token
                 cp /run/secrets/source/ssh-private-key /run/secrets/hermes/ssh-private-key
                 chmod 0600 /run/secrets/hermes/*
             securityContext: &securityContext
@@ -56,11 +56,12 @@ spec:
             image: *image
             env:
               TZ: Europe/Madrid
-              HERMES_DISCORD_GUILD_ID: "853884362436116491"
-              HERMES_DISCORD_CHANNEL_ID: "1537861134076350465"
-              HERMES_DISCORD_USER_ID: "243009043260637184"
+              HERMES_DISCORD_ENABLED: "false"
               HERMES_FLEETVIEW_URL: https://fleetview.code.davidapps.dev/mcp
               HERMES_FLEETVIEW_ORIGIN: https://fleetview.code.davidapps.dev
+              HERMES_MCP_TOKEN_FILE: /run/secrets/hermes/mcp-token
+              HERMES_SSH_USER: hermes
+              HERMES_SSH_HOME: /home/hermes
               HERMES_MONITOR_INTERVAL: 15s
             probes:
               liveness: &probe

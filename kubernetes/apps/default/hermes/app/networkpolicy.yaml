@@ -16,6 +16,14 @@ spec:
       ports:
         - port: 8080
           protocol: TCP
+    # The official Hermes Agent reaches the authenticated fleet-task MCP API.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-agent
+      ports:
+        - port: 8080
+          protocol: TCP
   egress:
     - to:
         - namespaceSelector:

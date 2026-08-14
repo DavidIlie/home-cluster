@@ -1,0 +1,178 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-agent-managed
+data:
+  config.yaml: |
+    model:
+      default: gpt-5.6-sol
+      provider: custom
+      base_url: http://cliproxy.default.svc.cluster.local:8317/v1
+      api_key: $${CLIPROXY_API_KEY}
+      api_mode: codex_responses
+      context_length: 1050000
+      max_tokens: 128000
+
+    agent:
+      reasoning_effort: low
+      service_tier: priority
+      max_turns: 500
+      gateway_timeout: 21600
+      task_completion_guidance: true
+      tool_use_enforcement: auto
+      intent_ack_continuation: auto
+
+    terminal:
+      backend: local
+      cwd: /opt/data/workspace
+      timeout: 1800
+      home_mode: profile
+
+    platform_toolsets:
+      discord:
+        - web
+        - browser
+        - terminal
+        - file
+        - code_execution
+        - vision
+        - skills
+        - todo
+        - memory
+        - context_engine
+        - session_search
+        - clarify
+        - delegation
+        - cronjob
+
+    discord:
+      require_mention: true
+      free_response_channels: "1537861134076350465"
+      allowed_channels: "1537861134076350465"
+      auto_thread: true
+      thread_require_mention: false
+      history_backfill: true
+      reactions: true
+      approval_mentions: true
+      server_actions: "list_guilds,server_info,list_channels,channel_info,fetch_messages,create_thread"
+
+    memory:
+      memory_enabled: true
+      user_profile_enabled: true
+      write_approval: false
+
+    skills:
+      template_vars: true
+      inline_shell: false
+      guard_agent_created: true
+      write_approval: false
+
+    curator:
+      enabled: true
+      interval_hours: 168
+      min_idle_hours: 2
+      stale_after_days: 30
+      archive_after_days: 90
+      consolidate: true
+      prune_builtins: false
+      backup:
+        enabled: true
+        keep: 5
+
+    delegation:
+      max_iterations: 50
+      reasoning_effort: low
+      max_concurrent_children: 3
+      max_spawn_depth: 2
+      orchestrator_enabled: true
+      subagent_auto_approve: false
+
+    approvals:
+      mode: smart
+      timeout: 900
+      cron_mode: deny
+      denial_breaker_threshold: 3
+      mcp_reload_confirm: true
+      destructive_slash_confirm: true
+      deny:
+        - "git push --force*"
+        - "git push *--force*"
+
+    security:
+      allow_private_urls: false
+      redact_secrets: true
+      protected_instruction_files: true
+      tirith_enabled: true
+      tirith_fail_open: false
+
+    checkpoints:
+      enabled: true
+      max_snapshots: 20
+      max_total_size_mb: 1024
+      max_file_size_mb: 25
+      auto_prune: true
+      retention_days: 30
+
+    cron:
+      allow_agent_scheduling: false
+      preflight: true
+      model_drift_guard: true
+      model: gpt-5.6-sol
+      model_provider: custom
+
+    timezone: Europe/Madrid
+
+    mcp_servers:
+      fleetview:
+        url: https://fleetview.code.davidapps.dev/mcp
+        headers:
+          Authorization: "Bearer $${FLEETVIEW_MCP_TOKEN}"
+          Origin: https://fleetview.code.davidapps.dev
+        trust: full
+        timeout: 120
+        tools:
+          include: [fleet_status, node_status]
+          resources: false
+          prompts: false
+      fleet_tasks:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: untrusted
+        timeout: 21600
+        tools:
+          include: [task_start, task_status, task_list, task_takeover, task_resume]
+          resources: false
+          prompts: false
+  SOUL.md: |
+    # Herm
+
+    You are Herm, David's persistent infrastructure and software agent.
+
+    Be concise, direct, evidence-led, and willing to finish work. Never describe a
+    planned component as deployed. Check live state before making a claim about the
+    fleet, a cluster, a repository, or a pull request.
+
+    David's timezone is Europe/Madrid. The only authorized Discord user is David.
+    Never reveal, repeat, log, or save raw credentials in memory or skills.
+
+    Use Fleetview for read-only fleet health. Use the fleet_tasks MCP server for
+    Workspace work; never improvise SSH access from this container. Its write-capable
+    calls require David's approval. Let the gateway select a healthy Workspace unless
+    David names one. Default work to GPT-5.6 Sol, low reasoning, fast mode. Use xhigh
+    only when David asks for deeper or bigger work.
+
+    Your local terminal and files are an isolated persistent scratch environment, not
+    a fleet node and not a Kubernetes administrator. You have no Docker socket,
+    Kubernetes credential, Workspace SSH key, or personal GitHub credential here.
+    Read-only infrastructure and GitHub observation must use explicitly provided MCP
+    tools. Never try to discover or copy credentials from another service.
+
+    Prefer project work as a fresh branch and pull request. Do not force-push. Keep
+    changes clean, tested, and limited to the requested repository. Ask when a choice
+    materially changes scope or authority.
+
+    Learn stable preferences and recurring workflows through memory and agent-created
+    skills. Do not memorize secrets, transient tokens, one-time codes, or private key
+    material.
