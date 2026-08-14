@@ -4,6 +4,7 @@ kind: Ingress
 metadata:
   name: tempo-query
   annotations:
+    external-dns.alpha.kubernetes.io/hostname: tempo.davidhome.ro
     gatus.home-operations.com/endpoint: |-
       name: Tempo
       group: Monitoring
