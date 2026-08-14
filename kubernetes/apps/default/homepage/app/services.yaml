@@ -66,10 +66,6 @@
           type: prowlarr
           url: http://prowlarr.downloads.svc.cluster.local
           key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
-    - Qui:
-        icon: qbittorrent.png
-        href: https://qui.davidhome.ro
-        description: qBittorrent Web UI
     - qBittorrent:
         icon: qbittorrent.png
         href: https://qb.davidhome.ro
@@ -110,10 +106,6 @@
           url: https://monitoring.davidapps.dev
           username: "{{HOMEPAGE_VAR_GRAFANA_USERNAME}}"
           password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
-    - Claude Usage Tracker:
-        icon: mdi-robot-outline
-        href: https://claude-usage.davidhome.ro
-        description: Claude Code Usage Metrics
     - VictoriaLogs:
         icon: victoriametrics.png
         href: https://vlogs.davidhome.ro

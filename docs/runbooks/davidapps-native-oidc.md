@@ -1,7 +1,7 @@
 # Home applications: native DavidApps sign-in
 
-This change prepares native OIDC for Grafana, Paperless-ngx, Open WebUI, and
-qui. It is not deployable while any OIDC Secret has the annotation
+This change prepares native OIDC for Grafana, Paperless-ngx, and Open WebUI.
+It is not deployable while any OIDC Secret has the annotation
 `davidapps.dev/credentials: pending-provisioning`. The encrypted values in
 those Secrets are deliberate placeholders, not usable clients.
 
@@ -11,7 +11,7 @@ its local roles, sessions, API keys, and recovery login.
 
 ## Dedicated clients
 
-Provision four OIDC applications with `setup_app`. Every application uses
+Provision three OIDC applications with `setup_app`. Every application uses
 `signupPolicy: closed` and a `standard` confidential client. Grant users access
 in DavidApps; a person who merely has a DavidApps account does not gain access.
 
@@ -20,7 +20,6 @@ in DavidApps; a person who merely has a DavidApps account does not gain access.
 | Grafana | `monitoring.davidapps.dev` | `https://monitoring.davidapps.dev/login/generic_oauth` |
 | Paperless-ngx | `paperless.davidhome.ro` | `https://paperless.davidhome.ro/accounts/oidc/davidapps/login/callback/` |
 | Open WebUI | `chat.davidhome.ro` | `https://chat.davidhome.ro/oauth/oidc/callback` |
-| qui | `qui.davidhome.ro` | `https://qui.davidhome.ro/api/auth/oidc/callback` |
 
 Use one application and one client per row. Supply the row's URI through
 `oidcRedirectUris`; do not reuse a client between hosts. Standard clients use
@@ -34,7 +33,6 @@ encrypted file:
 | Grafana | `kubernetes/apps/observability/grafana/app/oidc-secret.sops.yaml` |
 | Paperless-ngx | `kubernetes/apps/default/paperless/app/oidc-secret.sops.yaml` |
 | Open WebUI | `kubernetes/apps/ai/open-webui/app/oidc-secret.sops.yaml` |
-| qui | `kubernetes/apps/downloads/qui/app/oidc-secret.sops.yaml` |
 
 Edit with SOPS using the home-cluster age identity. Never decrypt to a tracked
 file, paste a secret into a prompt, or put a secret in a shell argument. For
@@ -80,20 +78,9 @@ The existing local administrator is the recovery account. A first OIDC login
 does not silently inherit it. Review the new local user's Open WebUI role after
 the first login; do not grant administrator through identity claims.
 
-### qui
-
-qui discovers DavidApps from the issuer and automatically adds PKCE S256 when
-the provider advertises it. Its exact callback is configured explicitly.
-Built-in username/password login stays visible and machine API keys continue
-to work.
-
-Before considering removal of built-in login, inspect
-`/api/auth/oidc/config` in an authenticated test and confirm the authorization
-URL contains both `code_challenge` and `code_challenge_method=S256`.
-
 ## Canary and rollback
 
-Roll out one application at a time, beginning with Grafana or qui. For every
+Roll out one application at a time, beginning with Grafana. For every
 host, test:
 
 1. a private-window sign-in by a granted account;

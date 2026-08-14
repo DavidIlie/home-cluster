@@ -24,7 +24,6 @@ resources:
   - ./smartctl-exporter/ks.yaml
   - ./kromgo/ks.yaml
   - ./graphite-exporter/ks.yaml
-  - ./claude-usage-tracker/ks.yaml
   - ./analytics-storage-exporter/ks.yaml
   - ./cliproxy-exporter/ks.yaml
 components:
