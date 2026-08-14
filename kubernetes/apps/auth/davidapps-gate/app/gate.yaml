@@ -31,14 +31,21 @@ spec:
         - name: gate
           # Keep the regional checker pinned to the same released gate build as
           # the central identity platform.
-          image: ghcr.io/davidilie/davidapps-auth-gate:main-11@sha256:51bd268b9b4e9de4c55b019762385f20727af11fcfabcdd8e7b9c6ce037d7ed0
+          image: ghcr.io/davidilie/davidapps-auth-gate:main-12@sha256:7aecb2c61263b94dd13b15aa5c9ddb800543a4d30c35de72671cc016239721d5
           imagePullPolicy: IfNotPresent
           env:
             - name: DATABASE_URL
+              value: postgresql://identity-db.davidapps.dev:5432/davidapps_auth?sslmode=verify-full&sslrootcert=/etc/davidapps/db-ca/ca.crt
+            - name: PGUSER
               valueFrom:
                 secretKeyRef:
                   name: davidapps-gate-config
-                  key: DATABASE_URL
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: davidapps-gate-config
+                  key: PGPASSWORD
             - name: GATE_ED25519_SEED
               valueFrom:
                 secretKeyRef:
