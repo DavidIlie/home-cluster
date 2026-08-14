@@ -33,7 +33,7 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              tag: bf57c6d@sha256:7ec7732c180226aa2c845af1f07a660bf4418aad095569f0c1534206b0cc108c
+              tag: a14c6c6@sha256:204a0aa898a3032c4f6a25b5fa2043aa5ca56881c2dc0852cf4e9c1927b0b90c
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -67,6 +67,7 @@ spec:
               HERMES_SSH_USER: hermes
               HERMES_SSH_HOME: /home/hermes
               HERMES_MONITOR_INTERVAL: 15s
+              HERMES_GITHUB_OWNER: DavidIlie
               HERMES_KUBE_HOME_SERVER: https://192.168.100.180:6443
               HERMES_KUBE_DAVIDAPPS_SERVER: https://192.168.100.169:6443
               HERMES_KUBE_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-kube-token

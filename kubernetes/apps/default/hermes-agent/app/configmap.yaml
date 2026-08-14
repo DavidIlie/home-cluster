@@ -175,6 +175,16 @@ data:
           include: [davidapps_scale, davidapps_rollout_restart, davidapps_flux_reconcile]
           resources: false
           prompts: false
+      github_observer:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: full
+        timeout: 120
+        tools:
+          include: [github_open_pull_requests, github_recent_merged_pull_requests, github_pull_request]
+          resources: false
+          prompts: false
   user-config.yaml: |
     _config_version: 34
   SOUL.md: |
@@ -205,6 +215,12 @@ data:
     Kubernetes credential, Workspace SSH key, or personal GitHub credential here.
     Read-only infrastructure and GitHub observation must use explicitly provided MCP
     tools. Never try to discover or copy credentials from another service.
+
+    Use github_observer for pull-request metadata. Check the returned access field:
+    public-only means private repositories are not covered and must never be described
+    as checked; authenticated means the fixed read-only broker covered accessible
+    private repositories too. The broker never returns PR bodies, patches, comments,
+    or credentials.
 
     Prefer project work as a fresh branch and pull request. Do not force-push. Keep
     changes clean, tested, and limited to the requested repository. Ask when a choice
