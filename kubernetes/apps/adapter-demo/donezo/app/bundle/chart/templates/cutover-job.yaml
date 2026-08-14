@@ -1,0 +1,93 @@
+{{- if eq .Values.cutover.mode "job" }}
+# The in-cluster cutover Job (design §4.2, PLAIN by design — real-cluster gap #4):
+# applied with the bundle like any other resource, no Argo hook/sync-wave semantics
+# required for correctness. It runs the same gate battery as imperative deploy (exact-
+# version rollout waits, route-ext Job completion, generation-guarded policy Accepted,
+# HPA warm-up, per-pool /readyz capacity), then patches the stable Service selectors to
+# this build, commits the state ConfigMap (cluster-only mode), invalidates CDN, and
+# parks the previous build — exiting nonzero (after restoring the edge) on any gate
+# failure, which the reconciler surfaces as a failed Job.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: donezo-cutover-26b726c34a98{{ if .Values.cutover.forcePromotion }}-force{{ end }}
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: cutover-job
+  annotations:
+    # The name carries only a digest of the build id — record the full id for operators
+    # (an annotation, not a label: build ids may exceed the 63-char label-value cap).
+    adapter-k8s.dev/build-id: "bmst139qui84vac"
+spec:
+  # One retry absorbs a transient pod-level failure (node drain, image pull blip); a
+  # PERSISTENTLY failing build is handled by the poison pill in the entrypoint (the Job
+  # records the failed build id in the state ConfigMap and refuses re-promotion without
+  # cutover.forcePromotion), so retries can never flap the HPA warm-up indefinitely.
+  backoffLimit: 1
+  # NO ttlSecondsAfterFinished: the per-build name is the idempotency key — a re-sync of
+  # the same bundle must find the completed Job, not a swept one it would re-create.
+  template:
+    metadata:
+      # The same name/component pair as the Job object, so `kubectl logs -l
+      # app.kubernetes.io/component=cutover-job` reaches the PODS (the batch
+      # controller only stamps its own job-name labels). Deliberately NOT matched by any
+      # NetworkPolicy podSelector (those pair the name label with routing-service/pool
+      # components), so the pod's apiserver egress stays unrestricted.
+      labels:
+        app.kubernetes.io/name: "donezo"
+        app.kubernetes.io/component: cutover-job
+    spec:
+      serviceAccountName: donezo-cutover-sa
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: "docker-regcred"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cutover
+          image: {{ .Values.cutover.image | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: RELEASE_NAME
+              value: "donezo"
+            # The Job promotes in its own namespace — downward API, never a values echo
+            # that could disagree with where the bundle was actually applied.
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: EMIT_METADATA_PATH
+              value: /etc/adapter-k8s/emit-metadata.json
+            # Poison-pill override (design §8 risk 4): re-promote a build this release's
+            # state ConfigMap records as a FAILED promotion. Off by default.
+            - name: FORCE_PROMOTION
+              value: {{ .Values.cutover.forcePromotion | quote }}
+          volumeMounts:
+            - name: emit-metadata
+              mountPath: /etc/adapter-k8s
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: emit-metadata
+          configMap:
+            name: donezo-emit-meta-bmst139qui84vac-26b726c3
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+{{- end }}

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-routing-service
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+  annotations: {}
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+  ports:
+    - port: 8443
+      targetPort: 8443
+      name: grpc
+      appProtocol: grpc

@@ -1,0 +1,27 @@
+// renovate.json5 — update-bot fence for the adapter-k8s GitOps bundle.
+//
+// WHY: every file in this bundle is a build artifact of ONE `adapter-k8s emit` run. The
+// routing tier verifies at startup that its manifest byte-matches the digest baked into
+// its own image (the manifest-digest check — fail-closed by design). A bot edit to any
+// image tag/digest field inside the bundle (Renovate's helm-values manager, Flux
+// image-automation's $imagepolicy markers) breaks that match and crashloops the routing
+// pod — silently, after automerge. NOTHING inside the bundle may be independently
+// updated; the bundle changes only by re-emitting it wholesale.
+//
+// HOW TO USE: Renovate does NOT discover this file at this path — it is a copy source.
+// Merge the ignorePaths entry below into your repo's EXISTING Renovate config
+// (renovate.json, renovate.json5, .renovaterc, or .github/renovate.json5):
+//
+//   "ignorePaths": [".k8s-adapter/gitops/**"]
+//
+// (ignorePaths REPLACES the default list when set — keep your existing entries and the
+// defaults you rely on, e.g. "**/node_modules/**", alongside this one.)
+//
+// Point Renovate and Flux image-automation at your APP repo — where the next build runs —
+// never at bundle contents. New images reach the cluster via the next `emit`, which
+// re-resolves digests and replaces this directory wholesale.
+{
+  ignorePaths: [
+    ".k8s-adapter/gitops/**",
+  ],
+}

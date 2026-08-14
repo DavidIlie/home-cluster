@@ -19,6 +19,7 @@
   ],
   ignorePaths: [
     '**/*.sops.*',
+    'kubernetes/apps/adapter-demo/donezo/app/bundle/**',
   ],
   flux: {
     managerFilePatterns: [

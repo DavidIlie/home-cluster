@@ -1,0 +1,31 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: donezo-web-bmst139qui84vac-hpa
+  # GitOps PR2 keep-at-birth (§4.2): per-build resource — see deployment.ts.
+  {{- if and .Values.cutover (eq .Values.cutover.mode "job") }}
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  {{- end }}
+  labels:
+    adapter-k8s.dev/release: "donezo"
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: donezo-web-bmst139qui84vac
+  minReplicas: {{ (index .Values.pools "web").replicas.min }}
+  maxReplicas: {{ (index .Values.pools "web").replicas.max }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ (index .Values.pools "web").replicas.targetCPU }}

@@ -1,0 +1,11 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: adapter-demo
+spec:
+  endpoints:
+    - dnsName: adapter-demo.davidhome.ro
+      recordType: CNAME
+      targets:
+        - external.davidhome.ro

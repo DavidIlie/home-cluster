@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: donezo-web-bmst139qui84vac
+  # GitOps PR2 keep-at-birth (§4.2): a PER-BUILD resource must protect itself from the
+  # sync that applies the NEXT bundle — see renderKeepAtBirthAnnotations.
+  {{- if and .Values.cutover (eq .Values.cutover.mode "job") }}
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  {{- end }}
+  labels:
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED — an unquoted pool name like "on"/"no"/"true"/"123" renders a YAML
+    # boolean/int that the apiserver refuses to unmarshal into map[string]string.
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+spec:
+  selector:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: "web"
+    app.kubernetes.io/version: "bmst139qui84vac"
+  ports:
+    - port: 3000
+      targetPort: 3000

@@ -1,0 +1,158 @@
+{{- if or .Values.global.networkPolicy.podCidrs .Values.global.networkPolicy.strict }}
+{{- if and .Values.global.networkPolicy.strict (not .Values.global.networkPolicy.nodeCidrs) }}
+{{- fail "global.networkPolicy.strict requires global.networkPolicy.nodeCidrs: kubelet liveness/readiness probes come from the NODE ip, which the Google load-balancer ranges do not cover, and with Calico a strict allowlist without it leaves every pod unready. Set it to the cluster subnet range(s), e.g. --set 'global.networkPolicy.nodeCidrs={10.128.0.0/20}' (gcloud compute networks subnets describe SUBNET --region REGION --format='value(ipCidrRange)')." }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: donezo-routing-service
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: routing-service
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: routing-service
+  policyTypes:
+    - Ingress
+  ingress:
+{{- if .Values.global.networkPolicy.strict }}
+    - from:
+        - podSelector:
+            matchLabels:
+                app.kubernetes.io/name: "envoy"
+                gateway.envoyproxy.io/owning-gatewayclass: "eg"
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "envoy-gateway-system"
+      ports:
+        - protocol: TCP
+          port: 8443
+    - from:
+{{- range .Values.global.networkPolicy.nodeCidrs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+{{- end }}
+      ports:
+        - protocol: TCP
+          port: 8081
+{{- else }}
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+{{- range .Values.global.networkPolicy.podCidrs }}
+              - {{ . | quote }}
+{{- end }}
+      ports:
+        - protocol: TCP
+          port: 8443
+        - protocol: TCP
+          port: 8081
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  # N61: through sanitizeK8sName like every OTHER name in the chart — this was the one
+  # resource name built by bare concatenation, so a composed name past the 63-char cap (or
+  # one needing a trailing-hyphen strip) produced a name the API server rejects.
+  name: donezo-web
+  labels:
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED — see the label comment in deployment.ts.
+    app.kubernetes.io/component: "web"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "web"
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+{{- if .Values.global.networkPolicy.strict }}
+        - podSelector:
+            matchLabels:
+                app.kubernetes.io/name: "envoy"
+                gateway.envoyproxy.io/owning-gatewayclass: "eg"
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "envoy-gateway-system"
+{{- range .Values.global.networkPolicy.nodeCidrs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+{{- end }}
+{{- else }}
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+{{- range .Values.global.networkPolicy.podCidrs }}
+              - {{ . | quote }}
+{{- end }}
+{{- end }}
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "web"
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "api"
+      ports:
+        - protocol: TCP
+          port: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  # N61: through sanitizeK8sName like every OTHER name in the chart — this was the one
+  # resource name built by bare concatenation, so a composed name past the 63-char cap (or
+  # one needing a trailing-hyphen strip) produced a name the API server rejects.
+  name: donezo-api
+  labels:
+    app.kubernetes.io/name: "donezo"
+    # N61: QUOTED — see the label comment in deployment.ts.
+    app.kubernetes.io/component: "api"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: "donezo"
+      app.kubernetes.io/component: "api"
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+{{- if .Values.global.networkPolicy.strict }}
+        - podSelector:
+            matchLabels:
+                app.kubernetes.io/name: "envoy"
+                gateway.envoyproxy.io/owning-gatewayclass: "eg"
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "envoy-gateway-system"
+{{- range .Values.global.networkPolicy.nodeCidrs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+{{- end }}
+{{- else }}
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+{{- range .Values.global.networkPolicy.podCidrs }}
+              - {{ . | quote }}
+{{- end }}
+{{- end }}
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "web"
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "donezo"
+              app.kubernetes.io/component: "api"
+      ports:
+        - protocol: TCP
+          port: 3000
+{{- end }}

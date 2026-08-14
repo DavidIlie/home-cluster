@@ -1,0 +1,25 @@
+apiVersion: v1
+data:
+  DATABASE_URL: ENC[AES256_GCM,data:SAutOrfbtild+Wiv9zg/DqvDRWlRSZMMW6B9vk3zMV8g//1LzVGVAWkVzLXrgJsI0cY/MzAoDAPyddiZ/NXEmEmFk+Biu74NwYw57g7i9mhWzWqPGmJK/A33h0e3bopEhT0XlAisUUBc2mG+wQmYAlDPxS1SUxxC/fvaOjwhmzw/n1fGPWD1BgjvEoUb4tptUUa/BPq2CZnWHuNfZ8Pzto0LsvloEuIsymxYhes7AIxgBjMe2dDVNWdVT58YgthM9ZM76KtPD2wWn8yUnNbTveRjdX1lnnBUpgv7fFHcS0aU3jiD+Nnbxw==,iv:7NBUf90M8fDycFZM9gx6HeTc966GrfhaaL673vfu6HU=,tag:I9tCrJ4rgP6yz7A7Ht0u7g==,type:str]
+  password: ENC[AES256_GCM,data:9kVPy6YbIOx1PupT/6YIYCyXxo6z/0/ScopZCrt4f3m3Dtq+UmYEdFK5Nbc0WRV2ZzJUvGIWF5ESfThQdlVmBZvTTHAQfLnDAaPHWrs/RjiaUxjl5+QZIw==,iv:zeFVl7O6KHnJe7XQhYPJHMENQJDghlRlkco8iXXqJYs=,tag:ONieG+Zc/MKxD/9VAaOlkQ==,type:str]
+  username: ENC[AES256_GCM,data:TwuXa0FIBrWasc96JHM3aw==,iv:H7WJk5ELviNYFTwnz6L7fS6xj6oECn6ly17C59bxQTo=,tag:UqQSZfiTCsSDP/gvCwl7hw==,type:str]
+kind: Secret
+metadata:
+  name: adapter-demo-runtime
+  namespace: adapter-demo
+sops:
+  age:
+    - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBHY2lneWZmNXZGQWNzSFlz
+        VjFkelNWQmowam42OUk2M2JPTTN5eHl1NEJ3Cm5NRThSN3hxWlAweFNPNmp1YmZv
+        VUlJM3F6UlRrcEpEK1g4eDBtQTNnR0kKLS0tIHVwVUFubk02amhkYVR1T3RjU241
+        QUNHVkRqQ1ByeDFHZjhnSFBEVGtrVXcKN2b3TKmG+zi5Lh52zH8pm7OvbN9JvvBY
+        l4VwU/EFsYznOfNlVhh8Xg8dEC4xlYTEtQL9G/f3MNlXc8CUskIeXw==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-08-14T14:18:54Z"
+  mac: ENC[AES256_GCM,data:STDm0CqHnAM0qpw59zV580Xt+OsxvoH0WOfXW+e4RWye1Os7DmT+x2lBThef6OUiWkX5vchofkeXmlZHLoib73TIIMZSJvThwhQ1gnh49j77sJaGM8l68QmiRG5fpUXeDrvJEg22b6dDN5rJremu+eDM3uvzxnwog6DW5NR05CY=,iv:ciaHBfylqdMRQsOZso0MgYj6OM3wLOy3F5j4IEjAjD4=,tag:x5Wlcrc47p76A7hA4lP8RA==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.1

@@ -1,0 +1,47 @@
+{{- if eq .Values.cutover.mode "job" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: donezo-emit-meta-bmst139qui84vac-26b726c3
+  labels:
+    app.kubernetes.io/name: "donezo"
+    app.kubernetes.io/component: emit-metadata
+    app.kubernetes.io/version: "bmst139qui84vac"
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false
+    kustomize.toolkit.fluxcd.io/prune: disabled
+data:
+  emit-metadata.json: |-
+    {
+      "emitVersion": 1,
+      "buildId": "bmst139qui84vac",
+      "previousBuildId": null,
+      "releaseName": "donezo",
+      "namespace": "adapter-demo",
+      "registry": "ghcr.io/davidilie/adapter-k8s-demo",
+      "digests": {
+        "api": "sha256:36f3cb9408b2929327b096ab8e5226b9d26f26929db600de6d3f521a33a4e02c",
+        "routingService": "sha256:1e216d906092ee63d7e9880282b725d2c217f835586da039bf4a0d9e893ba4fd",
+        "web": "sha256:36f3cb9408b2929327b096ab8e5226b9d26f26929db600de6d3f521a33a4e02c"
+      },
+      "cdnTag": "build-26b726c34a98d159ced34ce6ecda7182c832c9a5312bf00add139040329cc19a",
+      "poolTopology": [
+        "web",
+        "api"
+      ],
+      "defaultPool": "web",
+      "targetPlatforms": {
+        "bmst139qui84vac": "linux/amd64"
+      },
+      "secretsMode": "sops",
+      "imagePullSecrets": [
+        "docker-regcred"
+      ],
+      "cutover": "job",
+      "hasRouteExtJob": false,
+      "hasEnvoyExtensionPolicy": false,
+      "cdnEnabled": false,
+      "hasPortableOrigin": true
+    }
+{{- end }}
