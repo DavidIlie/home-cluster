@@ -47,7 +47,7 @@ Authentication**, select **OAuth**, choose **Custom**, and enter:
 | Access token URL  | `https://id.davidapps.dev/api/auth/oauth2/token`       |
 | Resource URL      | `https://id.davidapps.dev/api/auth/oauth2/userinfo`    |
 | Redirect URL      | `https://portainer.davidhome.ro`                       |
-| Logout URL        | `https://id.davidapps.dev/api/auth/oauth2/end-session` |
+| Logout URL        | leave blank                                            |
 | User identifier   | `sub`                                                  |
 | Scopes            | `openid profile email`                                 |
 | Auth Style        | credentials in the authorization header                |
@@ -57,6 +57,11 @@ authentication prompt** off. Leave automatic team membership and automatic
 administrator assignment off because DavidApps does not issue Portainer team
 claims. Grant app admission in DavidApps, then assign Portainer environment and
 team permissions locally.
+
+Portainer 2.39.6 sends its configured logout URL as a bare request without an
+`id_token_hint`; DavidApps correctly rejects that request. Leaving the field
+blank signs out of Portainer without presenting a broken identity-provider
+logout flow.
 
 The identifier must remain `sub`. DavidApps subjects are pairwise and opaque;
 email is display/contact data, not the durable Portainer identity key.

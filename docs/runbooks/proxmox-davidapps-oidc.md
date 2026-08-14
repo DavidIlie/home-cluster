@@ -5,6 +5,13 @@ configured on the Proxmox appliance. Do not put an ingress authentication
 boundary around Proxmox: API tokens, noVNC/SPICE, websockets, and direct
 `:8006` recovery must retain Proxmox authentication.
 
+This integration is staged but blocked. Do not create the realm until the
+DavidApps ID token and userinfo response include a stable
+`preferred_username` claim and the identity-platform release containing it is
+live. Proxmox requires a username claim; the pairwise `sub` remains the durable
+external identity but is not exposed through the realm form as a usable
+username mapping today.
+
 Keep `root@pam`, the built-in `pve` realm, and direct LAN access throughout the
 canary.
 
@@ -45,7 +52,7 @@ The client is confidential, requires PKCE S256, and receives a pairwise
 subject for this host. Enter the staged one-time client key directly into the Proxmox
 realm form; do not place it in GitOps, a shell argument, or command history.
 
-## Create the realm
+## Create the realm after the blocker is cleared
 
 In **Datacenter → Permissions → Realms → Add → OpenID Connect Server**, set:
 
@@ -55,7 +62,7 @@ In **Datacenter → Permissions → Realms → Add → OpenID Connect Server**, 
 | Issuer URL                       | `https://id.davidapps.dev`     |
 | Client ID                        | dedicated Nucleus client ID    |
 | Client Key                       | one-time Nucleus client secret |
-| Username Claim                   | `subject`                      |
+| Username Claim                   | `preferred_username`           |
 | Scopes                           | `email profile`                |
 | Autocreate Users                 | enabled                        |
 | Query userinfo endpoint          | enabled                        |
@@ -63,9 +70,10 @@ In **Datacenter → Permissions → Realms → Add → OpenID Connect Server**, 
 | Default realm                    | disabled during canary         |
 | Groups Claim / Autocreate Groups | empty / disabled               |
 
-Proxmox automatically includes the `openid` scope. `subject` maps DavidApps
-pairwise `sub` to an opaque `<subject>@davidapps` user. Do not use email as the
-durable username and do not map administrator access from an identity claim.
+Proxmox automatically includes the `openid` scope. The username claim is for
+the local realm account name; DavidApps still binds the session to the
+pairwise, opaque `sub`. Do not use email as the durable username and do not map
+administrator access from an identity claim.
 
 Autocreation is safe only with the DavidApps application grant in front of it.
 After the first successful login, place the created Proxmox user in an
