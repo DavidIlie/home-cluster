@@ -31,3 +31,14 @@ spec:
           kind: Service
         paths:
           - /spec/selector
+  # flux-local renders local GitRepository charts without chart.spec.valuesFiles.
+  # Keep the strict-policy CIDRs inline so CI exercises the same network boundary;
+  # Flux merges these over the immutable generated values file at reconciliation.
+  values:
+    global:
+      networkPolicy:
+        podCidrs:
+          - 10.42.0.0/16
+        nodeCidrs:
+          - 192.168.100.0/24
+        strict: true
