@@ -55,6 +55,8 @@ spec:
     # The fleet gateway talks directly to the two external Kubernetes APIs.
     - to:
         - ipBlock:
+            cidr: 192.168.100.180/32
+        - ipBlock:
             cidr: 192.168.100.169/32
         - ipBlock:
             cidr: 10.4.0.182/32
