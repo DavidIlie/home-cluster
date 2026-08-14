@@ -31,7 +31,7 @@ spec:
         - name: gate
           # DEPLOYMENT BLOCKER: replace this old central-cluster image with the
           # digest produced by the current davidapps-auth release.
-          image: ghcr.io/davidilie/davidapps-auth-gate:main-2@sha256:58650f5b1acbe6add5d56149d3ca84824af4c9949ca3d8caeea5a2dbbf5a4aa3
+          image: ghcr.io/davidilie/davidapps-auth-gate:main-11@sha256:51bd268b9b4e9de4c55b019762385f20727af11fcfabcdd8e7b9c6ce037d7ed0
           imagePullPolicy: IfNotPresent
           env:
             - name: DATABASE_URL
