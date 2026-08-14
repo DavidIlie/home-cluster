@@ -6,4 +6,5 @@ resources:
   - ./secret.sops.yaml
   - ./dragonfly.yaml
   - ./gate.yaml
+  - ./revocation-ingress.yaml
   - ./networkpolicy.yaml
