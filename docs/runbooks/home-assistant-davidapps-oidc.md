@@ -12,16 +12,22 @@ as the recovery path.
 
 ## 1. Provision the dedicated client
 
-Create an OIDC-mode DavidApps application for the single hostname
+The OIDC-mode DavidApps application is provisioned for the single hostname
 `hass.davidhome.ro` with:
 
 - callback: `https://hass.davidhome.ro/auth/oidc/callback`
 - compatibility: `standard` (PKCE S256 remains required)
 - signup policy: `closed`
 
+Its public client ID is `yLE1m6fYPNo3b6YJZrvdiBbqGFQdqy51`. The one-time
+client secret is staged in macOS Keychain service
+`dev.davidapps.auth.oidc.home-assistant-home`, under that client ID, until the
+appliance configuration is complete. Delete that Keychain item after both the
+DavidApps login and built-in recovery login are proven.
+
 Use `oidcRedirectUris` when calling `setup_app`; the usual DavidApps callback
-paths alone are not the Home Assistant callback. Store the returned one-time
-client secret directly in the Home Assistant secret store. Do not reuse the UK
+paths alone are not the Home Assistant callback. Transfer the staged one-time
+client secret directly into the Home Assistant secret store. Do not reuse the UK
 Home Assistant client: DavidApps identity is pairwise, one host per client.
 
 Grant the intended people access to this application in DavidApps before they

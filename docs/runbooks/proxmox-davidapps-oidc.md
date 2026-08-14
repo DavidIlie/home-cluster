@@ -27,7 +27,7 @@ Do not disable TLS verification.
 
 ## Provision the client
 
-Create a dedicated OIDC-mode DavidApps application:
+The dedicated OIDC-mode DavidApps application is provisioned:
 
 - name: `Proxmox Nucleus`
 - hostname: `nucleus.davidhome.ro`
@@ -35,27 +35,33 @@ Create a dedicated OIDC-mode DavidApps application:
 - signup policy: `closed`
 - compatibility: `standard`
 
+Its public client ID is `SCD6q5kyLgkLMudY7rzAMGTqADrepzEc`. The one-time
+client secret is staged in macOS Keychain service
+`dev.davidapps.auth.oidc.proxmox-nucleus`, under that client ID. Do not install
+the realm until the version/EdDSA check above passes. Delete the Keychain item
+only after the new realm and PAM/PVE recovery have both been tested.
+
 The client is confidential, requires PKCE S256, and receives a pairwise
-subject for this host. Enter the one-time client key directly into the Proxmox
+subject for this host. Enter the staged one-time client key directly into the Proxmox
 realm form; do not place it in GitOps, a shell argument, or command history.
 
 ## Create the realm
 
 In **Datacenter → Permissions → Realms → Add → OpenID Connect Server**, set:
 
-| Field | Value |
-| --- | --- |
-| Realm | `davidapps` |
-| Issuer URL | `https://id.davidapps.dev` |
-| Client ID | dedicated Nucleus client ID |
-| Client Key | one-time Nucleus client secret |
-| Username Claim | `subject` |
-| Scopes | `email profile` |
-| Autocreate Users | enabled |
-| Query userinfo endpoint | enabled |
-| Verify TLS certificate | enabled |
-| Default realm | disabled during canary |
-| Groups Claim / Autocreate Groups | empty / disabled |
+| Field                            | Value                          |
+| -------------------------------- | ------------------------------ |
+| Realm                            | `davidapps`                    |
+| Issuer URL                       | `https://id.davidapps.dev`     |
+| Client ID                        | dedicated Nucleus client ID    |
+| Client Key                       | one-time Nucleus client secret |
+| Username Claim                   | `subject`                      |
+| Scopes                           | `email profile`                |
+| Autocreate Users                 | enabled                        |
+| Query userinfo endpoint          | enabled                        |
+| Verify TLS certificate           | enabled                        |
+| Default realm                    | disabled during canary         |
+| Groups Claim / Autocreate Groups | empty / disabled               |
 
 Proxmox automatically includes the `openid` scope. `subject` maps DavidApps
 pairwise `sub` to an opaque `<subject>@davidapps` user. Do not use email as the

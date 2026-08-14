@@ -11,7 +11,7 @@ internal authentication alongside external auth.
 
 ## Provision the client
 
-Create a dedicated OIDC-mode DavidApps application:
+The dedicated OIDC-mode DavidApps application is provisioned:
 
 - name: `Portainer home`
 - hostname: `portainer.davidhome.ro`
@@ -19,13 +19,19 @@ Create a dedicated OIDC-mode DavidApps application:
 - signup policy: `closed`
 - compatibility: `legacy_confidential`
 
+Its public client ID is `NAoG3FkofGiO_39SKa5QYhux3LrH8XfO`. The one-time
+client secret is staged in macOS Keychain service
+`dev.davidapps.auth.oidc.portainer`, under that client ID. Read it only while
+entering the settings below, then delete the Keychain item after both OAuth
+and initial-administrator recovery are proven.
+
 Portainer Custom OAuth does not send PKCE. `legacy_confidential` is the narrow
 DavidApps exception for an older confidential server client: authorization
 code only, no refresh or client-credentials grant, and only `openid profile
 email`. Do not provision Portainer as a standard client and do not reuse this
 exception for applications that support PKCE.
 
-Enter the one-time secret directly into Portainer. It belongs in the encrypted
+Enter the staged one-time secret directly into Portainer. It belongs in the encrypted
 Portainer database/backup, not a Kubernetes Secret or this public repository.
 
 ## Configure Portainer
@@ -33,18 +39,18 @@ Portainer database/backup, not a Kubernetes Secret or this public repository.
 While signed in as the initial administrator, open **Settings →
 Authentication**, select **OAuth**, choose **Custom**, and enter:
 
-| Field | Value |
-| --- | --- |
-| Client ID | dedicated Portainer client ID |
-| Client secret | one-time Portainer client secret |
-| Authorization URL | `https://id.davidapps.dev/api/auth/oauth2/authorize` |
-| Access token URL | `https://id.davidapps.dev/api/auth/oauth2/token` |
-| Resource URL | `https://id.davidapps.dev/api/auth/oauth2/userinfo` |
-| Redirect URL | `https://portainer.davidhome.ro` |
-| Logout URL | `https://id.davidapps.dev/api/auth/oauth2/end-session` |
-| User identifier | `sub` |
-| Scopes | `openid profile email` |
-| Auth Style | credentials in the authorization header |
+| Field             | Value                                                  |
+| ----------------- | ------------------------------------------------------ |
+| Client ID         | dedicated Portainer client ID                          |
+| Client secret     | one-time Portainer client secret                       |
+| Authorization URL | `https://id.davidapps.dev/api/auth/oauth2/authorize`   |
+| Access token URL  | `https://id.davidapps.dev/api/auth/oauth2/token`       |
+| Resource URL      | `https://id.davidapps.dev/api/auth/oauth2/userinfo`    |
+| Redirect URL      | `https://portainer.davidhome.ro`                       |
+| Logout URL        | `https://id.davidapps.dev/api/auth/oauth2/end-session` |
+| User identifier   | `sub`                                                  |
+| Scopes            | `openid profile email`                                 |
+| Auth Style        | credentials in the authorization header                |
 
 Enable **Use SSO** and **Automatic user provisioning**. Leave **Hide internal
 authentication prompt** off. Leave automatic team membership and automatic
