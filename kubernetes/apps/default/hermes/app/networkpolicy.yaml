@@ -63,6 +63,47 @@ spec:
       ports:
         - port: 6443
           protocol: TCP
+    # Fixed media APIs receive only their service-specific credentials.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: media
+          podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: [radarr, sonarr]
+      ports:
+        - port: 80
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: media
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bazarr
+      ports:
+        - port: 6767
+          protocol: TCP
+    # Plex is host-networked on the home node.
+    - to:
+        - ipBlock:
+            cidr: 192.168.100.180/32
+      ports:
+        - port: 32400
+          protocol: TCP
+    # Grafana's Viewer service account is used for dashboard and datasource reads.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+      ports:
+        - port: 3000
+          protocol: TCP
 ---
 # Cilium gives the local, host-networked API server an entity identity rather
 # than the node IP identity used by a standard ipBlock rule.

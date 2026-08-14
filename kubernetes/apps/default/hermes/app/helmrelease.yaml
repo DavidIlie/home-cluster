@@ -33,7 +33,7 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              tag: a14c6c6@sha256:204a0aa898a3032c4f6a25b5fa2043aa5ca56881c2dc0852cf4e9c1927b0b90c
+              tag: 671fd68@sha256:d8775f9be536e394e73bd46e78b959e72e1c7ad8569369ec3820cbb87a6e134f
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -44,6 +44,12 @@ spec:
                 cp /run/secrets/source/davidapps-kube-ca /run/secrets/hermes/davidapps-kube-ca
                 cp /run/secrets/source/uk-kube-token /run/secrets/hermes/uk-kube-token
                 cp /run/secrets/source/uk-kube-ca /run/secrets/hermes/uk-kube-ca
+                cp /run/secrets/source/radarr-api-key /run/secrets/hermes/radarr-api-key
+                cp /run/secrets/source/sonarr-api-key /run/secrets/hermes/sonarr-api-key
+                cp /run/secrets/source/bazarr-api-key /run/secrets/hermes/bazarr-api-key
+                cp /run/secrets/source/plex-token /run/secrets/hermes/plex-token
+                cp /run/secrets/source/grafana-token /run/secrets/hermes/grafana-token
+                cp /run/secrets/source/davidapps-api-key /run/secrets/hermes/davidapps-api-key
                 chmod 0600 /run/secrets/hermes/*
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -75,6 +81,18 @@ spec:
               HERMES_KUBE_UK_SERVER: https://10.4.0.182:6443
               HERMES_KUBE_UK_TOKEN_FILE: /run/secrets/hermes/uk-kube-token
               HERMES_KUBE_UK_CA_FILE: /run/secrets/hermes/uk-kube-ca
+              HERMES_RADARR_URL: http://radarr.media.svc.cluster.local
+              HERMES_RADARR_TOKEN_FILE: /run/secrets/hermes/radarr-api-key
+              HERMES_SONARR_URL: http://sonarr.media.svc.cluster.local
+              HERMES_SONARR_TOKEN_FILE: /run/secrets/hermes/sonarr-api-key
+              HERMES_BAZARR_URL: http://bazarr.media.svc.cluster.local:6767
+              HERMES_BAZARR_TOKEN_FILE: /run/secrets/hermes/bazarr-api-key
+              HERMES_PLEX_URL: http://plex.media.svc.cluster.local:32400
+              HERMES_PLEX_TOKEN_FILE: /run/secrets/hermes/plex-token
+              HERMES_GRAFANA_URL: http://grafana.observability.svc.cluster.local
+              HERMES_GRAFANA_TOKEN_FILE: /run/secrets/hermes/grafana-token
+              HERMES_DAVIDAPPS_URL: https://id.davidapps.dev
+              HERMES_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-api-key
             probes:
               liveness: &probe
                 enabled: true

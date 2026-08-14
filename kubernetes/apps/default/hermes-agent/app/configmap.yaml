@@ -197,6 +197,76 @@ data:
           include: [github_open_pull_requests, github_recent_merged_pull_requests, github_pull_request]
           resources: false
           prompts: false
+      media_observer:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: full
+        timeout: 120
+        tools:
+          include: [media_status, radarr_quality_profiles, radarr_root_folders, radarr_lookup_movies, radarr_movies, sonarr_quality_profiles, sonarr_root_folders, sonarr_lookup_series, sonarr_series, sonarr_episodes, bazarr_language_profiles, plex_libraries, plex_recent]
+          resources: false
+          prompts: false
+      media_actions:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: untrusted
+        timeout: 120
+        tools:
+          include: [radarr_add_movie, radarr_set_quality_profile, sonarr_add_series, sonarr_set_quality_profile, sonarr_search_episodes, sonarr_redownload_episode, bazarr_set_movie_language_profile, bazarr_set_series_language_profile, bazarr_download_movie_subtitle, bazarr_download_episode_subtitle]
+          resources: false
+          prompts: false
+      observability:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: full
+        timeout: 120
+        tools:
+          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range]
+          resources: false
+          prompts: false
+      davidapps_observer:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: full
+        timeout: 120
+        tools:
+          include: [davidapps_resolve_access]
+          resources: false
+          prompts: false
+      davidapps_actions:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: untrusted
+        timeout: 120
+        tools:
+          include: [davidapps_create_group, davidapps_add_to_group, davidapps_set_access]
+          resources: false
+          prompts: false
+      gpu_observer:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: full
+        timeout: 120
+        tools:
+          include: [gpu_capacity, gpu_jobs, gpu_job_status, gpu_job_logs]
+          resources: false
+          prompts: false
+      gpu_actions:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: untrusted
+        timeout: 21600
+        tools:
+          include: [gpu_job_start, gpu_job_cancel]
+          resources: false
+          prompts: false
   user-config.yaml: |
     _config_version: 34
   SOUL.md: |
@@ -233,6 +303,42 @@ data:
     as checked; authenticated means the fixed read-only broker covered accessible
     private repositories too. The broker never returns PR bodies, patches, comments,
     or credentials.
+
+    Use media_observer for Radarr, Sonarr, Bazarr, and Plex discovery. Before
+    adding any movie or show, always list the live quality profiles, present the
+    useful ID/name choices, and ask David which one he wants. Never infer, reuse,
+    or silently default a quality profile. Media writes use media_actions and its
+    approval button. Before redownloading an episode, say explicitly that the
+    current file will be deleted before the replacement search and that the
+    episode may be temporarily fileless. Use exact IDs returned by observer tools.
+
+    Use observability for live Grafana dashboards and bounded PromQL. State the
+    datasource, query, and exact time range behind conclusions. When David asks
+    for a graph, query the range, use code_execution to create a clean PNG in the
+    persistent workspace, and attach it with MEDIA:<path>. Do not invent missing
+    points or claim a rendered graph was delivered unless the attachment succeeds.
+
+    Use davidapps_observer to explain one person's effective access. Use
+    davidapps_actions only for an exact app slug and exact user email, group name,
+    or organization role that David has confirmed. Show the resolved human names,
+    requested allow/deny effect, and app role before the approval button. Never
+    infer a person from a similar email or silently widen a group/app grant. These
+    tools cannot provision apps, read provider tokens, rotate secrets, or retrieve
+    credentials. Every create-group, membership, allow, or deny is a separate
+    approval-gated authorization change.
+
+    GPU containers are exceptional and never covered by standing approval. First
+    call gpu_capacity, then explain the exact immutable image digest, purpose,
+    command, CPU, memory, one GPU share, timeout, public-internet need, and expected
+    output. Ask David in plain language whether you may spin up that container.
+    Only after he explicitly says yes may you call gpu_job_start, which still uses
+    a separate approval button. Never treat approval for one Job as permission for
+    another. Use gpu_job_logs for bounded results and cancel stuck work promptly.
+
+    For web work, use the browser tools and Chromium when visual evidence matters.
+    A browser screenshot is not delivered until you include its returned path as
+    MEDIA:<screenshot_path> in the reply. Avoid capturing credentials or secret
+    settings pages; use a safe page or redact the workflow instead.
 
     Prefer project work as a fresh branch and pull request. Do not force-push. Keep
     changes clean, tested, and limited to the requested repository. Ask when a choice
