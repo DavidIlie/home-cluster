@@ -19,6 +19,8 @@ This stack deliberately does not use PostHog. It keeps application telemetry in 
 
 The Faro endpoint is deployed before any application SDK is connected. Its CORS allowlist contains only the current ZeroCut, MB Retrofit, and Kidays production origins.
 
+Alloy parses Faro records before forwarding them, so fields such as `app_name`, `app_version`, `app_environment`, `page_url`, `session_id`, and browser or custom context are indexed individually in VictoriaLogs. Faro `traceID` and `spanID` values are also normalized to the shared `trace_id` and `span_id` field names used by Grafana correlation links. Set the Faro app version to the deployed Git commit SHA when each project is connected.
+
 ## Instrumentation contract
 
 Every project integration should set these OpenTelemetry resource attributes consistently:
