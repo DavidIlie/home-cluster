@@ -32,7 +32,7 @@ spec:
         - name: gate
           # Keep the regional checker pinned to the same released gate build as
           # the central identity platform.
-          image: ghcr.io/davidilie/davidapps-auth-gate:main-12@sha256:7aecb2c61263b94dd13b15aa5c9ddb800543a4d30c35de72671cc016239721d5
+          image: ghcr.io/davidilie/davidapps-auth-gate:ae4f3c2a361468dc98e91971c8eb9ba366280a6d@sha256:ca9222c471e05be442e20190cbafe045ef85ab334fc0cbdf9c44aa2ba63b6b92
           imagePullPolicy: IfNotPresent
           env:
             - name: DATABASE_URL
