@@ -152,6 +152,13 @@ spec:
             - name: managed
               mountPath: /etc/hermes
               readOnly: true
+            - name: managed-skills
+              mountPath: /etc/hermes-skills
+              readOnly: true
+            - name: work-context
+              mountPath: /opt/data/workspace/AGENTS.md
+              subPath: AGENTS.md
+              readOnly: true
             - name: tmp
               mountPath: /tmp
       volumes:
@@ -161,6 +168,25 @@ spec:
         - name: managed
           configMap:
             name: hermes-agent-managed
+            defaultMode: 0444
+        - name: managed-skills
+          configMap:
+            name: hermes-agent-skills
+            defaultMode: 0444
+            items:
+              - key: david-work-audit-SKILL.md
+                path: david-work-audit/SKILL.md
+              - key: david-work-audit-protocol.md
+                path: david-work-audit/references/audit-protocol.md
+              - key: david-contract-writing-SKILL.md
+                path: david-contract-writing/SKILL.md
+              - key: david-contract-writing-method.md
+                path: david-contract-writing/references/contract-method.md
+              - key: media-library-SKILL.md
+                path: media-library/SKILL.md
+        - name: work-context
+          configMap:
+            name: hermes-agent-work-context
             defaultMode: 0444
         - name: tmp
           emptyDir: {}

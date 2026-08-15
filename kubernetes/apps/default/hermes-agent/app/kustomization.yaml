@@ -10,3 +10,16 @@ resources:
   - ./networkpolicy.yaml
 components:
   - ../../../../flux/components/volsync
+configMapGenerator:
+  - name: hermes-agent-skills
+    files:
+      - david-work-audit-SKILL.md=skills/david-work-audit/SKILL.md
+      - david-work-audit-protocol.md=skills/david-work-audit/references/audit-protocol.md
+      - david-contract-writing-SKILL.md=skills/david-contract-writing/SKILL.md
+      - david-contract-writing-method.md=skills/david-contract-writing/references/contract-method.md
+      - media-library-SKILL.md=skills/media-library/SKILL.md
+  - name: hermes-agent-work-context
+    files:
+      - AGENTS.md=context/AGENTS.md
+generatorOptions:
+  disableNameSuffixHash: true

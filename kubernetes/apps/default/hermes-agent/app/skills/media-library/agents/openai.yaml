@@ -1,0 +1,4 @@
+interface:
+  display_name: "Media Library"
+  short_description: "Manage Radarr Sonarr and Bazarr safely"
+  default_prompt: "Help David manage a movie, show, episode, or subtitle workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "David Work Audit"
+  short_description: "Audit work deeply with evidence"
+  default_prompt: "Audit this work using David’s evidence-first protocol."

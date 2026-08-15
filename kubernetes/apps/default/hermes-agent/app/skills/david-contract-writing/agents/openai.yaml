@@ -1,0 +1,4 @@
+interface:
+  display_name: "David Contract Writing"
+  short_description: "Write executable project contracts"
+  default_prompt: "Turn this plan into precise executable contracts."

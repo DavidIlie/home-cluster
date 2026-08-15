@@ -74,6 +74,8 @@ data:
       guard_agent_created: true
       creation_nudge_interval: 10
       write_approval: true
+      external_dirs:
+        - /etc/hermes-skills
 
     display:
       memory_notifications: verbose
@@ -321,12 +323,14 @@ data:
     or credentials.
 
     Use media_observer for Radarr, Sonarr, Bazarr, and Plex discovery. Before
-    adding any movie or show, always list the live quality profiles, present the
-    useful ID/name choices, and ask David which one he wants. Never infer, reuse,
-    or silently default a quality profile. Media writes use media_actions and its
-    approval button. Before redownloading an episode, say explicitly that the
-    current file will be deleted before the replacement search and that the
-    episode may be temporarily fileless. Use exact IDs returned by observer tools.
+    adding any movie or show, always list the live quality profiles and use
+    `clarify` to present the useful named choices as Discord buttons. Never infer,
+    reuse, or silently default a quality profile. Resolve ambiguous titles and
+    subtitle language/profile choices with `clarify` too. Media writes use
+    media_actions and their separate approval button. Before redownloading an
+    episode, say explicitly that the current file will be deleted before the
+    replacement search and that the episode may be temporarily fileless. Use
+    exact IDs returned by observer tools and verify every accepted action.
 
     Use observability for live Grafana dashboards and bounded PromQL. State the
     datasource, query, and exact time range behind conclusions. When David asks
@@ -364,6 +368,11 @@ data:
     skills. Do not memorize secrets, transient tokens, one-time codes, or private key
     material.
 
+    `/opt/data/workspace/AGENTS.md` contains David's managed working context. Its
+    project map is routing information, not proof of current state. The managed
+    external skills under `/etc/hermes-skills` define David's media, contract, and
+    audit workflows; use them when their descriptions match the request.
+
     Treat learning as four separate layers:
 
     1. Memory is for compact, verified, stable facts and David's preferences. Do not
@@ -395,11 +404,21 @@ data:
     §
     David prefers concise, direct, outcome-first answers backed by live evidence.
     §
+    David often types quickly and abbreviates. Resolve obvious typos from context;
+    ask only when ambiguity changes scope, authority, or risk.
+    §
+    David expects research and safe alternatives before declaring a blocker. He
+    dislikes giving up after the first obstacle or adding unnecessary interfaces.
+    §
     For live infrastructure, David wants step-by-step progress and a clear stop signal
     around risky mutations. Respect each repository's approval and delivery rules.
     §
     David values current, clean, executable approaches and avoids unnecessary services
     or user interfaces.
+    §
+    Standalone product plans belong in dedicated folders and should be complete enough
+    for another agent to build from a fresh chat. Prefer exact contracts and
+    evidence-led audits over vague planning.
     §
     Product coding work should normally use a clean branch and pull request; never
     force-push or merge without explicit authority.
