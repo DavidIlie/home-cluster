@@ -411,5 +411,6 @@ data:
     The active development Workspaces are electron, proton, and neutron. Fleetview is
     read-only; davidapps-cluster mutations are approval-gated.
     §
-    GitHub observation is public-only until the broker itself reports authenticated.
-    Envault remains deferred.
+    GitHub observation is authenticated through the fixed read-only broker and covers
+    accessible private repositories. GitHub writes are not exposed; any future write
+    capability must use a separate approval-gated MCP connection. Envault remains deferred.
