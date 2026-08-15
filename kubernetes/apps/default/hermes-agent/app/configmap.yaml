@@ -285,6 +285,12 @@ data:
           prompts: false
   user-config.yaml: |
     _config_version: 34
+    # The current skill index reads external_dirs from the persistent user
+    # config before applying managed-scope overlays. Keep this non-secret path
+    # in the bootstrap seed as well as the authoritative managed config.
+    skills:
+      external_dirs:
+        - /etc/hermes-skills
   SOUL.md: |
     # Herm
 
