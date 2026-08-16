@@ -203,6 +203,14 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/telemetry-platform
+          - name: github-actions
+            orgId: 1
+            folder: CI / GitHub Actions
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/github-actions
     dashboards:
       default:
         uap-insights:
@@ -387,6 +395,9 @@ spec:
       telemetry-platform:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/telemetry-platform.json
+      github-actions:
+        runner-fleet:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/github-actions-runner-fleet.json
     sidecar:
       dashboards:
         enabled: false

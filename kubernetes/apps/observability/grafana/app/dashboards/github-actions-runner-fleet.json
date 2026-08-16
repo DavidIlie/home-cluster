@@ -1,0 +1,738 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Capacity, workload, latency, discovery and control-plane health for the personal GitHub Actions runner fleet on davidapps-cluster.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "panels": [],
+      "title": "Fleet at a glance",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Runner pods in Pending or Running phase. This is the quantity constrained by the fleet ResourceQuota.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 40}, {"color": "red", "value": 48}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 1},
+      "id": 2,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "pluginVersion": "12.3.10",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum((kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1) * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"private\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "active runner pods",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Active runner pods",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Registered runners that ARC reports as executing a job.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "blue", "value": 1}, {"color": "orange", "value": 40}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 1},
+      "id": 3,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "pluginVersion": "12.3.10",
+      "targets": [
+        {"editorMode": "code", "expr": "sum(gha_busy_runners{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"}) or vector(0)", "instant": true, "legendFormat": "busy", "range": false, "refId": "A"}
+      ],
+      "title": "Busy runners",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Approximation: jobs assigned to scale sets minus jobs already running. GitHub does not expose the full account-level queue to ARC.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 1}, {"color": "red", "value": 10}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 1},
+      "id": 4,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "pluginVersion": "12.3.10",
+      "targets": [
+        {"editorMode": "code", "expr": "clamp_min((sum(gha_assigned_jobs{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"}) or vector(0)) - (sum(gha_running_jobs{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"}) or vector(0)), 0)", "instant": true, "legendFormat": "approximately queued", "range": false, "refId": "A"}
+      ],
+      "title": "Approx. queued assignments",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Hard PriorityClass-scoped pod quota for ephemeral runner pods.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 40}, {"color": "red", "value": 50}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 1},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "pluginVersion": "12.3.10",
+      "targets": [
+        {"editorMode": "code", "expr": "max(kube_resourcequota{namespace=\"$runner_namespace\",resource=\"pods\",type=\"hard\"})", "instant": true, "legendFormat": "hard pod quota", "range": false, "refId": "A"}
+      ],
+      "title": "Fleet hard cap",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Pending plus running runner pods divided by the hard runner pod quota.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 80}, {"color": "red", "value": 95}]},
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 1},
+      "id": 6,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "pluginVersion": "12.3.10",
+      "targets": [
+        {"editorMode": "code", "expr": "100 * sum((kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1) * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"private\"}) / clamp_min(max(kube_resourcequota{namespace=\"$runner_namespace\",resource=\"pods\",type=\"hard\"}), 1)", "instant": true, "legendFormat": "quota used", "range": false, "refId": "A"}
+      ],
+      "title": "Fleet quota used",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Private, owned repositories currently exported to Flux as runner scale-set inputs.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue"}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 1},
+      "id": 7,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "pluginVersion": "12.3.10",
+      "targets": [
+        {"editorMode": "code", "expr": "sum(max by(tier) (github_runner_reconciler_repositories_exported{tier=~\"$tier\"})) or vector(0)", "instant": true, "legendFormat": "repositories", "range": false, "refId": "A"}
+      ],
+      "title": "Exported repositories",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
+      "id": 8,
+      "panels": [],
+      "title": "Runners, capacity and assignment pressure",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "ARC listener view of the runner lifecycle for the selected repositories and tiers.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "runners", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+      "id": 9,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "sum(gha_registered_runners{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"})", "legendFormat": "registered", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "sum(gha_busy_runners{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"})", "legendFormat": "busy", "range": true, "refId": "B"},
+        {"editorMode": "code", "expr": "sum(gha_idle_runners{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"})", "legendFormat": "idle", "range": true, "refId": "C"},
+        {"editorMode": "code", "expr": "sum(gha_desired_runners{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"})", "legendFormat": "desired", "range": true, "refId": "D"},
+        {"editorMode": "code", "expr": "sum(max by(name,namespace,repository) (gha_controller_pending_ephemeral_runners{repository=~\"$repository\"}))", "legendFormat": "pending pods", "range": true, "refId": "E"},
+        {"editorMode": "code", "expr": "sum(max by(name,namespace,repository) (gha_controller_failed_ephemeral_runners{repository=~\"$repository\"}))", "legendFormat": "failed pods", "range": true, "refId": "F"}
+      ],
+      "title": "Runner lifecycle",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Configured ARC maximum and currently busy runners. Tier is injected as a scrape target label from each listener pod.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 40}, {"color": "red", "value": 50}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+      "id": 10,
+      "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
+      "targets": [
+        {"editorMode": "code", "expr": "sum by(tier) (gha_max_runners{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"})", "instant": true, "legendFormat": "{{tier}} cap", "range": false, "refId": "A"},
+        {"editorMode": "code", "expr": "sum by(tier) (gha_busy_runners{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"})", "instant": true, "legendFormat": "{{tier}} busy", "range": false, "refId": "B"}
+      ],
+      "title": "Capacity and use by tier",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Pending and running runner pods by physical node. The preferred target is 20; 30 is the danger threshold. The hard fleet cap remains 50.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 30, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 20}, {"color": "red", "value": 30}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
+      "id": 11,
+      "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
+      "targets": [
+        {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"private\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"}
+      ],
+      "title": "Runner pressure by node (20 target / 30 danger)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Current assignment state by repository. Queued is an approximation of assigned minus running jobs.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+      "id": 12,
+      "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
+      "targets": [
+        {"editorMode": "code", "expr": "sum by(repository) (gha_running_jobs{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"})", "instant": true, "legendFormat": "{{repository}} running", "range": false, "refId": "A"},
+        {"editorMode": "code", "expr": "clamp_min(sum by(repository) (gha_assigned_jobs{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"}) - sum by(repository) (gha_running_jobs{namespace=~\"$runner_namespace\",repository=~\"$repository\",tier=~\"$tier\"}), 0)", "instant": true, "legendFormat": "{{repository}} approx. queued", "range": false, "refId": "B"}
+      ],
+      "title": "Jobs by repository",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 22},
+      "id": 13,
+      "panels": [],
+      "title": "Job throughput and results",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Listener counters reset when listener pods restart; rate() handles those resets.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "jobs / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 18, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 23},
+      "id": 14,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum(rate(gha_started_jobs_total{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval]))", "legendFormat": "started", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "60 * sum(rate(gha_completed_jobs_total{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval]))", "legendFormat": "completed", "range": true, "refId": "B"}
+      ],
+      "title": "Jobs started and completed",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Completion rate split by the GitHub job result label.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "jobs / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 35, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 23},
+      "id": 15,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(job_result) (rate(gha_completed_jobs_total{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval]))", "legendFormat": "{{job_result}}", "range": true, "refId": "A"}
+      ],
+      "title": "Completed jobs by result",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Started-job rate for each selected repository.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "jobs / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 31},
+      "id": 16,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(repository) (rate(gha_started_jobs_total{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval]))", "legendFormat": "{{repository}}", "range": true, "refId": "A"}
+      ],
+      "title": "Started jobs by repository",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Started-job rate by the low-cardinality tier target label added during listener scraping.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "jobs / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 25, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 31},
+      "id": 17,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(tier) (rate(gha_started_jobs_total{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval]))", "legendFormat": "{{tier}}", "range": true, "refId": "A"}
+      ],
+      "title": "Started jobs by tier",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 39},
+      "id": 18,
+      "panels": [],
+      "title": "Job startup and execution latency",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Time from job assignment until the ephemeral runner begins the job.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "startup", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+      "id": 19,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "histogram_quantile(0.50, sum by(le) (rate(gha_job_startup_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "p50", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le) (rate(gha_job_startup_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "p95", "range": true, "refId": "B"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le) (rate(gha_job_startup_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "p99", "range": true, "refId": "C"}
+      ],
+      "title": "Runner startup latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "p95 startup time for each selected repository.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "p95 startup", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+      "id": 20,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,repository) (rate(gha_job_startup_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "{{repository}}", "range": true, "refId": "A"}
+      ],
+      "title": "p95 startup by repository",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "End-to-end job execution duration after the runner starts.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "execution", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
+      "id": 21,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "histogram_quantile(0.50, sum by(le) (rate(gha_job_execution_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "p50", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le) (rate(gha_job_execution_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "p95", "range": true, "refId": "B"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le) (rate(gha_job_execution_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "p99", "range": true, "refId": "C"}
+      ],
+      "title": "Job execution duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "p95 execution duration split by GitHub's result classification.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "p95 execution", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
+      "id": 22,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,job_result) (rate(gha_job_execution_duration_seconds_bucket{repository=~\"$repository\",tier=~\"$tier\"}[$__rate_interval])))", "legendFormat": "{{job_result}}", "range": true, "refId": "A"}
+      ],
+      "title": "p95 execution by result",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 56},
+      "id": 23,
+      "panels": [],
+      "title": "Repository discovery and GitHub API",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Age of the most recent successful GitHub repository discovery refresh.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 300}, {"color": "red", "value": 1800}]}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 57},
+      "id": 24,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "time() - max(github_runner_reconciler_last_success_timestamp_seconds)", "instant": true, "legendFormat": "refresh age", "range": false, "refId": "A"}
+      ],
+      "title": "Last successful discovery",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Number of repository inputs held in the reconciler's current cache snapshot.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "blue"}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 57},
+      "id": 25,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_cache_entries)", "instant": true, "legendFormat": "cached", "range": false, "refId": "A"}
+      ],
+      "title": "Cached inputs",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Age of the reconciler's currently served cache snapshot.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 300}, {"color": "red", "value": 3600}]}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 57},
+      "id": 26,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_cache_age_seconds)", "instant": true, "legendFormat": "cache age", "range": false, "refId": "A"}
+      ],
+      "title": "Cache age",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "GitHub REST API core rate-limit capacity remaining.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 1, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "orange", "value": 20}, {"color": "green", "value": 50}]}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 57},
+      "id": 27,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "100 * min(github_runner_reconciler_github_api_rate_limit_remaining) / clamp_min(max(github_runner_reconciler_github_api_rate_limit_limit), 1)", "instant": true, "legendFormat": "remaining", "range": false, "refId": "A"}
+      ],
+      "title": "GitHub rate limit remaining",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Whether the reconciler is serving a stale cache after GitHub refresh failures.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "green", "index": 0, "text": "FRESH"}, "1": {"color": "red", "index": 1, "text": "STALE"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 57},
+      "id": 28,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_cache_stale)", "instant": true, "legendFormat": "cache", "range": false, "refId": "A"}
+      ],
+      "title": "Cache freshness",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Time until GitHub's current core rate-limit window resets.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 57},
+      "id": 29,
+      "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "clamp_min(max(github_runner_reconciler_github_api_rate_limit_reset_timestamp_seconds) - time(), 0)", "instant": true, "legendFormat": "until reset", "range": false, "refId": "A"}
+      ],
+      "title": "Rate limit resets in",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Repositories emitted to Flux, grouped only by the bounded tier label.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 61},
+      "id": 30,
+      "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
+      "targets": [
+        {"editorMode": "code", "expr": "max by(tier) (github_runner_reconciler_repositories_exported{tier=~\"$tier\"})", "instant": true, "legendFormat": "{{tier}}", "range": false, "refId": "A"}
+      ],
+      "title": "Exported repositories by tier",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Refresh attempts by outcome. Three replicas share the same API credentials but keep independent caches.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "refreshes / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 25, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 61},
+      "id": 31,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(result) (rate(github_runner_reconciler_reconcile_total[$__rate_interval]))", "legendFormat": "refresh · {{result}}", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "60 * sum(rate(github_runner_reconciler_coalesced_fetches_total[$__rate_interval]))", "legendFormat": "coalesced fetches", "range": true, "refId": "B"}
+      ],
+      "title": "Discovery refresh outcomes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "p50 and p95 time to refresh the private-repository cache from GitHub.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "refresh duration", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 61},
+      "id": 32,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "histogram_quantile(0.50, sum by(le) (rate(github_runner_reconciler_reconcile_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "p50", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le) (rate(github_runner_reconciler_reconcile_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "p95", "range": true, "refId": "B"}
+      ],
+      "title": "Discovery refresh latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "GitHub REST API request rate grouped by bounded HTTP status labels.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "requests / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 18, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 69},
+      "id": 33,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(status) (rate(github_runner_reconciler_github_api_requests_total[$__rate_interval]))", "legendFormat": "HTTP {{status}}", "range": true, "refId": "A"}
+      ],
+      "title": "GitHub API requests",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Discovery errors grouped by the reconciler's bounded reason label.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "errors / minute", "axisPlacement": "auto", "drawStyle": "bars", "fillOpacity": 55, "gradientMode": "opacity", "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 69},
+      "id": 34,
+      "options": {"legend": {"calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(reason) (rate(github_runner_reconciler_discovery_errors_total[$__rate_interval]))", "legendFormat": "{{reason}}", "range": true, "refId": "A"}
+      ],
+      "title": "Discovery error rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 77},
+      "id": 35,
+      "panels": [],
+      "title": "Scrape and controller health",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Worst current scrape state among ARC controllers/listeners plus the reconciler's own process-up gauge.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 78},
+      "id": 36,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "min(up{namespace=~\"$controller_namespace|$runner_namespace\",pod=~\".*(arc|listener|github-runner-reconciler).*\"} or github_runner_reconciler_up)", "instant": true, "legendFormat": "scrapes and process", "range": false, "refId": "A"}
+      ],
+      "title": "Metrics scrape health",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Distinct ARC listener scale sets currently reported as running. max by scale set prevents HA controller replicas from double-counting.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 78},
+      "id": 37,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "sum(max by(name,namespace,repository) (gha_controller_running_listeners{repository=~\"$repository\"}))", "instant": true, "legendFormat": "listeners", "range": false, "refId": "A"}
+      ],
+      "title": "Running listeners",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Failed ephemeral runner objects currently observed by ARC.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 78},
+      "id": 38,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "sum(max by(name,namespace,repository) (gha_controller_failed_ephemeral_runners{repository=~\"$repository\"}))", "instant": true, "legendFormat": "failed", "range": false, "refId": "A"}
+      ],
+      "title": "Failed ephemeral runners",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Available replicas for the repository discovery service.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "orange", "value": 2}, {"color": "green", "value": 3}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 78},
+      "id": 39,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "max(kube_deployment_status_replicas_available{namespace=\"$controller_namespace\",deployment=\"github-runner-reconciler\"})", "instant": true, "legendFormat": "available", "range": false, "refId": "A"}
+      ],
+      "title": "Discovery replicas",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "5xx responses served by the discovery reconciler during the selected dashboard range.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 78},
+      "id": 45,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "sum(increase(github_runner_reconciler_http_requests_total{status=~\"5..\"}[$__range])) or vector(0)", "instant": true, "legendFormat": "5xx", "range": false, "refId": "A"}
+      ],
+      "title": "Discovery HTTP 5xx",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Version reported by the active github-runner-reconciler build.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "blue"}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 78},
+      "id": 46,
+      "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "name", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "max by(version) (github_runner_reconciler_build_info)", "instant": true, "legendFormat": "{{version}}", "range": false, "refId": "A"}
+      ],
+      "title": "Discovery build",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "One line per metrics target. Any zero indicates a scrape or workload failure.",
+      "fieldConfig": {"defaults": {"color": {"mode": "continuous-GrYlRd"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "up", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "opacity", "lineInterpolation": "stepAfter", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": false, "stacking": {"group": "A", "mode": "none"}}, "max": 1, "min": 0, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 82},
+      "id": 40,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "asc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "up{namespace=~\"$controller_namespace|$runner_namespace\",pod=~\".*(arc|listener|github-runner-reconciler).*\"}", "legendFormat": "{{namespace}} / {{pod}}", "range": true, "refId": "A"}
+      ],
+      "title": "Prometheus targets",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Container restarts for the ARC controller, listener and discovery pods during the selected range.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "restarts", "axisPlacement": "auto", "drawStyle": "bars", "fillOpacity": 45, "gradientMode": "opacity", "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 82},
+      "id": 41,
+      "options": {"legend": {"calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "sum by(namespace,pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"$controller_namespace|$runner_namespace\",pod=~\".*(arc|listener|github-runner-reconciler).*\"}[$__rate_interval]))", "legendFormat": "{{namespace}} / {{pod}}", "range": true, "refId": "A"}
+      ],
+      "title": "Controller and listener restarts",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Controller-runtime reconciliation errors for the ARC custom-resource controllers.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "errors / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 20, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 90},
+      "id": 42,
+      "options": {"legend": {"calcs": ["sum", "max"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(controller) (rate(controller_runtime_reconcile_errors_total{namespace=\"$controller_namespace\"}[$__rate_interval]))", "legendFormat": "{{controller}}", "range": true, "refId": "A"}
+      ],
+      "title": "ARC reconciliation errors",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Discovery service request throughput and p95 handler latency, grouped by its bounded route and status labels.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "requests / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": false, "stacking": {"group": "A", "mode": "none"}}, "unit": "ops"}, "overrides": [{"matcher": {"id": "byFrameRefID", "options": "B"}, "properties": [{"id": "unit", "value": "s"}, {"id": "custom.axisPlacement", "value": "right"}, {"id": "custom.axisLabel", "value": "p95 latency"}]}]},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 90},
+      "id": 43,
+      "options": {"legend": {"calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "right", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(route,status) (rate(github_runner_reconciler_http_requests_total[$__rate_interval]))", "legendFormat": "{{route}} · HTTP {{status}}", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,route) (rate(github_runner_reconciler_http_request_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "{{route}} · p95", "range": true, "refId": "B"}
+      ],
+      "title": "Discovery HTTP traffic and latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Dashboard semantics and intentionally approximate values.",
+      "gridPos": {"h": 5, "w": 24, "x": 0, "y": 98},
+      "id": 44,
+      "options": {
+        "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
+        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. 20 is the preferred target and 30 the visual danger threshold; the enforceable fleet-wide pod quota is 50.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Empty latency panels mean the optional ARC histograms are not enabled or no jobs matched the current filters.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.10",
+      "title": "Metric notes",
+      "type": "text"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["github-actions", "arc", "ci", "runners", "davidapps-cluster"],
+  "templating": {
+    "list": [
+      {
+        "current": {"text": "gh-action-runners", "value": "gh-action-runners"},
+        "hide": 2,
+        "label": "Runner namespace",
+        "name": "runner_namespace",
+        "options": [{"selected": true, "text": "gh-action-runners", "value": "gh-action-runners"}],
+        "query": "gh-action-runners",
+        "type": "constant"
+      },
+      {
+        "current": {"text": "gh-action-controller", "value": "gh-action-controller"},
+        "hide": 2,
+        "label": "Controller namespace",
+        "name": "controller_namespace",
+        "options": [{"selected": true, "text": "gh-action-controller", "value": "gh-action-controller"}],
+        "query": "gh-action-controller",
+        "type": "constant"
+      },
+      {
+        "allValue": ".*",
+        "current": {"text": "All", "value": "$__all"},
+        "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+        "definition": "label_values(gha_registered_runners{namespace=\"gh-action-runners\"}, repository)",
+        "includeAll": true,
+        "label": "Repository",
+        "multi": true,
+        "name": "repository",
+        "options": [],
+        "query": {"query": "label_values(gha_registered_runners{namespace=\"gh-action-runners\"}, repository)", "refId": "VariableQueryRepository"},
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {"text": "All", "value": "$__all"},
+        "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+        "definition": "label_values(github_runner_reconciler_repositories_exported, tier)",
+        "includeAll": true,
+        "label": "Tier",
+        "multi": true,
+        "name": "tier",
+        "options": [],
+        "query": {"query": "label_values(github_runner_reconciler_repositories_exported, tier)", "refId": "VariableQueryTier"},
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "GitHub Actions / Runner Fleet",
+  "uid": "github-actions-runner-fleet",
+  "version": 1,
+  "weekStart": "monday"
+}
