@@ -155,14 +155,70 @@ spec:
       dashboardproviders.yaml:
         apiVersion: 1
         providers:
-          - name: default
+          - name: kubernetes
             orgId: 1
-            folder: ""
+            folder: Kubernetes
             type: file
             disableDeletion: false
             editable: true
             options:
-              path: /var/lib/grafana/dashboards/default
+              path: /var/lib/grafana/dashboards/kubernetes
+          - name: network-unifi
+            orgId: 1
+            folder: Network / UniFi
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/network-unifi
+          - name: network-kubernetes
+            orgId: 1
+            folder: Network / Kubernetes
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/network-kubernetes
+          - name: infrastructure-hosts
+            orgId: 1
+            folder: Infrastructure / Hosts
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/infrastructure-hosts
+          - name: infrastructure-storage
+            orgId: 1
+            folder: Infrastructure / Storage
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/infrastructure-storage
+          - name: infrastructure-databases
+            orgId: 1
+            folder: Infrastructure / Databases
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/infrastructure-databases
+          - name: observability-platform
+            orgId: 1
+            folder: Observability / Platform
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/observability-platform
+          - name: ai-operations
+            orgId: 1
+            folder: AI / Operations
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/ai-operations
           - name: apps-fleet
             orgId: 1
             folder: Apps / Fleet
@@ -212,32 +268,32 @@ spec:
             options:
               path: /var/lib/grafana/dashboards/github-actions
     dashboards:
-      default:
-        uap-insights:
+      network-unifi:
+        access-points:
           # renovate: depName="UniFi-Poller: UAP Insights - Prometheus"
           gnetId: 11314
           revision: 10
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
-        client-insights:
+        clients:
           # renovate: depName="UniFi-Poller: Client Insights - Prometheus"
           gnetId: 11315
           revision: 9
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
-        usw-insights:
+        switches:
           # renovate: depName="UniFi-Poller: USW Insights - Prometheus"
           gnetId: 11312
           revision: 9
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
-        network-sites:
+        sites:
           # renovate: depName="UniFi-Poller: Network Sites - Prometheus"
           gnetId: 11311
           revision: 5
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
-        usg-insights:
+        gateways:
           # renovate: depName="UniFi-Poller: USG Insights - Prometheus"
           gnetId: 11313
           revision: 9
@@ -249,13 +305,70 @@ spec:
           revision: 9
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
-        client-dpi-home:
-          # renovate: depName="UniFi-Poller: Client DPI - Prometheus"
-          gnetId: 11310
-          revision: 5
+      kubernetes:
+        api-server:
+          # renovate: depName="Kubernetes / System / API Server"
+          gnetId: 15761
+          revision: 18
+          datasource: prometheus-davidapps-cluster
+        persistent-volumes:
+          # renovate: depName="kubernetes-persistent-volumes"
+          gnetId: 13646
+          revision: 2
+          datasource: prometheus-davidapps-cluster
+        coredns:
+          # renovate: depName="Kubernetes / System / CoreDNS"
+          gnetId: 15762
+          revision: 19
+          datasource: prometheus-davidapps-cluster
+        cluster:
+          # renovate: depName="Kubernetes / Views / Global"
+          gnetId: 15757
+          revision: 42
+          datasource: prometheus-davidapps-cluster
+        namespaces:
+          # renovate: depName="Kubernetes / Views / Namespaces"
+          gnetId: 15758
+          revision: 41
+          datasource: prometheus-davidapps-cluster
+        nodes:
+          # renovate: depName="Kubernetes / Views / Nodes"
+          gnetId: 15759
+          revision: 32
+          datasource: prometheus-davidapps-cluster
+        pods:
+          # renovate: depName="Kubernetes / Views / Pods"
+          gnetId: 15760
+          revision: 34
+          datasource: prometheus-davidapps-cluster
+        summary:
+          # renovate: depName="Kubernetes / Views / K3s Cluster"
+          gnetId: 16450
+          revision: 3
+          datasource: prometheus-davidapps-cluster
+        pod-logs:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-pod-logs.json
+          datasource: VictoriaLogs
+      network-kubernetes:
+        cloudflare-tunnels:
+          # renovate: depName="Flux2"
+          gnetId: 17457
+          revision: 6
           datasource:
-            - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
-        proxmox-prometheus:
+            - { name: DS_PROMETHEUS, value: prometheus-davidapps-cluster }
+        ingress-nginx:
+          url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
+          datasource: prometheus-davidapps-cluster
+        request-handling:
+          url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
+          datasource: prometheus-davidapps-cluster
+        cilium:
+          # renovate: depName="Cilium Metrics"
+          gnetId: 22126
+          revision: 1
+          datasource: prometheus-davidapps-cluster
+      infrastructure-hosts:
+        proxmox:
           # renovate: depName="Proxmox via Prometheus"
           gnetId: 10347
           revision: 5
@@ -263,121 +376,52 @@ spec:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
         idrac:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/idrac.json
-          datasource: prometheus-main-cluster
-        kubernetes-api-server:
-          # renovate: depName="Kubernetes / System / API Server"
-          gnetId: 15761
-          revision: 18
-          datasource: prometheus-davidapps-cluster
-        kubernetes-persistent-volumes:
-          # renovate: depName="kubernetes-persistent-volumes"
-          name: "Kubernetes / PVCs"
-          gnetId: 13646
-          revision: 2
-          datasource: prometheus-davidapps-cluster
-        kubernetes-coredns:
-          # renovate: depName="Kubernetes / System / CoreDNS"
-          gnetId: 15762
-          revision: 19
-          datasource: prometheus-davidapps-cluster
-        kubernetes-global:
-          # renovate: depName="Kubernetes / Views / Global"
-          gnetId: 15757
-          revision: 42
-          datasource: prometheus-davidapps-cluster
-        kubernetes-namespaces:
-          # renovate: depName="Kubernetes / Views / Namespaces"
-          gnetId: 15758
-          revision: 41
-          datasource: prometheus-davidapps-cluster
-        kubernetes-nodes:
-          # renovate: depName="Kubernetes / Views / Nodes"
-          gnetId: 15759
-          revision: 32
-          datasource: prometheus-davidapps-cluster
-        kubernetes-pods:
-          # renovate: depName="Kubernetes / Views / Pods"
-          gnetId: 15760
-          revision: 34
-          datasource: prometheus-davidapps-cluster
-        kubernetes-summary:
-          # renovate: depName="Kubernetes / Views / K3s Cluster"
-          name: "Kubernetes / Overall View"
-          gnetId: 16450
-          revision: 3
-          datasource: prometheus-davidapps-cluster
-        cloudflared:
-          # renovate: depName="Flux2"
-          gnetId: 17457
-          revision: 6
-          datasource:
-            - { name: DS_PROMETHEUS, value: prometheus-davidapps-cluster }
-        node-exporter-disks:
+          datasource: prometheus-home-cluster
+        node-disks:
           # renovate: depName="node-exporter disk graphs"
           gnetId: 9852
           revision: 1
           datasource: prometheus-davidapps-cluster
-        # pihole:
-        #   # renovate: depName="Pi-hole Exporter"
-        #   gnetId: 10176
-        #   revision: 3
-        #   datasource: prometheus-home-cluster
-        nginx:
-          url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
-          datasource: prometheus-davidapps-cluster
-        dragonfly:
-          url: https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.1.8/monitoring/grafana-dashboard.json
-          datasource: prometheus-davidapps-cluster
-        nginx-request-handling-performance:
-          url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
-          datasource: prometheus-davidapps-cluster
-        node-exporter-full:
+        nodes:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860
           revision: 37
+          datasource: prometheus-davidapps-cluster
+        gpu:
+          # renovate: depName="NVIDIA DCGM Exporter Dashboard"
+          gnetId: 12239
+          revision: 2
+          datasource: prometheus-home-cluster
+      infrastructure-storage:
+        truenas:
+          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale.json
+          datasource: prometheus-home-cluster
+        truenas-disks:
+          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_disk_insights.json
+          datasource: prometheus-home-cluster
+        truenas-temperatures:
+          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_temperatures.json
+          datasource: prometheus-home-cluster
+        analytics:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/analytics-storage.json
+          datasource: prometheus-kube-stack
+      infrastructure-databases:
+        dragonfly:
+          url: https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.1.8/monitoring/grafana-dashboard.json
           datasource: prometheus-davidapps-cluster
         cloudnativepg:
           # renovate: depName="CloudNativePG"
           gnetId: 20417
           revision: 3
           datasource: prometheus-davidapps-cluster
+      observability-platform:
         prometheus:
           # renovate: depName="Prometheus"
           gnetId: 19105
           revision: 6
-          datasource: Prometheus
-        cillium-metrics-production:
-          # renovate: depName="Cilium Metrics (production)"
-          gnetId: 22126
-          revision: 1
-          datasource: prometheus-davidapps-cluster
-        cillium-metrics-home:
-          # renovate: depName="Cilium Metrics (home)"
-          gnetId: 22126
-          revision: 1
           datasource: prometheus-home-cluster
-        home-nvidia-gpu:
-          # renovate: depName="NVIDIA DCGM Exporter Dashboard"
-          gnetId: 12239
-          revision: 2
-          name: Home NVIDIA Exporter
-          datasource: prometheus-home-cluster
-        truenas-scale:
-          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale.json
-          datasource: prometheus-home-cluster
-        truenas-scale-disk-insights:
-          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_disk_insights.json
-          datasource: prometheus-home-cluster
-        truenas-scale-temperatures:
-          url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_temperatures.json
-          datasource: prometheus-home-cluster
-        kubernetes-pod-logs:
-          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-pod-logs.json
-          datasource: VictoriaLogs
-        analytics-storage:
-          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/analytics-storage.json
-          datasource: prometheus-kube-stack
-        cliproxy-usage:
+      ai-operations:
+        cliproxy:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/cliproxy-usage.json
           datasource: prometheus-home-cluster
       apps-fleet:
@@ -386,6 +430,14 @@ spec:
       apps-zerocut:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-overview.json
+        revenue:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-revenue.json
+        reliability:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-reliability.json
+        browser:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-browser.json
+        runtime:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-runtime.json
       apps-mbretrofit:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/mbretrofit-overview.json

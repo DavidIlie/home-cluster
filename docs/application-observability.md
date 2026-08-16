@@ -41,14 +41,61 @@ Logs emitted through OTLP should carry valid span and trace context. Alloy promo
 
 Use the standard error semantic conventions: record the exception on the active span and set its status to error. Do not place secrets, authorization headers, request bodies, email addresses, or other personal data in span attributes or logs.
 
+### Server, rendering, and dependency telemetry
+
+Every web project should expose enough bounded telemetry to answer the same operational questions:
+
+- server request rate, error ratio, and p50/p95/p99 latency;
+- stable route-template latency and error throughput;
+- framework phases such as route rendering, API execution, middleware, metadata, and server-component work;
+- aggregate database, cache, queue, and external-provider latency and failures;
+- runtime CPU, memory, replicas, restarts, pod placement, and active release;
+- browser Web Vitals, frontend errors, and exact release comparison;
+- product-specific business signals such as revenue, donations, subscriptions, or jobs.
+
+Automatic client spans are not safe dashboard dimensions by default: their span names can contain raw URLs, SQL, query parameters, identifiers, or user-controlled values. Dependency and query instrumentation must emit bounded semantic attributes such as `dependency.system`, `operation`, and an allowlisted `query.name`. Never use raw SQL, URLs, request bodies, emails, payment IDs, user IDs, or arbitrary error messages as metric labels.
+
+### Per-project dashboard suite
+
+Use the ZeroCut folder as the reference implementation for each instrumented project:
+
+| Dashboard | Required scope |
+| --- | --- |
+| `Overview` | Grouped business, revenue, reliability, browser, runtime, release, logs, and traces |
+| `Revenue & donations` or equivalent | Project-specific business movements and outcomes, with currencies kept separate |
+| `Server & rendering` | RED metrics, route and framework-phase performance, aggregate dependencies, resources, and correlated errors |
+| `Browser experience` | Web Vitals, client signal volume, frontend errors, and browser release |
+| `Runtime & deployments` | Desired/ready/updated replicas, pods, nodes, CPU, memory, restarts, image, and commit |
+
+All dashboards in a project folder share a project tag and expose a Grafana dashboard-link dropdown so the selected time range follows the user between scopes. Keep the overview concise enough for triage; focused dashboards carry the detailed breakdowns.
+
 ## Provisioned Grafana scopes
+
+Infrastructure dashboards use a consistent folder taxonomy instead of the Grafana root folder:
+
+| Folder | Scope |
+| --- | --- |
+| `Kubernetes` | Cluster, API server, namespaces, nodes, pods, persistent volumes, CoreDNS, and pod logs |
+| `Network / UniFi` | Access points, clients, switches, sites, gateways, and DPI |
+| `Network / Kubernetes` | Cilium, ingress NGINX, request handling, and Cloudflare tunnels |
+| `Infrastructure / Hosts` | Proxmox, iDRAC, node-exporter, disks, and GPU |
+| `Infrastructure / Storage` | TrueNAS and analytics-storage health |
+| `Infrastructure / Databases` | CloudNativePG and Dragonfly |
+| `Observability / Platform` | Prometheus and platform-level observability |
+| `Observability / Telemetry` | OTLP/Faro gateway, Tempo, logs, and telemetry pipeline |
+| `AI / Operations` | AI gateway usage and cost |
+| `CI / GitHub Actions` | Runner fleet and workflow infrastructure |
 
 Grafana provisions these folders and dashboard UIDs:
 
 | Folder | Dashboard UID | Current scope |
 | --- | --- | --- |
 | `Apps / Fleet` | `apps-fleet` | Cross-project health, resources, logs, latency, and errors |
-| `Apps / ZeroCut` | `zerocut-overview` | `personal-projects/zerocut` |
+| `Apps / ZeroCut` | `zerocut-overview` | Grouped ZeroCut overview |
+| `Apps / ZeroCut` | `zerocut-revenue` | Platform payments and supporter-to-creator donations |
+| `Apps / ZeroCut` | `zerocut-reliability` | Server, rendering, dependency, resource, log, and trace performance |
+| `Apps / ZeroCut` | `zerocut-browser` | Browser Web Vitals, client signals, errors, and release |
+| `Apps / ZeroCut` | `zerocut-runtime` | Kubernetes placement, rollout, resources, image, and commit |
 | `Apps / MB Retrofit` | `mbretrofit-overview` | Main and Zenzefi deployments |
 | `Apps / Kidays` | `kidays-overview` | Web and Convex backend deployments |
 | `Observability / Telemetry` | `telemetry-platform` | Gateway outcomes, Tempo ingestion health, Faro volume, and gateway errors |

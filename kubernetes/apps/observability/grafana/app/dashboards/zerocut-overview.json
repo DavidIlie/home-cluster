@@ -12,11 +12,20 @@
       }
     ]
   },
-  "description": "Operational telemetry for ZeroCut. Revenue amounts are positive integer minor-currency units and are always split by currency; never add unlike currencies. Net movement uses the application's explicit credit/debit direction. These signals are useful for operations, not an accounting ledger.",
+  "description": "Grouped ZeroCut overview spanning revenue, supporter-to-creator donations, server reliability, Next.js telemetry, runtime placement, browser experience, logs, traces, and the active release. Use the ZeroCut dashboards menu for focused drill-downs. Revenue is operational telemetry, not an accounting ledger.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "links": [
+    {
+      "asDropdown": true,
+      "includeVars": false,
+      "keepTime": true,
+      "tags": ["zerocut"],
+      "targetBlank": false,
+      "title": "ZeroCut dashboards",
+      "type": "dashboards"
+    },
     {
       "includeVars": false,
       "keepTime": false,
@@ -1208,13 +1217,13 @@
   ],
   "refresh": "30s",
   "schemaVersion": 42,
-  "tags": ["apps", "zerocut", "otel", "revenue"],
+  "tags": ["apps", "zerocut", "otel", "overview", "revenue"],
   "templating": { "list": [] },
   "time": { "from": "now-24h", "to": "now" },
   "timepicker": { "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h"] },
   "timezone": "browser",
-  "title": "ZeroCut / Revenue and reliability",
+  "title": "ZeroCut / Overview",
   "uid": "zerocut-overview",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
