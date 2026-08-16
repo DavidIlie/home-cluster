@@ -759,6 +759,28 @@
       ],
       "title": "Cold pulls and API errors",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 128},
+      "id": 54,
+      "panels": [],
+      "title": "Controlled hosted-vs-home benchmark",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "A cache-neutral, manually dispatched comparison using the same repository and commands on ubuntu-24.04 and the home fleet.",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 129},
+      "id": 55,
+      "options": {
+        "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
+        "content": "### Baseline captured 2026-08-16\n\n| Signal | GitHub hosted | Home fleet | Result |\n| --- | ---: | ---: | --- |\n| End-to-end job | 43 s | 70 s | Hosted wins on cold startup |\n| Setup | 1 s | 16 s | Cold ARC/PVC startup is the largest gap |\n| Install dependencies | 8 s | 14 s | Package-cache target |\n| Check + test + build | 25 s | 23 s | Home is ~8% faster |\n| CPU proof | 1.312 s | 2.182 s | Hosted CPU is faster for this serial task |\n| 512 MiB durable write | 1.161 s | 0.766 s | Home is ~1.5× faster |\n| 512 MiB direct read | 1.302 s | 0.109 s | Home is ~12× faster |\n\n[Open benchmark run 31968358817](https://github.com/DavidIlie/davidapps-telemetry/actions/runs/31968358817). This is a deliberate one-shot baseline; the live panels above track every home-fleet job.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.10",
+      "title": "Hosted versus home baseline",
+      "type": "text"
     }
   ],
   "refresh": "30s",
