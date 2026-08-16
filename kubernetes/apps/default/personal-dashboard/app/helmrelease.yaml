@@ -29,14 +29,14 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/personal-dashboard # {"$imagepolicy": "flux-system:personal-dashboard:name"}
-              tag: master-603f6b22-1713958415 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
+              tag: master-a40a08d1-1786910543 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
             envFrom:
               - secretRef:
                   name: personal-dashboard-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
               seccompProfile:
                 type: RuntimeDefault
             resources:
