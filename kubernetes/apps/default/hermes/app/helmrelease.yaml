@@ -33,7 +33,7 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              tag: 1a52c34@sha256:79671fd722d571bae1fbb3c57dd44b44239f15b384cc101472f2458acfca105b
+              tag: b8fdc44@sha256:5a69d9270960ecb2bfd29e5edd6a49767e5e2d04fc1fe92648d94ef0eb742775
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -51,6 +51,7 @@ spec:
                 cp /run/secrets/source/grafana-token /run/secrets/hermes/grafana-token
                 cp /run/secrets/source/davidapps-api-key /run/secrets/hermes/davidapps-api-key
                 cp /run/secrets/source/github-token /run/secrets/hermes/github-token
+                cp /run/secrets/source/discord-token /run/secrets/hermes/discord-token
                 chmod 0600 /run/secrets/hermes/*
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -68,6 +69,8 @@ spec:
             env:
               TZ: Europe/Madrid
               HERMES_DISCORD_ENABLED: "false"
+              HERMES_DISCORD_GUILD_ID: "853884362436116491"
+              HERMES_DISCORD_TOKEN_FILE: /run/secrets/hermes/discord-token
               HERMES_FLEETVIEW_URL: https://fleetview.code.davidapps.dev/mcp
               HERMES_FLEETVIEW_ORIGIN: https://fleetview.code.davidapps.dev
               HERMES_MCP_TOKEN_FILE: /run/secrets/hermes/mcp-token

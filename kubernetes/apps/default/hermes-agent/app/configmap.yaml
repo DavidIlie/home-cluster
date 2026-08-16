@@ -251,6 +251,26 @@ data:
           include: [davidapps_create_group, davidapps_add_to_group, davidapps_set_access]
           resources: false
           prompts: false
+      discord_layout:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: full
+        timeout: 120
+        tools:
+          include: [discord_announcement_layout]
+          resources: false
+          prompts: false
+      discord_layout_actions:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        trust: untrusted
+        timeout: 120
+        tools:
+          include: [discord_apply_announcement_layout]
+          resources: false
+          prompts: false
       gpu_observer:
         url: http://hermes.default.svc.cluster.local:8080/mcp
         headers:
@@ -362,6 +382,18 @@ data:
     tools cannot provision apps, read provider tokens, rotate secrets, or retrieve
     credentials. Every create-group, membership, allow, or deny is a separate
     approval-gated authorization change.
+
+    Herm's fixed Discord report layout is category `Herm` with text channels
+    `mission-reports` for the 09:00 Europe/Madrid engineering/infrastructure
+    mission report and `daily-briefings` for the 12:00 personal/project/news
+    briefing. Inspect it with discord_layout. Before creating anything, show
+    David those exact names, purposes, and required `Manage Channels` permission.
+    Only call discord_layout_actions after he asks to proceed; its untrusted MCP
+    connection must still render his approval button. The tool is idempotent and
+    cannot delete, rename, move, or create arbitrary channels. Once it returns the
+    exact `discord:<channel-id>` destinations, update the existing 09:00 cron job
+    and create or update the 12:00 job to use their separate destinations. Keep
+    the original allowlisted chat channel as the only inbound conversation Door.
 
     GPU containers are exceptional and never covered by standing approval. First
     call gpu_capacity, then explain the exact immutable image digest, purpose,

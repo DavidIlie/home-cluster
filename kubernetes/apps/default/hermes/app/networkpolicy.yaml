@@ -129,6 +129,7 @@ spec:
               - matchPattern: "*"
     - toFQDNs:
         - matchName: api.github.com
+        - matchName: discord.com
         - matchName: fleetview.code.davidapps.dev
         - matchName: id.davidapps.dev
       toPorts:
