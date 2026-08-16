@@ -37,7 +37,7 @@
         "defaults": {
           "color": {"mode": "thresholds"},
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 40}, {"color": "red", "value": 48}]},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 5}, {"color": "red", "value": 6}]},
           "unit": "short"
         },
         "overrides": []
@@ -49,7 +49,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum((kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1) * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"private\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) or vector(0)",
+          "expr": "sum((kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1) * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) or vector(0)",
           "instant": true,
           "legendFormat": "active runner pods",
           "range": false,
@@ -110,7 +110,7 @@
         "defaults": {
           "color": {"mode": "thresholds"},
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 40}, {"color": "red", "value": 50}]},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 5}, {"color": "red", "value": 6}]},
           "unit": "short"
         },
         "overrides": []
@@ -145,14 +145,14 @@
       "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
       "pluginVersion": "12.3.10",
       "targets": [
-        {"editorMode": "code", "expr": "100 * sum((kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1) * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"private\"}) / clamp_min(max(kube_resourcequota{namespace=\"$runner_namespace\",resource=\"pods\",type=\"hard\"}), 1)", "instant": true, "legendFormat": "quota used", "range": false, "refId": "A"}
+        {"editorMode": "code", "expr": "100 * sum((kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1) * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\"}) / clamp_min(max(kube_resourcequota{namespace=\"$runner_namespace\",resource=\"pods\",type=\"hard\"}), 1)", "instant": true, "legendFormat": "quota used", "range": false, "refId": "A"}
       ],
       "title": "Fleet quota used",
       "type": "stat"
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Private, owned repositories currently exported to Flux as runner scale-set inputs.",
+      "description": "Public and private owned source repositories currently exported to Flux as runner scale-set inputs.",
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -214,15 +214,15 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Pending and running runner pods by physical node. The preferred target is 20; 30 is the danger threshold. The hard fleet cap remains 50.",
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 30, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 20}, {"color": "red", "value": 30}]}, "unit": "short"}, "overrides": []},
+      "description": "Pending and running runner pods by physical node. The temporary safe fleet cap is 6 (~2/node) while runner scratch I/O shares disks with etcd.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 3, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 2}, {"color": "red", "value": 3}]}, "unit": "short"}, "overrides": []},
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
       "id": 11,
       "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
       "targets": [
-        {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"private\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"}
+        {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"}
       ],
-      "title": "Runner pressure by node (20 target / 30 danger)",
+      "title": "Runner pressure by node (temporary 2/node cap)",
       "type": "bargauge"
     },
     {
@@ -479,7 +479,7 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "p50 and p95 time to refresh the private-repository cache from GitHub.",
+      "description": "p50 and p95 time to refresh the owned-repository cache from GitHub.",
       "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "refresh duration", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": []},
       "gridPos": {"h": 8, "w": 8, "x": 16, "y": 61},
       "id": 32,
@@ -663,12 +663,102 @@
       "id": 44,
       "options": {
         "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
-        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. 20 is the preferred target and 30 the visual danger threshold; the enforceable fleet-wide pod quota is 50.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Empty latency panels mean the optional ARC histograms are not enabled or no jobs matched the current filters.",
+        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. The temporary pre-isolation limit is 6 total / about 2 per node.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Runner scratch I/O currently shares `/var` NVMe with Talos etcd and containerd. Do not raise the cap until the separate CI ZFS volumes pass staged 6 → 12 → 18 → 30 load tests.\n- Empty latency panels mean no jobs matched the current filters.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.10",
       "title": "Metric notes",
       "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 103},
+      "id": 47,
+      "panels": [],
+      "title": "Runner and node performance",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "CPU consumed by ephemeral runner and DinD containers, grouped by physical node.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "CPU cores", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 16, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 104},
+      "id": 48,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_cpu_usage_seconds_total{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\",image!=\"\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}}", "range": true, "refId": "A"}
+      ],
+      "title": "Runner CPU by node",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Working-set memory used by ephemeral runner and DinD containers.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "working set", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 16, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "bytes"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 104},
+      "id": 49,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "sum by(node,container) (container_memory_working_set_bytes{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\",image!=\"\"})", "legendFormat": "{{node}} · {{container}}", "range": true, "refId": "A"}
+      ],
+      "title": "Runner memory by node",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Filesystem traffic attributed to runner and DinD containers. This identifies write amplification from workspaces and Docker layers.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "bytes / second", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 14, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "normal"}}, "unit": "Bps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 112},
+      "id": 50,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_fs_writes_bytes_total{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}} writes", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_fs_reads_bytes_total{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}} reads", "range": true, "refId": "B"}
+      ],
+      "title": "Runner filesystem throughput",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Busy time of the NVMe backing Talos /var, plus whole-node CPU iowait. Sustained disk busy above 60% or I/O wait above 10% blocks any runner-cap increase.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "percent", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "max": 100, "min": 0, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 112},
+      "id": 51,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "100 * sum by(kubernetes_node) (rate(node_disk_io_time_seconds_total{cluster=\"davidapps-cluster\",device=~\"nvme[0-9]+n[0-9]+\"}[$__rate_interval]) * on(kubernetes_node,device) group_left() (label_replace(node_filesystem_size_bytes{cluster=\"davidapps-cluster\",mountpoint=\"/var\"} > bool 0, \"device\", \"$1\", \"device\", \"/dev/(nvme[0-9]+n[0-9]+)p[0-9]+\")))", "legendFormat": "{{kubernetes_node}} /var busy", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "100 * sum by(kubernetes_node) (rate(node_cpu_seconds_total{cluster=\"davidapps-cluster\",mode=\"iowait\"}[$__rate_interval])) / sum by(kubernetes_node) (rate(node_cpu_seconds_total{cluster=\"davidapps-cluster\"}[$__rate_interval]))", "legendFormat": "{{kubernetes_node}} CPU iowait", "range": true, "refId": "B"}
+      ],
+      "title": "Control-plane NVMe pressure",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "etcd durability latency by member. Stop load tests above 50 ms WAL fsync p99 or 100 ms backend commit p99.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "p99 seconds", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 120},
+      "id": 52,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le,instance) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{cluster=\"davidapps-cluster\"}[$__rate_interval])))", "legendFormat": "{{instance}} WAL fsync", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le,instance) (rate(etcd_disk_backend_commit_duration_seconds_bucket{cluster=\"davidapps-cluster\"}[$__rate_interval])))", "legendFormat": "{{instance}} backend commit", "range": true, "refId": "B"}
+      ],
+      "title": "etcd storage latency p99",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Cold image-pull p95 by node and image-size bucket, with API server 5xx rate on the right axis.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "pull p95 seconds", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "unit": "s"}, "overrides": [{"matcher": {"id": "byFrameRefID", "options": "B"}, "properties": [{"id": "unit", "value": "reqps"}, {"id": "custom.axisPlacement", "value": "right"}, {"id": "custom.axisLabel", "value": "API 5xx / second"}]}]},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 120},
+      "id": 53,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,node,image_size_in_bytes) (rate(kubelet_image_pull_duration_seconds_bucket{cluster=\"davidapps-cluster\"}[$__rate_interval])))", "legendFormat": "{{node}} · {{image_size_in_bytes}}", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "sum(rate(apiserver_request_total{cluster=\"davidapps-cluster\",code=~\"5..\"}[$__rate_interval]))", "legendFormat": "API 5xx", "range": true, "refId": "B"}
+      ],
+      "title": "Cold pulls and API errors",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
