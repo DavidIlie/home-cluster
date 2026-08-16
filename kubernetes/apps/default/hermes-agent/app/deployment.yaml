@@ -19,6 +19,8 @@ spec:
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
+      imagePullSecrets:
+        - name: docker-regcred
       securityContext:
         fsGroup: 10000
         fsGroupChangePolicy: OnRootMismatch
@@ -67,15 +69,45 @@ spec:
             - name: managed
               mountPath: /seed
               readOnly: true
+        - name: prepare-runtime
+          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.bb93c4147@sha256:aa0729b71cf99f912a18c07b3ed790fa1bb470fef5703d77c5f90c32b597f096
+          command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
+          args:
+            - --home
+            - /opt/data
+            - --user-id
+            - "243009043260637184"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: runtime-bootstrap
+              mountPath: /bootstrap
+              readOnly: true
       containers:
         - name: app
-          image: docker.io/nousresearch/hermes-agent:v2026.8.13@sha256:68e15ae2a6d894d0ccbd9f8aacbbe13d4d28fa5dc9b6a303970b67bb2499b1a6
+          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.bb93c4147@sha256:aa0729b71cf99f912a18c07b3ed790fa1bb470fef5703d77c5f90c32b597f096
           args: ["gateway", "run"]
           env:
             - name: TZ
               value: Europe/Madrid
             - name: HERMES_MANAGED_DIR
               value: /etc/hermes
+            - name: AGENT_BROWSER_ARGS
+              value: --no-sandbox,--disable-dev-shm-usage
             - name: DISCORD_ALLOWED_USERS
               value: "243009043260637184"
             - name: DISCORD_HOME_CHANNEL
@@ -187,6 +219,10 @@ spec:
         - name: work-context
           configMap:
             name: hermes-agent-work-context
+            defaultMode: 0444
+        - name: runtime-bootstrap
+          configMap:
+            name: hermes-agent-runtime-bootstrap
             defaultMode: 0444
         - name: tmp
           emptyDir: {}

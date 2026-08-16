@@ -29,6 +29,12 @@ data:
       timeout: 1800
       home_mode: profile
 
+    # Browser Use CLI expects an already-running desktop Chrome process. Herm
+    # runs headlessly in Kubernetes, so pin the built-in agent-browser backend;
+    # it launches one isolated Chromium session per Discord task/thread.
+    browser:
+      backend: "off"
+
     platform_toolsets:
       discord:
         - web

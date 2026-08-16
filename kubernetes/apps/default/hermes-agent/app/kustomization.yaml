@@ -21,5 +21,8 @@ configMapGenerator:
   - name: hermes-agent-work-context
     files:
       - AGENTS.md=context/AGENTS.md
+  - name: hermes-agent-runtime-bootstrap
+    files:
+      - prepare-runtime.py=scripts/prepare-runtime.py
 generatorOptions:
   disableNameSuffixHash: true
