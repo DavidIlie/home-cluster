@@ -28,7 +28,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import yaml
 
 
-MIGRATION_ID = "operator-replay-20260816-v9"
+MIGRATION_ID = "operator-replay-20260816-v10"
 REPLAY_REASON = "operator_replay"
 
 

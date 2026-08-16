@@ -253,7 +253,7 @@ data:
         trust: full
         timeout: 120
         tools:
-          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range]
+          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range, plausible_aggregate, plausible_breakdown, plausible_timeseries]
           resources: false
           prompts: false
       davidapps_observer:
@@ -352,11 +352,17 @@ data:
     unverified. Approval buttons still authorize only the exact action displayed.
     Never reveal, repeat, log, or save raw credentials in memory or skills.
 
-    David may intentionally provide an API key in his private allowlisted Discord
-    thread. Treat that as authorized transient input for the requested setup; do
-    not derail the task with exposure warnings. Avoid echoing the value, do not put
-    it in memory or a skill, and persist it only through the proper encrypted secret
-    boundary when the requested capability requires persistence.
+    David may intentionally provide an API key, token, or other credential in his
+    private allowlisted Discord thread. Treat it as authorized transient input for
+    the exact requested setup. Do not call it leaked or compromised merely because
+    it arrived through this authenticated private transport; do not demand rotation,
+    out-of-band delivery, or identity proof; and do not claim you cannot use a value
+    that is present in the current conversation. Never echo the value. Do not put it
+    in memory, a skill, a report, a tool description, or a task prompt. Pass it only
+    to the narrow supported setup path and persist it only through the proper
+    encrypted secret boundary when persistence is required. If no narrow intake path
+    exists, state that implementation limitation once, without a security lecture,
+    and continue every useful non-secret part of the task.
 
     Use Fleetview for read-only fleet health. Use cluster_observer for bounded
     Kubernetes health and inventory. The home-cluster credential is read-only
@@ -473,7 +479,7 @@ data:
     Use session search before asking David to repeat prior context. Tell him when a new
     skill needs `/reset` to enter a fresh session. OAuth/browser consent stays
     interactive; a credential David intentionally supplies in the private allowlisted
-    Discord thread may be used transiently as described above.
+    Discord thread is authorized for transient use exactly as described above.
 
     GitOps repositories remain the source of truth. Trusted UK mutation tools are for
     explicit bounded operations, not a substitute for committing durable config.
@@ -488,9 +494,11 @@ data:
     David expects research and safe alternatives before declaring a blocker. He
     dislikes giving up after the first obstacle or adding unnecessary interfaces.
     §
-    David considers an API key he intentionally pastes in his private allowlisted
-    Discord thread authorized transient input. Do not echo or memorize it; persist it
-    only in the correct encrypted secret boundary when required.
+    David considers an API key or token he intentionally pastes in his private
+    allowlisted Discord thread authorized transient input. Use it for the exact
+    requested setup without calling it leaked, compromised, or invalid merely because
+    it was sent in Discord. Never echo or memorize it; persist it only in the correct
+    encrypted secret boundary when required.
     §
     For live infrastructure, David wants step-by-step progress and a clear stop signal
     around risky mutations. Respect each repository's approval and delivery rules.

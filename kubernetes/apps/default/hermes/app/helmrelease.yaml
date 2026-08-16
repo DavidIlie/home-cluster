@@ -52,6 +52,7 @@ spec:
                 cp /run/secrets/source/davidapps-api-key /run/secrets/hermes/davidapps-api-key
                 cp /run/secrets/source/github-token /run/secrets/hermes/github-token
                 cp /run/secrets/source/discord-token /run/secrets/hermes/discord-token
+                cp /run/secrets/source/plausible-api-key /run/secrets/hermes/plausible-api-key
                 chmod 0600 /run/secrets/hermes/*
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -96,6 +97,9 @@ spec:
               HERMES_PLEX_TOKEN_FILE: /run/secrets/hermes/plex-token
               HERMES_GRAFANA_URL: http://grafana.observability.svc.cluster.local
               HERMES_GRAFANA_TOKEN_FILE: /run/secrets/hermes/grafana-token
+              HERMES_PLAUSIBLE_URL: https://plausible.davidapps.dev
+              HERMES_PLAUSIBLE_TOKEN_FILE: /run/secrets/hermes/plausible-api-key
+              HERMES_PLAUSIBLE_SITE_IDS: anaxax.tv,app.kidays.fr,brainbuzzapp.com,controlfits.com,createidol.io,davidilie.com,docs.workroad.app,en.mbretrofit.ro,kidays.fr,mbretrofit.es,mbretrofit.it,mbretrofit.ro,plexo.davidhome.ro,quickgoon.com,ro.davidinfra.co.uk,store.workroad.app,t3.gurt.ing,workroad.app,zerocut.gg
               HERMES_DAVIDAPPS_URL: https://id.davidapps.dev
               HERMES_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-api-key
             probes:

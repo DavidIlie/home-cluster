@@ -132,6 +132,7 @@ spec:
         - matchName: discord.com
         - matchName: fleetview.code.davidapps.dev
         - matchName: id.davidapps.dev
+        - matchName: plausible.davidapps.dev
       toPorts:
         - ports:
             - port: "443"
