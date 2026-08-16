@@ -697,6 +697,204 @@
     {
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 50 },
+      "id": 29,
+      "panels": [],
+      "title": "Runtime placement and activity",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "description": "Current ZeroCut application pods only. Pod IP is the workload instance address; the Prometheus instance label belongs to kube-state-metrics and is intentionally hidden.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Value #A" },
+            "properties": [
+              { "id": "displayName", "value": "Ready" },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": { "color": "red", "index": 0, "text": "Not ready" },
+                      "1": { "color": "green", "index": 1, "text": "Ready" }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #B" },
+            "properties": [
+              { "id": "displayName", "value": "Restarts" },
+              { "id": "decimals", "value": 0 },
+              { "id": "unit", "value": "short" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #C" },
+            "properties": [
+              { "id": "displayName", "value": "Uptime" },
+              { "id": "decimals", "value": 0 },
+              { "id": "unit", "value": "s" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 51 },
+      "id": 30,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": false, "displayName": "Node" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "editorMode": "code",
+          "expr": "max by (pod, node, host_ip, pod_ip) (kube_pod_info{namespace=\"personal-projects\",created_by_kind=\"ReplicaSet\",created_by_name=~\"zerocut-.*\"}) * on (pod) group_left() max by (pod) (kube_pod_status_ready{namespace=\"personal-projects\",condition=\"true\"})",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "editorMode": "code",
+          "expr": "sum by (pod) (kube_pod_container_status_restarts_total{namespace=\"personal-projects\",pod=~\"zerocut-.*\",container=\"app\"})",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "editorMode": "code",
+          "expr": "time() - max by (pod) (kube_pod_start_time{namespace=\"personal-projects\"} and on (namespace, pod) kube_pod_info{namespace=\"personal-projects\",created_by_kind=\"ReplicaSet\",created_by_name=~\"zerocut-.*\"})",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Pod placement and health",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": { "byField": "pod", "mode": "outer" }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "__name__": true },
+            "indexByName": {
+              "pod": 0,
+              "node": 1,
+              "host_ip": 2,
+              "pod_ip": 3,
+              "Value #A": 4,
+              "Value #B": 5,
+              "Value #C": 6
+            },
+            "renameByName": {
+              "host_ip": "Host IP",
+              "node": "Node",
+              "pod": "Pod",
+              "pod_ip": "Workload instance"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "description": "Running ZeroCut application pods by their actual Kubernetes node. Scheduled jobs are excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-GrYlRd" },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 51 },
+      "id": 31,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "editorMode": "code",
+          "expr": "sum by (node) (max by (namespace, pod, node) (kube_pod_info{namespace=\"personal-projects\",created_by_kind=\"ReplicaSet\",created_by_name=~\"zerocut-.*\"}) * on (namespace, pod) group_left() max by (namespace, pod) (kube_pod_status_phase{namespace=\"personal-projects\",phase=\"Running\"} == 1))",
+          "instant": true,
+          "legendFormat": "{{node}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Running app pods by node",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "description": "Server-side ZeroCut log activity split by the real Kubernetes node and pod. Old pod names can remain visible when the selected range spans a rollout.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 30,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": { "group": "A", "mode": "normal" }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 59 },
+      "id": 32,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "editorMode": "code",
+          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:\"zerocut\" | stats by (_time:5m, k_host, k_pod_name) count()",
+          "legendFormat": "{{k_host}} · {{k_pod_name}}",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "title": "Server activity by node and pod",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 67 },
       "id": 20,
       "panels": [],
       "title": "Browser experience",
@@ -728,7 +926,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 51 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 68 },
       "id": 21,
       "options": {
         "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -773,7 +971,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 51 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 68 },
       "id": 22,
       "options": {
         "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -818,7 +1016,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 51 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 68 },
       "id": 23,
       "options": {
         "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -854,7 +1052,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 59 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 76 },
       "id": 24,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -875,7 +1073,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 67 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 84 },
       "id": 25,
       "panels": [],
       "title": "Logs, trace correlation, and active release",
@@ -898,7 +1096,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 68 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 85 },
       "id": 26,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -928,7 +1126,7 @@
     {
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
       "description": "Recent server and browser errors. VictoriaLogs-derived trace IDs open the correlated Tempo trace through the datasource link.",
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 68 },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 85 },
       "id": 27,
       "options": {
         "dedupStrategy": "none",
@@ -976,7 +1174,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 78 },
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 95 },
       "id": 28,
       "options": {
         "cellHeight": "sm",
@@ -1017,6 +1215,6 @@
   "timezone": "browser",
   "title": "ZeroCut / Revenue and reliability",
   "uid": "zerocut-overview",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
