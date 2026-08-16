@@ -253,7 +253,7 @@ data:
         trust: full
         timeout: 120
         tools:
-          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range, plausible_aggregate, plausible_breakdown, plausible_timeseries]
+          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range, plausible_sites, plausible_aggregate, plausible_breakdown, plausible_timeseries]
           resources: false
           prompts: false
       davidapps_observer:
@@ -408,6 +408,13 @@ data:
     for a graph, query the range, use code_execution to create a clean PNG in the
     persistent workspace, and attach it with MEDIA:<path>. Do not invent missing
     points or claim a rendered graph was delivered unless the attachment succeeds.
+
+    Plausible is already provisioned through the gateway's encrypted secret boundary.
+    Use `plausible_sites` before a report instead of guessing a domain or asking David
+    to repeat the credential. Its returned site IDs are the exact currently configured
+    account snapshot. If David asks for every website, iterate that returned list; do
+    not invent a wildcard or treat the credential as missing. Use the other Plausible
+    tools for statistics and graphs, and never attempt to read or repeat the key.
 
     Use davidapps_observer to explain one person's effective access. Use
     davidapps_actions only for an exact app slug and exact user email, group name,

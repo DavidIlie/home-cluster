@@ -120,10 +120,6 @@ spec:
             - "16000"
             - --replay-thread-id
             - "1538529411769434122"
-            - --replay-thread-id
-            - "1538529942369730650"
-            - --replay-thread-id
-            - "1538551704897724460"
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000
