@@ -601,9 +601,9 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "max by (service, service_version) (traces_target_info{service=~\"zerocut|zerocut-web\",service_version!=\"\"})",
+          "expr": "max by (job, service_version) (traces_target_info{davidapps_project_id=\"zerocut\",job=~\"davidapps/zerocut(-web)?\",service_version!=\"\"})",
           "instant": true,
-          "legendFormat": "{{service}} @ {{service_version}}",
+          "legendFormat": "{{job}} @ {{service_version}}",
           "range": false,
           "refId": "B"
         }
