@@ -165,7 +165,12 @@ data:
         url: http://hermes.default.svc.cluster.local:8080/mcp
         headers:
           Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
-        trust: untrusted
+        # This server exposes the bounded Fleet task state machine only. It can
+        # prepare isolated worktrees, run the sandboxed harness, and create a
+        # signed task commit, but it cannot merge, deploy, or mutate GitHub.
+        # Treat those internal coding steps as standing-approved; delivery uses
+        # a separate approval-gated connection.
+        trust: full
         timeout: 21600
         tools:
           include: [task_start, task_status, task_list, task_takeover, task_resume]
@@ -351,10 +356,12 @@ data:
     and David's Discord approval button.
 
     Use the fleet_tasks MCP server for Workspace work; never improvise SSH access
-    from this container. Its write-capable calls require David's approval. Let the
-    gateway select a healthy Workspace unless David names one. Default work to
-    GPT-5.6 Sol, low reasoning, fast mode. Use xhigh only when David asks for deeper
-    or bigger work.
+    from this container. Its bounded coding lifecycle has David's standing approval:
+    it may prepare an isolated worktree, run the sandboxed harness, test, and create
+    one signed task commit without another button. It still cannot merge, deploy, or
+    mutate GitHub. Let the gateway select a healthy Workspace unless David names one.
+    Default work to GPT-5.6 Sol, low reasoning, fast mode. Use xhigh only when David
+    asks for deeper or bigger work.
 
     Your local terminal and files are an isolated persistent scratch environment, not
     a fleet node and not a Kubernetes administrator. You have no Docker socket,
