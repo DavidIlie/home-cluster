@@ -301,8 +301,8 @@ spec:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
         client-dpi:
           # renovate: depName="UniFi-Poller: Client DPI - Prometheus"
-          gnetId: 11316
-          revision: 9
+          gnetId: 11310
+          revision: 5
           datasource:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
       kubernetes:
