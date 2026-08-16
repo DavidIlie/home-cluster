@@ -3,8 +3,10 @@
 
 This migration has two deliberately separate jobs:
 
-* keep the persistent user config on Hermes' isolated built-in browser backend;
-* once, replay every already-registered Discord thread owned by David.
+* reconcile the small set of operator-managed runtime settings without
+  replacing the rest of the persistent user config;
+* once per migration ID, replay all or an explicit subset of already-registered
+  Discord threads owned by David.
 
 The replay is fail-closed: the registry, routing table, platform, owner, and
 one-to-one thread mapping must all agree before any session is changed.
@@ -26,7 +28,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import yaml
 
 
-MIGRATION_ID = "operator-replay-20260816-v5"
+MIGRATION_ID = "operator-replay-20260816-v6"
 REPLAY_REASON = "operator_replay"
 
 
@@ -79,8 +81,14 @@ def _atomic_json(path: Path, value: dict[str, Any]) -> None:
             pass
 
 
-def configure_browser(config_path: Path) -> bool:
-    """Select Hermes' isolated built-in browser without losing user config."""
+def configure_runtime_config(
+    config_path: Path, memory_char_limit: int, user_char_limit: int
+) -> bool:
+    """Reconcile bounded operator settings without losing user configuration."""
+    if not 2_200 <= memory_char_limit <= 100_000:
+        raise RuntimeError("memory character limit is outside the safe range")
+    if not 1_375 <= user_char_limit <= 100_000:
+        raise RuntimeError("user character limit is outside the safe range")
     _regular_file(config_path)
     with config_path.open(encoding="utf-8") as handle:
         config = yaml.safe_load(handle) or {}
@@ -92,9 +100,25 @@ def configure_browser(config_path: Path) -> bool:
         config["browser"] = browser
     if not isinstance(browser, dict):
         raise RuntimeError("config browser section must be a mapping")
-    if browser.get("backend") == "off":
+    memory = config.get("memory")
+    if memory is None:
+        memory = {}
+        config["memory"] = memory
+    if not isinstance(memory, dict):
+        raise RuntimeError("config memory section must be a mapping")
+
+    changed = False
+    managed = (
+        (browser, "backend", "off"),
+        (memory, "memory_char_limit", memory_char_limit),
+        (memory, "user_char_limit", user_char_limit),
+    )
+    for section, key, wanted in managed:
+        if section.get(key) != wanted:
+            section[key] = wanted
+            changed = True
+    if not changed:
         return False
-    browser["backend"] = "off"
 
     fd, temporary = tempfile.mkstemp(prefix=".config.yaml.", dir=config_path.parent)
     try:
@@ -130,16 +154,40 @@ def _thread_ids(path: Path) -> list[str]:
     return thread_ids
 
 
-def mark_registered_threads(home: Path, expected_user_id: str, marker: Path) -> int:
-    """Atomically mark every registered David Discord thread for one replay."""
+def _selected_thread_ids(registry: list[str], requested: list[str]) -> list[str]:
+    if not requested:
+        return registry
+    selected = [str(value).strip() for value in requested]
+    if any(not value.isdigit() for value in selected):
+        raise RuntimeError("requested replay contains an invalid thread ID")
+    if len(set(selected)) != len(selected):
+        raise RuntimeError("requested replay contains duplicate thread IDs")
+    unknown = sorted(set(selected) - set(registry))
+    if unknown:
+        raise RuntimeError(f"requested replay contains unregistered thread IDs: {unknown}")
+    return selected
+
+
+def mark_registered_threads(
+    home: Path,
+    expected_user_id: str,
+    marker: Path,
+    requested_thread_ids: list[str],
+) -> int:
+    """Atomically mark a validated David-owned thread set for one replay."""
+    registry = _thread_ids(home / "discord_threads.json")
+    thread_ids = _selected_thread_ids(registry, requested_thread_ids)
     if _regular_file(marker, required=False):
         recorded = json.loads(marker.read_text(encoding="utf-8"))
-        if recorded.get("migration") != MIGRATION_ID:
+        if (
+            recorded.get("migration") != MIGRATION_ID
+            or recorded.get("thread_ids") != thread_ids
+            or recorded.get("user_id") != expected_user_id
+        ):
             raise RuntimeError(f"unexpected replay marker content: {marker}")
         print(f"Replay migration already complete for {len(recorded['thread_ids'])} thread(s)")
         return 0
 
-    thread_ids = _thread_ids(home / "discord_threads.json")
     os.environ["HERMES_HOME"] = str(home)
 
     from gateway.config import GatewayConfig, Platform
@@ -213,6 +261,9 @@ def main() -> None:
     parser.add_argument("--home", type=Path, default=Path("/opt/data"))
     parser.add_argument("--user-id", required=True)
     parser.add_argument("--timezone", required=True)
+    parser.add_argument("--memory-char-limit", type=int, required=True)
+    parser.add_argument("--user-char-limit", type=int, required=True)
+    parser.add_argument("--replay-thread-id", action="append", default=[])
     args = parser.parse_args()
 
     home = args.home.resolve(strict=True)
@@ -222,12 +273,15 @@ def main() -> None:
         raise RuntimeError("expected Discord user ID must be numeric")
     configure_timezone(args.timezone)
 
-    changed = configure_browser(home / "config.yaml")
-    print("Configured built-in isolated browser backend" if changed else "Browser backend already configured")
+    changed = configure_runtime_config(
+        home / "config.yaml", args.memory_char_limit, args.user_char_limit
+    )
+    print("Reconciled managed runtime config" if changed else "Managed runtime config already current")
     mark_registered_threads(
         home,
         args.user_id,
         home / "migrations" / f"{MIGRATION_ID}.json",
+        args.replay_thread_id,
     )
 
 

@@ -68,8 +68,12 @@ data:
     memory:
       memory_enabled: true
       user_profile_enabled: true
-      memory_char_limit: 2200
-      user_char_limit: 1375
+      # Herm keeps long-lived operational knowledge and David's preferences
+      # here; the upstream defaults are sized for a small personal assistant
+      # and filled during the seven-thread recovery. Keep a bounded but useful
+      # budget, with the weekly curator responsible for consolidation.
+      memory_char_limit: 24000
+      user_char_limit: 16000
       nudge_interval: 10
       provider: ""
       write_approval: false
