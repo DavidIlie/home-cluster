@@ -37,7 +37,7 @@
         "defaults": {
           "color": {"mode": "thresholds"},
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 5}, {"color": "red", "value": 6}]},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 10}, {"color": "red", "value": 12}]},
           "unit": "short"
         },
         "overrides": []
@@ -110,7 +110,7 @@
         "defaults": {
           "color": {"mode": "thresholds"},
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 5}, {"color": "red", "value": 6}]},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 10}, {"color": "red", "value": 12}]},
           "unit": "short"
         },
         "overrides": []
@@ -214,15 +214,15 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Pending and running runner pods by physical node. The temporary safe fleet cap is 6 (~2/node) while runner scratch I/O shares disks with etcd.",
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 3, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 2}, {"color": "red", "value": 3}]}, "unit": "short"}, "overrides": []},
+      "description": "Pending and running runner pods by physical node. The staged fleet cap is 12 (~4/node) with scratch and Docker I/O isolated on CI ZFS NVMe.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 5, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 4}, {"color": "red", "value": 5}]}, "unit": "short"}, "overrides": []},
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
       "id": 11,
       "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
       "targets": [
         {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"}
       ],
-      "title": "Runner pressure by node (temporary 2/node cap)",
+      "title": "Runner pressure by node (staged 4/node cap)",
       "type": "bargauge"
     },
     {
@@ -663,7 +663,7 @@
       "id": 44,
       "options": {
         "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
-        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. The temporary pre-isolation limit is 6 total / about 2 per node.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Runner scratch I/O currently shares `/var` NVMe with Talos etcd and containerd. Do not raise the cap until the separate CI ZFS volumes pass staged 6 → 12 → 18 → 30 load tests.\n- Empty latency panels mean no jobs matched the current filters.",
+        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. The current staged limit is 12 total / about 4 per node.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Runner workspaces and Docker graphs use pod-scoped generic ephemeral volumes on the separate `ci-zfs-ext4` NVMe class. The 6-runner stage passed; keep the 12-runner stage healthy before testing 18 → 30.\n- Empty latency panels mean no jobs matched the current filters.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.10",
