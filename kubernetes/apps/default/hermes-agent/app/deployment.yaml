@@ -105,7 +105,7 @@ spec:
               mountPath: /seed
               readOnly: true
         - name: prepare-runtime
-          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.1b1b86cf4@sha256:473919d7d13871b52b01a646f380bf252fee8b8f5a3d49de4a5cf4cdb3301bc9
+          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.082322254@sha256:04689abc48c05e5ae5a879f41c3680eac412953a91b538db62864389b9fe7e1a
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -118,8 +118,6 @@ spec:
             - "24000"
             - --user-char-limit
             - "16000"
-            - --replay-thread-id
-            - "1538529411769434122"
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000
@@ -142,7 +140,7 @@ spec:
               readOnly: true
       containers:
         - name: app
-          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.1b1b86cf4@sha256:473919d7d13871b52b01a646f380bf252fee8b8f5a3d49de4a5cf4cdb3301bc9
+          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.082322254@sha256:04689abc48c05e5ae5a879f41c3680eac412953a91b538db62864389b9fe7e1a
           args: ["gateway", "run"]
           env:
             - name: TZ

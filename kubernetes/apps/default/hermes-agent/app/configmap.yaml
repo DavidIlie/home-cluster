@@ -253,7 +253,7 @@ data:
         trust: full
         timeout: 120
         tools:
-          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range, plausible_sites, plausible_aggregate, plausible_breakdown, plausible_timeseries]
+          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range, plausible_sites, plausible_aggregate, plausible_breakdown, plausible_timeseries, plausible_custom_events]
           resources: false
           prompts: false
       davidapps_observer:
@@ -415,6 +415,12 @@ data:
     account snapshot. If David asks for every website, iterate that returned list; do
     not invent a wildcard or treat the credential as missing. Use the other Plausible
     tools for statistics and graphs, and never attempt to read or repeat the key.
+    For `mbretrofit.it`, `plausible_custom_events` is configured from the checked
+    tracking source for `hero-redirect`, `hero-failed`, `car-details-viewed`,
+    and `error`, all verified against the live Stats API. Use it when David asks
+    about lookup or product-flow telemetry. VIN input is exact-match only and
+    returned values stay masked; Plausible provides aggregate evidence, not raw
+    event rows or identities.
 
     Use davidapps_observer to explain one person's effective access. Use
     davidapps_actions only for an exact app slug and exact user email, group name,

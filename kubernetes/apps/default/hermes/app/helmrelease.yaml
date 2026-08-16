@@ -33,7 +33,7 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              tag: 6e222a8@sha256:59df1117207a817ca8864b0da45ce5fc063a7c7c16690c1b283917daf23f914d
+              tag: 119026f@sha256:a297cfb4a384c4d61a40f92c98d13a1152975b1e41a918325d5c8d6c64710fc7
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -100,6 +100,7 @@ spec:
               HERMES_PLAUSIBLE_URL: https://plausible.davidapps.dev
               HERMES_PLAUSIBLE_TOKEN_FILE: /run/secrets/hermes/plausible-api-key
               HERMES_PLAUSIBLE_SITE_IDS: anaxax.tv,app.kidays.fr,brainbuzzapp.com,controlfits.com,createidol.io,davidilie.com,docs.workroad.app,en.mbretrofit.ro,kidays.fr,mbretrofit.es,mbretrofit.it,mbretrofit.ro,plexo.davidhome.ro,quickgoon.com,ro.davidinfra.co.uk,store.workroad.app,t3.gurt.ing,workroad.app,zerocut.gg
+              HERMES_PLAUSIBLE_CUSTOM_EVENT_SCHEMAS: '[{"site_id":"mbretrofit.it","event":"hero-redirect","properties":["loggedIn","vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"hero-failed","properties":["vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"car-details-viewed","properties":["vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"error","properties":["error","path"]}]'
               HERMES_DAVIDAPPS_URL: https://id.davidapps.dev
               HERMES_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-api-key
             probes:
