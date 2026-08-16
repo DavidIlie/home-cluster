@@ -129,8 +129,11 @@ spec:
               - matchPattern: "*"
     - toFQDNs:
         - matchName: api.github.com
+        - matchName: api.x.com
         - matchName: fleetview.code.davidapps.dev
+        - matchName: github.com
         - matchName: id.davidapps.dev
+        - matchName: release-assets.githubusercontent.com
       toPorts:
         - ports:
             - port: "443"
