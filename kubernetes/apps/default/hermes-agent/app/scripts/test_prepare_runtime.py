@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -79,6 +81,41 @@ class PrepareRuntimeTests(unittest.TestCase):
             path.symlink_to(Path(directory) / "outside")
             with self.assertRaisesRegex(RuntimeError, "non-regular"):
                 prepare_runtime._atomic_json(path, value)
+
+    def test_skip_replay_ignores_an_existing_replay_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            (home / "config.yaml").write_text("_config_version: 1\n", encoding="utf-8")
+            marker = home / "migrations" / f"{prepare_runtime.MIGRATION_ID}.json"
+            marker.parent.mkdir()
+            marker.write_text('{"migration":"old","thread_ids":["111"]}\n', encoding="utf-8")
+
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--home",
+                    str(home),
+                    "--user-id",
+                    "243009043260637184",
+                    "--timezone",
+                    "Europe/Madrid",
+                    "--memory-char-limit",
+                    "24000",
+                    "--user-char-limit",
+                    "16000",
+                    "--skip-replay",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertIn("Operator replay explicitly disabled", completed.stdout)
+            self.assertEqual(
+                json.loads(marker.read_text(encoding="utf-8"))["migration"], "old"
+            )
 
 
 if __name__ == "__main__":

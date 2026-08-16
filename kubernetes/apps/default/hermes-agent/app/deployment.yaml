@@ -118,6 +118,7 @@ spec:
             - "24000"
             - --user-char-limit
             - "16000"
+            - --skip-replay
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000

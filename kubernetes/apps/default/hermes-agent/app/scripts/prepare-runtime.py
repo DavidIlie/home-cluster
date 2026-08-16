@@ -8,6 +8,10 @@ This migration has two deliberately separate jobs:
 * once per migration ID, replay all or an explicit subset of already-registered
   Discord threads owned by David.
 
+Replay is opt-out with ``--skip-replay`` for steady-state deployments. This is
+explicit because an empty ``--replay-thread-id`` list intentionally means
+"all registered threads" for one-off recovery migrations.
+
 The replay is fail-closed: the registry, routing table, platform, owner, and
 one-to-one thread mapping must all agree before any session is changed.
 """
@@ -264,6 +268,7 @@ def main() -> None:
     parser.add_argument("--memory-char-limit", type=int, required=True)
     parser.add_argument("--user-char-limit", type=int, required=True)
     parser.add_argument("--replay-thread-id", action="append", default=[])
+    parser.add_argument("--skip-replay", action="store_true")
     args = parser.parse_args()
 
     home = args.home.resolve(strict=True)
@@ -277,12 +282,17 @@ def main() -> None:
         home / "config.yaml", args.memory_char_limit, args.user_char_limit
     )
     print("Reconciled managed runtime config" if changed else "Managed runtime config already current")
-    mark_registered_threads(
-        home,
-        args.user_id,
-        home / "migrations" / f"{MIGRATION_ID}.json",
-        args.replay_thread_id,
-    )
+    if args.skip_replay:
+        if args.replay_thread_id:
+            raise RuntimeError("--skip-replay cannot be combined with --replay-thread-id")
+        print("Operator replay explicitly disabled")
+    else:
+        mark_registered_threads(
+            home,
+            args.user_id,
+            home / "migrations" / f"{MIGRATION_ID}.json",
+            args.replay_thread_id,
+        )
 
 
 if __name__ == "__main__":
