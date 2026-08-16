@@ -1,0 +1,843 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Operational revenue telemetry for ZeroCut platform payments and supporter-to-creator donations. Amounts are integer minor-currency units, currencies remain separate, and the payment ledger remains the accounting source of truth.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    {
+      "asDropdown": true,
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [
+        "zerocut"
+      ],
+      "targetBlank": false,
+      "title": "ZeroCut dashboards",
+      "type": "dashboards"
+    },
+    {
+      "includeVars": false,
+      "keepTime": false,
+      "targetBlank": true,
+      "title": "Open ZeroCut",
+      "type": "link",
+      "url": "https://zerocut.gg"
+    },
+    {
+      "includeVars": false,
+      "keepTime": false,
+      "targetBlank": true,
+      "title": "Repository",
+      "type": "link",
+      "url": "https://github.com/DavidIlie/zerocut"
+    },
+    {
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": true,
+      "title": "Trace search",
+      "type": "link",
+      "url": "/explore?schemaVersion=1&panes=%7B%22trace%22:%7B%22datasource%22:%22tempo%22%7D%7D"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
+      "title": "ZeroCut platform payments",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Positive amount movements recorded by ZeroCut's own billing ledger in the selected range. Each tile is one product, outcome, provider, mode, and currency. Values are integer minor-currency units; do not add different outcomes or currencies.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Platform amount movements · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Net platform revenue movement in the selected range: explicit credits minus explicit debits. Neutral compensation/lifecycle signals are excluded. Results stay separate by product, provider, mode, and currency and are not a reconciled ledger.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "(sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) - sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range])))",
+          "instant": true,
+          "legendFormat": "{{revenue_product}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Platform net movement · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Number of durable platform billing transitions observed in the selected range, split by bounded business dimensions. A count is an operational event count, not an invoice count from an accounting system.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Platform event count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Per-second rate of durable platform billing transitions. Use the legend to distinguish successful payments, refunds, disputes, and compensation without combining their meanings.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Platform payment activity rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 6,
+      "panels": [],
+      "title": "Supporter-to-creator donations",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Positive creator-donation amount movements in the selected range after ZeroCut's durable Stripe or PayPal authority wins. Each tile is one outcome, provider, mode, and currency. Values are integer minor-currency units and are creator funds, not ZeroCut platform revenue.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Creator donation movements · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Net creator-fund movement in the selected range: explicit credits minus explicit debits, with neutral lifecycle signals excluded. Results stay separate by provider, mode, and currency. This is operational flow telemetry, not creator payout accounting.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "(sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) - sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range])))",
+          "instant": true,
+          "legendFormat": "{{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Creator donation net movement · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Number of durable creator-donation transitions in the selected range. Stripe and PayPal are counted only after application authority and retry deduplication.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 23
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Creator donation event count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Per-second rate of durable creator-donation transitions, split by outcome, provider, mode, and currency.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 23
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Creator donation activity rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Successful credit-direction amount movements. Values remain split by provider, mode, and currency.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_stream, revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_net_direction=\"credit\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "{{revenue_stream}} · {{revenue_product}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Credits by stream and product",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Refund and lost-dispute debit movements. Compensation remains neutral and is intentionally excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_stream, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_net_direction=\"debit\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "{{revenue_stream}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Debits by stream and outcome",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Minor-currency units per second, split by stream, direction, and currency. Credit and debit lines are not combined.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_stream, revenue_net_direction, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "{{revenue_stream}} · {{revenue_net_direction}} · {{commerce_currency}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Amount movement rate by direction",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Durable revenue-transition rate split by business stream, outcome, provider, mode, and currency.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_stream, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "{{revenue_stream}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Business events by outcome",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "tags": [
+    "apps",
+    "business",
+    "donations",
+    "otel",
+    "revenue",
+    "zerocut"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h"
+    ]
+  },
+  "timezone": "browser",
+  "title": "ZeroCut / Revenue & donations",
+  "uid": "zerocut-revenue",
+  "version": 1,
+  "weekStart": ""
+}
