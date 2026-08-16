@@ -77,6 +77,8 @@ spec:
             - /opt/data
             - --user-id
             - "243009043260637184"
+            - --timezone
+            - Europe/Madrid
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000

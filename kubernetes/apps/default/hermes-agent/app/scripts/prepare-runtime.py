@@ -17,15 +17,29 @@ import json
 import os
 import stat
 import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import yaml
 
 
-MIGRATION_ID = "operator-replay-20260816-v1"
+MIGRATION_ID = "operator-replay-20260816-v2"
 REPLAY_REASON = "operator_replay"
+
+
+def configure_timezone(name: str) -> None:
+    """Use the same local clock as the gateway's naïve session timestamps."""
+    try:
+        ZoneInfo(name)
+    except ZoneInfoNotFoundError as error:
+        raise RuntimeError(f"unknown timezone: {name}") from error
+    os.environ["TZ"] = name
+    if not hasattr(time, "tzset"):
+        raise RuntimeError("this runtime cannot set the process timezone")
+    time.tzset()
 
 
 def _regular_file(path: Path, *, required: bool = True) -> bool:
@@ -198,6 +212,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--home", type=Path, default=Path("/opt/data"))
     parser.add_argument("--user-id", required=True)
+    parser.add_argument("--timezone", required=True)
     args = parser.parse_args()
 
     home = args.home.resolve(strict=True)
@@ -205,6 +220,7 @@ def main() -> None:
         raise RuntimeError(f"Hermes home is not a directory: {home}")
     if not args.user_id.isdigit():
         raise RuntimeError("expected Discord user ID must be numeric")
+    configure_timezone(args.timezone)
 
     changed = configure_browser(home / "config.yaml")
     print("Configured built-in isolated browser backend" if changed else "Browser backend already configured")
