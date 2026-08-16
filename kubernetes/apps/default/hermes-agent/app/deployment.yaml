@@ -70,7 +70,7 @@ spec:
               mountPath: /seed
               readOnly: true
         - name: prepare-runtime
-          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.bb93c4147@sha256:aa0729b71cf99f912a18c07b3ed790fa1bb470fef5703d77c5f90c32b597f096
+          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.af0ab3127@sha256:0daf5d9460daa61cb48a124bfce5108310e65b8eba193fb21f61c4ac28c6523c
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -101,7 +101,7 @@ spec:
               readOnly: true
       containers:
         - name: app
-          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.bb93c4147@sha256:aa0729b71cf99f912a18c07b3ed790fa1bb470fef5703d77c5f90c32b597f096
+          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.af0ab3127@sha256:0daf5d9460daa61cb48a124bfce5108310e65b8eba193fb21f61c4ac28c6523c
           args: ["gateway", "run"]
           env:
             - name: TZ
