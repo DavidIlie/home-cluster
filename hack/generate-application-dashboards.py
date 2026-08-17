@@ -184,6 +184,7 @@ def application_variable() -> dict:
         'label_app_kubernetes_io_name!~".*(cloudflared|external-dns).*"}, deployment)'
     )
     return {
+        "allValue": ".*",
         "current": {"selected": True, "text": ["All"], "value": ["$__all"]},
         "datasource": copy.deepcopy(PROM),
         "definition": query,
@@ -289,8 +290,14 @@ def build_all_projects() -> None:
         },
     ]
 
-    app_selector = f'namespace=~"{APP_NAMESPACES}",deployment=~"{APP}"'
-    pod_selector = f'namespace=~"{APP_NAMESPACES}",pod=~"({APP})-.*"'
+    app_selector = (
+        f'namespace=~"{APP_NAMESPACES}",deployment=~"{APP}",'
+        'deployment!~".*(cloudflared|external-dns).*"'
+    )
+    pod_selector = (
+        f'namespace=~"{APP_NAMESPACES}",pod=~"({APP})-.*",'
+        'pod!~".*(cloudflared|external-dns).*"'
+    )
     ingress_selector = f'exported_namespace=~"{APP_NAMESPACES}",ingress=~"{APP}"'
 
     panels: list[dict] = []
@@ -460,7 +467,7 @@ def build_all_projects() -> None:
                 12,
                 [
                     prom_target(
-                        f'sum by (node) (kube_pod_status_phase{{namespace=~"{APP_NAMESPACES}",phase="Running",pod=~"({APP})-.*"}} * on (namespace, pod) group_left(node) kube_pod_info{{namespace=~"{APP_NAMESPACES}",pod=~"({APP})-.*"}})',
+                        f'sum by (node) (kube_pod_status_phase{{namespace=~"{APP_NAMESPACES}",phase="Running",pod=~"({APP})-.*",pod!~".*(cloudflared|external-dns).*"}} * on (namespace, pod) group_left(node) kube_pod_info{{namespace=~"{APP_NAMESPACES}",pod=~"({APP})-.*",pod!~".*(cloudflared|external-dns).*"}})',
                         "{{node}}",
                     )
                 ],
@@ -873,12 +880,12 @@ def build_all_projects() -> None:
                 12,
                 [
                     logs_target(
-                        f'_stream: {{k_namespace_name="personal-projects", cluster="davidapps-cluster"}} app:~"{APP}" | stats by (app) count()',
+                        f'_stream: {{k_namespace_name="personal-projects", cluster="davidapps-cluster"}} app:~"{APP}" app:!~".*(cloudflared|external-dns).*" | stats by (app) count()',
                         "A",
                         stats=True,
                     ),
                     logs_target(
-                        f'_stream: {{k_namespace_name="kidays-fr", cluster="davidapps-cluster"}} app:~"{APP}" | stats by (app) count()',
+                        f'_stream: {{k_namespace_name="kidays-fr", cluster="davidapps-cluster"}} app:~"{APP}" app:!~".*(cloudflared|external-dns).*" | stats by (app) count()',
                         "B",
                         stats=True,
                     ),
@@ -893,11 +900,11 @@ def build_all_projects() -> None:
                 16,
                 [
                     logs_target(
-                        f'_stream: {{k_namespace_name="personal-projects", cluster="davidapps-cluster"}} app:~"{APP}" _msg:~"(?i)(error|exception|fatal|panic)" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200',
+                        f'_stream: {{k_namespace_name="personal-projects", cluster="davidapps-cluster"}} app:~"{APP}" app:!~".*(cloudflared|external-dns).*" _msg:~"(?i)(error|exception|fatal|panic)" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200',
                         "A",
                     ),
                     logs_target(
-                        f'_stream: {{k_namespace_name="kidays-fr", cluster="davidapps-cluster"}} app:~"{APP}" _msg:~"(?i)(error|exception|fatal|panic)" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200',
+                        f'_stream: {{k_namespace_name="kidays-fr", cluster="davidapps-cluster"}} app:~"{APP}" app:!~".*(cloudflared|external-dns).*" _msg:~"(?i)(error|exception|fatal|panic)" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200',
                         "B",
                     ),
                 ],
@@ -939,7 +946,7 @@ def build_all_projects() -> None:
                     table=True,
                 ),
                 prom_target(
-                    f'max by (namespace, pod, node, host_ip, pod_ip) (kube_pod_info{{namespace=~"{APP_NAMESPACES}",pod=~"({APP})-.*"}})',
+                    f'max by (namespace, pod, node, host_ip, pod_ip) (kube_pod_info{{namespace=~"{APP_NAMESPACES}",pod=~"({APP})-.*",pod!~".*(cloudflared|external-dns).*"}})',
                     instant=True,
                     ref_id="B",
                     table=True,

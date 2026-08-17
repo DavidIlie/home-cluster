@@ -150,7 +150,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(kube_deployment_status_replicas_ready{namespace=~\"personal-projects|kidays-fr\",deployment=~\"${application:regex}\"})",
+          "expr": "sum(kube_deployment_status_replicas_ready{namespace=~\"personal-projects|kidays-fr\",deployment=~\"${application:regex}\",deployment!~\".*(cloudflared|external-dns).*\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -216,7 +216,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(kube_deployment_spec_replicas{namespace=~\"personal-projects|kidays-fr\",deployment=~\"${application:regex}\"})",
+          "expr": "sum(kube_deployment_spec_replicas{namespace=~\"personal-projects|kidays-fr\",deployment=~\"${application:regex}\",deployment!~\".*(cloudflared|external-dns).*\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -282,7 +282,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\"}[$__range]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"}[$__range]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -348,7 +348,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(increase(container_oom_events_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",container!=\"\"}[$__range]))",
+          "expr": "sum(increase(container_oom_events_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",container!=\"\"}[$__range]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -411,7 +411,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "kube_deployment_status_replicas_available{namespace=~\"personal-projects|kidays-fr\",deployment=~\"${application:regex}\"}",
+          "expr": "kube_deployment_status_replicas_available{namespace=~\"personal-projects|kidays-fr\",deployment=~\"${application:regex}\",deployment!~\".*(cloudflared|external-dns).*\"}",
           "legendFormat": "{{namespace}} / {{deployment}}",
           "range": true,
           "instant": false,
@@ -474,7 +474,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"}[$__rate_interval]))",
           "legendFormat": "{{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -537,7 +537,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",container!=\"POD\",image!=\"\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",container!=\"POD\",image!=\"\"}[$__rate_interval]))",
           "legendFormat": "{{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -600,7 +600,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",container!=\"POD\",image!=\"\"})",
+          "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",container!=\"POD\",image!=\"\"})",
           "legendFormat": "{{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -663,7 +663,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "100 * sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",container!=\"POD\",image!=\"\"}[$__rate_interval])) / clamp_min(sum by (namespace, pod) (kube_pod_container_resource_requests{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",resource=\"cpu\"}), 0.001)",
+          "expr": "100 * sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",container!=\"POD\",image!=\"\"}[$__rate_interval])) / clamp_min(sum by (namespace, pod) (kube_pod_container_resource_requests{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",resource=\"cpu\"}), 0.001)",
           "legendFormat": "{{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -726,7 +726,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "100 * sum by (namespace, pod) (rate(container_cpu_cfs_throttled_periods_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",container!=\"POD\",image!=\"\"}[$__rate_interval])) / clamp_min(sum by (namespace, pod) (rate(container_cpu_cfs_periods_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",container!=\"POD\",image!=\"\"}[$__rate_interval])), 0.001)",
+          "expr": "100 * sum by (namespace, pod) (rate(container_cpu_cfs_throttled_periods_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",container!=\"POD\",image!=\"\"}[$__rate_interval])) / clamp_min(sum by (namespace, pod) (rate(container_cpu_cfs_periods_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",container!=\"POD\",image!=\"\"}[$__rate_interval])), 0.001)",
           "legendFormat": "{{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -789,7 +789,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_network_receive_bytes_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_network_receive_bytes_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"}[$__rate_interval]))",
           "legendFormat": "RX {{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -801,7 +801,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_network_transmit_bytes_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_network_transmit_bytes_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"}[$__rate_interval]))",
           "legendFormat": "TX {{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -864,7 +864,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (node) (kube_pod_status_phase{namespace=~\"personal-projects|kidays-fr\",phase=\"Running\",pod=~\"(${application:regex})-.*\"} * on (namespace, pod) group_left(node) kube_pod_info{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\"})",
+          "expr": "sum by (node) (kube_pod_status_phase{namespace=~\"personal-projects|kidays-fr\",phase=\"Running\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"} * on (namespace, pod) group_left(node) kube_pod_info{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"})",
           "legendFormat": "{{node}}",
           "range": true,
           "instant": false,
@@ -2606,7 +2606,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" | stats by (app) count()",
+          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" app:!~\".*(cloudflared|external-dns).*\" | stats by (app) count()",
           "refId": "A",
           "legendFormat": "{{app}}",
           "queryType": "statsRange"
@@ -2617,7 +2617,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"kidays-fr\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" | stats by (app) count()",
+          "expr": "_stream: {k_namespace_name=\"kidays-fr\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" app:!~\".*(cloudflared|external-dns).*\" | stats by (app) count()",
           "refId": "B",
           "legendFormat": "{{app}}",
           "queryType": "statsRange"
@@ -2655,7 +2655,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200",
+          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" app:!~\".*(cloudflared|external-dns).*\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200",
           "refId": "A",
           "queryType": "range"
         },
@@ -2665,7 +2665,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"kidays-fr\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200",
+          "expr": "_stream: {k_namespace_name=\"kidays-fr\", cluster=\"davidapps-cluster\"} app:~\"${application:regex}\" app:!~\".*(cloudflared|external-dns).*\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _time, _msg, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200",
           "refId": "B",
           "queryType": "range"
         }
@@ -2869,7 +2869,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "max by (namespace, pod, container, image, image_id) (kube_pod_container_info{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",container!=\"POD\"})",
+          "expr": "max by (namespace, pod, container, image, image_id) (kube_pod_container_info{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\",container!=\"POD\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -2882,7 +2882,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "max by (namespace, pod, node, host_ip, pod_ip) (kube_pod_info{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\"})",
+          "expr": "max by (namespace, pod, node, host_ip, pod_ip) (kube_pod_info{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -2895,7 +2895,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (kube_pod_container_status_restarts_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\"})",
+          "expr": "sum by (namespace, pod) (kube_pod_container_status_restarts_total{namespace=~\"personal-projects|kidays-fr\",pod=~\"(${application:regex})-.*\",pod!~\".*(cloudflared|external-dns).*\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -2927,6 +2927,7 @@
   "templating": {
     "list": [
       {
+        "allValue": ".*",
         "current": {
           "selected": true,
           "text": [
