@@ -872,6 +872,53 @@
       ],
       "title": "Spegel registry serving",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 154},
+      "id": 63,
+      "panels": [],
+      "title": "Physical network health",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Driver-level receive-error ratio for the two physical 10 GbE members on each davidapps node. A minimum traffic guard hides isolated members that still report carrier. Node Exporter exposes aggregate receive errors rather than a dedicated CRC counter.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "receive errors", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 16, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "min": 0, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 155},
+      "id": 64,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "(100 * sum by(kubernetes_node,device) (rate(node_network_receive_errs_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])) / clamp_min(sum by(kubernetes_node,device) (rate(node_network_receive_packets_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])) + sum by(kubernetes_node,device) (rate(node_network_receive_errs_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])), 1e-9)) and on(kubernetes_node,device) sum by(kubernetes_node,device) (rate(node_network_receive_packets_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])) > 1", "legendFormat": "{{kubernetes_node}} · {{device}}", "range": true, "refId": "A"}
+      ],
+      "title": "Node physical RX error ratio",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-home-cluster"},
+      "description": "New receive errors per minute on the six 10 GbE members linking electron, proton and neutron to the USW-Pro-Aggregation switch.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "errors / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 16, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "min": 0, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 155},
+      "id": 65,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(port_num,port_name) (rate(unpoller_device_port_receive_errors_total{job=\"unifipoller\",name=\"USW-Pro-Aggregation\",port_num=~\"9|11|13|15|17|19\"}[$__rate_interval]))", "legendFormat": "port {{port_num}} · {{port_name}}", "range": true, "refId": "A"}
+      ],
+      "title": "Aggregation RX errors/min",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-home-cluster"},
+      "description": "Receive power reported by each USW-Pro-Aggregation 10GBASE-SR optic. IEEE 802.3's minimum average receive power is -9.9 dBm; -13 dBm is the ModuleTek low-warning threshold.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "optical RX power", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 16, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "orange", "value": -13}, {"color": "green", "value": -9.9}]}, "unit": "dBm"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 155},
+      "id": 66,
+      "options": {"legend": {"calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "asc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "unpoller_device_port_sfp_rx_power{job=\"unifipoller\",name=\"USW-Pro-Aggregation\",port_num=~\"9|11|13|15|17|19\"}", "legendFormat": "port {{port_num}} · {{port_name}} · {{sfp_part}}", "range": true, "refId": "A"}
+      ],
+      "title": "Aggregation optical RX power",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -936,6 +983,6 @@
   "timezone": "browser",
   "title": "GitHub Actions / Runner Fleet",
   "uid": "github-actions-runner-fleet",
-  "version": 1,
+  "version": 2,
   "weekStart": "monday"
 }

@@ -151,6 +151,261 @@ spec:
               traceQuery:
                 timeShiftEnabled: true
             isDefault: false
+    alerting:
+      rules.yaml:
+        apiVersion: 1
+        groups:
+          - orgId: 1
+            name: physical-network-health
+            folder: CI / GitHub Actions
+            interval: 1m
+            rules:
+              - uid: davidapps_node_rx_error_ratio
+                title: Davidapps node RX error ratio
+                condition: C
+                data:
+                  - refId: A
+                    relativeTimeRange:
+                      from: 600
+                      to: 0
+                    datasourceUid: prometheus-davidapps-cluster
+                    model:
+                      datasource:
+                        type: prometheus
+                        uid: prometheus-davidapps-cluster
+                      editorMode: code
+                      expr: >-
+                        (100 * sum by(kubernetes_node,device) (increase(node_network_receive_errs_total{cluster="davidapps-cluster",device=~"eno1|eno2"}[5m])) / clamp_min(sum by(kubernetes_node,device) (increase(node_network_receive_packets_total{cluster="davidapps-cluster",device=~"eno1|eno2"}[5m])) + sum by(kubernetes_node,device) (increase(node_network_receive_errs_total{cluster="davidapps-cluster",device=~"eno1|eno2"}[5m])), 1)) and on(kubernetes_node,device) sum by(kubernetes_node,device) (increase(node_network_receive_errs_total{cluster="davidapps-cluster",device=~"eno1|eno2"}[5m])) >= 10 and on(kubernetes_node,device) sum by(kubernetes_node,device) (increase(node_network_receive_packets_total{cluster="davidapps-cluster",device=~"eno1|eno2"}[5m])) >= 300
+                      instant: true
+                      intervalMs: 15000
+                      legendFormat: __auto
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                  - refId: B
+                    datasourceUid: __expr__
+                    model:
+                      conditions:
+                        - evaluator:
+                            params: []
+                            type: gt
+                          operator:
+                            type: and
+                          query:
+                            params: [B]
+                          reducer:
+                            params: []
+                            type: last
+                          type: query
+                      datasource:
+                        type: __expr__
+                        uid: __expr__
+                      expression: A
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      reducer: last
+                      refId: B
+                      type: reduce
+                  - refId: C
+                    datasourceUid: __expr__
+                    model:
+                      conditions:
+                        - evaluator:
+                            params: [0.001]
+                            type: gt
+                          operator:
+                            type: and
+                          query:
+                            params: [C]
+                          reducer:
+                            params: []
+                            type: last
+                          type: query
+                      datasource:
+                        type: __expr__
+                        uid: __expr__
+                      expression: B
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: C
+                      type: threshold
+                dashboardUid: github-actions-runner-fleet
+                panelId: 64
+                noDataState: OK
+                execErrState: Error
+                for: 2m
+                annotations:
+                  __dashboardUid__: github-actions-runner-fleet
+                  __panelId__: "64"
+                  summary: A physical 10 GbE member is accumulating receive errors above the permitted ratio.
+                labels:
+                  service: physical-network
+                  severity: warning
+                isPaused: false
+              - uid: unifi_aggregation_rx_errors
+                title: UniFi aggregation RX errors
+                condition: C
+                data:
+                  - refId: A
+                    relativeTimeRange:
+                      from: 600
+                      to: 0
+                    datasourceUid: prometheus-home-cluster
+                    model:
+                      datasource:
+                        type: prometheus
+                        uid: prometheus-home-cluster
+                      editorMode: code
+                      expr: >-
+                        sum by(port_num,port_name) (increase(unpoller_device_port_receive_errors_total{job="unifipoller",name="USW-Pro-Aggregation",port_num=~"9|11|13|15|17|19"}[5m]))
+                      instant: true
+                      intervalMs: 15000
+                      legendFormat: __auto
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                  - refId: B
+                    datasourceUid: __expr__
+                    model:
+                      conditions:
+                        - evaluator:
+                            params: []
+                            type: gt
+                          operator:
+                            type: and
+                          query:
+                            params: [B]
+                          reducer:
+                            params: []
+                            type: last
+                          type: query
+                      datasource:
+                        type: __expr__
+                        uid: __expr__
+                      expression: A
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      reducer: last
+                      refId: B
+                      type: reduce
+                  - refId: C
+                    datasourceUid: __expr__
+                    model:
+                      conditions:
+                        - evaluator:
+                            params: [9]
+                            type: gt
+                          operator:
+                            type: and
+                          query:
+                            params: [C]
+                          reducer:
+                            params: []
+                            type: last
+                          type: query
+                      datasource:
+                        type: __expr__
+                        uid: __expr__
+                      expression: B
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: C
+                      type: threshold
+                dashboardUid: github-actions-runner-fleet
+                panelId: 65
+                noDataState: OK
+                execErrState: Error
+                for: 2m
+                annotations:
+                  __dashboardUid__: github-actions-runner-fleet
+                  __panelId__: "65"
+                  summary: A davidapps aggregation member accumulated at least 10 receive errors in five minutes.
+                labels:
+                  service: physical-network
+                  severity: critical
+                isPaused: false
+              - uid: unifi_aggregation_low_rx_power
+                title: UniFi aggregation low RX power
+                condition: C
+                data:
+                  - refId: A
+                    relativeTimeRange:
+                      from: 300
+                      to: 0
+                    datasourceUid: prometheus-home-cluster
+                    model:
+                      datasource:
+                        type: prometheus
+                        uid: prometheus-home-cluster
+                      editorMode: code
+                      expr: >-
+                        min by(port_num,port_name,sfp_vendor,sfp_part) (unpoller_device_port_sfp_rx_power{job="unifipoller",name="USW-Pro-Aggregation",port_num=~"9|11|13|15|17|19"})
+                      instant: true
+                      intervalMs: 15000
+                      legendFormat: __auto
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                  - refId: B
+                    datasourceUid: __expr__
+                    model:
+                      conditions:
+                        - evaluator:
+                            params: []
+                            type: gt
+                          operator:
+                            type: and
+                          query:
+                            params: [B]
+                          reducer:
+                            params: []
+                            type: last
+                          type: query
+                      datasource:
+                        type: __expr__
+                        uid: __expr__
+                      expression: A
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      reducer: last
+                      refId: B
+                      type: reduce
+                  - refId: C
+                    datasourceUid: __expr__
+                    model:
+                      conditions:
+                        - evaluator:
+                            params: [-9.9]
+                            type: lt
+                          operator:
+                            type: and
+                          query:
+                            params: [C]
+                          reducer:
+                            params: []
+                            type: last
+                          type: query
+                      datasource:
+                        type: __expr__
+                        uid: __expr__
+                      expression: B
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: C
+                      type: threshold
+                dashboardUid: github-actions-runner-fleet
+                panelId: 66
+                noDataState: Alerting
+                execErrState: Error
+                for: 5m
+                annotations:
+                  __dashboardUid__: github-actions-runner-fleet
+                  __panelId__: "66"
+                  summary: A davidapps aggregation optic is below the 10GBASE-SR minimum average receive power.
+                labels:
+                  service: physical-network
+                  severity: warning
+                isPaused: false
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
