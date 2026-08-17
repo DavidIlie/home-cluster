@@ -981,7 +981,7 @@
   "time": {"from": "now-6h", "to": "now"},
   "timepicker": {},
   "timezone": "browser",
-  "title": "GitHub Actions / Runner Fleet",
+  "title": "Runner Fleet",
   "uid": "github-actions-runner-fleet",
   "version": 2,
   "weekStart": "monday"

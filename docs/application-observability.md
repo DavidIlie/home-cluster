@@ -83,7 +83,7 @@ Infrastructure dashboards use a consistent folder taxonomy instead of the Grafan
 | `Network / Kubernetes` | Cilium, ingress NGINX, request handling, and Cloudflare tunnels |
 | `Infrastructure / Hosts` | Proxmox, iDRAC, node-exporter, disks, and GPU |
 | `Infrastructure / Storage` | TrueNAS and analytics-storage health |
-| `Infrastructure / Databases` | CloudNativePG and Dragonfly |
+| `Infrastructure / Databases` | ClickHouse, CloudNativePG, and Dragonfly |
 | `Observability / Platform` | Prometheus and platform-level observability |
 | `Observability / Telemetry` | OTLP/Faro gateway, Tempo, logs, and telemetry pipeline |
 | `AI / Operations` | AI gateway usage and cost |
@@ -99,10 +99,19 @@ Grafana provisions these folders and dashboard UIDs:
 | `Apps / ZeroCut` | `zerocut-reliability` | Server, rendering, dependency, resource, log, and trace performance |
 | `Apps / ZeroCut` | `zerocut-browser` | Browser Web Vitals, client signals, errors, and release |
 | `Apps / ZeroCut` | `zerocut-runtime` | Kubernetes placement, rollout, resources, image, and commit |
-| `Apps / ZeroCut` | `zerocut-delivery-data` | NGINX delivery, Cloudflare tunnel health, and shared PostgreSQL impact |
+| `Apps / ZeroCut` | `zerocut-delivery-data` | NGINX delivery, Cloudflare tunnel health, PostgreSQL impact, and ZeroCut ClickHouse health |
 | `Apps / MBRetrofit Tools` | `mbretrofit-overview` | Main and Zenzefi deployments |
 | `Apps / Kidays` | `kidays-overview` | Web and Convex backend deployments |
 | `Observability / Telemetry` | `telemetry-platform` | Gateway outcomes, Tempo ingestion health, Faro volume, and gateway errors |
+| `Infrastructure / Databases` | `clickhouse-instances` | ZeroCut and Plausible ClickHouse workload, storage, errors, and Kubernetes resources |
+
+Dashboard titles intentionally omit folder prefixes. Grafana already renders
+the folder as context, so the `Kubernetes` folder contains `Pod Logs` and
+`System / API Server`, while `Apps / ZeroCut` contains `Overview`, `Revenue &
+donations`, and the other scopes. Upstream Kubernetes dashboards are vendored
+with `hack/vendor-grafana-dashboards.py` because Grafana.com's downloader cannot
+override their titles and would otherwise restore the redundant prefix after a
+restart.
 
 Kubernetes availability, resource, image, restart, and container-log panels work before application instrumentation. Span latency, span error-rate, and active-commit panels populate after the project sends traces with the resource contract above.
 
@@ -126,3 +135,4 @@ The MCP servers are intentionally read-only. Changes to dashboards, alert rules,
 
 For a repeatable source-selection and correlation workflow, use the [application telemetry agent query protocol](./runbooks/application-telemetry-agent-queries.md).
 For adding the next project, use the [project observability onboarding checklist](./runbooks/project-observability-onboarding.md).
+For the planned replicated ZeroCut analytics move, use the [ClickHouse platform plan](./clickhouse-platform-plan.md).

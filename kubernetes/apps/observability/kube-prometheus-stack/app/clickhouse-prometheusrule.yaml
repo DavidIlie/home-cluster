@@ -1,0 +1,73 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: clickhouse-instances
+spec:
+  groups:
+    - name: clickhouse.availability
+      rules:
+        - alert: ClickHouseInstanceUnavailable
+          expr: up{job=~"clickhouse|plausible-clickhouse"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            service: clickhouse
+          annotations:
+            summary: ClickHouse {{ $labels.job }} is unavailable
+            description: Prometheus has been unable to scrape the instance for five minutes.
+        - alert: ClickHouseContainerRestarted
+          expr: increase(kube_pod_container_status_restarts_total{namespace=~"databases|observability",pod=~"(clickhouse|plausible-clickhouse)-.*",container="app"}[30m]) > 0
+          labels:
+            severity: warning
+            service: clickhouse
+          annotations:
+            summary: ClickHouse container {{ $labels.pod }} restarted
+            description: Inspect the pod reason, memory pressure, and ClickHouse error counters.
+    - name: clickhouse.capacity
+      rules:
+        - alert: ClickHouseMemoryHigh
+          expr: container_memory_working_set_bytes{namespace=~"databases|observability",pod=~"(clickhouse|plausible-clickhouse)-.*",container="app"} / container_spec_memory_limit_bytes{namespace=~"databases|observability",pod=~"(clickhouse|plausible-clickhouse)-.*",container="app"} > 0.85
+          for: 10m
+          labels:
+            severity: warning
+            service: clickhouse
+          annotations:
+            summary: ClickHouse memory is above 85 percent on {{ $labels.pod }}
+            description: Inspect active queries, merges, and memory-limit errors before the container is OOM-killed.
+        - alert: ClickHouseAnalyticsDiskLow
+          expr: ClickHouseAsyncMetrics_DiskAvailable_default{job=~"clickhouse|plausible-clickhouse"} / ClickHouseAsyncMetrics_DiskTotal_default{job=~"clickhouse|plausible-clickhouse"} < 0.15
+          for: 15m
+          labels:
+            severity: warning
+            service: clickhouse
+          annotations:
+            summary: Shared ClickHouse analytics SSD has less than 15 percent free
+            description: Both current instances report the same host filesystem; inspect MergeTree footprint and other analytics services before reclaiming data.
+        - alert: ClickHouseTooManyParts
+          expr: increase(ClickHouseErrorMetric_TOO_MANY_PARTS{job=~"clickhouse|plausible-clickhouse"}[15m]) > 0
+          labels:
+            severity: warning
+            service: clickhouse
+          annotations:
+            summary: ClickHouse {{ $labels.job }} rejected work because of too many parts
+            description: Inspect partition cardinality, insert batching, and merge pressure.
+    - name: clickhouse.queries
+      rules:
+        - alert: ClickHouseFailedQueryRatioHigh
+          expr: (sum by (job) (rate(ClickHouseProfileEvents_FailedQuery{job=~"clickhouse|plausible-clickhouse"}[10m])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{job=~"clickhouse|plausible-clickhouse"}[10m])), 0.000001) > 0.05) and (sum by (job) (rate(ClickHouseProfileEvents_Query{job=~"clickhouse|plausible-clickhouse"}[10m])) > 0.01)
+          for: 10m
+          labels:
+            severity: warning
+            service: clickhouse
+          annotations:
+            summary: ClickHouse {{ $labels.job }} failed-query ratio is above 5 percent
+            description: The instance has sustained both query traffic and an elevated failure ratio for ten minutes.
+        - alert: ClickHouseMemoryLimitErrors
+          expr: increase(ClickHouseErrorMetric_MEMORY_LIMIT_EXCEEDED{job=~"clickhouse|plausible-clickhouse"}[15m]) > 0
+          labels:
+            severity: warning
+            service: clickhouse
+          annotations:
+            summary: ClickHouse {{ $labels.job }} exceeded a memory limit
+            description: Inspect the query workload and merge pressure before increasing limits.

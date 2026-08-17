@@ -18,50 +18,9 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "links": [
-    {
-      "asDropdown": true,
-      "includeVars": false,
-      "keepTime": true,
-      "tags": [
-        "zerocut"
-      ],
-      "targetBlank": false,
-      "title": "ZeroCut dashboards",
-      "type": "dashboards"
-    },
-    {
-      "includeVars": false,
-      "keepTime": false,
-      "targetBlank": true,
-      "title": "Open ZeroCut",
-      "type": "link",
-      "url": "https://zerocut.gg"
-    },
-    {
-      "includeVars": false,
-      "keepTime": false,
-      "targetBlank": true,
-      "title": "Repository",
-      "type": "link",
-      "url": "https://github.com/DavidIlie/zerocut"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "targetBlank": true,
-      "title": "Trace search",
-      "type": "link",
-      "url": "/explore?schemaVersion=1&panes=%7B%22trace%22:%7B%22datasource%22:%22tempo%22%7D%7D"
-    }
-  ],
   "liveNow": false,
   "refresh": "30s",
-  "schemaVersion": 42,
-  "time": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "schemaVersion": 41,
   "timepicker": {
     "refresh_intervals": [
       "10s",
@@ -75,19 +34,56 @@
   },
   "timezone": "browser",
   "id": null,
-  "uid": "zerocut-delivery-data",
-  "title": "Delivery & data",
-  "description": "ZeroCut-scoped NGINX delivery, Cloudflare tunnel health, and the personal-projects CloudNativePG service used by the application. The postgres17 cluster is namespace-shared, so database panels are an impact view rather than per-query attribution.",
+  "uid": "clickhouse-instances",
+  "title": "ClickHouse Instances",
+  "description": "Health, query workload, MergeTree storage, errors, and Kubernetes resources for the ZeroCut and Plausible ClickHouse instances. Disk-free metrics describe their shared analytics SSD; MergeTree bytes are instance-specific.",
+  "links": [],
   "tags": [
-    "apps",
-    "zerocut",
-    "delivery",
-    "nginx",
-    "cloudflare",
-    "cnpg"
+    "clickhouse",
+    "databases",
+    "plausible",
+    "zerocut"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": "clickhouse|plausible-clickhouse",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus-kube-stack"
+        },
+        "definition": "label_values(ClickHouseAsyncMetrics_Uptime{job=~\"clickhouse|plausible-clickhouse\"}, job)",
+        "description": "ClickHouse ServiceMonitor scrape job.",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Instance",
+        "multi": true,
+        "name": "instance",
+        "options": [],
+        "query": {
+          "query": "label_values(ClickHouseAsyncMetrics_Uptime{job=~\"clickhouse|plausible-clickhouse\"}, job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
   },
   "version": 1,
   "panels": [
@@ -101,26 +97,26 @@
       },
       "id": 1,
       "panels": [],
-      "title": "Request delivery",
+      "title": "Overview",
       "type": "row"
     },
     {
       "id": 2,
-      "title": "Ingress requests / second",
+      "title": "Available",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 3,
         "x": 0,
         "y": 1
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
+          "unit": "short",
           "color": {
             "mode": "thresholds"
           },
@@ -159,34 +155,35 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval]))",
+          "expr": "min(up{job=~\"${instance:regex}\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
           "refId": "A"
         }
-      ]
+      ],
+      "description": "Minimum scrape health across the selection."
     },
     {
       "id": 3,
-      "title": "Ingress 5xx ratio",
+      "title": "Minimum uptime",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 6,
+        "w": 3,
+        "x": 3,
         "y": 1
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
+          "unit": "s",
           "color": {
             "mode": "thresholds"
           },
@@ -225,10 +222,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "100 * sum(rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\",status=~\"5..\"}[$__rate_interval])) / clamp_min(sum(rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])), 0.001)",
+          "expr": "min(ClickHouseAsyncMetrics_Uptime{job=~\"${instance:regex}\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -238,21 +235,21 @@
     },
     {
       "id": 4,
-      "title": "Ingress p95 latency",
+      "title": "MergeTree data",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 12,
+        "w": 3,
+        "x": 6,
         "y": 1
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "unit": "bytes",
           "color": {
             "mode": "thresholds"
           },
@@ -291,10 +288,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])))",
+          "expr": "sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=~\"${instance:regex}\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -304,21 +301,21 @@
     },
     {
       "id": 5,
-      "title": "Tunnel errors / second",
+      "title": "Rows",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
+        "uid": "prometheus-kube-stack"
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": 3,
+        "x": 9,
         "y": 1
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
+          "unit": "short",
           "color": {
             "mode": "thresholds"
           },
@@ -357,10 +354,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
+            "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
+          "expr": "sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=~\"${instance:regex}\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -370,1601 +367,6 @@
     },
     {
       "id": 6,
-      "title": "Requests by status",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 6
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum by (method, status) (rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval]))",
-          "legendFormat": "{{method}} / {{status}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "title": "Request rate by route template",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 6
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "topk(20, sum by (method, host, path, status) (rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])))",
-          "legendFormat": "{{method}} {{host}}{{path}} / {{status}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 8,
-      "title": "Request latency percentiles",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 14
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.50, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])))",
-          "legendFormat": "p50",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])))",
-          "legendFormat": "p95",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])))",
-          "legendFormat": "p99",
-          "range": true,
-          "instant": false,
-          "refId": "C"
-        }
-      ]
-    },
-    {
-      "id": 9,
-      "title": "Upstream response p95 by route",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 14
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, method, host, path) (rate(nginx_ingress_controller_response_duration_seconds_bucket{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])))",
-          "legendFormat": "{{method}} {{host}}{{path}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 10,
-      "title": "Response bandwidth",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 22
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum by (host) (rate(nginx_ingress_controller_bytes_sent_sum{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval]))",
-          "legendFormat": "{{host}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "4xx and 5xx responses by route",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 22
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum by (method, host, path, status) (rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\",status=~\"4..|5..\"}[$__rate_interval]))",
-          "legendFormat": "{{method}} {{host}}{{path}} / {{status}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 30
-      },
-      "id": 20,
-      "panels": [],
-      "title": "Cloudflare tunnel",
-      "type": "row"
-    },
-    {
-      "id": 21,
-      "title": "Tunnel requests and errors",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 31
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_total_requests{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
-          "legendFormat": "requests",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
-          "legendFormat": "errors",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "id": 22,
-      "title": "Tunnel responses by code",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 31
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum by (status_code) (rate(cloudflared_tunnel_response_by_code{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
-          "legendFormat": "{{status_code}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 23,
-      "title": "HA connections and concurrent requests",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 39
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(cloudflared_tunnel_ha_connections{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"})",
-          "legendFormat": "HA connections",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(cloudflared_tunnel_concurrent_requests_per_tunnel{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"})",
-          "legendFormat": "concurrent requests",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "id": 24,
-      "title": "Tunnel registration failures",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 39
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_tunnel_register_fail{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
-          "legendFormat": "registration failures",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 47
-      },
-      "id": 30,
-      "panels": [],
-      "title": "PostgreSQL impact view",
-      "type": "row"
-    },
-    {
-      "id": 31,
-      "title": "Healthy instances",
-      "type": "stat",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 48
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(cnpg_collector_up{namespace=\"personal-projects\",job=\"personal-projects/postgres17\"})",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 32,
-      "title": "Connections",
-      "type": "stat",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 48
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(cnpg_backends_total{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"})",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 33,
-      "title": "Max replication lag",
-      "type": "stat",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 48
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "max(cnpg_pg_replication_lag{namespace=\"personal-projects\",job=\"personal-projects/postgres17\"})",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 34,
-      "title": "Backup age",
-      "type": "stat",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 48
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "time() - max(cnpg_collector_last_available_backup_timestamp{namespace=\"personal-projects\",job=\"personal-projects/postgres17\"} > 0)",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "description": "Empty means the shared postgres17 cluster currently reports no available base backup timestamp."
-    },
-    {
-      "id": 35,
-      "title": "Transactions per second",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 53
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cnpg_pg_stat_database_xact_commit{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"}[$__rate_interval]))",
-          "legendFormat": "commits",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cnpg_pg_stat_database_xact_rollback{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"}[$__rate_interval]))",
-          "legendFormat": "rollbacks",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "id": 36,
-      "title": "Connections by instance and state",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 53
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum by (pod, state) (cnpg_backends_total{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"})",
-          "legendFormat": "{{pod}} / {{state}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 37,
-      "title": "Database size",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 61
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "max by (datname) (cnpg_pg_database_size_bytes{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"})",
-          "legendFormat": "{{datname}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 38,
-      "title": "Deadlocks and waiting backends",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 61
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cnpg_pg_stat_database_deadlocks{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"}[$__rate_interval]))",
-          "legendFormat": "deadlocks",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(cnpg_backends_waiting_total{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"})",
-          "legendFormat": "waiting backends",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "id": 39,
-      "title": "Cache hits and disk reads",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 69
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cnpg_cache_hits{namespace=\"personal-projects\",job=\"personal-projects/postgres17\"}[$__rate_interval]))",
-          "legendFormat": "cache hits",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cnpg_cache_miss{namespace=\"personal-projects\",job=\"personal-projects/postgres17\"}[$__rate_interval]))",
-          "legendFormat": "cache misses",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "id": 40,
-      "title": "Temporary data written",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-davidapps-cluster"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 69
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-davidapps-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(cnpg_pg_stat_database_temp_bytes{namespace=\"personal-projects\",job=\"personal-projects/postgres17\",datname=\"zerocut\"}[$__rate_interval]))",
-          "legendFormat": "temp bytes / second",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 77
-      },
-      "id": 41,
-      "panels": [],
-      "title": "ClickHouse event analytics",
-      "type": "row"
-    },
-    {
-      "id": 42,
-      "title": "Available",
-      "type": "stat",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-kube-stack"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 78
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-kube-stack"
-          },
-          "editorMode": "code",
-          "expr": "min(up{job=\"clickhouse\"})",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "description": "One means Prometheus can scrape the ZeroCut ClickHouse instance."
-    },
-    {
-      "id": 43,
-      "title": "MergeTree data",
-      "type": "stat",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-kube-stack"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 78
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-kube-stack"
-          },
-          "editorMode": "code",
-          "expr": "sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=\"clickhouse\"})",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 44,
-      "title": "Rows",
-      "type": "stat",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-kube-stack"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 78
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-kube-stack"
-          },
-          "editorMode": "code",
-          "expr": "sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=\"clickhouse\"})",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 45,
       "title": "Parts",
       "type": "stat",
       "datasource": {
@@ -1973,9 +375,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 78
+        "w": 3,
+        "x": 12,
+        "y": 1
       },
       "fieldConfig": {
         "defaults": {
@@ -2021,7 +423,7 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=\"clickhouse\"})",
+          "expr": "sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=~\"${instance:regex}\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -2030,8 +432,220 @@
       ]
     },
     {
-      "id": 46,
-      "title": "Queries by operation",
+      "id": 7,
+      "title": "Resident memory",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 15,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum(ClickHouseAsyncMetrics_MemoryResident{job=~\"${instance:regex}\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Shared SSD free",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 18,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "min(ClickHouseAsyncMetrics_DiskAvailable_default{job=~\"${instance:regex}\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "description": "Free space on the shared analytics filesystem, not an instance allocation."
+    },
+    {
+      "id": 9,
+      "title": "Restarts \u00b7 selected range",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 21,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Query workload",
+      "type": "row"
+    },
+    {
+      "id": 11,
+      "title": "Queries / second",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -2041,7 +655,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 83
+        "y": 7
       },
       "fieldConfig": {
         "defaults": {
@@ -2084,29 +698,17 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "sum(rate(ClickHouseProfileEvents_SelectQuery{job=\"clickhouse\"}[$__rate_interval]))",
-          "legendFormat": "select",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{job}}",
           "range": true,
           "instant": false,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-kube-stack"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(ClickHouseProfileEvents_InsertQuery{job=\"clickhouse\"}[$__rate_interval]))",
-          "legendFormat": "insert",
-          "range": true,
-          "instant": false,
-          "refId": "B"
         }
       ]
     },
     {
-      "id": 47,
-      "title": "Latency and failed-query ratio",
+      "id": 12,
+      "title": "Operations / second",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -2116,11 +718,11 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 83
+        "y": 7
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "qps",
           "color": {
             "mode": "palette-classic"
           },
@@ -2159,8 +761,8 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "1e-6 * sum(rate(ClickHouseProfileEvents_QueryTimeMicroseconds{job=\"clickhouse\"}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{job=\"clickhouse\"}[$__rate_interval])), 0.000001)",
-          "legendFormat": "average query seconds",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectQuery{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "select \u00b7 {{job}}",
           "range": true,
           "instant": false,
           "refId": "A"
@@ -2171,8 +773,8 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "100 * sum(rate(ClickHouseProfileEvents_FailedQuery{job=\"clickhouse\"}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{job=\"clickhouse\"}[$__rate_interval])), 0.000001)",
-          "legendFormat": "failed query percent",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertQuery{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "insert \u00b7 {{job}}",
           "range": true,
           "instant": false,
           "refId": "B"
@@ -2180,8 +782,8 @@
       ]
     },
     {
-      "id": 48,
-      "title": "Errors and active work",
+      "id": 13,
+      "title": "Failed-query ratio",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -2191,11 +793,11 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 91
+        "y": 15
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ops",
+          "unit": "percent",
           "color": {
             "mode": "palette-classic"
           },
@@ -2234,8 +836,134 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "sum(rate(ClickHouseErrorMetric_ALL{job=\"clickhouse\"}[$__rate_interval]))",
-          "legendFormat": "errors / second",
+          "expr": "100 * sum by (job) (rate(ClickHouseProfileEvents_FailedQuery{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Average query time",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "1e-6 * sum by (job) (rate(ClickHouseProfileEvents_QueryTimeMicroseconds{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Rows selected and inserted",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "rows/s",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "selected \u00b7 {{job}}",
           "range": true,
           "instant": false,
           "refId": "A"
@@ -2246,29 +974,17 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "sum(ClickHouseMetrics_Query{job=\"clickhouse\"})",
-          "legendFormat": "queries",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "inserted \u00b7 {{job}}",
           "range": true,
           "instant": false,
           "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-kube-stack"
-          },
-          "editorMode": "code",
-          "expr": "sum(ClickHouseMetrics_Merge{job=\"clickhouse\"})",
-          "legendFormat": "merges",
-          "range": true,
-          "instant": false,
-          "refId": "C"
         }
       ]
     },
     {
-      "id": 49,
-      "title": "Memory and shared SSD headroom",
+      "id": 16,
+      "title": "Bytes selected and inserted",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -2278,7 +994,95 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 91
+        "y": 23
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectedBytes{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "selected \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertedBytes{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "inserted \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "id": 20,
+      "panels": [],
+      "title": "MergeTree and background work",
+      "type": "row"
+    },
+    {
+      "id": 21,
+      "title": "Data footprint",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
       },
       "fieldConfig": {
         "defaults": {
@@ -2321,8 +1125,71 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"databases\",pod=~\"clickhouse-.*\",container=\"app\"})",
-          "legendFormat": "container memory",
+          "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=~\"${instance:regex}\"})",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "title": "Rows and parts",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=~\"${instance:regex}\"})",
+          "legendFormat": "rows \u00b7 {{job}}",
           "range": true,
           "instant": false,
           "refId": "A"
@@ -2333,14 +1200,879 @@
             "uid": "prometheus-kube-stack"
           },
           "editorMode": "code",
-          "expr": "min(ClickHouseAsyncMetrics_DiskAvailable_default{job=\"clickhouse\"})",
-          "legendFormat": "shared analytics SSD free",
+          "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=~\"${instance:regex}\"})",
+          "legendFormat": "parts \u00b7 {{job}}",
           "range": true,
           "instant": false,
           "refId": "B"
         }
-      ],
-      "description": "Disk free is for the shared analytics filesystem; MergeTree data is the instance-specific footprint."
+      ]
+    },
+    {
+      "id": 23,
+      "title": "Maximum parts in a partition",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "max by (job) (ClickHouseAsyncMetrics_MaxPartCountForPartition{job=~\"${instance:regex}\"})",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "title": "Active background work",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (ClickHouseMetrics_Merge{job=~\"${instance:regex}\"})",
+          "legendFormat": "merges \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (ClickHouseMetrics_PartMutation{job=~\"${instance:regex}\"})",
+          "legendFormat": "mutations \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (ClickHouseMetrics_DelayedInserts{job=~\"${instance:regex}\"})",
+          "legendFormat": "delayed inserts \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Merge throughput",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 48
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "rows/s",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseProfileEvents_MergedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "title": "Mark cache hit ratio",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 48
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "100 * sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{job=~\"${instance:regex}\"}[$__rate_interval]) + rate(ClickHouseProfileEvents_MarkCacheMisses{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "id": 30,
+      "panels": [],
+      "title": "Reliability",
+      "type": "row"
+    },
+    {
+      "id": 31,
+      "title": "All errors",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 57
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseErrorMetric_ALL{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "title": "Resource-limit errors",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 57
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseErrorMetric_MEMORY_LIMIT_EXCEEDED{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "memory limit \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseErrorMetric_TOO_MANY_PARTS{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "too many parts \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "title": "Timeout and network errors",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 65
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseErrorMetric_TIMEOUT_EXCEEDED{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "timeout \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (rate(ClickHouseErrorMetric_NETWORK_ERROR{job=~\"${instance:regex}\"}[$__rate_interval]))",
+          "legendFormat": "network \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "title": "Current queries and merges",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 65
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (ClickHouseMetrics_Query{job=~\"${instance:regex}\"})",
+          "legendFormat": "queries \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (ClickHouseMetrics_Merge{job=~\"${instance:regex}\"})",
+          "legendFormat": "merges \u00b7 {{job}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 73
+      },
+      "id": 40,
+      "panels": [],
+      "title": "Kubernetes resources",
+      "type": "row"
+    },
+    {
+      "id": 41,
+      "title": "Container memory",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 74
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"})",
+          "legendFormat": "{{namespace}} / {{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "title": "Container CPU",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 74
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__rate_interval]))",
+          "legendFormat": "{{namespace}} / {{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "title": "Container network",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 82
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (namespace, pod) (rate(container_network_receive_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\"}[$__rate_interval]))",
+          "legendFormat": "receive \u00b7 {{namespace}} / {{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (namespace, pod) (rate(container_network_transmit_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\"}[$__rate_interval]))",
+          "legendFormat": "transmit \u00b7 {{namespace}} / {{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "title": "Container filesystem I/O",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-kube-stack"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 82
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (namespace, pod) (rate(container_fs_reads_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__rate_interval]))",
+          "legendFormat": "read \u00b7 {{namespace}} / {{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-kube-stack"
+          },
+          "editorMode": "code",
+          "expr": "sum by (namespace, pod) (rate(container_fs_writes_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__rate_interval]))",
+          "legendFormat": "write \u00b7 {{namespace}} / {{pod}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ]
     }
   ]
 }

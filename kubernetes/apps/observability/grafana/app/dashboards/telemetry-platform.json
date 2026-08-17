@@ -793,7 +793,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Telemetry / Platform overview",
+  "title": "Platform Overview",
   "uid": "telemetry-platform",
   "version": 1,
   "weekStart": ""

@@ -1346,7 +1346,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "ZeroCut / Runtime & deployments",
+  "title": "Runtime & deployments",
   "uid": "zerocut-runtime",
   "version": 1,
   "weekStart": ""

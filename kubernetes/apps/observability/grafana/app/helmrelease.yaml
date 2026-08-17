@@ -565,44 +565,28 @@ spec:
             - { name: DS_PROMETHEUS, value: prometheus-home-cluster }
       kubernetes:
         api-server:
-          # renovate: depName="Kubernetes / System / API Server"
-          gnetId: 15761
-          revision: 18
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-system-api-server.json
           datasource: prometheus-davidapps-cluster
         persistent-volumes:
-          # renovate: depName="kubernetes-persistent-volumes"
-          gnetId: 13646
-          revision: 2
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-persistent-volumes.json
           datasource: prometheus-davidapps-cluster
         coredns:
-          # renovate: depName="Kubernetes / System / CoreDNS"
-          gnetId: 15762
-          revision: 19
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-system-coredns.json
           datasource: prometheus-davidapps-cluster
         cluster:
-          # renovate: depName="Kubernetes / Views / Global"
-          gnetId: 15757
-          revision: 42
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-global.json
           datasource: prometheus-davidapps-cluster
         namespaces:
-          # renovate: depName="Kubernetes / Views / Namespaces"
-          gnetId: 15758
-          revision: 41
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-namespaces.json
           datasource: prometheus-davidapps-cluster
         nodes:
-          # renovate: depName="Kubernetes / Views / Nodes"
-          gnetId: 15759
-          revision: 32
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-nodes.json
           datasource: prometheus-davidapps-cluster
         pods:
-          # renovate: depName="Kubernetes / Views / Pods"
-          gnetId: 15760
-          revision: 34
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-pods.json
           datasource: prometheus-davidapps-cluster
         summary:
-          # renovate: depName="Kubernetes / Views / K3s Cluster"
-          gnetId: 16450
-          revision: 3
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-k3s-cluster.json
           datasource: prometheus-davidapps-cluster
         pod-logs:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-pod-logs.json
@@ -664,6 +648,9 @@ spec:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/analytics-storage.json
           datasource: prometheus-kube-stack
       infrastructure-databases:
+        clickhouse:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/clickhouse-instances.json
+          datasource: prometheus-kube-stack
         dragonfly:
           url: https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.1.8/monitoring/grafana-dashboard.json
           datasource: prometheus-davidapps-cluster

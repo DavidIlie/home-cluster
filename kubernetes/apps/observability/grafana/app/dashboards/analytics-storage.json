@@ -451,7 +451,7 @@
   "time": { "from": "now-7d", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Storage / Analytics",
+  "title": "Analytics",
   "uid": "analytics-storage",
   "version": 1
 }

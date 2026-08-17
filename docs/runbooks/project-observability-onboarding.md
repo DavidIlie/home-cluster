@@ -50,6 +50,12 @@ Create the smallest useful set for the project:
 - `Delivery & data`: NGINX paths/status/latency, Cloudflare tunnel health, and only the databases that can be mapped honestly to the project.
 - A product dashboard such as revenue, jobs, or subscriptions when the project has bounded business telemetry.
 
+The Grafana folder already supplies the project or platform name. Dashboard
+titles must contain only the local scope: use `Overview` inside `Apps / Kidays`
+and `Pod Logs` inside `Kubernetes`, never `Kidays / Overview` or `Kubernetes /
+Pod Logs`. Preserve this rule in checked-in JSON; a UI-only rename will be
+reverted by provisioning.
+
 Run `python3 hack/generate-application-dashboards.py` after changing the generated cross-project, ZeroCut delivery/data, or ZeroCut runtime panel recipes. Kidays-specific dashboards may start from the same panel helpers, but their filters and descriptions must be project-correct.
 
 ## 6. Acceptance test

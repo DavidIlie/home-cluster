@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Build the checked-in application dashboards from small, reusable panel recipes.
 
-The source dashboards remain normal Grafana JSON. This helper only owns the
-cross-project overview, the ZeroCut delivery/data dashboard, and the extra
-capacity row on the ZeroCut runtime dashboard. Keeping those panels generated
-makes the project variables and the query conventions easy to reuse for Kidays.
+The source dashboards remain normal Grafana JSON. This helper owns the
+cross-project overview, ClickHouse monitoring, the ZeroCut delivery/data
+dashboard, and the extra capacity row on the ZeroCut runtime dashboard. Keeping
+those panels generated makes the query conventions easy to reuse for Kidays.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ DASHBOARDS = ROOT / "kubernetes/apps/observability/grafana/app/dashboards"
 
 PROM = {"type": "prometheus", "uid": "prometheus-davidapps-cluster"}
 SPAN_PROM = {"type": "prometheus", "uid": "prometheus-home-cluster"}
+KUBE_PROM = {"type": "prometheus", "uid": "prometheus-kube-stack"}
 VLOGS = {"type": "victoriametrics-logs-datasource", "uid": "victoria-logs"}
 
 APP = "${application:regex}"
@@ -207,6 +208,32 @@ def application_variable() -> dict:
     }
 
 
+def clickhouse_variable() -> dict:
+    query = (
+        'label_values(ClickHouseAsyncMetrics_Uptime{'
+        'job=~"clickhouse|plausible-clickhouse"}, job)'
+    )
+    return {
+        "allValue": "clickhouse|plausible-clickhouse",
+        "current": {"selected": True, "text": ["All"], "value": ["$__all"]},
+        "datasource": copy.deepcopy(KUBE_PROM),
+        "definition": query,
+        "description": "ClickHouse ServiceMonitor scrape job.",
+        "hide": 0,
+        "includeAll": True,
+        "label": "Instance",
+        "multi": True,
+        "name": "instance",
+        "options": [],
+        "query": {"query": query, "refId": "PrometheusVariableQueryEditor-VariableQuery"},
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": False,
+        "sort": 1,
+        "type": "query",
+    }
+
+
 def build_all_projects() -> None:
     dashboard = load("apps-fleet.json")
     overview = load("zerocut-overview.json")
@@ -221,7 +248,7 @@ def build_all_projects() -> None:
     logs_proto = next(panel for panel in overview["panels"] if panel["type"] == "logs")
     table_proto = next(panel for panel in runtime["panels"] if panel["type"] == "table")
 
-    dashboard["title"] = "All Projects / Overview"
+    dashboard["title"] = "Overview"
     dashboard["description"] = (
         "Auto-discovered DavidApps application health plus delivery, nodes, databases, "
         "OpenTelemetry, logs, and operational revenue. Select one or more applications; "
@@ -999,7 +1026,7 @@ def build_zerocut_delivery() -> None:
         {
             "id": None,
             "uid": "zerocut-delivery-data",
-            "title": "ZeroCut / Delivery & data",
+            "title": "Delivery & data",
             "description": (
                 "ZeroCut-scoped NGINX delivery, Cloudflare tunnel health, and the "
                 "personal-projects CloudNativePG service used by the application. "
@@ -1410,8 +1437,345 @@ def build_zerocut_delivery() -> None:
         ]
     )
 
+    panels.append(row(41, "ClickHouse event analytics", 77))
+    clickhouse = 'job="clickhouse"'
+    clickhouse_pod = 'namespace="databases",pod=~"clickhouse-.*",container="app"'
+    panels.extend(
+        [
+            stat(
+                stat_proto,
+                42,
+                "Available",
+                0,
+                78,
+                6,
+                prom_target(f'min(up{{{clickhouse}}})', datasource=KUBE_PROM, instant=True),
+                description="One means Prometheus can scrape the ZeroCut ClickHouse instance.",
+            ),
+            stat(
+                stat_proto,
+                43,
+                "MergeTree data",
+                6,
+                78,
+                6,
+                prom_target(
+                    f'sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{{{clickhouse}}})',
+                    datasource=KUBE_PROM,
+                    instant=True,
+                ),
+                unit="bytes",
+            ),
+            stat(
+                stat_proto,
+                44,
+                "Rows",
+                12,
+                78,
+                6,
+                prom_target(
+                    f'sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{{{clickhouse}}})',
+                    datasource=KUBE_PROM,
+                    instant=True,
+                ),
+            ),
+            stat(
+                stat_proto,
+                45,
+                "Parts",
+                18,
+                78,
+                6,
+                prom_target(
+                    f'sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{{{clickhouse}}})',
+                    datasource=KUBE_PROM,
+                    instant=True,
+                ),
+            ),
+            timeseries(
+                ts_proto,
+                46,
+                "Queries by operation",
+                0,
+                83,
+                12,
+                [
+                    prom_target(
+                        f'sum(rate(ClickHouseProfileEvents_SelectQuery{{{clickhouse}}}[$__rate_interval]))',
+                        "select",
+                        datasource=KUBE_PROM,
+                        ref_id="A",
+                    ),
+                    prom_target(
+                        f'sum(rate(ClickHouseProfileEvents_InsertQuery{{{clickhouse}}}[$__rate_interval]))',
+                        "insert",
+                        datasource=KUBE_PROM,
+                        ref_id="B",
+                    ),
+                ],
+                unit="qps",
+            ),
+            timeseries(
+                ts_proto,
+                47,
+                "Latency and failed-query ratio",
+                12,
+                83,
+                12,
+                [
+                    prom_target(
+                        f'1e-6 * sum(rate(ClickHouseProfileEvents_QueryTimeMicroseconds{{{clickhouse}}}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{{{clickhouse}}}[$__rate_interval])), 0.000001)',
+                        "average query seconds",
+                        datasource=KUBE_PROM,
+                        ref_id="A",
+                    ),
+                    prom_target(
+                        f'100 * sum(rate(ClickHouseProfileEvents_FailedQuery{{{clickhouse}}}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{{{clickhouse}}}[$__rate_interval])), 0.000001)',
+                        "failed query percent",
+                        datasource=KUBE_PROM,
+                        ref_id="B",
+                    ),
+                ],
+            ),
+            timeseries(
+                ts_proto,
+                48,
+                "Errors and active work",
+                0,
+                91,
+                12,
+                [
+                    prom_target(
+                        f'sum(rate(ClickHouseErrorMetric_ALL{{{clickhouse}}}[$__rate_interval]))',
+                        "errors / second",
+                        datasource=KUBE_PROM,
+                        ref_id="A",
+                    ),
+                    prom_target(
+                        f'sum(ClickHouseMetrics_Query{{{clickhouse}}})',
+                        "queries",
+                        datasource=KUBE_PROM,
+                        ref_id="B",
+                    ),
+                    prom_target(
+                        f'sum(ClickHouseMetrics_Merge{{{clickhouse}}})',
+                        "merges",
+                        datasource=KUBE_PROM,
+                        ref_id="C",
+                    ),
+                ],
+                unit="ops",
+            ),
+            timeseries(
+                ts_proto,
+                49,
+                "Memory and shared SSD headroom",
+                12,
+                91,
+                12,
+                [
+                    prom_target(
+                        f'sum(container_memory_working_set_bytes{{{clickhouse_pod}}})',
+                        "container memory",
+                        datasource=KUBE_PROM,
+                        ref_id="A",
+                    ),
+                    prom_target(
+                        f'min(ClickHouseAsyncMetrics_DiskAvailable_default{{{clickhouse}}})',
+                        "shared analytics SSD free",
+                        datasource=KUBE_PROM,
+                        ref_id="B",
+                    ),
+                ],
+                unit="bytes",
+                description="Disk free is for the shared analytics filesystem; MergeTree data is the instance-specific footprint.",
+            ),
+        ]
+    )
+
     dashboard["panels"] = panels
     save("zerocut-delivery-data.json", dashboard)
+
+
+def build_clickhouse_dashboard() -> None:
+    base = load("apps-fleet.json")
+    stat_proto = next(panel for panel in base["panels"] if panel["type"] == "stat")
+    ts_proto = next(panel for panel in base["panels"] if panel["type"] == "timeseries")
+
+    dashboard = {
+        key: copy.deepcopy(base[key])
+        for key in (
+            "annotations",
+            "editable",
+            "fiscalYearStartMonth",
+            "graphTooltip",
+            "liveNow",
+            "refresh",
+            "schemaVersion",
+            "style",
+            "timepicker",
+            "timezone",
+        )
+        if key in base
+    }
+    dashboard.update(
+        {
+            "id": None,
+            "uid": "clickhouse-instances",
+            "title": "ClickHouse Instances",
+            "description": (
+                "Health, query workload, MergeTree storage, errors, and Kubernetes resources "
+                "for the ZeroCut and Plausible ClickHouse instances. Disk-free metrics describe "
+                "their shared analytics SSD; MergeTree bytes are instance-specific."
+            ),
+            "links": [],
+            "tags": ["clickhouse", "databases", "plausible", "zerocut"],
+            "templating": {"list": [clickhouse_variable()]},
+            "time": {"from": "now-24h", "to": "now"},
+            "version": 1,
+        }
+    )
+
+    instance = 'job=~"${instance:regex}"'
+    clickhouse_pods = (
+        'namespace=~"databases|observability",'
+        'pod=~"(${instance:regex})-.*",container="app"'
+    )
+    panels: list[dict] = [row(1, "Overview", 0)]
+    overview_stats = [
+        (2, "Available", 'min(up{' + instance + '})', "short", "Minimum scrape health across the selection."),
+        (3, "Minimum uptime", 'min(ClickHouseAsyncMetrics_Uptime{' + instance + '})', "s", None),
+        (4, "MergeTree data", 'sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{' + instance + '})', "bytes", None),
+        (5, "Rows", 'sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{' + instance + '})', "short", None),
+        (6, "Parts", 'sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{' + instance + '})', "short", None),
+        (7, "Resident memory", 'sum(ClickHouseAsyncMetrics_MemoryResident{' + instance + '})', "bytes", None),
+        (8, "Shared SSD free", 'min(ClickHouseAsyncMetrics_DiskAvailable_default{' + instance + '})', "bytes", "Free space on the shared analytics filesystem, not an instance allocation."),
+        (9, "Restarts · selected range", 'sum(increase(kube_pod_container_status_restarts_total{namespace=~"databases|observability",pod=~"(${instance:regex})-.*",container="app"}[$__range]))', "short", None),
+    ]
+    for offset, (panel_id, title, expr, unit, description) in enumerate(overview_stats):
+        panels.append(
+            stat(
+                stat_proto,
+                panel_id,
+                title,
+                offset * 3,
+                1,
+                3,
+                prom_target(expr, datasource=KUBE_PROM, instant=True),
+                unit=unit,
+                description=description,
+            )
+        )
+
+    panels.append(row(10, "Query workload", 6))
+    panels.extend(
+        [
+            timeseries(
+                ts_proto,
+                11,
+                "Queries / second",
+                0,
+                7,
+                12,
+                [prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_Query{{{instance}}}[$__rate_interval]))', "{{job}}", datasource=KUBE_PROM)],
+                unit="qps",
+            ),
+            timeseries(
+                ts_proto,
+                12,
+                "Operations / second",
+                12,
+                7,
+                12,
+                [
+                    prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_SelectQuery{{{instance}}}[$__rate_interval]))', "select · {{job}}", datasource=KUBE_PROM, ref_id="A"),
+                    prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_InsertQuery{{{instance}}}[$__rate_interval]))', "insert · {{job}}", datasource=KUBE_PROM, ref_id="B"),
+                ],
+                unit="qps",
+            ),
+            timeseries(
+                ts_proto,
+                13,
+                "Failed-query ratio",
+                0,
+                15,
+                12,
+                [prom_target(f'100 * sum by (job) (rate(ClickHouseProfileEvents_FailedQuery{{{instance}}}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{{{instance}}}[$__rate_interval])), 0.000001)', "{{job}}", datasource=KUBE_PROM)],
+                unit="percent",
+            ),
+            timeseries(
+                ts_proto,
+                14,
+                "Average query time",
+                12,
+                15,
+                12,
+                [prom_target(f'1e-6 * sum by (job) (rate(ClickHouseProfileEvents_QueryTimeMicroseconds{{{instance}}}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{{{instance}}}[$__rate_interval])), 0.000001)', "{{job}}", datasource=KUBE_PROM)],
+                unit="s",
+            ),
+            timeseries(
+                ts_proto,
+                15,
+                "Rows selected and inserted",
+                0,
+                23,
+                12,
+                [
+                    prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_SelectedRows{{{instance}}}[$__rate_interval]))', "selected · {{job}}", datasource=KUBE_PROM, ref_id="A"),
+                    prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_InsertedRows{{{instance}}}[$__rate_interval]))', "inserted · {{job}}", datasource=KUBE_PROM, ref_id="B"),
+                ],
+                unit="rows/s",
+            ),
+            timeseries(
+                ts_proto,
+                16,
+                "Bytes selected and inserted",
+                12,
+                23,
+                12,
+                [
+                    prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_SelectedBytes{{{instance}}}[$__rate_interval]))', "selected · {{job}}", datasource=KUBE_PROM, ref_id="A"),
+                    prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_InsertedBytes{{{instance}}}[$__rate_interval]))', "inserted · {{job}}", datasource=KUBE_PROM, ref_id="B"),
+                ],
+                unit="Bps",
+            ),
+        ]
+    )
+
+    panels.append(row(20, "MergeTree and background work", 31))
+    panels.extend(
+        [
+            timeseries(ts_proto, 21, "Data footprint", 0, 32, 12, [prom_target(f'sum by (job) (ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{{{instance}}})', "{{job}}", datasource=KUBE_PROM)], unit="bytes"),
+            timeseries(ts_proto, 22, "Rows and parts", 12, 32, 12, [prom_target(f'sum by (job) (ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{{{instance}}})', "rows · {{job}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (job) (ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{{{instance}}})', "parts · {{job}}", datasource=KUBE_PROM, ref_id="B")]),
+            timeseries(ts_proto, 23, "Maximum parts in a partition", 0, 40, 12, [prom_target(f'max by (job) (ClickHouseAsyncMetrics_MaxPartCountForPartition{{{instance}}})', "{{job}}", datasource=KUBE_PROM)]),
+            timeseries(ts_proto, 24, "Active background work", 12, 40, 12, [prom_target(f'sum by (job) (ClickHouseMetrics_Merge{{{instance}}})', "merges · {{job}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (job) (ClickHouseMetrics_PartMutation{{{instance}}})', "mutations · {{job}}", datasource=KUBE_PROM, ref_id="B"), prom_target(f'sum by (job) (ClickHouseMetrics_DelayedInserts{{{instance}}})', "delayed inserts · {{job}}", datasource=KUBE_PROM, ref_id="C")], unit="ops"),
+            timeseries(ts_proto, 25, "Merge throughput", 0, 48, 12, [prom_target(f'sum by (job) (rate(ClickHouseProfileEvents_MergedRows{{{instance}}}[$__rate_interval]))', "{{job}}", datasource=KUBE_PROM)], unit="rows/s"),
+            timeseries(ts_proto, 26, "Mark cache hit ratio", 12, 48, 12, [prom_target(f'100 * sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{{{instance}}}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{{{instance}}}[$__rate_interval]) + rate(ClickHouseProfileEvents_MarkCacheMisses{{{instance}}}[$__rate_interval])), 0.000001)', "{{job}}", datasource=KUBE_PROM)], unit="percent"),
+        ]
+    )
+
+    panels.append(row(30, "Reliability", 56))
+    panels.extend(
+        [
+            timeseries(ts_proto, 31, "All errors", 0, 57, 12, [prom_target(f'sum by (job) (rate(ClickHouseErrorMetric_ALL{{{instance}}}[$__rate_interval]))', "{{job}}", datasource=KUBE_PROM)], unit="ops"),
+            timeseries(ts_proto, 32, "Resource-limit errors", 12, 57, 12, [prom_target(f'sum by (job) (rate(ClickHouseErrorMetric_MEMORY_LIMIT_EXCEEDED{{{instance}}}[$__rate_interval]))', "memory limit · {{job}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (job) (rate(ClickHouseErrorMetric_TOO_MANY_PARTS{{{instance}}}[$__rate_interval]))', "too many parts · {{job}}", datasource=KUBE_PROM, ref_id="B")], unit="ops"),
+            timeseries(ts_proto, 33, "Timeout and network errors", 0, 65, 12, [prom_target(f'sum by (job) (rate(ClickHouseErrorMetric_TIMEOUT_EXCEEDED{{{instance}}}[$__rate_interval]))', "timeout · {{job}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (job) (rate(ClickHouseErrorMetric_NETWORK_ERROR{{{instance}}}[$__rate_interval]))', "network · {{job}}", datasource=KUBE_PROM, ref_id="B")], unit="ops"),
+            timeseries(ts_proto, 34, "Current queries and merges", 12, 65, 12, [prom_target(f'sum by (job) (ClickHouseMetrics_Query{{{instance}}})', "queries · {{job}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (job) (ClickHouseMetrics_Merge{{{instance}}})', "merges · {{job}}", datasource=KUBE_PROM, ref_id="B")], unit="ops"),
+        ]
+    )
+
+    panels.append(row(40, "Kubernetes resources", 73))
+    panels.extend(
+        [
+            timeseries(ts_proto, 41, "Container memory", 0, 74, 12, [prom_target(f'sum by (namespace, pod) (container_memory_working_set_bytes{{{clickhouse_pods}}})', "{{namespace}} / {{pod}}", datasource=KUBE_PROM)], unit="bytes"),
+            timeseries(ts_proto, 42, "Container CPU", 12, 74, 12, [prom_target(f'sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{{{clickhouse_pods}}}[$__rate_interval]))', "{{namespace}} / {{pod}}", datasource=KUBE_PROM)], unit="cores"),
+            timeseries(ts_proto, 43, "Container network", 0, 82, 12, [prom_target('sum by (namespace, pod) (rate(container_network_receive_bytes_total{namespace=~"databases|observability",pod=~"(${instance:regex})-.*"}[$__rate_interval]))', "receive · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="A"), prom_target('sum by (namespace, pod) (rate(container_network_transmit_bytes_total{namespace=~"databases|observability",pod=~"(${instance:regex})-.*"}[$__rate_interval]))', "transmit · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="B")], unit="Bps"),
+            timeseries(ts_proto, 44, "Container filesystem I/O", 12, 82, 12, [prom_target(f'sum by (namespace, pod) (rate(container_fs_reads_bytes_total{{{clickhouse_pods}}}[$__rate_interval]))', "read · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (namespace, pod) (rate(container_fs_writes_bytes_total{{{clickhouse_pods}}}[$__rate_interval]))', "write · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="B")], unit="Bps"),
+        ]
+    )
+
+    dashboard["panels"] = panels
+    save("clickhouse-instances.json", dashboard)
 
 
 def enrich_zerocut_runtime() -> None:
@@ -1536,7 +1900,7 @@ def enrich_zerocut_runtime() -> None:
 
 def normalize_project_names() -> None:
     dashboard = load("mbretrofit-overview.json")
-    dashboard["title"] = "MBRetrofit Tools / Overview"
+    dashboard["title"] = "Overview"
     dashboard["description"] = (
         "MBRetrofit Tools application overview for the primary and Zenzefi deployments."
     )
@@ -1547,11 +1911,27 @@ def normalize_project_names() -> None:
     save("mbretrofit-overview.json", dashboard)
 
 
+def normalize_dashboard_titles() -> None:
+    """Normalize generated files; hand-authored dashboards keep their source title."""
+    titles = {
+        "apps-fleet.json": "Overview",
+        "mbretrofit-overview.json": "Overview",
+        "zerocut-delivery-data.json": "Delivery & data",
+        "zerocut-runtime.json": "Runtime & deployments",
+    }
+    for filename, title in titles.items():
+        dashboard = load(filename)
+        dashboard["title"] = title
+        save(filename, dashboard)
+
+
 def main() -> None:
     build_all_projects()
     build_zerocut_delivery()
+    build_clickhouse_dashboard()
     enrich_zerocut_runtime()
     normalize_project_names()
+    normalize_dashboard_titles()
 
 
 if __name__ == "__main__":

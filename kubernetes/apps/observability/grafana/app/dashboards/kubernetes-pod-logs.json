@@ -590,7 +590,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Kubernetes / Pod Logs",
+  "title": "Pod Logs",
   "uid": "kubernetes-pod-logs",
   "version": 1
 }
