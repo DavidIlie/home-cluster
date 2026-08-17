@@ -10,7 +10,7 @@ on:
 jobs:
   mise:
     name: upgrade-tools
-    runs-on: davidapps-linux-x64
+    runs-on: davidapps-ubuntu
     permissions:
       contents: write
       pull-requests: write

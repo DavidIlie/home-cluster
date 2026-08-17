@@ -10,7 +10,7 @@ on:
 jobs:
   labeler:
     name: Labeler
-    runs-on: davidapps-linux-x64
+    runs-on: davidapps-ubuntu
     permissions:
       contents: read
       pull-requests: write
