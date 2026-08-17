@@ -22,7 +22,7 @@
   "links": [
     {
       "type": "link",
-      "title": "Open MB Retrofit",
+      "title": "Open MBRetrofit Tools",
       "url": "https://mbretrofit.it",
       "targetBlank": true,
       "includeVars": false,
@@ -497,7 +497,7 @@
           },
           "editorMode": "code",
           "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\"}[$__rate_interval]))",
-          "legendFormat": "{{service}} · {{span_name}}",
+          "legendFormat": "{{service}} \u00b7 {{span_name}}",
           "range": true,
           "instant": false,
           "refId": "A"
@@ -560,7 +560,7 @@
           },
           "editorMode": "code",
           "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
-          "legendFormat": "{{service}} · {{span_name}}",
+          "legendFormat": "{{service}} \u00b7 {{span_name}}",
           "range": true,
           "instant": false,
           "refId": "A"
@@ -745,6 +745,7 @@
   "tags": [
     "apps",
     "mbretrofit",
+    "mbretrofit-tools",
     "otel"
   ],
   "templating": {
@@ -766,8 +767,9 @@
     ]
   },
   "timezone": "browser",
-  "title": "MB Retrofit / Overview",
+  "title": "MBRetrofit Tools / Overview",
   "uid": "mbretrofit-overview",
   "version": 1,
-  "weekStart": ""
+  "weekStart": "",
+  "description": "MBRetrofit Tools application overview for the primary and Zenzefi deployments."
 }

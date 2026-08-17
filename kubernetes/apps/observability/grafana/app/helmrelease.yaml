@@ -157,7 +157,10 @@ spec:
         groups:
           - orgId: 1
             name: physical-network-health
-            folder: CI / GitHub Actions
+            # Alert provisioning interprets slashes as a nested folder path,
+            # unlike the dashboard provider below. Keep alert rules in one
+            # explicit folder so Grafana does not create a second CI tree.
+            folder: Alerting
             interval: 1m
             rules:
               - uid: davidapps_node_rx_error_ratio
@@ -476,7 +479,7 @@ spec:
               path: /var/lib/grafana/dashboards/ai-operations
           - name: apps-fleet
             orgId: 1
-            folder: Apps / Fleet
+            folder: Apps / All Projects
             type: file
             disableDeletion: false
             editable: true
@@ -492,7 +495,7 @@ spec:
               path: /var/lib/grafana/dashboards/apps-zerocut
           - name: apps-mbretrofit
             orgId: 1
-            folder: Apps / MB Retrofit
+            folder: Apps / MBRetrofit Tools
             type: file
             disableDeletion: false
             editable: true
@@ -693,6 +696,8 @@ spec:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-browser.json
         runtime:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-runtime.json
+        delivery-data:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/zerocut-delivery-data.json
       apps-mbretrofit:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/mbretrofit-overview.json

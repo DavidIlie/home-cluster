@@ -66,8 +66,11 @@ Use the ZeroCut folder as the reference implementation for each instrumented pro
 | `Server & rendering` | RED metrics, route and framework-phase performance, aggregate dependencies, resources, and correlated errors |
 | `Browser experience` | Web Vitals, client signal volume, frontend errors, and browser release |
 | `Runtime & deployments` | Desired/ready/updated replicas, pods, nodes, CPU, memory, restarts, image, and commit |
+| `Delivery & data` | Ingress request delivery, stable paths, Cloudflare tunnel health, and scoped database impact |
 
 All dashboards in a project folder share a project tag and expose a Grafana dashboard-link dropdown so the selected time range follows the user between scopes. Keep the overview concise enough for triage; focused dashboards carry the detailed breakdowns.
+
+The cross-project dashboard discovers Helm-managed application Deployments from `personal-projects` and `kidays-fr` through `kube_deployment_labels`; it does not keep a second hand-written list of current services. `cloudflared` and `external-dns` support Deployments are excluded from the application selector and shown in their own delivery rows. A project in a new namespace must add that namespace to the application variable until the cluster-wide `davidapps.io/observability-scope=application` label contract is rolled out.
 
 ## Provisioned Grafana scopes
 
@@ -90,13 +93,14 @@ Grafana provisions these folders and dashboard UIDs:
 
 | Folder | Dashboard UID | Current scope |
 | --- | --- | --- |
-| `Apps / Fleet` | `apps-fleet` | Cross-project health, resources, logs, latency, and errors |
+| `Apps / All Projects` | `apps-fleet` | Auto-discovered application health, resources, nodes, ingress, tunnels, databases, telemetry, logs, and business signals |
 | `Apps / ZeroCut` | `zerocut-overview` | Grouped ZeroCut overview |
 | `Apps / ZeroCut` | `zerocut-revenue` | Platform payments and supporter-to-creator donations |
 | `Apps / ZeroCut` | `zerocut-reliability` | Server, rendering, dependency, resource, log, and trace performance |
 | `Apps / ZeroCut` | `zerocut-browser` | Browser Web Vitals, client signals, errors, and release |
 | `Apps / ZeroCut` | `zerocut-runtime` | Kubernetes placement, rollout, resources, image, and commit |
-| `Apps / MB Retrofit` | `mbretrofit-overview` | Main and Zenzefi deployments |
+| `Apps / ZeroCut` | `zerocut-delivery-data` | NGINX delivery, Cloudflare tunnel health, and shared PostgreSQL impact |
+| `Apps / MBRetrofit Tools` | `mbretrofit-overview` | Main and Zenzefi deployments |
 | `Apps / Kidays` | `kidays-overview` | Web and Convex backend deployments |
 | `Observability / Telemetry` | `telemetry-platform` | Gateway outcomes, Tempo ingestion health, Faro volume, and gateway errors |
 
@@ -104,7 +108,7 @@ Kubernetes availability, resource, image, restart, and container-log panels work
 
 ## Agent queries
 
-The local Codex configuration exposes three read-only MCP servers to new agent sessions:
+The local Codex configuration exposes three read-only MCP servers to new agent sessions. They are already configured and can be called directly by agents; no Grafana browser session is required:
 
 - `observability_grafana`: dashboards, alerts, PromQL, and datasource metadata. It uses a Grafana Viewer service account and starts with `--disable-write`.
 - `observability_logs`: read-only LogsQL access to VictoriaLogs.
@@ -116,7 +120,9 @@ Useful requests include:
 - “Compare p95 span latency for the current and previous `service.version` of `mbretrofit-tools`.”
 - “Show firing project alerts, then inspect the affected deployment's restarts and logs.”
 - “Find traces for `kidays-fr-app` slower than two seconds and group them by route.”
+- “Run the ZeroCut error sweep for the last 24 hours, deduplicate the errors into root-cause families, correlate available trace IDs, and propose fixes against the active commit.”
 
 The MCP servers are intentionally read-only. Changes to dashboards, alert rules, retention, or collectors remain GitOps changes in this repository or `davidapps-cluster`.
 
 For a repeatable source-selection and correlation workflow, use the [application telemetry agent query protocol](./runbooks/application-telemetry-agent-queries.md).
+For adding the next project, use the [project observability onboarding checklist](./runbooks/project-observability-onboarding.md).
