@@ -1,4 +1,3 @@
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -34,14 +33,14 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/uber-item-viewer # {"$imagepolicy": "flux-system:uber-item-viewer:name"}
-              tag: master-d60ffb85-1684507596 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
+              tag: master-4f8beee2-1786964523 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
             env:
               UBER_ENDPOINT: "https://uberapi.davidhome.ro"
               APP_URL: "https://uber.gurt.ing"
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
@@ -52,7 +51,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         runAsGroup: 65534
-        seccompProfile: { type: RuntimeDefault }
+        seccompProfile: {type: RuntimeDefault}
     service:
       app:
         controller: uber-item-viewer
