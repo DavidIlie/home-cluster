@@ -2927,7 +2927,6 @@
   "templating": {
     "list": [
       {
-        "allValue": ".*",
         "current": {
           "selected": true,
           "text": [

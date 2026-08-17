@@ -184,7 +184,6 @@ def application_variable() -> dict:
         'label_app_kubernetes_io_name!~".*(cloudflared|external-dns).*"}, deployment)'
     )
     return {
-        "allValue": ".*",
         "current": {"selected": True, "text": ["All"], "value": ["$__all"]},
         "datasource": copy.deepcopy(PROM),
         "definition": query,
