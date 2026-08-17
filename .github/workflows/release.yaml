@@ -10,7 +10,7 @@ on:
 jobs:
   release:
     name: Release
-    runs-on: davidapps-linux-x64
+    runs-on: davidapps-ubuntu
     steps:
       - name: Get Previous Release Tag and Determine Next Tag
         id: determine-next-tag
