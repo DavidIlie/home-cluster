@@ -3,8 +3,9 @@
 
 The source dashboards remain normal Grafana JSON. This helper owns the
 cross-project overview, ClickHouse monitoring, the ZeroCut delivery/data
-dashboard, and the extra capacity row on the ZeroCut runtime dashboard. Keeping
-those panels generated makes the query conventions easy to reuse for Kidays.
+dashboard, CLIProxyAPI provider normalization, and the extra capacity row on
+the ZeroCut runtime dashboard. Keeping those panels generated makes the query
+conventions easy to reuse for Kidays.
 """
 
 from __future__ import annotations
@@ -1934,6 +1935,367 @@ def normalize_dashboard_titles() -> None:
         save(filename, dashboard)
 
 
+def normalize_cliproxy_dashboard() -> None:
+    """Keep CLIProxy provider-neutral while preserving honest exporter gaps."""
+    dashboard = load("cliproxy-usage.json")
+    top_level_panels = dashboard["panels"]
+    account_row = next(panel for panel in top_level_panels if panel["id"] == 29)
+    all_panels = top_level_panels + account_row.get("panels", [])
+    panels = {panel["id"]: panel for panel in all_panels}
+
+    def set_target(
+        panel_id: int,
+        ref_id: str,
+        expr: str,
+        legend: str | None = None,
+    ) -> None:
+        target = next(
+            target for target in panels[panel_id]["targets"] if target["refId"] == ref_id
+        )
+        target["expr"] = expr
+        if legend is not None:
+            target["legendFormat"] = legend
+
+    dashboard["title"] = "CLIProxyAPI / Usage & cost"
+    dashboard["description"] = (
+        "Provider-neutral operational usage for every model routed through CLIProxyAPI. "
+        "The Usage window variable selects plugin-computed 24h or 30d aggregates; "
+        "Grafana's time picker controls counter-rate panels. Costs are pricing-table "
+        "estimates, not provider invoices."
+    )
+    dashboard["tags"] = ["ai", "claude", "cliproxy", "codex", "cost", "tokens", "usage"]
+
+    datasource_variable = next(
+        variable for variable in dashboard["templating"]["list"] if variable["name"] == "datasource"
+    )
+    provider_query = "label_values(cliproxy_usage_model_requests_total, provider)"
+    provider_variable = {
+        "allValue": ".*",
+        "current": {"selected": True, "text": ["All"], "value": ["$__all"]},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "definition": provider_query,
+        "description": "Real provider labels exported by CLIProxyAPI model and auth metrics.",
+        "hide": 0,
+        "includeAll": True,
+        "label": "Provider",
+        "multi": True,
+        "name": "provider",
+        "options": [],
+        "query": {"query": provider_query, "refId": "PrometheusVariableQueryEditor-VariableQuery"},
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": False,
+        "sort": 1,
+        "type": "query",
+    }
+    window_variable = {
+        "current": {"selected": True, "text": "30d", "value": "30d"},
+        "description": "Plugin-computed aggregate window; independent of the Grafana time picker.",
+        "hide": 0,
+        "includeAll": False,
+        "label": "Usage window",
+        "multi": False,
+        "name": "usage_window",
+        "options": [
+            {"selected": False, "text": "24h", "value": "24h"},
+            {"selected": True, "text": "30d", "value": "30d"},
+        ],
+        "query": "24h,30d",
+        "queryValue": "",
+        "skipUrlSync": False,
+        "type": "custom",
+    }
+    dashboard["templating"]["list"] = [
+        datasource_variable,
+        provider_variable,
+        window_variable,
+    ]
+
+    panels[6]["title"] = "Estimated cost"
+    panels[3]["title"] = "Cost coverage · active provider groups"
+    panels[3]["description"] = (
+        "One means every provider group with real requests resolved to the current "
+        "pricing table. Empty scopes are excluded because the plugin reports zero "
+        "coverage both for no traffic and for unpriced traffic."
+    )
+    set_target(
+        3,
+        "A",
+        "min(cliproxy_usage_cost_available and on (scope) (cliproxy_usage_requests_total > 0))",
+    )
+    set_target(
+        5,
+        "A",
+        'count(cliproxy_auth_info{provider=~"${provider:regex}",status=~"error|disabled"}) or vector(0)',
+    )
+    panels[7]["title"] = "Lifetime cost · selected providers"
+    panels[7]["description"] = (
+        "Lifetime model-level estimate for the selected providers. The reconciliation "
+        "health tile must remain at 1.0 for this model sum to be complete."
+    )
+    set_target(
+        7,
+        "A",
+        'sum(cliproxy_usage_model_cost_usd_total{provider=~"${provider:regex}"})',
+    )
+
+    panels[8]["title"] = "Estimated cost by model · $usage_window"
+    panels[8]["description"] = (
+        "Plugin-computed window values filtered by the Usage window and Provider controls. "
+        "The 20m last-over-time range covers the deliberately slow 15m scrape of 30d "
+        "aggregates. No rate() is used because pricing refreshes can move estimates down."
+    )
+    set_target(
+        8,
+        "A",
+        'topk(20, sum by (model, provider) (last_over_time(cliproxy_usage_window_model_cost_usd{window="$usage_window",provider=~"${provider:regex}"}[20m])))',
+        "{{provider}} / {{model}}",
+    )
+
+    panels[9]["title"] = "Estimated cost · $usage_window"
+    panels[9]["description"] = (
+        "Model-level plugin aggregate for exactly one selected window. This previously "
+        "summed the 24h and 30d series and therefore overstated the result."
+    )
+    set_target(
+        9,
+        "A",
+        'sum(last_over_time(cliproxy_usage_window_model_cost_usd{window="$usage_window",provider=~"${provider:regex}"}[20m]))',
+    )
+
+    panels[10]["title"] = "Estimated cost by provider · $usage_window"
+    panels[10]["description"] = (
+        "Provider comparison from model-level aggregates, so Claude, Codex, and future "
+        "providers share the same path and scope=other is never treated as a provider."
+    )
+    set_target(
+        10,
+        "A",
+        'sum by (provider) (last_over_time(cliproxy_usage_window_model_cost_usd{window="$usage_window",provider=~"${provider:regex}"}[20m]))',
+        "{{provider}}",
+    )
+
+    panels[11]["title"] = "Lifetime estimated cost by model"
+    set_target(
+        11,
+        "A",
+        'topk(20, sum by (model, provider) (cliproxy_usage_model_cost_usd_total{provider=~"${provider:regex}"}))',
+        "{{provider}} / {{model}}",
+    )
+
+    panels[13]["title"] = "Token mix by provider"
+    panels[13]["description"] = (
+        "Counter rates grouped by real provider labels. Cache-read dominance is useful "
+        "for Claude Code, while Codex reasoning and output remain separately visible."
+    )
+    token_kinds = {
+        "A": ("input", "cliproxy_usage_model_input_tokens_total"),
+        "B": ("output", "cliproxy_usage_model_output_tokens_total"),
+        "C": ("reasoning", "cliproxy_usage_model_reasoning_tokens_total"),
+        "D": ("cache read", "cliproxy_usage_model_cache_read_tokens_total"),
+        "E": ("cache write", "cliproxy_usage_model_cache_creation_tokens_total"),
+    }
+    for ref_id, (label, metric) in token_kinds.items():
+        set_target(
+            13,
+            ref_id,
+            f'sum by (provider) (rate({metric}{{provider=~"${{provider:regex}}"}}[1h]))',
+            "{{provider}} · " + label,
+        )
+
+    panels[14]["title"] = "Token throughput by provider"
+    set_target(
+        14,
+        "A",
+        'sum by (provider) (rate(cliproxy_usage_model_tokens_total{provider=~"${provider:regex}"}[1h]))',
+        "{{provider}}",
+    )
+
+    panels[15]["title"] = "Tokens by model · $usage_window"
+    set_target(
+        15,
+        "A",
+        'topk(20, sum by (model, provider) (last_over_time(cliproxy_usage_window_model_tokens{window="$usage_window",provider=~"${provider:regex}"}[20m])))',
+        "{{provider}} / {{model}}",
+    )
+
+    panels[16]["title"] = "Lifetime usage by provider"
+    panels[16]["description"] = (
+        "Requests, tokens, and estimated cost use the same per-model source for every "
+        "provider. Claude per-credential token and cost attribution is not exposed."
+    )
+    set_target(
+        16,
+        "A",
+        'sum by (provider) (cliproxy_usage_model_tokens_total{provider=~"${provider:regex}"})',
+    )
+    set_target(
+        16,
+        "B",
+        'sum by (provider) (cliproxy_usage_model_cost_usd_total{provider=~"${provider:regex}"})',
+    )
+    set_target(
+        16,
+        "C",
+        'sum by (provider) (cliproxy_usage_model_requests_total{provider=~"${provider:regex}"})',
+    )
+    provider_derived = {
+        "D": (
+            'sum by (provider) (cliproxy_usage_model_tokens_total{provider=~"${provider:regex}"}) / clamp_min(sum by (provider) (cliproxy_usage_model_requests_total{provider=~"${provider:regex}"}), 1)',
+            "Tokens / request",
+            "short",
+            1,
+        ),
+        "E": (
+            'sum by (provider) (cliproxy_usage_model_cost_usd_total{provider=~"${provider:regex}"}) / clamp_min(sum by (provider) (cliproxy_usage_model_requests_total{provider=~"${provider:regex}"}), 1)',
+            "Cost / request",
+            "currencyUSD",
+            6,
+        ),
+        "F": (
+            '1e6 * sum by (provider) (cliproxy_usage_model_cost_usd_total{provider=~"${provider:regex}"}) / clamp_min(sum by (provider) (cliproxy_usage_model_tokens_total{provider=~"${provider:regex}"}), 1)',
+            "Cost / 1M tokens",
+            "currencyUSD",
+            4,
+        ),
+    }
+    for ref_id, (expr, display_name, unit, decimals) in provider_derived.items():
+        target = next(
+            (target for target in panels[16]["targets"] if target["refId"] == ref_id),
+            None,
+        )
+        if target is None:
+            target = copy.deepcopy(panels[16]["targets"][0])
+            target["refId"] = ref_id
+            panels[16]["targets"].append(target)
+        target["expr"] = expr
+        override = next(
+            (
+                override
+                for override in panels[16]["fieldConfig"]["overrides"]
+                if override["matcher"].get("options") == f"Value #{ref_id}"
+            ),
+            None,
+        )
+        if override is None:
+            override = {
+                "matcher": {"id": "byName", "options": f"Value #{ref_id}"},
+                "properties": [],
+            }
+            panels[16]["fieldConfig"]["overrides"].append(override)
+        override["properties"] = [
+            {"id": "displayName", "value": display_name},
+            {"id": "unit", "value": unit},
+            {"id": "decimals", "value": decimals},
+        ]
+        panels[16]["transformations"][1]["options"]["renameByName"][
+            f"Value #{ref_id}"
+        ] = display_name
+
+    panels[17]["title"] = "Credentials and provider health"
+    for ref_id in ("A", "B"):
+        target = next(target for target in panels[18]["targets"] if target["refId"] == ref_id)
+        target["expr"] = target["expr"].replace(
+            "cliproxy_auth_requests_",
+            'cliproxy_auth_requests_',
+        ).replace(
+            "_total[5m]",
+            '_total{provider=~"${provider:regex}"}[5m]',
+        )
+    for metric in ("success", "failed"):
+        old = f"cliproxy_auth_requests_{metric}_total[15m]"
+        new = f'cliproxy_auth_requests_{metric}_total{{provider=~"${{provider:regex}}"}}[15m]'
+        panels[19]["targets"][0]["expr"] = panels[19]["targets"][0]["expr"].replace(old, new)
+    set_target(
+        20,
+        "A",
+        'cliproxy_auth_info{provider=~"${provider:regex}"}',
+    )
+    panels[20]["gridPos"]["w"] = 24
+
+    panels[23]["title"] = "Latency and reliability"
+    panels[24]["title"] = "Provider-group latency / TTFT · $usage_window"
+    panels[24]["description"] = (
+        "Window means, not quantiles. The upstream summary exposes only scope here: "
+        "codex, other, and xai. 'other' can contain Claude, Gemini, or future providers, "
+        "so this panel deliberately does not relabel it as Claude or obey Provider filtering."
+    )
+    set_target(
+        24,
+        "A",
+        'last_over_time(cliproxy_usage_window_avg_latency_ms{window="$usage_window"}[20m])',
+        "latency · {{scope}}",
+    )
+    set_target(
+        24,
+        "B",
+        'last_over_time(cliproxy_usage_window_avg_ttft_ms{window="$usage_window"}[20m])',
+        "TTFT · {{scope}}",
+    )
+    panels[25]["title"] = "Slow requests · $usage_window"
+    panels[25]["description"] = (
+        "Provider-group values because the upstream summary exposes only scope. "
+        "Thresholds are fixed upstream: latency >= 12s and TTFT >= 3s."
+    )
+    set_target(
+        25,
+        "A",
+        'last_over_time(cliproxy_usage_window_slow_requests{window="$usage_window"}[20m])',
+        "latency >= 12s · {{scope}}",
+    )
+    set_target(
+        25,
+        "B",
+        'last_over_time(cliproxy_usage_window_slow_ttft_requests{window="$usage_window"}[20m])',
+        "TTFT >= 3s · {{scope}}",
+    )
+    panels[26]["title"] = "Rate limits by provider group"
+    panels[26]["description"] = (
+        "Counter rate by upstream scope. The current API does not expose Codex and "
+        "non-Codex rate limits through one shared provider-labelled metric."
+    )
+    panels[27]["title"] = "Failed requests by provider group"
+    panels[27]["description"] = (
+        "Counter rate by upstream scope. 'other' remains explicit because it may "
+        "aggregate Claude, Gemini, and future providers."
+    )
+    panels[28]["title"] = "Output tokens/sec by provider group · $usage_window"
+    panels[28]["description"] = (
+        "The plugin publishes this only by scope, not real provider label; 'other' is "
+        "therefore kept explicit and may aggregate multiple non-Codex providers."
+    )
+    set_target(
+        28,
+        "A",
+        'last_over_time(cliproxy_usage_window_output_tokens_per_second{window="$usage_window"}[20m])',
+        "{{scope}}",
+    )
+
+    panels[29]["title"] = "Codex-only quota & account detail"
+    panels[29]["collapsed"] = True
+    panels[21]["gridPos"].update({"x": 0, "y": 65, "w": 6})
+    panels[22]["gridPos"].update({"x": 6, "y": 65, "w": 6})
+    panels[30]["gridPos"].update({"x": 12, "y": 65, "w": 12})
+    panels[30]["title"] = "Per-account usage (Codex only)"
+    panels[30]["description"] = (
+        "The plugin exposes account token/cost/quota fields only for Codex. Claude and "
+        "other provider credentials still appear in the provider-neutral auth panels, "
+        "but missing per-account usage must not be interpreted as zero."
+    )
+    panels[29]["panels"] = [panels[21], panels[22], panels[30]]
+    dashboard["panels"] = [
+        panel for panel in top_level_panels if panel["id"] not in {21, 22, 30}
+    ]
+    for panel in dashboard["panels"] + panels[29]["panels"]:
+        for target in panel.get("targets", []):
+            expr = target.get("expr", "")
+            if "cliproxy_usage_window" in expr and "window=" not in expr:
+                raise ValueError(
+                    f"CLIProxy panel {panel['id']} mixes plugin aggregate windows: {expr}"
+                )
+    save("cliproxy-usage.json", dashboard)
+
+
 def main() -> None:
     build_all_projects()
     build_zerocut_delivery()
@@ -1941,6 +2303,7 @@ def main() -> None:
     enrich_zerocut_runtime()
     normalize_project_names()
     normalize_dashboard_titles()
+    normalize_cliproxy_dashboard()
 
 
 if __name__ == "__main__":

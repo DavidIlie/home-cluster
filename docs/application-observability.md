@@ -136,3 +136,4 @@ The MCP servers are intentionally read-only. Changes to dashboards, alert rules,
 For a repeatable source-selection and correlation workflow, use the [application telemetry agent query protocol](./runbooks/application-telemetry-agent-queries.md).
 For adding the next project, use the [project observability onboarding checklist](./runbooks/project-observability-onboarding.md).
 For the planned replicated ZeroCut analytics move, use the [ClickHouse platform plan](./clickhouse-platform-plan.md).
+For provider/model usage and exporter limitations, use the [CLIProxyAPI observability runbook](./runbooks/cliproxy-observability.md).

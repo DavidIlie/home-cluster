@@ -127,7 +127,7 @@
         "y": 1
       },
       "id": 3,
-      "title": "Cost coverage (lifetime)",
+      "title": "Cost coverage \u00b7 active provider groups",
       "type": "stat",
       "targets": [
         {
@@ -135,14 +135,14 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "min(cliproxy_usage_cost_available)",
+          "expr": "min(cliproxy_usage_cost_available and on (scope) (cliproxy_usage_requests_total > 0))",
           "refId": "A",
           "instant": true,
           "range": false
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "0 means at least one model in use has NO entry in the LiteLLM price table, so every cost figure below UNDERSTATES real spend. Cost is computed plugin-side against a table refreshed from GitHub every 6h; an unpriced model yields cost_available=false, not an error.",
+      "description": "One means every provider group with real requests resolved to the current pricing table. Empty scopes are excluded because the plugin reports zero coverage both for no traffic and for unpriced traffic.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -290,7 +290,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count(cliproxy_auth_info{status=~\"error|disabled\"}) or vector(0)",
+          "expr": "count(cliproxy_auth_info{provider=~\"${provider:regex}\",status=~\"error|disabled\"}) or vector(0)",
           "refId": "A",
           "instant": true,
           "range": false
@@ -346,7 +346,7 @@
       },
       "id": 6,
       "panels": [],
-      "title": "Spend",
+      "title": "Estimated cost",
       "type": "row"
     },
     {
@@ -361,7 +361,7 @@
         "y": 7
       },
       "id": 7,
-      "title": "Lifetime spend (all scopes)",
+      "title": "Lifetime cost \u00b7 selected providers",
       "type": "stat",
       "targets": [
         {
@@ -369,14 +369,14 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(cliproxy_usage_cost_usd_total)",
+          "expr": "sum(cliproxy_usage_model_cost_usd_total{provider=~\"${provider:regex}\"})",
           "refId": "A",
           "instant": true,
           "range": false
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "Sums scope=codex + other + xai. These are DISJOINT partitions of the same dataset - reading `totals` alone would hide all Claude spend.\n\nThis stat is correct regardless of Prometheus retention because the scraped value is the plugin's own SQLite lifetime sum. By contrast increase(...[30d]) is NOT computable here: prometheus-home-cluster keeps 15d and prometheus-kube-stack 14d.",
+      "description": "Lifetime model-level estimate for the selected providers. The reconciliation health tile must remain at 1.0 for this model sum to be complete.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -417,7 +417,7 @@
         "y": 7
       },
       "id": 8,
-      "title": "Spend last 24h by model",
+      "title": "Estimated cost by model \u00b7 $usage_window",
       "type": "timeseries",
       "targets": [
         {
@@ -425,13 +425,13 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(20, sum by (model, provider) (cliproxy_usage_window_model_cost_usd))",
+          "expr": "topk(20, sum by (model, provider) (last_over_time(cliproxy_usage_window_model_cost_usd{window=\"$usage_window\",provider=~\"${provider:regex}\"}[20m])))",
           "refId": "A",
           "legendFormat": "{{provider}} / {{model}}"
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "Uses the plugin-computed rolling-window value, not increase()/rate() over a counter. codex-token-usage recomputes cost from the current LiteLLM price map (refreshed every 6h), so *_cost_usd_total can decrease when upstream prices change; Prometheus would read that as a counter reset and report roughly the whole lifetime spend as window spend.",
+      "description": "Plugin-computed window values filtered by the Usage window and Provider controls. The 20m last-over-time range covers the deliberately slow 15m scrape of 30d aggregates. No rate() is used because pricing refreshes can move estimates down.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -475,7 +475,7 @@
         "y": 7
       },
       "id": 9,
-      "title": "Spend last 24h",
+      "title": "Estimated cost \u00b7 $usage_window",
       "type": "stat",
       "targets": [
         {
@@ -483,14 +483,14 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(cliproxy_usage_window_cost_usd)",
+          "expr": "sum(last_over_time(cliproxy_usage_window_model_cost_usd{window=\"$usage_window\",provider=~\"${provider:regex}\"}[20m]))",
           "refId": "A",
           "instant": true,
           "range": false
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "Uses the plugin-computed rolling-window value, not increase()/rate() over a counter. codex-token-usage recomputes cost from the current LiteLLM price map (refreshed every 6h), so *_cost_usd_total can decrease when upstream prices change; Prometheus would read that as a counter reset and report roughly the whole lifetime spend as window spend.",
+      "description": "Model-level plugin aggregate for exactly one selected window. This previously summed the 24h and 30d series and therefore overstated the result.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -531,7 +531,7 @@
         "y": 13
       },
       "id": 10,
-      "title": "Cumulative spend by scope",
+      "title": "Estimated cost by provider \u00b7 $usage_window",
       "type": "timeseries",
       "targets": [
         {
@@ -539,13 +539,13 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (scope) (cliproxy_usage_cost_usd_total)",
+          "expr": "sum by (provider) (last_over_time(cliproxy_usage_window_model_cost_usd{window=\"$usage_window\",provider=~\"${provider:regex}\"}[20m]))",
           "refId": "A",
-          "legendFormat": "{{scope}}"
+          "legendFormat": "{{provider}}"
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "scope=codex is Codex-OAuth only; scope=other is Claude/Gemini/etc; scope=xai is xAI. Disjoint - a cluster total is the SUM of all three.",
+      "description": "Provider comparison from model-level aggregates, so Claude, Codex, and future providers share the same path and scope=other is never treated as a provider.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -593,7 +593,7 @@
         "y": 13
       },
       "id": 11,
-      "title": "Lifetime spend by model",
+      "title": "Lifetime estimated cost by model",
       "type": "bargauge",
       "targets": [
         {
@@ -601,9 +601,9 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(20, sum by (model, scope) (cliproxy_usage_model_cost_usd_total))",
+          "expr": "topk(20, sum by (model, provider) (cliproxy_usage_model_cost_usd_total{provider=~\"${provider:regex}\"}))",
           "refId": "A",
-          "legendFormat": "{{model}} ({{scope}})",
+          "legendFormat": "{{provider}} / {{model}}",
           "instant": true,
           "range": false
         }
@@ -659,7 +659,7 @@
         "y": 21
       },
       "id": 13,
-      "title": "Token mix (rate/sec, all scopes)",
+      "title": "Token mix by provider",
       "type": "timeseries",
       "targets": [
         {
@@ -667,49 +667,49 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(cliproxy_usage_input_tokens_total[1h]))",
+          "expr": "sum by (provider) (rate(cliproxy_usage_model_input_tokens_total{provider=~\"${provider:regex}\"}[1h]))",
           "refId": "A",
-          "legendFormat": "input"
+          "legendFormat": "{{provider}} \u00b7 input"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(cliproxy_usage_output_tokens_total[1h]))",
+          "expr": "sum by (provider) (rate(cliproxy_usage_model_output_tokens_total{provider=~\"${provider:regex}\"}[1h]))",
           "refId": "B",
-          "legendFormat": "output"
+          "legendFormat": "{{provider}} \u00b7 output"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(cliproxy_usage_reasoning_tokens_total[1h]))",
+          "expr": "sum by (provider) (rate(cliproxy_usage_model_reasoning_tokens_total{provider=~\"${provider:regex}\"}[1h]))",
           "refId": "C",
-          "legendFormat": "reasoning"
+          "legendFormat": "{{provider}} \u00b7 reasoning"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(cliproxy_usage_cache_read_tokens_total[1h]))",
+          "expr": "sum by (provider) (rate(cliproxy_usage_model_cache_read_tokens_total{provider=~\"${provider:regex}\"}[1h]))",
           "refId": "D",
-          "legendFormat": "cache read"
+          "legendFormat": "{{provider}} \u00b7 cache read"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(cliproxy_usage_cache_creation_tokens_total[1h]))",
+          "expr": "sum by (provider) (rate(cliproxy_usage_model_cache_creation_tokens_total{provider=~\"${provider:regex}\"}[1h]))",
           "refId": "E",
-          "legendFormat": "cache write"
+          "legendFormat": "{{provider}} \u00b7 cache write"
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "Cache efficiency at a glance: a healthy Claude Code workload shows cache-read dominating input.",
+      "description": "Counter rates grouped by real provider labels. Cache-read dominance is useful for Claude Code, while Codex reasoning and output remain separately visible.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -757,7 +757,7 @@
         "y": 21
       },
       "id": 14,
-      "title": "Token throughput by scope",
+      "title": "Token throughput by provider",
       "type": "timeseries",
       "targets": [
         {
@@ -765,9 +765,9 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (scope) (rate(cliproxy_usage_tokens_total[1h]))",
+          "expr": "sum by (provider) (rate(cliproxy_usage_model_tokens_total{provider=~\"${provider:regex}\"}[1h]))",
           "refId": "A",
-          "legendFormat": "{{scope}}"
+          "legendFormat": "{{provider}}"
         }
       ],
       "pluginVersion": "11.0.0",
@@ -818,7 +818,7 @@
         "y": 28
       },
       "id": 15,
-      "title": "Tokens by model (lifetime)",
+      "title": "Tokens by model \u00b7 $usage_window",
       "type": "bargauge",
       "targets": [
         {
@@ -826,9 +826,9 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(20, sum by (model, scope) (cliproxy_usage_model_tokens_total))",
+          "expr": "topk(20, sum by (model, provider) (last_over_time(cliproxy_usage_window_model_tokens{window=\"$usage_window\",provider=~\"${provider:regex}\"}[20m])))",
           "refId": "A",
-          "legendFormat": "{{model}} ({{scope}})",
+          "legendFormat": "{{provider}} / {{model}}",
           "instant": true,
           "range": false
         }
@@ -870,7 +870,7 @@
         "y": 28
       },
       "id": 16,
-      "title": "Per-provider totals (non-Codex scope)",
+      "title": "Lifetime usage by provider",
       "type": "table",
       "targets": [
         {
@@ -878,7 +878,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (provider) (cliproxy_usage_provider_tokens_total)",
+          "expr": "sum by (provider) (cliproxy_usage_model_tokens_total{provider=~\"${provider:regex}\"})",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -889,7 +889,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (provider) (cliproxy_usage_provider_cost_usd_total)",
+          "expr": "sum by (provider) (cliproxy_usage_model_cost_usd_total{provider=~\"${provider:regex}\"})",
           "refId": "B",
           "instant": true,
           "range": false,
@@ -900,15 +900,48 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (provider) (cliproxy_usage_provider_requests_total)",
+          "expr": "sum by (provider) (cliproxy_usage_model_requests_total{provider=~\"${provider:regex}\"})",
           "refId": "C",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (provider) (cliproxy_usage_model_tokens_total{provider=~\"${provider:regex}\"}) / clamp_min(sum by (provider) (cliproxy_usage_model_requests_total{provider=~\"${provider:regex}\"}), 1)",
+          "refId": "D",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (provider) (cliproxy_usage_model_cost_usd_total{provider=~\"${provider:regex}\"}) / clamp_min(sum by (provider) (cliproxy_usage_model_requests_total{provider=~\"${provider:regex}\"}), 1)",
+          "refId": "E",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "1e6 * sum by (provider) (cliproxy_usage_model_cost_usd_total{provider=~\"${provider:regex}\"}) / clamp_min(sum by (provider) (cliproxy_usage_model_tokens_total{provider=~\"${provider:regex}\"}), 1)",
+          "refId": "F",
           "instant": true,
           "range": false,
           "format": "table"
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "providers[] covers the non-Codex scope only. This is the ONLY per-Claude token/cost breakdown that exists - see the note in the 'Per-account' panel about why per-account Claude data is unavailable.",
+      "description": "Requests, tokens, and estimated cost use the same per-model source for every provider. Claude per-credential token and cost attribution is not exposed.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -976,6 +1009,66 @@
                 "value": true
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #D"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Tokens / request"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #E"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cost / request"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 6
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #F"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cost / 1M tokens"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
           }
         ]
       },
@@ -1020,7 +1113,10 @@
               "Value #A": "Tokens",
               "Value #B": "Cost (USD)",
               "Value #C": "Requests",
-              "provider": "Provider"
+              "provider": "Provider",
+              "Value #D": "Tokens / request",
+              "Value #E": "Cost / request",
+              "Value #F": "Cost / 1M tokens"
             },
             "indexByName": {}
           }
@@ -1037,7 +1133,7 @@
       },
       "id": 17,
       "panels": [],
-      "title": "Credentials and quota (Tier 1 - works with no plugin)",
+      "title": "Credentials and provider health",
       "type": "row"
     },
     {
@@ -1060,7 +1156,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (provider, email) (rate(cliproxy_auth_requests_success_total[5m]))",
+          "expr": "sum by (provider, email) (rate(cliproxy_auth_requests_success_total{provider=~\"${provider:regex}\"}[5m]))",
           "refId": "A",
           "legendFormat": "OK {{provider}} / {{email}}"
         },
@@ -1069,7 +1165,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "- sum by (provider, email) (rate(cliproxy_auth_requests_failed_total[5m]))",
+          "expr": "- sum by (provider, email) (rate(cliproxy_auth_requests_failed_total{provider=~\"${provider:regex}\"}[5m]))",
           "refId": "B",
           "legendFormat": "FAIL {{provider}} / {{email}}"
         }
@@ -1125,7 +1221,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (provider, email) (rate(cliproxy_auth_requests_failed_total[15m])) / clamp_min(sum by (provider, email) (rate(cliproxy_auth_requests_success_total[15m]) + rate(cliproxy_auth_requests_failed_total[15m])), 0.001)",
+          "expr": "sum by (provider, email) (rate(cliproxy_auth_requests_failed_total{provider=~\"${provider:regex}\"}[15m])) / clamp_min(sum by (provider, email) (rate(cliproxy_auth_requests_success_total{provider=~\"${provider:regex}\"}[15m]) + rate(cliproxy_auth_requests_failed_total{provider=~\"${provider:regex}\"}[15m])), 0.001)",
           "refId": "A",
           "legendFormat": "{{provider}} / {{email}}"
         }
@@ -1170,7 +1266,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 43
       },
@@ -1183,7 +1279,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "cliproxy_auth_info",
+          "expr": "cliproxy_auth_info{provider=~\"${provider:regex}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -1355,128 +1451,6 @@
       ]
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 12,
-        "y": 43
-      },
-      "id": 21,
-      "title": "Codex quota used (primary)",
-      "type": "gauge",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "cliproxy_account_primary_used_percent",
-          "refId": "A",
-          "legendFormat": "{{email}}"
-        }
-      ],
-      "pluginVersion": "11.0.0",
-      "description": "CODEX ACCOUNTS ONLY. These fields are omitempty and are genuinely ABSENT for non-Codex credentials, so this panel shows No Data when no Codex account is registered.\n\nAN EMPTY PANEL DOES NOT MEAN QUOTA IS FINE - it means the field was not reported. `or vector(0)` is deliberately NOT used here: it would append a phantom 0% gauge that reads as healthy. Cross-check the credential health table.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "unit": "percent",
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 75
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 18,
-        "y": 43
-      },
-      "id": 22,
-      "title": "Codex secondary quota remaining",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "cliproxy_account_secondary_quota_remaining_estimate",
-          "refId": "A",
-          "legendFormat": "{{email}}"
-        }
-      ],
-      "pluginVersion": "11.0.0",
-      "description": "Plugin-side estimate, Codex accounts only.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          },
-          "mappings": [],
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      }
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1486,7 +1460,7 @@
       },
       "id": 23,
       "panels": [],
-      "title": "Latency and reliability (rolling 24h window)",
+      "title": "Latency and reliability",
       "type": "row"
     },
     {
@@ -1501,7 +1475,7 @@
         "y": 51
       },
       "id": 24,
-      "title": "Average latency / TTFT by scope",
+      "title": "Provider-group latency / TTFT \u00b7 $usage_window",
       "type": "timeseries",
       "targets": [
         {
@@ -1509,22 +1483,22 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "cliproxy_usage_window_avg_latency_ms",
+          "expr": "last_over_time(cliproxy_usage_window_avg_latency_ms{window=\"$usage_window\"}[20m])",
           "refId": "A",
-          "legendFormat": "latency {{scope}}"
+          "legendFormat": "latency \u00b7 {{scope}}"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "cliproxy_usage_window_avg_ttft_ms",
+          "expr": "last_over_time(cliproxy_usage_window_avg_ttft_ms{window=\"$usage_window\"}[20m])",
           "refId": "B",
-          "legendFormat": "TTFT {{scope}}"
+          "legendFormat": "TTFT \u00b7 {{scope}}"
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "These are WINDOW MEANS over a rolling 24h, not quantiles. No true latency histogram is available from any non-destructive CLIProxyAPI endpoint, so p95/p99 cannot be computed. Read as gauges - they are deliberately NOT scraped from window=all, where they would be lifetime averages that asymptotically freeze.",
+      "description": "Window means, not quantiles. The upstream summary exposes only scope here: codex, other, and xai. 'other' can contain Claude, Gemini, or future providers, so this panel deliberately does not relabel it as Claude or obey Provider filtering.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1566,7 +1540,7 @@
         "y": 51
       },
       "id": 25,
-      "title": "Slow requests in window",
+      "title": "Slow requests \u00b7 $usage_window",
       "type": "timeseries",
       "targets": [
         {
@@ -1574,22 +1548,22 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "cliproxy_usage_window_slow_requests",
+          "expr": "last_over_time(cliproxy_usage_window_slow_requests{window=\"$usage_window\"}[20m])",
           "refId": "A",
-          "legendFormat": "latency >= 12s ({{scope}})"
+          "legendFormat": "latency >= 12s \u00b7 {{scope}}"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "cliproxy_usage_window_slow_ttft_requests",
+          "expr": "last_over_time(cliproxy_usage_window_slow_ttft_requests{window=\"$usage_window\"}[20m])",
           "refId": "B",
-          "legendFormat": "TTFT >= 3s ({{scope}})"
+          "legendFormat": "TTFT >= 3s \u00b7 {{scope}}"
         }
       ],
       "pluginVersion": "11.0.0",
-      "description": "Thresholds are fixed upstream: latency_ms >= 12000, ttft_ms >= 3000.",
+      "description": "Provider-group values because the upstream summary exposes only scope. Thresholds are fixed upstream: latency >= 12s and TTFT >= 3s.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1631,7 +1605,7 @@
         "y": 58
       },
       "id": 26,
-      "title": "Rate limits (429) by scope",
+      "title": "Rate limits by provider group",
       "type": "timeseries",
       "targets": [
         {
@@ -1672,7 +1646,8 @@
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "description": "Counter rate by upstream scope. The current API does not expose Codex and non-Codex rate limits through one shared provider-labelled metric."
     },
     {
       "datasource": {
@@ -1686,7 +1661,7 @@
         "y": 58
       },
       "id": 27,
-      "title": "Failed requests by scope",
+      "title": "Failed requests by provider group",
       "type": "timeseries",
       "targets": [
         {
@@ -1727,7 +1702,8 @@
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "description": "Counter rate by upstream scope. 'other' remains explicit because it may aggregate Claude, Gemini, and future providers."
     },
     {
       "datasource": {
@@ -1741,7 +1717,7 @@
         "y": 58
       },
       "id": 28,
-      "title": "Output tokens/sec by scope (24h window)",
+      "title": "Output tokens/sec by provider group \u00b7 $usage_window",
       "type": "timeseries",
       "targets": [
         {
@@ -1749,7 +1725,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "cliproxy_usage_window_output_tokens_per_second",
+          "expr": "last_over_time(cliproxy_usage_window_output_tokens_per_second{window=\"$usage_window\"}[20m])",
           "refId": "A",
           "legendFormat": "{{scope}}"
         }
@@ -1782,10 +1758,11 @@
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "description": "The plugin publishes this only by scope, not real provider label; 'other' is therefore kept explicit and may aggregate multiple non-Codex providers."
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1793,213 +1770,338 @@
         "y": 64
       },
       "id": 29,
-      "panels": [],
-      "title": "Per-account (Codex scope only - see description)",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 65
-      },
-      "id": 30,
-      "title": "Per-account usage",
-      "type": "table",
-      "targets": [
+      "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (email, provider) (cliproxy_usage_account_requests_total)",
-          "refId": "A",
-          "instant": true,
-          "range": false,
-          "format": "table"
+          "gridPos": {
+            "h": 7,
+            "w": 6,
+            "x": 0,
+            "y": 65
+          },
+          "id": 21,
+          "title": "Codex quota used (primary)",
+          "type": "gauge",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "cliproxy_account_primary_used_percent",
+              "refId": "A",
+              "legendFormat": "{{email}}"
+            }
+          ],
+          "pluginVersion": "11.0.0",
+          "description": "CODEX ACCOUNTS ONLY. These fields are omitempty and are genuinely ABSENT for non-Codex credentials, so this panel shows No Data when no Codex account is registered.\n\nAN EMPTY PANEL DOES NOT MEAN QUOTA IS FINE - it means the field was not reported. `or vector(0)` is deliberately NOT used here: it would append a phantom 0% gauge that reads as healthy. Cross-check the credential health table.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "unit": "percent",
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 75
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (email, provider) (cliproxy_usage_account_tokens_total)",
-          "refId": "B",
-          "instant": true,
-          "range": false,
-          "format": "table"
+          "gridPos": {
+            "h": 7,
+            "w": 6,
+            "x": 6,
+            "y": 65
+          },
+          "id": 22,
+          "title": "Codex secondary quota remaining",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "cliproxy_account_secondary_quota_remaining_estimate",
+              "refId": "A",
+              "legendFormat": "{{email}}"
+            }
+          ],
+          "pluginVersion": "11.0.0",
+          "description": "Plugin-side estimate, Codex accounts only.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "mappings": [],
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "wideLayout": true
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (email, provider) (cliproxy_usage_account_cost_usd_total)",
-          "refId": "C",
-          "instant": true,
-          "range": false,
-          "format": "table"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 65
           },
-          "expr": "sum by (email, provider) (cliproxy_usage_account_failed_total)",
-          "refId": "D",
-          "instant": true,
-          "range": false,
-          "format": "table"
+          "id": 30,
+          "title": "Per-account usage (Codex only)",
+          "type": "table",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum by (email, provider) (cliproxy_usage_account_requests_total)",
+              "refId": "A",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum by (email, provider) (cliproxy_usage_account_tokens_total)",
+              "refId": "B",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum by (email, provider) (cliproxy_usage_account_cost_usd_total)",
+              "refId": "C",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum by (email, provider) (cliproxy_usage_account_failed_total)",
+              "refId": "D",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            }
+          ],
+          "pluginVersion": "11.0.0",
+          "description": "The plugin exposes account token/cost/quota fields only for Codex. Claude and other provider credentials still appear in the provider-neutral auth panels, but missing per-account usage must not be interpreted as zero.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": []
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value #A"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Requests"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value #B"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Tokens"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "short"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value #C"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Cost"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyUSD"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 4
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value #D"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Failed"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Time"
+                },
+                "properties": [
+                  {
+                    "id": "custom.hidden",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": true,
+              "reducer": [
+                "sum"
+              ],
+              "countRows": false,
+              "fields": ""
+            }
+          },
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "email",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "target": true,
+                  "service": true,
+                  "namespace": true,
+                  "pod": true,
+                  "endpoint": true,
+                  "container": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
+                },
+                "renameByName": {
+                  "Value #A": "Requests",
+                  "Value #B": "Tokens",
+                  "Value #C": "Cost (USD)",
+                  "Value #D": "Failed",
+                  "email": "Account",
+                  "provider": "Provider"
+                },
+                "indexByName": {}
+              }
+            }
+          ]
         }
       ],
-      "pluginVersion": "11.0.0",
-      "description": "IMPORTANT GAP, do not misread this table. accounts[] in the plugin summary is Codex-scope only; there is NO provider_accounts[] array. Per-account TOKEN and COST data therefore does NOT exist for Claude or Gemini and those rows will simply be missing here.\n\nPer-account REQUEST counts for ALL providers are available in the Tier 1 panels above (cliproxy_auth_requests_*_total), and per-provider Claude tokens/cost are in the 'Per-provider totals' table.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "mappings": []
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #A"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Requests"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #B"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Tokens"
-              },
-              {
-                "id": "unit",
-                "value": "short"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #C"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Cost"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #D"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Failed"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Time"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": true,
-          "reducer": [
-            "sum"
-          ],
-          "countRows": false,
-          "fields": ""
-        }
-      },
-      "transformations": [
-        {
-          "id": "joinByField",
-          "options": {
-            "byField": "email",
-            "mode": "outer"
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true,
-              "instance": true,
-              "target": true,
-              "service": true,
-              "namespace": true,
-              "pod": true,
-              "endpoint": true,
-              "container": true,
-              "prometheus": true,
-              "prometheus_replica": true
-            },
-            "renameByName": {
-              "Value #A": "Requests",
-              "Value #B": "Tokens",
-              "Value #C": "Cost (USD)",
-              "Value #D": "Failed",
-              "email": "Account",
-              "provider": "Provider"
-            },
-            "indexByName": {}
-          }
-        }
-      ]
+      "title": "Codex-only quota & account detail",
+      "type": "row"
     }
   ],
   "refresh": "1m",
   "schemaVersion": 39,
   "tags": [
-    "cliproxy",
     "ai",
-    "usage",
+    "claude",
+    "cliproxy",
+    "codex",
     "cost",
-    "tokens"
+    "tokens",
+    "usage"
   ],
   "templating": {
     "list": [
@@ -2021,6 +2123,68 @@
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(cliproxy_usage_model_requests_total, provider)",
+        "description": "Real provider labels exported by CLIProxyAPI model and auth metrics.",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Provider",
+        "multi": true,
+        "name": "provider",
+        "options": [],
+        "query": {
+          "query": "label_values(cliproxy_usage_model_requests_total, provider)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "30d",
+          "value": "30d"
+        },
+        "description": "Plugin-computed aggregate window; independent of the Grafana time picker.",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Usage window",
+        "multi": false,
+        "name": "usage_window",
+        "options": [
+          {
+            "selected": false,
+            "text": "24h",
+            "value": "24h"
+          },
+          {
+            "selected": true,
+            "text": "30d",
+            "value": "30d"
+          }
+        ],
+        "query": "24h,30d",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
       }
     ]
   },
@@ -2030,8 +2194,9 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "CLIProxy / Usage & cost",
+  "title": "CLIProxyAPI / Usage & cost",
   "uid": "cliproxy-usage",
   "version": 1,
-  "weekStart": ""
+  "weekStart": "",
+  "description": "Provider-neutral operational usage for every model routed through CLIProxyAPI. The Usage window variable selects plugin-computed 24h or 30d aggregates; Grafana's time picker controls counter-rate panels. Costs are pricing-table estimates, not provider invoices."
 }
