@@ -1,0 +1,48 @@
+---
+apiVersion: garage.rajsingh.info/v1beta2
+kind: GarageCluster
+metadata:
+  name: ci-cache-canary
+spec:
+  image: dxflrs/garage:v2.3.0@sha256:866bd13ed2038ba7e7190e840482bc27234c4afaf77be8cfa439ae088c1e4690
+  zone: home-canary
+  deletionPolicy: Destroy
+  replication:
+    factor: 1
+    consistencyMode: consistent
+  storage:
+    replicas: 1
+    metadata:
+      size: 2Gi
+      storageClassName: openebs-hostpath
+    data:
+      size: 8Gi
+      storageClassName: openebs-hostpath
+    pvcRetentionPolicy:
+      whenDeleted: Delete
+      whenScaled: Delete
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+  network:
+    rpcBindPort: 3901
+    service:
+      type: ClusterIP
+  s3Api:
+    bindPort: 3900
+    region: ci-cache
+  webApi:
+    enabled: false
+  admin:
+    bindPort: 3903
+    adminTokenSecretRef:
+      name: garage-admin-token
+      key: admin-token
+  database:
+    engine: lmdb
+  monitoring:
+    enabled: true
+    interval: 30s

@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: garage-operator
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: garage-operator
+  interval: 30m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  values:
+    # home-cluster is a single-node compatibility canary. Production uses
+    # three leader-elected replicas with required host anti-affinity.
+    replicaCount: 1
+    defaultGarageImage: dxflrs/garage:v2.3.0@sha256:866bd13ed2038ba7e7190e840482bc27234c4afaf77be8cfa439ae088c1e4690
+    leaderElection:
+      enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+    prometheusRules:
+      enabled: true
+    webhooks:
+      enabled: true
+      failurePolicy: Fail
+      certManager:
+        enabled: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 256Mi

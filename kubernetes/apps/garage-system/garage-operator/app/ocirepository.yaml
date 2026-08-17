@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: garage-operator
+spec:
+  interval: 30m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.7.5
+    digest: sha256:e640b642c1747b90cb8d9d561f0cf3417ce1a7c69b23ba5d25c2a4f929ef022e
+  url: oci://ghcr.io/rajsinghtech/charts/garage-operator

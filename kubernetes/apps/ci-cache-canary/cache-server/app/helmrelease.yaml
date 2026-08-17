@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gha-cache-canary
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: github-actions-cache-server
+  interval: 30m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  values:
+    replicaCount: 1
+    config:
+      apiBaseUrl: http://gha-cache-canary-github-actions-cache-server.ci-cache-canary.svc.cluster.local:3000
+      enableDirectDownloads: true
+      cacheCleanupOlderThanDays: 7
+      cacheMaxSizeBytes: "5368709120"
+      orphanedStorageGracePeriodHours: 1
+      storage:
+        driver: s3
+        s3:
+          socketTimeoutMs: 30000
+      db:
+        driver: sqlite
+        sqlite:
+          path: /data/cache-server.db
+    existingSecret: gha-cache-canary-s3
+    persistentVolumeClaim:
+      storage: 2Gi
+      storageClassName: openebs-hostpath
+    serviceAccount:
+      automount: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    extraEnv:
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: WHEN_REQUIRED
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: WHEN_REQUIRED
