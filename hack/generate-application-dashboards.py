@@ -1029,11 +1029,20 @@ def build_zerocut_delivery() -> None:
             "title": "Delivery & data",
             "description": (
                 "ZeroCut-scoped NGINX delivery, Cloudflare tunnel health, and the "
-                "personal-projects CloudNativePG service used by the application. "
-                "The postgres17 cluster is namespace-shared, so database panels are an "
-                "impact view rather than per-query attribution."
+                "PostgreSQL and ClickHouse services used by the application. The "
+                "postgres17 cluster is namespace-shared, so its panels are an impact "
+                "view rather than per-query attribution. ClickHouse panels are scoped "
+                "to ZeroCut's dedicated instance."
             ),
-            "tags": ["apps", "zerocut", "delivery", "nginx", "cloudflare", "cnpg"],
+            "tags": [
+                "apps",
+                "zerocut",
+                "delivery",
+                "nginx",
+                "cloudflare",
+                "cnpg",
+                "clickhouse",
+            ],
             "templating": {"list": []},
             "version": 1,
         }
