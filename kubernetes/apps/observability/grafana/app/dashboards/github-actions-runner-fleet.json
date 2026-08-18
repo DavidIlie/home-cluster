@@ -687,7 +687,7 @@
       "id": 48,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_cpu_usage_seconds_total{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\",image!=\"\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}}", "range": true, "refId": "A"}
+        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_cpu_usage_seconds_total{job=\"kubelet\",namespace=\"$runner_namespace\",container=~\"runner|dind\",image!=\"\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}}", "range": true, "refId": "A"}
       ],
       "title": "Runner CPU by node",
       "type": "timeseries"
@@ -700,7 +700,7 @@
       "id": 49,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "sum by(node,container) (container_memory_working_set_bytes{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\",image!=\"\"})", "legendFormat": "{{node}} · {{container}}", "range": true, "refId": "A"}
+        {"editorMode": "code", "expr": "sum by(node,container) (container_memory_working_set_bytes{job=\"kubelet\",namespace=\"$runner_namespace\",container=~\"runner|dind\",image!=\"\"})", "legendFormat": "{{node}} · {{container}}", "range": true, "refId": "A"}
       ],
       "title": "Runner memory by node",
       "type": "timeseries"
@@ -713,8 +713,8 @@
       "id": 50,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_fs_writes_bytes_total{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}} writes", "range": true, "refId": "A"},
-        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_fs_reads_bytes_total{cluster=\"davidapps-cluster\",namespace=\"$runner_namespace\",container=~\"runner|dind\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}} reads", "range": true, "refId": "B"}
+        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_fs_writes_bytes_total{job=\"kubelet\",namespace=\"$runner_namespace\",container=~\"runner|dind\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}} writes", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "sum by(node,container) (rate(container_fs_reads_bytes_total{job=\"kubelet\",namespace=\"$runner_namespace\",container=~\"runner|dind\"}[$__rate_interval]))", "legendFormat": "{{node}} · {{container}} reads", "range": true, "refId": "B"}
       ],
       "title": "Runner filesystem throughput",
       "type": "timeseries"
@@ -727,8 +727,8 @@
       "id": 51,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "100 * sum by(kubernetes_node) (rate(node_disk_io_time_seconds_total{cluster=\"davidapps-cluster\",device=~\"nvme[0-9]+n[0-9]+\"}[$__rate_interval]) * on(kubernetes_node,device) group_left() (label_replace(node_filesystem_size_bytes{cluster=\"davidapps-cluster\",mountpoint=\"/var\"} > bool 0, \"device\", \"$1\", \"device\", \"/dev/(nvme[0-9]+n[0-9]+)p[0-9]+\")))", "legendFormat": "{{kubernetes_node}} /var busy", "range": true, "refId": "A"},
-        {"editorMode": "code", "expr": "100 * sum by(kubernetes_node) (rate(node_cpu_seconds_total{cluster=\"davidapps-cluster\",mode=\"iowait\"}[$__rate_interval])) / sum by(kubernetes_node) (rate(node_cpu_seconds_total{cluster=\"davidapps-cluster\"}[$__rate_interval]))", "legendFormat": "{{kubernetes_node}} CPU iowait", "range": true, "refId": "B"}
+        {"editorMode": "code", "expr": "100 * sum by(kubernetes_node) (rate(node_disk_io_time_seconds_total{job=\"node-exporter\",kubernetes_node=~\"electron|proton|neutron\",device=~\"nvme[0-9]+n[0-9]+\"}[$__rate_interval]) * on(kubernetes_node,device) group_left() (label_replace(node_filesystem_size_bytes{job=\"node-exporter\",kubernetes_node=~\"electron|proton|neutron\",mountpoint=\"/var\"} > bool 0, \"device\", \"$1\", \"device\", \"/dev/(nvme[0-9]+n[0-9]+)p[0-9]+\")))", "legendFormat": "{{kubernetes_node}} /var busy", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "100 * sum by(kubernetes_node) (rate(node_cpu_seconds_total{job=\"node-exporter\",kubernetes_node=~\"electron|proton|neutron\",mode=\"iowait\"}[$__rate_interval])) / sum by(kubernetes_node) (rate(node_cpu_seconds_total{job=\"node-exporter\",kubernetes_node=~\"electron|proton|neutron\"}[$__rate_interval]))", "legendFormat": "{{kubernetes_node}} CPU iowait", "range": true, "refId": "B"}
       ],
       "title": "Control-plane NVMe pressure",
       "type": "timeseries"
@@ -741,8 +741,8 @@
       "id": 52,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le,instance) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{cluster=\"davidapps-cluster\"}[$__rate_interval])))", "legendFormat": "{{instance}} WAL fsync", "range": true, "refId": "A"},
-        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le,instance) (rate(etcd_disk_backend_commit_duration_seconds_bucket{cluster=\"davidapps-cluster\"}[$__rate_interval])))", "legendFormat": "{{instance}} backend commit", "range": true, "refId": "B"}
+        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le,instance) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{job=\"kube-etcd\",namespace=\"kube-system\"}[$__rate_interval])))", "legendFormat": "{{instance}} WAL fsync", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.99, sum by(le,instance) (rate(etcd_disk_backend_commit_duration_seconds_bucket{job=\"kube-etcd\",namespace=\"kube-system\"}[$__rate_interval])))", "legendFormat": "{{instance}} backend commit", "range": true, "refId": "B"}
       ],
       "title": "etcd storage latency p99",
       "type": "timeseries"
@@ -755,8 +755,8 @@
       "id": 53,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,node,image_size_in_bytes) (rate(kubelet_image_pull_duration_seconds_bucket{cluster=\"davidapps-cluster\"}[$__rate_interval])))", "legendFormat": "{{node}} · {{image_size_in_bytes}}", "range": true, "refId": "A"},
-        {"editorMode": "code", "expr": "sum(rate(apiserver_request_total{cluster=\"davidapps-cluster\",code=~\"5..\"}[$__rate_interval]))", "legendFormat": "API 5xx", "range": true, "refId": "B"}
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,node,image_size_in_bytes) (rate(kubelet_image_pull_duration_seconds_bucket{job=\"kubelet\",namespace=\"kube-system\",node=~\"electron|proton|neutron\"}[$__rate_interval])))", "legendFormat": "{{node}} · {{image_size_in_bytes}}", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "sum(rate(apiserver_request_total{job=\"apiserver\",namespace=\"default\",code=~\"5..\"}[$__rate_interval]))", "legendFormat": "API 5xx", "range": true, "refId": "B"}
       ],
       "title": "Cold pulls and API errors",
       "type": "timeseries"
@@ -799,8 +799,8 @@
       "id": 57,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "60 * sum by(status) (rate(buildkit_builds_total{cluster=\"davidapps-cluster\",namespace=\"gh-action-controller\"}[$__rate_interval]))", "legendFormat": "{{status}} builds/min", "range": true, "refId": "A"},
-        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,status) (rate(buildkit_build_duration_seconds_bucket{cluster=\"davidapps-cluster\",namespace=\"gh-action-controller\"}[$__rate_interval])))", "legendFormat": "{{status}} p95", "range": true, "refId": "B"}
+        {"editorMode": "code", "expr": "60 * sum by(status) (rate(buildkit_builds_total{job=\"buildkit\",namespace=\"gh-action-controller\"}[$__rate_interval]))", "legendFormat": "{{status}} builds/min", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "histogram_quantile(0.95, sum by(le,status) (rate(buildkit_build_duration_seconds_bucket{job=\"buildkit\",namespace=\"gh-action-controller\"}[$__rate_interval])))", "legendFormat": "{{status}} p95", "range": true, "refId": "B"}
       ],
       "title": "BuildKit throughput and solve p95",
       "type": "timeseries"
@@ -827,8 +827,8 @@
       "id": 59,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": true, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "sum by(pod) (rate(container_cpu_usage_seconds_total{cluster=\"davidapps-cluster\",namespace=\"gh-action-controller\",pod=~\"buildkit-[0-2]\",container=\"buildkitd\",image!=\"\"}[$__rate_interval]))", "legendFormat": "{{pod}} CPU", "range": true, "refId": "A"},
-        {"editorMode": "code", "expr": "sum by(pod) (container_memory_working_set_bytes{cluster=\"davidapps-cluster\",namespace=\"gh-action-controller\",pod=~\"buildkit-[0-2]\",container=\"buildkitd\",image!=\"\"})", "legendFormat": "{{pod}} memory", "range": true, "refId": "B"}
+        {"editorMode": "code", "expr": "sum by(pod) (rate(container_cpu_usage_seconds_total{job=\"kubelet\",namespace=\"gh-action-controller\",pod=~\"buildkit-[0-2]\",container=\"buildkitd\",image!=\"\"}[$__rate_interval]))", "legendFormat": "{{pod}} CPU", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "sum by(pod) (container_memory_working_set_bytes{job=\"kubelet\",namespace=\"gh-action-controller\",pod=~\"buildkit-[0-2]\",container=\"buildkitd\",image!=\"\"})", "legendFormat": "{{pod}} memory", "range": true, "refId": "B"}
       ],
       "title": "BuildKit shard resources",
       "type": "timeseries"
@@ -993,7 +993,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * sum(rate(cache_requests_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\",result=\"hit\"}[$__rate_interval])) / clamp_min(sum(rate(cache_requests_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\",result=~\"hit|miss\"}[$__rate_interval])), 1e-9)",
+          "expr": "100 * sum(rate(cache_requests_total{job=\"actions-cache\",namespace=\"ci-cache\",result=\"hit\"}[$__rate_interval])) / clamp_min(sum(rate(cache_requests_total{job=\"actions-cache\",namespace=\"ci-cache\",result=~\"hit|miss\"}[$__rate_interval])), 1e-9)",
           "instant": true,
           "legendFormat": "Actions cache hit ratio",
           "range": false,
@@ -1062,7 +1062,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * sum(rate(registry_proxy_hits_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval])) / clamp_min(sum(rate(registry_proxy_requests_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval])), 1e-9)",
+          "expr": "100 * sum(rate(registry_proxy_hits_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval])) / clamp_min(sum(rate(registry_proxy_requests_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval])), 1e-9)",
           "instant": true,
           "legendFormat": "Docker proxy hit ratio",
           "range": false,
@@ -1123,7 +1123,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "clamp_min(sum(increase(registry_proxy_pushed_bytes_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__range])) - sum(increase(registry_proxy_pulled_bytes_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__range])), 0)",
+          "expr": "clamp_min(sum(increase(registry_proxy_pushed_bytes_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__range])) - sum(increase(registry_proxy_pulled_bytes_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__range])), 0)",
           "instant": true,
           "legendFormat": "Docker WAN bytes avoided",
           "range": false,
@@ -1184,7 +1184,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(cache_storage_bytes{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"})",
+          "expr": "max(cache_storage_bytes{job=\"actions-cache\",namespace=\"ci-cache\"})",
           "instant": true,
           "legendFormat": "Actions cache stored",
           "range": false,
@@ -1253,7 +1253,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "min(garage_replication_factor{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"})",
+          "expr": "min(garage_replication_factor{job=\"garage\",namespace=\"ci-cache\"})",
           "instant": true,
           "legendFormat": "Garage replication",
           "range": false,
@@ -1322,7 +1322,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * max(kubelet_volume_stats_used_bytes{cluster=\"davidapps-cluster\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"} / kubelet_volume_stats_capacity_bytes{cluster=\"davidapps-cluster\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"})",
+          "expr": "100 * max(kubelet_volume_stats_used_bytes{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"} / kubelet_volume_stats_capacity_bytes{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"})",
           "instant": true,
           "legendFormat": "Hottest CI cache PVC",
           "range": false,
@@ -1415,7 +1415,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "60 * sum by(result) (rate(cache_requests_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval]))",
+          "expr": "60 * sum by(result) (rate(cache_requests_total{job=\"actions-cache\",namespace=\"ci-cache\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{result}}",
           "range": true,
@@ -1495,7 +1495,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(registry_proxy_hits_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval]))",
+          "expr": "sum(rate(registry_proxy_hits_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "hits",
           "range": true,
@@ -1503,7 +1503,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(rate(registry_proxy_misses_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval]))",
+          "expr": "sum(rate(registry_proxy_misses_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "misses",
           "range": true,
@@ -1583,7 +1583,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(registry_proxy_pushed_bytes_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval]))",
+          "expr": "sum(rate(registry_proxy_pushed_bytes_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "served to runners",
           "range": true,
@@ -1591,7 +1591,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(rate(registry_proxy_pulled_bytes_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval]))",
+          "expr": "sum(rate(registry_proxy_pulled_bytes_total{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "pulled from Docker Hub",
           "range": true,
@@ -1684,7 +1684,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by(pod) (rate(container_network_transmit_bytes_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\",pod=~\"package-cache-.*\",interface=\"eth0\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_network_transmit_bytes_total{job=\"kubelet\",namespace=\"ci-cache\",pod=~\"package-cache-.*\",interface=\"eth0\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{pod}} served",
           "range": true,
@@ -1692,7 +1692,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum by(pod) (rate(container_network_receive_bytes_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\",pod=~\"package-cache-.*\",interface=\"eth0\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_network_receive_bytes_total{job=\"kubelet\",namespace=\"ci-cache\",pod=~\"package-cache-.*\",interface=\"eth0\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{pod}} received",
           "range": true,
@@ -1772,7 +1772,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * max by(namespace,node,persistentvolumeclaim) (kubelet_volume_stats_used_bytes{cluster=\"davidapps-cluster\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"}) / max by(namespace,node,persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{cluster=\"davidapps-cluster\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"})",
+          "expr": "100 * max by(namespace,node,persistentvolumeclaim) (kubelet_volume_stats_used_bytes{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"}) / max by(namespace,node,persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",persistentvolumeclaim=~\"cache-(package-cache|docker-cache|buildkit)-[0-2]\"})",
           "instant": false,
           "legendFormat": "{{namespace}} · {{persistentvolumeclaim}}",
           "range": true,
@@ -1852,7 +1852,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * (1 - garage_local_disk_avail{cluster=\"davidapps-cluster\",namespace=\"ci-cache\",volume=\"data\"} / garage_local_disk_total{cluster=\"davidapps-cluster\",namespace=\"ci-cache\",volume=\"data\"})",
+          "expr": "100 * (1 - garage_local_disk_avail{job=\"garage\",namespace=\"ci-cache\",volume=\"data\"} / garage_local_disk_total{job=\"garage\",namespace=\"ci-cache\",volume=\"data\"})",
           "instant": false,
           "legendFormat": "{{pod}}",
           "range": true,
@@ -1945,7 +1945,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by(node,container) (rate(container_cpu_usage_seconds_total{cluster=\"davidapps-cluster\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|buildkitd\",image!=\"\",cpu=\"total\"}[$__rate_interval]))",
+          "expr": "sum by(node,container) (rate(container_cpu_usage_seconds_total{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|buildkitd\",image!=\"\",cpu=\"total\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{node}} · {{container}}",
           "range": true,
@@ -2025,7 +2025,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by(node,container) (container_memory_working_set_bytes{cluster=\"davidapps-cluster\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|buildkitd\",image!=\"\"})",
+          "expr": "sum by(node,container) (container_memory_working_set_bytes{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|buildkitd\",image!=\"\"})",
           "instant": false,
           "legendFormat": "{{node}} · {{container}}",
           "range": true,
@@ -2105,7 +2105,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by(api_endpoint) (rate(api_s3_request_counter{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval]))",
+          "expr": "sum by(api_endpoint) (rate(api_s3_request_counter{job=\"garage\",namespace=\"ci-cache\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{api_endpoint}}",
           "range": true,
@@ -2198,7 +2198,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by(le,api_endpoint) (rate(api_s3_request_duration_bucket{cluster=\"davidapps-cluster\",namespace=\"ci-cache\",api_endpoint=~\"GetObject|UploadPart|CompleteMultipartUpload\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by(le,api_endpoint) (rate(api_s3_request_duration_bucket{job=\"garage\",namespace=\"ci-cache\",api_endpoint=~\"GetObject|UploadPart|CompleteMultipartUpload\"}[$__rate_interval])))",
           "instant": false,
           "legendFormat": "{{api_endpoint}}",
           "range": true,
@@ -2278,7 +2278,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by(le,pod) (rate(registry_http_request_duration_seconds_bucket{cluster=\"davidapps-cluster\",namespace=\"ci-cache\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by(le,pod) (rate(registry_http_request_duration_seconds_bucket{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval])))",
           "instant": false,
           "legendFormat": "{{pod}}",
           "range": true,
