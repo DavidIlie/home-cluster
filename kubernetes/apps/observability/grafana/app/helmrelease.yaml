@@ -91,7 +91,18 @@ spec:
     datasources:
       datasources.yaml:
         apiVersion: 1
+        deleteDatasources:
+          - name: prometheus-kube-stack
+            orgId: 1
         datasources:
+          - name: prometheus-home-cluster
+            type: prometheus
+            uid: prometheus-home-cluster
+            access: proxy
+            url: http://prometheus-home-cluster.observability.svc.cluster.local:9090
+            jsonData:
+              timeInterval: 15s
+            isDefault: true
           - name: prometheus-davidapps-cluster
             type: prometheus
             uid: prometheus-davidapps-cluster
@@ -100,19 +111,11 @@ spec:
             jsonData:
               timeInterval: 15s
             isDefault: false
-          - name: prometheus-home-cluster
+          - name: prometheus-uk-cluster
             type: prometheus
-            uid: prometheus-home-cluster
+            uid: prometheus-uk-cluster
             access: proxy
-            url: http://prometheus-home-cluster.observability.svc.cluster.local:9090
-            jsonData:
-              timeInterval: 15s
-            isDefault: false
-          - name: prometheus-kube-stack
-            type: prometheus
-            uid: prometheus-kube-stack
-            access: proxy
-            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+            url: http://prometheus-uk-cluster.observability.svc.cluster.local:9090
             jsonData:
               timeInterval: 15s
             isDefault: false
@@ -566,28 +569,28 @@ spec:
       kubernetes:
         api-server:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-system-api-server.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         persistent-volumes:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-persistent-volumes.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         coredns:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-system-coredns.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         cluster:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-global.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         namespaces:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-namespaces.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         nodes:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-nodes.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         pods:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-pods.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         summary:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-views-k3s-cluster.json
-          datasource: prometheus-davidapps-cluster
+          datasource: prometheus-home-cluster
         pod-logs:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kubernetes-pod-logs.json
           datasource: VictoriaLogs
@@ -646,11 +649,11 @@ spec:
           datasource: prometheus-home-cluster
         analytics:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/analytics-storage.json
-          datasource: prometheus-kube-stack
+          datasource: prometheus-home-cluster
       infrastructure-databases:
         clickhouse:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/clickhouse-instances.json
-          datasource: prometheus-kube-stack
+          datasource: prometheus-home-cluster
         dragonfly:
           url: https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.1.8/monitoring/grafana-dashboard.json
           datasource: prometheus-davidapps-cluster

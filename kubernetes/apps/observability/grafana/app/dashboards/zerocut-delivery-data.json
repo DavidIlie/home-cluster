@@ -1771,7 +1771,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -1820,7 +1820,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "min(up{job=\"clickhouse\"})",
@@ -1838,7 +1838,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -1887,7 +1887,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=\"clickhouse\"})",
@@ -1904,7 +1904,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -1953,7 +1953,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=\"clickhouse\"})",
@@ -1970,7 +1970,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -2019,7 +2019,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=\"clickhouse\"})",
@@ -2036,7 +2036,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -2082,7 +2082,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(rate(ClickHouseProfileEvents_SelectQuery{job=\"clickhouse\"}[$__rate_interval]))",
@@ -2094,7 +2094,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(rate(ClickHouseProfileEvents_InsertQuery{job=\"clickhouse\"}[$__rate_interval]))",
@@ -2111,7 +2111,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -2157,7 +2157,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "1e-6 * sum(rate(ClickHouseProfileEvents_QueryTimeMicroseconds{job=\"clickhouse\"}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{job=\"clickhouse\"}[$__rate_interval])), 0.000001)",
@@ -2169,7 +2169,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "100 * sum(rate(ClickHouseProfileEvents_FailedQuery{job=\"clickhouse\"}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{job=\"clickhouse\"}[$__rate_interval])), 0.000001)",
@@ -2186,7 +2186,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -2232,7 +2232,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(rate(ClickHouseErrorMetric_ALL{job=\"clickhouse\"}[$__rate_interval]))",
@@ -2244,7 +2244,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseMetrics_Query{job=\"clickhouse\"})",
@@ -2256,7 +2256,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseMetrics_Merge{job=\"clickhouse\"})",
@@ -2273,7 +2273,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -2319,7 +2319,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(container_memory_working_set_bytes{namespace=\"databases\",pod=~\"clickhouse-.*\",container=\"app\"})",
@@ -2331,7 +2331,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "min(ClickHouseAsyncMetrics_DiskAvailable_default{job=\"clickhouse\"})",

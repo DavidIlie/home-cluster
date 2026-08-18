@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+          ["prometheus-uk-cluster.observability.svc.cluster.local:9090"]
+        labels:
+          cluster: uk-cluster

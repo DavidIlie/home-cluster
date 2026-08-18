@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.4.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: prometheus-uk-cluster
+  namespace: observability
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      prometheus:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: prom/prometheus
+              tag: v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
+              pullPolicy: IfNotPresent
+            args:
+              - "--config.file=/etc/prometheus/prometheus.yml"
+              - "--storage.tsdb.path=/prometheus_data"
+              - "--web.enable-remote-write-receiver"
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                cpu: 1000m
+                memory: 4Gi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /-/healthy
+                    port: &port 9090
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              privileged: true
+    persistence:
+      config:
+        type: configMap
+        name: prometheus-uk-cluster-config
+        globalMounts:
+          - path: /etc/prometheus/prometheus.yml
+            subPath: config.yml
+            readOnly: true
+      data:
+        enabled: true
+        type: hostPath
+        hostPath: /var/mnt/mdadm-analytics-storage/prometheus/uk-cluster/data
+        hostPathType: DirectoryOrCreate
+        globalMounts:
+          - path: /prometheus_data
+    ingress:
+      prometheus:
+        enabled: true
+        className: internal
+        annotations:
+          # DNS is owned by the LoadBalancer Service below, so remote_write and
+          # health checks reach Prometheus directly over HTTP on port 9090.
+          gatus.home-operations.com/endpoint: |-
+            name: Prometheus (uk-cluster)
+            group: Monitoring
+            url: http://prometheus-uk.davidhome.ro:9090/-/healthy
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hosts:
+          - host: &app prometheus-uk.davidhome.ro
+            paths:
+              - path: /
+                service:
+                  identifier: prometheus
+                  port: http
+        tls:
+          - hosts:
+              - *app
+    service:
+      prometheus:
+        controller: prometheus
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: prometheus-uk.davidhome.ro
+          lbipam.cilium.io/ips: 192.168.100.99
+        ports:
+          http:
+            port: *port

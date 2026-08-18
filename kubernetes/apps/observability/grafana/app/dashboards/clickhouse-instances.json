@@ -59,7 +59,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus-kube-stack"
+          "uid": "prometheus-home-cluster"
         },
         "definition": "label_values(ClickHouseAsyncMetrics_Uptime{job=~\"clickhouse|plausible-clickhouse\"}, job)",
         "description": "ClickHouse ServiceMonitor scrape job.",
@@ -106,7 +106,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -155,7 +155,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "min(up{job=~\"${instance:regex}\"})",
@@ -173,7 +173,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -222,7 +222,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "min(ClickHouseAsyncMetrics_Uptime{job=~\"${instance:regex}\"})",
@@ -239,7 +239,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -288,7 +288,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -305,7 +305,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -354,7 +354,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -371,7 +371,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -420,7 +420,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -437,7 +437,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -486,7 +486,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_MemoryResident{job=~\"${instance:regex}\"})",
@@ -503,7 +503,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -552,7 +552,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "min(ClickHouseAsyncMetrics_DiskAvailable_default{job=~\"${instance:regex}\"})",
@@ -570,7 +570,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 5,
@@ -619,7 +619,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__range]))",
@@ -649,7 +649,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -695,7 +695,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -712,7 +712,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -758,7 +758,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectQuery{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -770,7 +770,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertQuery{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -787,7 +787,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -833,7 +833,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "100 * sum by (job) (rate(ClickHouseProfileEvents_FailedQuery{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
@@ -850,7 +850,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -896,7 +896,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "1e-6 * sum by (job) (rate(ClickHouseProfileEvents_QueryTimeMicroseconds{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
@@ -913,7 +913,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -959,7 +959,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -971,7 +971,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -988,7 +988,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1034,7 +1034,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectedBytes{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1046,7 +1046,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertedBytes{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1076,7 +1076,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1122,7 +1122,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -1139,7 +1139,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1185,7 +1185,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -1197,7 +1197,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -1214,7 +1214,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1260,7 +1260,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "max by (job) (ClickHouseAsyncMetrics_MaxPartCountForPartition{job=~\"${instance:regex}\"})",
@@ -1277,7 +1277,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1323,7 +1323,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_Merge{job=~\"${instance:regex}\"})",
@@ -1335,7 +1335,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_PartMutation{job=~\"${instance:regex}\"})",
@@ -1347,7 +1347,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_DelayedInserts{job=~\"${instance:regex}\"})",
@@ -1364,7 +1364,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1410,7 +1410,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_MergedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1427,7 +1427,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1473,7 +1473,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "100 * sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{job=~\"${instance:regex}\"}[$__rate_interval]) + rate(ClickHouseProfileEvents_MarkCacheMisses{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
@@ -1503,7 +1503,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1549,7 +1549,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_ALL{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1566,7 +1566,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1612,7 +1612,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_MEMORY_LIMIT_EXCEEDED{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1624,7 +1624,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_TOO_MANY_PARTS{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1641,7 +1641,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1687,7 +1687,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_TIMEOUT_EXCEEDED{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1699,7 +1699,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_NETWORK_ERROR{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1716,7 +1716,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1762,7 +1762,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_Query{job=~\"${instance:regex}\"})",
@@ -1774,7 +1774,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_Merge{job=~\"${instance:regex}\"})",
@@ -1804,7 +1804,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1850,7 +1850,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"})",
@@ -1867,7 +1867,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1913,7 +1913,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__rate_interval]))",
@@ -1930,7 +1930,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -1976,7 +1976,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (namespace, pod) (rate(container_network_receive_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\"}[$__rate_interval]))",
@@ -1988,7 +1988,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (namespace, pod) (rate(container_network_transmit_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\"}[$__rate_interval]))",
@@ -2005,7 +2005,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 8,
@@ -2051,7 +2051,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (namespace, pod) (rate(container_fs_reads_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__rate_interval]))",
@@ -2063,7 +2063,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
           "expr": "sum by (namespace, pod) (rate(container_fs_writes_bytes_total{namespace=~\"databases|observability\",pod=~\"(${instance:regex})-.*\",container=\"app\"}[$__rate_interval]))",

@@ -11,7 +11,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -51,7 +51,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_used_bytes",
           "legendFormat": "Used",
@@ -65,7 +65,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -91,7 +91,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_capacity_bytes",
           "legendFormat": "Total",
@@ -105,7 +105,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -131,7 +131,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_available_bytes",
           "legendFormat": "Available",
@@ -145,7 +145,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -175,7 +175,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_used_bytes / analytics_storage_capacity_bytes",
           "legendFormat": "Used %",
@@ -189,7 +189,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -215,7 +215,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_used_bytes",
           "legendFormat": "Used",
@@ -229,7 +229,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -253,7 +253,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_bytes{path!~\".+/.+\"}",
           "legendFormat": "{{path}}",
@@ -267,7 +267,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -305,7 +305,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_bytes{path!~\".+/.+\"}",
           "legendFormat": "{{path}}",
@@ -318,7 +318,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -362,7 +362,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_bytes",
           "legendFormat": "{{path}}",
@@ -386,7 +386,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-kube-stack"
+        "uid": "prometheus-home-cluster"
       },
       "fieldConfig": {
         "defaults": {
@@ -416,7 +416,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_capacity_bytes",
           "legendFormat": "Capacity",
@@ -425,7 +425,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_used_bytes",
           "legendFormat": "Used",
@@ -434,7 +434,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-kube-stack"
+            "uid": "prometheus-home-cluster"
           },
           "expr": "analytics_storage_available_bytes",
           "legendFormat": "Available",

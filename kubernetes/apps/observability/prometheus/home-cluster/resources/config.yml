@@ -9,6 +9,8 @@ scrape_configs:
     static_configs:
       - targets:
           ["prometheus-home-cluster.observability.svc.cluster.local:9090"]
+        labels:
+          cluster: home-cluster
   - job_name: idrac
     static_configs:
       - targets:

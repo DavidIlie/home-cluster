@@ -9,3 +9,5 @@ scrape_configs:
     static_configs:
       - targets:
           ["prometheus-davidapps-cluster.observability.svc.cluster.local:9090"]
+        labels:
+          cluster: davidapps-cluster

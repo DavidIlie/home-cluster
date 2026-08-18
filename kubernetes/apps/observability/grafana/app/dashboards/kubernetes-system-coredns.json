@@ -1365,18 +1365,19 @@
       {
         "current": {
           "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "text": "prometheus-home-cluster",
+          "value": "prometheus-home-cluster"
         },
         "hide": 0,
         "includeAll": false,
+        "label": "Cluster",
         "multi": false,
         "name": "datasource",
         "options": [],
         "query": "prometheus",
         "queryValue": "",
         "refresh": 1,
-        "regex": "",
+        "regex": "prometheus-home-cluster|prometheus-davidapps-cluster|prometheus-uk-cluster",
         "skipUrlSync": false,
         "type": "datasource"
       },
