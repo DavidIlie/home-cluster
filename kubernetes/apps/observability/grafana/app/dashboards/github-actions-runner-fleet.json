@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Capacity, workload, latency, discovery and control-plane health for the personal GitHub Actions runner fleet on davidapps-cluster.",
+  "description": "Capacity, workload, latency, discovery, cache and physical-link health for the personal GitHub Actions runner fleet on davidapps-cluster. Temporary placement guard: runner compute is restricted to electron and neutron; proton is quarantined until its physical link is repaired and requalified.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -105,7 +105,7 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Hard PriorityClass-scoped pod quota for ephemeral runner pods.",
+      "description": "Declared PriorityClass-scoped quota remains 12 runner pods. With proton quarantined, 12 / 2 = 6 is only the arithmetic ceiling per eligible node, not guaranteed schedulable capacity.",
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -122,7 +122,7 @@
       "targets": [
         {"editorMode": "code", "expr": "max(kube_resourcequota{namespace=\"$runner_namespace\",resource=\"pods\",type=\"hard\"})", "instant": true, "legendFormat": "hard pod quota", "range": false, "refId": "A"}
       ],
-      "title": "Fleet hard cap",
+      "title": "Declared fleet quota (12)",
       "type": "stat"
     },
     {
@@ -214,15 +214,16 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Pending and running runner pods by physical node. The safe fleet cap is 12 (~4/node) with scratch and Docker I/O isolated on CI ZFS NVMe.",
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 5, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 4}, {"color": "red", "value": 5}]}, "unit": "short"}, "overrides": []},
+      "description": "Pending and running runner pods on the two temporarily eligible nodes. The quota remains 12, so six per node is the balanced arithmetic ceiling. Four or more is shown as caution because production workloads, DaemonSets, resource requests, local-volume affinity and the cluster reserve can make the scheduler queue safely before that ceiling.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 6, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 4}, {"color": "red", "value": 6}]}, "unit": "short"}, "overrides": [{"matcher": {"id": "byRegexp", "options": "^QUARANTINED.*"}, "properties": [{"id": "max", "value": 1}, {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}}]}]},
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
       "id": 11,
       "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
       "targets": [
-        {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"}
+        {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\",node=~\"electron|neutron\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"},
+        {"editorMode": "code", "expr": "sum((kube_pod_info{namespace=\"$runner_namespace\",node=\"proton\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1)) or vector(0)", "instant": true, "legendFormat": "QUARANTINED · proton", "range": false, "refId": "B"}
       ],
-      "title": "Runner pressure by node (safe 4/node cap)",
+      "title": "Runner placement (2 eligible nodes; 6/node theoretical)",
       "type": "bargauge"
     },
     {
@@ -663,7 +664,7 @@
       "id": 44,
       "options": {
         "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
-        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. The current safe limit is 12 total / about 4 per node.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Runner workspaces and Docker graphs use pod-scoped generic ephemeral volumes on the separate `ci-zfs-ext4` NVMe class. A later burst peaked at 11 runners and exposed etcd/API pressure, so the ceiling remains 12 until another clean soak.\n- Empty latency panels mean no jobs matched the current filters.",
+        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. While proton is quarantined, only electron and neutron are eligible: quota 12 / two nodes = six per node in a perfectly balanced placement. That is a mathematical upper bound, not a reservation; practical scheduler headroom can be lower.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Runner workspaces and Docker graphs use pod-scoped generic ephemeral volumes on the separate `ci-zfs-ext4` NVMe class. A later burst peaked at 11 runners and exposed etcd/API pressure, so the declared ceiling remains 12 while the scheduler protects real resource headroom.\n- Empty latency panels mean no jobs matched the current filters.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.10",
@@ -889,7 +890,7 @@
       "id": 64,
       "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
       "targets": [
-        {"editorMode": "code", "expr": "(100 * sum by(kubernetes_node,device) (rate(node_network_receive_errs_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])) / clamp_min(sum by(kubernetes_node,device) (rate(node_network_receive_packets_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])) + sum by(kubernetes_node,device) (rate(node_network_receive_errs_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])), 1e-9)) and on(kubernetes_node,device) sum by(kubernetes_node,device) (rate(node_network_receive_packets_total{cluster=\"davidapps-cluster\",device=~\"eno1|eno2\"}[$__rate_interval])) > 1", "legendFormat": "{{kubernetes_node}} · {{device}}", "range": true, "refId": "A"}
+        {"editorMode": "code", "expr": "(100 * sum by(kubernetes_node,device) (rate(node_network_receive_errs_total{device=~\"eno1|eno2\",kubernetes_node=~\"electron|proton|neutron\"}[$__rate_interval])) / clamp_min(sum by(kubernetes_node,device) (rate(node_network_receive_packets_total{device=~\"eno1|eno2\",kubernetes_node=~\"electron|proton|neutron\"}[$__rate_interval])) + sum by(kubernetes_node,device) (rate(node_network_receive_errs_total{device=~\"eno1|eno2\",kubernetes_node=~\"electron|proton|neutron\"}[$__rate_interval])), 1e-9)) and on(kubernetes_node,device) sum by(kubernetes_node,device) (rate(node_network_receive_packets_total{device=~\"eno1|eno2\",kubernetes_node=~\"electron|proton|neutron\"}[$__rate_interval])) > 1", "legendFormat": "{{kubernetes_node}} · {{device}}", "range": true, "refId": "A"}
       ],
       "title": "Node physical RX error ratio",
       "type": "timeseries"
@@ -2311,6 +2312,96 @@
       "title": "Metric notes",
       "transparent": true,
       "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 208},
+      "id": 90,
+      "panels": [],
+      "title": "Temporary two-node CI guard and bond health",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Static operational annotation for the temporary runner-placement restriction. This dashboard-only change adds no alert rules and leaves existing alert ownership unchanged.",
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 209},
+      "id": 91,
+      "options": {
+        "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
+        "content": "### Temporary placement guard · active since 2026-08-18\n\n**Runner compute:** `electron` + `neutron` only. **Quarantined:** `proton` is excluded by required hostname affinity from production runners, benchmark controls, listener templates and the prewarmer until its physical link is repaired and requalified.\n\nThe PriorityClass-scoped quota is still **12**. Dividing it across two eligible nodes gives **6 runners/node only as a theoretical balanced ceiling**. It is not a capacity promise: the scheduler must preserve CPU/memory for production workloads and DaemonSets, honor local-volume and anti-affinity constraints, and retain practical cluster headroom. Queueing before 12 is expected safety backpressure. The pressure panel flags any runner still present on proton during rollout.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.10",
+      "title": "Quarantine annotation and capacity semantics",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Active slaves reported for bond0 on every production node. Two is healthy redundancy, one is degraded, and zero is down. This dashboard visualizes the cluster-owned DavidAppsProductionBondDegraded signal without defining a second alert.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "max": 2,
+          "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "orange", "value": 1}, {"color": "green", "value": 2}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 215},
+      "id": 92,
+      "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
+      "targets": [
+        {"editorMode": "code", "expr": "max by(kubernetes_node) (node_bonding_active{master=\"bond0\",kubernetes_node=~\"electron|proton|neutron\"})", "instant": true, "legendFormat": "{{kubernetes_node}}", "range": false, "refId": "A"}
+      ],
+      "title": "bond0 active members (2 expected)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Receive frame-alignment errors per minute on each physical bond member. Node Exporter does not expose a dedicated NIC CRC counter here; node_network_receive_frame_total is the closest honest CRC/frame-integrity proxy. Sustained >=1/min is degraded and >=10/min is severe.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "frame errors / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 16, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}, "thresholdsStyle": {"mode": "line"}},
+          "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 1}, {"color": "red", "value": 10}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 215},
+      "id": 93,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(kubernetes_node,device) (rate(node_network_receive_frame_total{device=~\"eno1|eno2\",kubernetes_node=~\"electron|proton|neutron\"}[$__rate_interval]))", "instant": false, "legendFormat": "{{kubernetes_node}} · {{device}}", "range": true, "refId": "A"}
+      ],
+      "title": "RX frame/CRC proxy errors per minute",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Receive drops per minute on each physical bond member. Sustained >=1/min warrants inspection and >=10/min is severe. This panel is dashboard-only; cluster-side PrometheusRules are the owner if and when drop alerting is added.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "RX drops / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 16, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}, "thresholdsStyle": {"mode": "line"}},
+          "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 1}, {"color": "red", "value": 10}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 215},
+      "id": 94,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(kubernetes_node,device) (rate(node_network_receive_drop_total{device=~\"eno1|eno2\",kubernetes_node=~\"electron|proton|neutron\"}[$__rate_interval]))", "instant": false, "legendFormat": "{{kubernetes_node}} · {{device}}", "range": true, "refId": "A"}
+      ],
+      "title": "Physical-member RX drops per minute",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -2375,6 +2466,6 @@
   "timezone": "browser",
   "title": "Runner Fleet",
   "uid": "github-actions-runner-fleet",
-  "version": 3,
+  "version": 4,
   "weekStart": "monday"
 }
