@@ -1,0 +1,181 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app seedyn
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      seedyn:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          terminationGracePeriodSeconds: 45
+          imagePullSecrets:
+            - name: docker-regcred
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18.4
+            envFrom: &envFrom
+              - secretRef:
+                  name: seedyn-secret
+          migrate:
+            image:
+              repository: &image ghcr.io/davidilie/seedyn # {"$imagepolicy": "flux-system:seedyn:name"}
+              tag: &tag master-cdda7749-1787139871 # {"$imagepolicy": "flux-system:seedyn:tag"}
+            command: ["pnpm"]
+            args: ["db:migrate"]
+            envFrom: *envFrom
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+              seccompProfile:
+                type: RuntimeDefault
+        containers:
+          app:
+            image:
+              repository: *image
+              tag: *tag
+            envFrom: *envFrom
+            env:
+              NODE_ENV: production
+              APP_URL: https://seedyn.dave.tips
+              CDN_URL: https://i.dave.tips
+              APP_HOSTS: seedyn.dave.tips
+              MEDIA_HOSTS: i.dave.tips
+              REDIS_URL: redis://dragonfly.databases.svc.cluster.local:6379
+              MINIO_URL: cdn.davidapps.dev
+              MINIO_PORT: "443"
+              MINIO_SECURE: "true"
+              MINIO_BUCKET: seedyn
+              SEEDYN_DEV_AUTH: "false"
+              TRUSTED_PROXY_HOPS: "1"
+              POD_IP:
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.podIP
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/healthz
+                    port: &port 3000
+                  failureThreshold: 30
+                  periodSeconds: 2
+                  timeoutSeconds: 1
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/healthz
+                    port: *port
+                  periodSeconds: 15
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/readyz
+                    port: *port
+                  periodSeconds: 5
+                  timeoutSeconds: 4
+                  failureThreshold: 2
+            lifecycle:
+              preStop:
+                exec:
+                  command: ["sleep", "10"]
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+                ephemeral-storage: 256Mi
+              limits:
+                memory: 1Gi
+                ephemeral-storage: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    persistence:
+      next-cache:
+        type: emptyDir
+        globalMounts:
+          - path: /app/.next/cache
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+          gethomepage.dev/enabled: "false"
+          gatus.home-operations.com/endpoint: |-
+            name: Seedyn
+            group: Utilities
+            url: https://seedyn.dave.tips/api/healthz
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+          nginx.ingress.kubernetes.io/proxy-body-size: "65m"
+          nginx.ingress.kubernetes.io/proxy-buffering: "off"
+          nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+        hosts:
+          - host: &appHost seedyn.dave.tips
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+          - host: &mediaHost i.dave.tips
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *appHost
+              - *mediaHost
