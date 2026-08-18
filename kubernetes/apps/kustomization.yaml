@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./actions-runner-system
+  # - ./adapter-demo
+  - ./ai
+  - ./auth
+  - ./cert-manager
+  - ./databases
+  - ./default
+  - ./downloads
+  - ./envoy-gateway-system
+  - ./external-services
+  - ./flux-system
+  - ./infastructure
+  - ./kube-system
+  - ./media
+  - ./network
+  # - ./nextjs-adapter-test
+  - ./observability
+  - ./openebs-system
+  - ./system-upgrade
+  - ./volsync-system
