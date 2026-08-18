@@ -8,7 +8,6 @@ resources:
   - ./spegel.yaml
   - ./stakater.yaml
   - ./coredns.yaml
-  - ./actions-runner-controller.yaml
   - ./fluent-bit.yaml
   - ./victoria-metrics.yaml
   - ./envoy-gateway.yaml
