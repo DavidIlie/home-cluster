@@ -22,12 +22,30 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
-        containers:
-          app:
-            image:
+        initContainers:
+          init-permissions:
+            image: &image
               repository: prom/prometheus
               tag: v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
               pullPolicy: IfNotPresent
+            command: ["/bin/sh", "-ec"]
+            args:
+              - |
+                chown 65534:65534 /prometheus_data
+                chmod 0750 /prometheus_data
+            securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
+              runAsGroup: 0
+            resources:
+              requests:
+                cpu: 1m
+                memory: 8Mi
+              limits:
+                memory: 32Mi
+        containers:
+          app:
+            image: *image
             args:
               - "--config.file=/etc/prometheus/prometheus.yml"
               - "--storage.tsdb.path=/prometheus_data"
