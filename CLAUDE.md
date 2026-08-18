@@ -555,4 +555,3 @@ PRs are labeled by type:
 | `external-services` | External service monitors |
 | `openebs-system` | Storage provisioner |
 | `volsync-system` | PVC backup/restore with VolSync |
-| `actions-runner-system` | GitHub Actions self-hosted runners |
