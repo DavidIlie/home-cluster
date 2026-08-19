@@ -1138,7 +1138,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "Logical bytes retained by Falcon and Zot in their Garage buckets. Max avoids replica double-counting.",
+      "description": "Logical Actions-cache bytes plus cumulative successful Zot image uploads. Zot 2.1.20 does not expose repository byte totals.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1156,7 +1156,20 @@
           },
           "unit": "bytes"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -1192,14 +1205,14 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(max by(repo) (zot_repo_storage_bytes{namespace=\"ci-cache\"}))",
+          "expr": "sum(zot_repo_uploads_total{namespace=\"ci-cache\"})",
           "instant": true,
-          "legendFormat": "OCI cache stored",
+          "legendFormat": "OCI images published",
           "range": false,
           "refId": "B"
         }
       ],
-      "title": "Shared cache storage",
+      "title": "Cache storage / OCI publishes",
       "type": "stat"
     },
     {
@@ -2338,7 +2351,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "### Reading the cache fabric\n\nFalcon + Garage provide the shared GitHub Actions v2 cache. Zot + Garage retain recent CI-published OCI images so Spegel can avoid the first GHCR pull; `zot_repo_*` and `zot_http_*` show its traffic, footprint, and latency. Verdaccio and Distribution are disposable per-node NVMe proxies. Persistent BuildKit keeps Docker build layers on the same three NVMe pools. Low hit ratios immediately after rollout are expected; compare warmed windows. Verdaccio has no native cache-hit metric, so package network throughput and PVC growth are reported without pretending they are hits.",
+        "content": "### Reading the cache fabric\n\nFalcon + Garage provide the shared GitHub Actions v2 cache. Zot + Garage retain recent CI-published OCI images so Spegel can avoid the first GHCR pull; `zot_repo_*` and `zot_http_*` show its traffic and latency. Zot 2.1.20 does not expose per-repository byte totals, so the stat pairs Actions-cache bytes with cumulative OCI publications instead of inventing storage data. Verdaccio and Distribution are disposable per-node NVMe proxies. Persistent BuildKit keeps Docker build layers on the same three NVMe pools. Low hit ratios immediately after rollout are expected; compare warmed windows. Verdaccio has no native cache-hit metric, so package network throughput and PVC growth are reported without pretending they are hits.",
         "mode": "markdown"
       },
       "title": "Metric notes",
