@@ -1,4 +1,3 @@
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -45,7 +44,7 @@ spec:
           app:
             image:
               repository: &image ghcr.io/davidilie/seedyn # {"$imagepolicy": "flux-system:seedyn:name"}
-              tag: &tag master-cdda7749-1787139871 # {"$imagepolicy": "flux-system:seedyn:tag"}
+              tag: &tag master-fb648acd-1787144243 # {"$imagepolicy": "flux-system:seedyn:tag"}
             envFrom: *envFrom
             env:
               NODE_ENV: production
