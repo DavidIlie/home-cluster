@@ -1138,7 +1138,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "Falcon logical storage. Max avoids triple-counting the shared gauge emitted by three replicas.",
+      "description": "Logical bytes retained by Falcon and Zot in their Garage buckets. Max avoids replica double-counting.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1189,9 +1189,17 @@
           "legendFormat": "Actions cache stored",
           "range": false,
           "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "sum(max by(repo) (zot_repo_storage_bytes{namespace=\"ci-cache\"}))",
+          "instant": true,
+          "legendFormat": "OCI cache stored",
+          "range": false,
+          "refId": "B"
         }
       ],
-      "title": "Actions cache stored",
+      "title": "Shared cache storage",
       "type": "stat"
     },
     {
@@ -1350,7 +1358,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "Falcon cache lookups split by hit and miss.",
+      "description": "Falcon cache lookups plus Zot image publications and deployment pulls.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1420,9 +1428,25 @@
           "legendFormat": "{{result}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "60 * sum(rate(zot_repo_uploads_total{namespace=\"ci-cache\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "OCI uploads",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "editorMode": "code",
+          "expr": "60 * sum(rate(zot_repo_downloads_total{namespace=\"ci-cache\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "OCI downloads",
+          "range": true,
+          "refId": "C"
         }
       ],
-      "title": "Actions cache requests/min",
+      "title": "Shared cache operations/min",
       "type": "timeseries"
     },
     {
@@ -1880,7 +1904,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "CPU used by Falcon, Garage, Verdaccio, Distribution, and persistent BuildKit.",
+      "description": "CPU used by Falcon, Garage, Verdaccio, Distribution, Zot, and persistent BuildKit.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1945,7 +1969,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by(node,container) (rate(container_cpu_usage_seconds_total{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|buildkitd\",image!=\"\",cpu=\"total\"}[$__rate_interval]))",
+          "expr": "sum by(node,container) (rate(container_cpu_usage_seconds_total{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|zot|buildkitd\",image!=\"\",cpu=\"total\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{node}} · {{container}}",
           "range": true,
@@ -2025,7 +2049,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by(node,container) (container_memory_working_set_bytes{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|buildkitd\",image!=\"\"})",
+          "expr": "sum by(node,container) (container_memory_working_set_bytes{job=\"kubelet\",namespace=~\"ci-cache|gh-action-controller\",container=~\"github-actions-cache-server|garage|registry|verdaccio|zot|buildkitd\",image!=\"\"})",
           "instant": false,
           "legendFormat": "{{node}} · {{container}}",
           "range": true,
@@ -2213,7 +2237,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "End-to-end p95 response latency of each node-local Distribution proxy.",
+      "description": "End-to-end p95 response latency for Docker Hub proxying and the Garage-backed OCI cache.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2280,12 +2304,20 @@
           "editorMode": "code",
           "expr": "histogram_quantile(0.95, sum by(le,pod) (rate(registry_http_request_duration_seconds_bucket{job=\"docker-cache-headless\",namespace=\"ci-cache\"}[$__rate_interval])))",
           "instant": false,
-          "legendFormat": "{{pod}}",
+          "legendFormat": "Docker · {{pod}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by(le,method) (rate(zot_http_method_latency_seconds_bucket{namespace=\"ci-cache\"}[$__rate_interval])))",
+          "instant": false,
+          "legendFormat": "OCI · {{method}}",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Docker proxy HTTP p95 latency",
+      "title": "Registry HTTP p95 latency",
       "type": "timeseries"
     },
     {
@@ -2306,7 +2338,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "### Reading the cache fabric\n\nFalcon + Garage provide the shared GitHub Actions v2 cache. Verdaccio and Distribution are disposable per-node NVMe proxies. Persistent BuildKit keeps Docker build layers on the same three NVMe pools. Low hit ratios immediately after rollout are expected; compare warmed windows and the committed benchmark report. Verdaccio has no native cache-hit metric, so package network throughput and PVC growth are reported without pretending they are hits.",
+        "content": "### Reading the cache fabric\n\nFalcon + Garage provide the shared GitHub Actions v2 cache. Zot + Garage retain recent CI-published OCI images so Spegel can avoid the first GHCR pull; `zot_repo_*` and `zot_http_*` show its traffic, footprint, and latency. Verdaccio and Distribution are disposable per-node NVMe proxies. Persistent BuildKit keeps Docker build layers on the same three NVMe pools. Low hit ratios immediately after rollout are expected; compare warmed windows. Verdaccio has no native cache-hit metric, so package network throughput and PVC growth are reported without pretending they are hits.",
         "mode": "markdown"
       },
       "title": "Metric notes",
