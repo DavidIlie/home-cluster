@@ -2402,6 +2402,104 @@
       ],
       "title": "Physical-member RX drops per minute",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 223},
+      "id": 95,
+      "panels": [],
+      "title": "Runner dispatch queue and fault domains",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "GitHub jobs that explicitly target davidapps-ubuntu (or its migration alias) and are still queued before ARC assignment. Only fresh queue-observer replicas contribute. A rising age with idle runners and zero ARC assignments is the GitHub-side routing signature.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "queued jobs", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}},
+          "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]},
+          "unit": "short"
+        },
+        "overrides": [
+          {"matcher": {"id": "byFrameRefID", "options": "B"}, "properties": [{"id": "unit", "value": "s"}, {"id": "custom.axisPlacement", "value": "right"}, {"id": "custom.axisLabel", "value": "oldest queue age"}]}
+        ]
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 224},
+      "id": 96,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_queued_runner_jobs and on(instance) (github_runner_reconciler_queue_observer_stale == 0)) or vector(0)", "instant": false, "legendFormat": "queued account-runner jobs", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_oldest_queued_runner_job_age_seconds and on(instance) (github_runner_reconciler_queue_observer_stale == 0)) or vector(0)", "instant": false, "legendFormat": "oldest queue age", "range": true, "refId": "B"}
+      ],
+      "title": "Pre-ARC queue count and age",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Health of the read-only GitHub queue observer. Freshness is healthy when any reconciler replica completed a scan inside two configured scan intervals; the other values show the best current snapshot age and last-success age.",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "thresholds"}, "mappings": [], "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 90}, {"color": "red", "value": 120}]}, "unit": "s"},
+        "overrides": [
+          {"matcher": {"id": "byFrameRefID", "options": "A"}, "properties": [{"id": "unit", "value": "short"}, {"id": "mappings", "value": [{"options": {"0": {"color": "green", "index": 0, "text": "FRESH"}, "1": {"color": "red", "index": 1, "text": "STALE"}}, "type": "value"}]}, {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}}]}
+        ]
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 224},
+      "id": 97,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "min(github_runner_reconciler_queue_observer_stale) or vector(1)", "instant": true, "legendFormat": "freshness", "range": false, "refId": "A"},
+        {"editorMode": "code", "expr": "min(github_runner_reconciler_queue_observer_snapshot_age_seconds) or vector(0)", "instant": true, "legendFormat": "snapshot age", "range": false, "refId": "B"},
+        {"editorMode": "code", "expr": "clamp_min(time() - max(github_runner_reconciler_queue_observer_last_success_timestamp_seconds), 0) or vector(0)", "instant": true, "legendFormat": "last success age", "range": false, "refId": "C"}
+      ],
+      "title": "Queue observer freshness",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Bounded queue-scan coverage. Repositories is the warm fleet (minRunners > 0), inspected runs is the number whose job labels were checked, and truncated becomes one if the four-oldest-runs-per-repository API budget was reached.",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "count / state", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": true, "stacking": {"group": "A", "mode": "none"}}, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}, "unit": "short"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 232},
+      "id": 98,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_queue_observer_repositories) or vector(0)", "instant": false, "legendFormat": "warm repositories", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_queue_observer_runs_inspected) or vector(0)", "instant": false, "legendFormat": "queued runs inspected", "range": true, "refId": "B"},
+        {"editorMode": "code", "expr": "max(github_runner_reconciler_queue_observer_truncated) or vector(0)", "instant": false, "legendFormat": "inspection truncated", "range": true, "refId": "C"}
+      ],
+      "title": "Queue scan coverage and API bound",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Complete warm-fleet GitHub queue scans per minute by result. Errors preserve the last good snapshot until it becomes stale.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "scans / minute", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "never", "spanNulls": false, "stacking": {"group": "A", "mode": "none"}}, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 232},
+      "id": 99,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"hideZeros": false, "mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "60 * sum by(result) (rate(github_runner_reconciler_queue_observer_scans_total[$__rate_interval]))", "instant": false, "legendFormat": "{{result}}", "range": true, "refId": "A"}
+      ],
+      "title": "Queue observer scan outcomes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
+      "description": "Cluster-owned alert state split by fault domain: GitHub routing means the job has not reached ARC; ARC broker pickup means assignment occurred but no idle runner started it. This panel is read-only and adds no remediation or alert ownership to home-cluster.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "green", "index": 0, "text": "CLEAR"}, "1": {"color": "orange", "index": 1, "text": "PENDING"}, "2": {"color": "red", "index": 2, "text": "FIRING"}}, "type": "value"}], "max": 2, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 1}, {"color": "red", "value": 2}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 232},
+      "id": 100,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showPercentChange": false, "textMode": "auto", "wideLayout": true},
+      "targets": [
+        {"editorMode": "code", "expr": "(max(ALERTS{alertname=\"GitHubActionsUpstreamQueueRoutingLag\",alertstate=\"firing\"}) * 2) or (max(ALERTS{alertname=\"GitHubActionsUpstreamQueueRoutingLag\",alertstate=\"pending\"})) or vector(0)", "instant": true, "legendFormat": "GitHub routing", "range": false, "refId": "A"},
+        {"editorMode": "code", "expr": "(max(ALERTS{alertname=\"GitHubActionsRunnerBrokerPickupStalled\",alertstate=\"firing\"}) * 2) or (max(ALERTS{alertname=\"GitHubActionsRunnerBrokerPickupStalled\",alertstate=\"pending\"})) or vector(0)", "instant": true, "legendFormat": "ARC broker pickup", "range": false, "refId": "B"}
+      ],
+      "title": "Dispatch fault-domain state",
+      "type": "stat"
     }
   ],
   "refresh": "30s",
@@ -2466,6 +2564,6 @@
   "timezone": "browser",
   "title": "Runner Fleet",
   "uid": "github-actions-runner-fleet",
-  "version": 4,
+  "version": 5,
   "weekStart": "monday"
 }
