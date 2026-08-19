@@ -41,29 +41,11 @@ spec:
             envFrom: &envFrom
               - secretRef:
                   name: seedyn-secret
-          migrate:
-            image:
-              repository: &image ghcr.io/davidilie/seedyn # {"$imagepolicy": "flux-system:seedyn:name"}
-              tag: &tag master-cdda7749-1787139871 # {"$imagepolicy": "flux-system:seedyn:tag"}
-            command: ["node"]
-            args:
-              - scripts/run-command-with-next-env.mjs
-              - node
-              - node_modules/prisma/build/index.js
-              - migrate
-              - deploy
-            envFrom: *envFrom
-            securityContext: &securityContext
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: {drop: ["ALL"]}
-              seccompProfile:
-                type: RuntimeDefault
         containers:
           app:
             image:
-              repository: *image
-              tag: *tag
+              repository: &image ghcr.io/davidilie/seedyn # {"$imagepolicy": "flux-system:seedyn:name"}
+              tag: &tag master-cdda7749-1787139871 # {"$imagepolicy": "flux-system:seedyn:tag"}
             envFrom: *envFrom
             env:
               NODE_ENV: production
@@ -117,7 +99,12 @@ spec:
               preStop:
                 exec:
                   command: ["sleep", "10"]
-            securityContext: *securityContext
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+              seccompProfile:
+                type: RuntimeDefault
             resources:
               requests:
                 cpu: 50m
