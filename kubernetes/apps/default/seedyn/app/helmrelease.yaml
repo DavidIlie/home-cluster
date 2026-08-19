@@ -44,7 +44,7 @@ spec:
           app:
             image:
               repository: &image ghcr.io/davidilie/seedyn # {"$imagepolicy": "flux-system:seedyn:name"}
-              tag: &tag master-ec2b5c75-1787175320 # {"$imagepolicy": "flux-system:seedyn:tag"}
+              tag: &tag master-1dec7a88-1787176030 # {"$imagepolicy": "flux-system:seedyn:tag"}
             envFrom: *envFrom
             env:
               NODE_ENV: production
