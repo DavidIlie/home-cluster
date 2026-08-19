@@ -136,6 +136,10 @@
         icon: n8n.png
         href: https://n8n.davidhome.ro
         description: Workflow Automation
+    - Seedyn:
+        icon: mdi-cloud-upload-outline
+        href: https://seedyn.dave.tips
+        description: Private upload library
 
 - Infrastructure:
     - Unifi Controller:
