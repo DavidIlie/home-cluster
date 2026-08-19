@@ -50,8 +50,9 @@ spec:
               NODE_ENV: production
               APP_URL: https://seedyn.dave.tips
               CDN_URL: https://i.dave.tips
+              MEDIA_DOMAINS: dave=https://i.dave.tips,gurt=https://i.gurt.ing
               APP_HOSTS: seedyn.dave.tips
-              MEDIA_HOSTS: i.dave.tips
+              MEDIA_HOSTS: i.dave.tips,i.gurt.ing
               REDIS_URL: redis://dragonfly.databases.svc.cluster.local:6379
               MINIO_URL: cdn.davidapps.dev
               MINIO_PORT: "443"
@@ -166,7 +167,14 @@ spec:
                 service:
                   identifier: app
                   port: http
+          - host: &alternateMediaHost i.gurt.ing
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
         tls:
           - hosts:
               - *appHost
               - *mediaHost
+              - *alternateMediaHost
