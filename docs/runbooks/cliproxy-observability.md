@@ -12,7 +12,14 @@ exposes a real `provider` label.
 | Rolling model aggregates | `provider`, `model`, `window` | Windows are plugin aggregates, not Prometheus `increase()` |
 | Credential auth health/requests | `provider`, credential labels | Counters reset with CLIProxyAPI |
 | Latency, TTFT, slow, failed, rate-limited totals | `scope`, `window` | `other` may contain several non-Codex providers; never relabel it as Claude |
-| Account usage and quota | Codex accounts only | Claude per-credential tokens, cost, and quota do not exist in the current API |
+| Account token/cost usage | Codex accounts only | Claude per-credential token and cost attribution do not exist in the plugin API |
+| Claude OAuth quota | Claude account, Anthropic quota window | `utilization` and `resets_at` come from Anthropic's OAuth usage API via CLIProxy `/api-call`; missing windows stay absent |
+
+Claude `remaining_percent` is the bounded complement of Anthropic's explicit
+`utilization` percentage. It is never estimated from request or token counters.
+Anthropic does not expose an absolute token allowance or tokens-left value here,
+so the exporter deliberately publishes no such metrics. API-key credentials do
+not expose OAuth quota and therefore produce no quota series.
 
 The provider selector is applied only to model and auth metrics that actually
 carry `provider`. Provider-group reliability panels remain labeled by `scope`
@@ -54,7 +61,6 @@ panel recipes. Before deploying:
 - execute top-level queries again with `provider=claude`;
 - verify the provider table includes both Claude and Codex;
 - verify every window query contains `window=` and its 20-minute lookback;
-- verify Codex quota/account panels are children of the collapsed Codex-only
-  row, not merely positioned after it;
-- verify Claude per-account missing data is described as unavailable, never
-  zero.
+- verify Claude and Codex quota/account panels are children of the collapsed
+  quota row, not merely positioned after it;
+- verify missing Claude quota windows are described as unavailable, never zero.

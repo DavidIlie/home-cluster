@@ -6,4 +6,11 @@ namespace: observability
 resources:
   - ./secret.sops.yaml
   - ./helmrelease.yaml
+  - ./claude-quota-exporter.yaml
   - ./servicemonitors.yaml
+configMapGenerator:
+  - name: cliproxy-claude-quota-exporter-script
+    files:
+      - exporter.py=./claude_quota_exporter.py
+generatorOptions:
+  disableNameSuffixHash: true

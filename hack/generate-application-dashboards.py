@@ -2271,18 +2271,43 @@ def normalize_cliproxy_dashboard() -> None:
         "{{scope}}",
     )
 
-    panels[29]["title"] = "Codex-only quota & account detail"
+    panels[29]["title"] = "Claude and Codex quota summary"
     panels[29]["collapsed"] = True
-    panels[21]["gridPos"].update({"x": 0, "y": 65, "w": 6})
-    panels[22]["gridPos"].update({"x": 6, "y": 65, "w": 6})
-    panels[30]["gridPos"].update({"x": 12, "y": 65, "w": 12})
+    claude_used = copy.deepcopy(panels[21])
+    claude_used.update({"id": 31, "title": "Claude quota used"})
+    claude_used["gridPos"].update({"x": 0, "y": 65, "w": 8})
+    claude_used["description"] = (
+        "Bounded utilization reported by Anthropic's OAuth usage API. Missing windows "
+        "remain No Data; traffic token counters are never used to estimate quota."
+    )
+    claude_used["targets"][0].update({
+        "expr": "cliproxy_claude_quota_used_percent",
+        "legendFormat": "{{account}} · {{window}}",
+    })
+    claude_remaining = copy.deepcopy(claude_used)
+    claude_remaining.update({"id": 32, "title": "Claude quota remaining"})
+    claude_remaining["gridPos"].update({"x": 8, "w": 8})
+    claude_remaining["targets"][0]["expr"] = "cliproxy_claude_quota_remaining_percent"
+    claude_remaining["description"] = (
+        "100 minus Anthropic's explicitly reported, bounded utilization percentage; "
+        "not inferred from token usage."
+    )
+    claude_reset = copy.deepcopy(claude_remaining)
+    claude_reset.update({"id": 33, "title": "Claude quota reset"})
+    claude_reset["gridPos"].update({"x": 16, "w": 8})
+    claude_reset["targets"][0]["expr"] = "cliproxy_claude_quota_reset_timestamp_seconds"
+    claude_reset["fieldConfig"]["defaults"].update({"unit": "dateTimeAsIso", "min": None, "max": None})
+    claude_reset["description"] = "Reset timestamps reported by Anthropic; absent when upstream omits them."
+    panels[21]["gridPos"].update({"x": 0, "y": 72, "w": 6})
+    panels[22]["gridPos"].update({"x": 6, "y": 72, "w": 6})
+    panels[30]["gridPos"].update({"x": 12, "y": 72, "w": 12})
     panels[30]["title"] = "Per-account usage (Codex only)"
     panels[30]["description"] = (
         "The plugin exposes account token/cost/quota fields only for Codex. Claude and "
         "other provider credentials still appear in the provider-neutral auth panels, "
         "but missing per-account usage must not be interpreted as zero."
     )
-    panels[29]["panels"] = [panels[21], panels[22], panels[30]]
+    panels[29]["panels"] = [claude_used, claude_remaining, claude_reset, panels[21], panels[22], panels[30]]
     dashboard["panels"] = [
         panel for panel in top_level_panels if panel["id"] not in {21, 22, 30}
     ]

@@ -1,0 +1,43 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cliproxy-claude-quota-exporter
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef: {kind: HelmRepository, name: bjw-s, namespace: flux-system}
+  values:
+    controllers:
+      exporter:
+        containers:
+          app:
+            image: {repository: python, tag: 3.14-alpine}
+            command: [python3, /scripts/exporter.py]
+            resources:
+              requests: {cpu: 10m, memory: 32Mi}
+              limits: {memory: 96Mi}
+            securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+    service:
+      exporter:
+        controller: exporter
+        ports: {http: {port: 8000}}
+    serviceMonitor:
+      exporter:
+        serviceName: cliproxy-claude-quota-exporter
+        endpoints: [{port: http, path: /metrics, interval: 5m, scrapeTimeout: 30s}]
+    persistence:
+      scripts:
+        type: configMap
+        name: cliproxy-claude-quota-exporter-script
+        globalMounts: [{path: /scripts/exporter.py, subPath: exporter.py, readOnly: true}]
+      management-key:
+        type: secret
+        name: cliproxy-exporter-secret
+        defaultMode: 0440
+        globalMounts: [{path: /etc/cliproxy, readOnly: true}]
+    defaultPodOptions:
+      securityContext: {runAsNonRoot: true, runAsUser: 65534, runAsGroup: 65534, fsGroup: 65534, seccompProfile: {type: RuntimeDefault}}
