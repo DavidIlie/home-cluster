@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Client-side Web Vitals, signal volume, exceptions, and release correlation from the public ZeroCut telemetry gateway. Panels become populated as browsers visit the deployed release.",
+  "description": "Client-side Web Vitals, authenticated workspace session activity, exceptions, and release correlation from the public ZeroCut telemetry gateway.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -620,12 +620,204 @@
       },
       "id": 11,
       "options": {
-        "content": "No browser data is expected until a real browser loads ZeroCut with the current client instrumentation. Release comparison uses the exact 40-character deployed Git SHA.",
+        "content": "Browser and workspace panels are event-dependent. An empty selected range means no matching Faro signals were received; release comparison uses the exact 40-character deployed Git SHA.",
         "mode": "markdown"
       },
       "title": "Event-dependent dashboard",
       "transparent": true,
       "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Creator workspace usage",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Distinct privacy-safe Faro sessions that loaded an authenticated /app workspace page in the selected range. This is a usage proxy, not a count of unique creator accounts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 40
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats count_uniq(session_id) as workspace_sessions",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Workspace sessions · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Distinct authenticated-workspace Faro sessions per hour. One person may create multiple sessions, so the series deliberately describes sessions rather than creator identities.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 6,
+        "y": 40
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats by (_time:1h) count_uniq(session_id) as active_sessions",
+          "legendFormat": "workspace sessions",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "title": "Workspace sessions by hour",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Authenticated ZeroCut workspace pages ranked by distinct Faro sessions and total browser signals. Public marketing and creator-profile traffic is excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 15,
+        "y": 40
+      },
+      "id": 15,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats by (page_url) count_uniq(session_id) as sessions, count() as signals | sort by (sessions desc) | limit 20",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Most-used workspace pages",
+      "type": "table"
     }
   ],
   "refresh": "30s",
@@ -660,6 +852,6 @@
   "timezone": "browser",
   "title": "Browser experience",
   "uid": "zerocut-browser",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

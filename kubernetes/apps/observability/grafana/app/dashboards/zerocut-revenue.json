@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Operational revenue telemetry for ZeroCut platform payments and supporter-to-creator donations. Amounts are integer minor-currency units, currencies remain separate, and the payment ledger remains the accounting source of truth.",
+  "description": "Durable ZeroCut acquisition inventory plus operational payment-transition and supporter-to-creator donation telemetry. Amounts are integer minor-currency units, currencies remain separate, and the payment ledger remains the accounting source of truth.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -805,6 +805,285 @@
       ],
       "title": "Business events by outcome",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 15,
+      "panels": [],
+      "title": "Durable acquisition inventory",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "All ZeroCut product acquisitions present in the canonical AppPurchasePayment ledger, including purchases made before telemetry was deployed. Refunded and disputed acquisitions remain counted and are split by state in the detailed series.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 47
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_1)?\",service_name=\"zerocut\"}))",
+          "instant": true,
+          "legendFormat": "known acquisitions",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Known acquisitions",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "ZeroCut product acquisitions whose canonical ledger state is active. This is a current inventory gauge, not an event count constrained by the dashboard time range.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 47
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_1)?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
+          "instant": true,
+          "legendFormat": "active acquisitions",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Active acquisitions",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Current active acquisition value after refunds, kept separate by product and currency. Values are integer minor-currency units and must not be added across currencies.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 12,
+        "y": 47
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (revenue_product, commerce_currency) (max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_net_amount(_minor_currency_unit)?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
+          "instant": true,
+          "legendFormat": "{{revenue_product}} · {{commerce_currency}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Active acquisition value",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "1 means the latest periodic read of the canonical acquisition ledger succeeded; 0 means the app could not refresh it. This separates an empty ledger from a broken snapshot.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "Failed"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "Healthy"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 20,
+        "y": 47
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_1)?\",service_name=\"zerocut\"})",
+          "instant": true,
+          "legendFormat": "snapshot",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Ledger snapshot",
+      "type": "stat"
     }
   ],
   "refresh": "30s",
@@ -838,6 +1117,6 @@
   "timezone": "browser",
   "title": "Revenue & donations",
   "uid": "zerocut-revenue",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
