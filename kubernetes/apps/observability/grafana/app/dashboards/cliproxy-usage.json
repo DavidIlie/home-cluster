@@ -1778,9 +1778,213 @@
           },
           "gridPos": {
             "h": 7,
-            "w": 6,
+            "w": 8,
             "x": 0,
             "y": 65
+          },
+          "id": 31,
+          "title": "Claude quota used",
+          "type": "gauge",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "cliproxy_claude_quota_used_percent",
+              "refId": "A",
+              "legendFormat": "{{account}} \u00b7 {{window}}"
+            }
+          ],
+          "pluginVersion": "11.0.0",
+          "description": "Bounded utilization reported by Anthropic's OAuth usage API. Missing windows remain No Data; traffic token counters are never used to estimate quota.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "unit": "percent",
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 75
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 65
+          },
+          "id": 32,
+          "title": "Claude quota remaining",
+          "type": "gauge",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "cliproxy_claude_quota_remaining_percent",
+              "refId": "A",
+              "legendFormat": "{{account}} \u00b7 {{window}}"
+            }
+          ],
+          "pluginVersion": "11.0.0",
+          "description": "100 minus Anthropic's explicitly reported, bounded utilization percentage; not inferred from token usage.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "unit": "percent",
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 75
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 65
+          },
+          "id": 33,
+          "title": "Claude quota reset",
+          "type": "gauge",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "cliproxy_claude_quota_reset_timestamp_seconds",
+              "refId": "A",
+              "legendFormat": "{{account}} \u00b7 {{window}}"
+            }
+          ],
+          "pluginVersion": "11.0.0",
+          "description": "Reset timestamps reported by Anthropic; absent when upstream omits them.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "unit": "dateTimeAsIso",
+              "max": null,
+              "min": null,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 75
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 6,
+            "x": 0,
+            "y": 72
           },
           "id": 21,
           "title": "Codex quota used (primary)",
@@ -1848,7 +2052,7 @@
             "h": 7,
             "w": 6,
             "x": 6,
-            "y": 65
+            "y": 72
           },
           "id": 22,
           "title": "Codex secondary quota remaining",
@@ -1902,7 +2106,7 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 65
+            "y": 72
           },
           "id": 30,
           "title": "Per-account usage (Codex only)",
@@ -2088,7 +2292,7 @@
           ]
         }
       ],
-      "title": "Codex-only quota & account detail",
+      "title": "Claude and Codex quota summary",
       "type": "row"
     }
   ],
