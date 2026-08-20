@@ -265,7 +265,7 @@ data:
         trust: full
         timeout: 120
         tools:
-          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range, plausible_sites, plausible_aggregate, plausible_breakdown, plausible_timeseries, plausible_custom_events]
+          include: [grafana_dashboards, grafana_dashboard, metrics_query, metrics_query_range, logs_query, plausible_sites, plausible_aggregate, plausible_breakdown, plausible_timeseries, plausible_custom_events]
           resources: false
           prompts: false
       davidapps_observer:
