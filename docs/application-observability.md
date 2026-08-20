@@ -61,10 +61,10 @@ Use the ZeroCut folder as the reference implementation for each instrumented pro
 
 | Dashboard | Required scope |
 | --- | --- |
-| `Overview` | Grouped business, revenue, reliability, browser, runtime, release, logs, and traces |
-| `Revenue & donations` or equivalent | Project-specific business movements and outcomes, with currencies kept separate |
+| `Overview` | Grouped business, acquisition, privacy-safe product usage, reliability, browser, runtime, release, logs, and traces |
+| `Revenue & donations` or equivalent | Durable acquisition inventory plus project-specific business movements and outcomes, with currencies kept separate |
 | `Server & rendering` | RED metrics, route and framework-phase performance, aggregate dependencies, resources, and correlated errors |
-| `Browser experience` | Web Vitals, client signal volume, frontend errors, and browser release |
+| `Browser experience` | Web Vitals, privacy-safe workspace sessions, client signal volume, frontend errors, and browser release |
 | `Runtime & deployments` | Desired/ready/updated replicas, pods, nodes, CPU, memory, restarts, image, and commit |
 | `Delivery & data` | Ingress request delivery, stable paths, Cloudflare tunnel health, and scoped database impact |
 
@@ -94,10 +94,10 @@ Grafana provisions these folders and dashboard UIDs:
 | Folder | Dashboard UID | Current scope |
 | --- | --- | --- |
 | `Apps / All Projects` | `apps-fleet` | Auto-discovered application health, resources, nodes, ingress, tunnels, databases, telemetry, logs, and business signals |
-| `Apps / ZeroCut` | `zerocut-overview` | Grouped ZeroCut overview |
-| `Apps / ZeroCut` | `zerocut-revenue` | Platform payments and supporter-to-creator donations |
+| `Apps / ZeroCut` | `zerocut-overview` | Grouped ZeroCut overview, acquisition inventory, and authenticated workspace usage |
+| `Apps / ZeroCut` | `zerocut-revenue` | Durable acquisition inventory, platform payment transitions, and supporter-to-creator donations |
 | `Apps / ZeroCut` | `zerocut-reliability` | Server, rendering, dependency, resource, log, and trace performance |
-| `Apps / ZeroCut` | `zerocut-browser` | Browser Web Vitals, client signals, errors, and release |
+| `Apps / ZeroCut` | `zerocut-browser` | Browser Web Vitals, authenticated workspace sessions, client signals, errors, and release |
 | `Apps / ZeroCut` | `zerocut-runtime` | Kubernetes placement, rollout, resources, image, and commit |
 | `Apps / ZeroCut` | `zerocut-delivery-data` | NGINX delivery, Cloudflare tunnel health, PostgreSQL impact, and ZeroCut ClickHouse health |
 | `Apps / MBRetrofit Tools` | `mbretrofit-overview` | Main and Zenzefi deployments |
