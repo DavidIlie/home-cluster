@@ -14,8 +14,20 @@ data:
       context_length: 1050000
       max_tokens: 128000
 
+    # If the primary Codex account is unavailable for a turn, use Fable through
+    # the same in-cluster CLIProxy. Hermes restores GPT-5.6 Sol on the next
+    # turn; this is failover, not permanent model switching.
+    fallback_providers:
+      - provider: custom
+        model: claude-fable-5
+        base_url: http://cliproxy.default.svc.cluster.local:8317/v1
+        api_mode: anthropic_messages
+        key_env: CLIPROXY_API_KEY
+
     agent:
       reasoning_effort: low
+      reasoning_overrides:
+        claude-fable-5: low
       service_tier: priority
       max_turns: 500
       gateway_timeout: 21600
