@@ -12,7 +12,7 @@
       }
     ]
   },
-  "description": "Grouped ZeroCut overview spanning revenue, supporter-to-creator donations, server reliability, Next.js telemetry, runtime placement, browser experience, logs, traces, and the active release. Use the ZeroCut dashboards menu for focused drill-downs. Revenue is operational telemetry, not an accounting ledger.",
+  "description": "Grouped ZeroCut overview spanning durable acquisition inventory, payment transitions, authenticated workspace sessions, supporter-to-creator donations, server reliability, runtime placement, browser experience, logs, traces, and the active release. Use the ZeroCut dashboards menu for focused drill-downs.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -1213,6 +1213,242 @@
       ],
       "title": "Active release and container image",
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 102 },
+      "id": 33,
+      "panels": [],
+      "title": "Product acquisition and creator usage",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "description": "All ZeroCut product acquisitions present in the canonical payment ledger, including acquisitions that predate telemetry. Refunded and disputed rows remain part of the lifetime inventory.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 103 },
+      "id": 34,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "editorMode": "code",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_1)?\",service_name=\"zerocut\"}))",
+          "instant": true,
+          "legendFormat": "known acquisitions",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Known acquisitions",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "description": "Current ZeroCut acquisitions whose canonical payment-ledger state is active. This is an inventory gauge rather than a selected-range event count.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 103 },
+      "id": 35,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "editorMode": "code",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_1)?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
+          "instant": true,
+          "legendFormat": "active acquisitions",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Active acquisitions",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "description": "Distinct privacy-safe Faro sessions that loaded an authenticated /app workspace page in the selected range. This is a usage proxy, not a count of unique creator accounts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 103 },
+      "id": 36,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats count_uniq(session_id) as workspace_sessions",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Workspace sessions · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "description": "1 means the latest periodic read of the canonical acquisition ledger succeeded; 0 means the app could not refresh it. This separates an empty ledger from a failed snapshot.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "0": { "color": "red", "text": "Failed" },
+                "1": { "color": "green", "text": "Healthy" }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 103 },
+      "id": 37,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "editorMode": "code",
+          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_1)?\",service_name=\"zerocut\"})",
+          "instant": true,
+          "legendFormat": "snapshot",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Acquisition snapshot",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "description": "Distinct authenticated-workspace Faro sessions per hour. One person may create multiple sessions, so the series deliberately describes sessions rather than creator identities.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 110 },
+      "id": 38,
+      "options": {
+        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats by (_time:1h) count_uniq(session_id) as active_sessions",
+          "legendFormat": "workspace sessions",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "title": "Workspace sessions by hour",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "description": "Authenticated ZeroCut workspace pages ranked by distinct Faro sessions and total browser signals. Public marketing and creator-profile traffic is excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 110 },
+      "id": 39,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats by (page_url) count_uniq(session_id) as sessions, count() as signals | sort by (sessions desc) | limit 20",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Most-used workspace pages",
+      "type": "table"
     }
   ],
   "refresh": "30s",
@@ -1224,6 +1460,6 @@
   "timezone": "browser",
   "title": "Overview",
   "uid": "zerocut-overview",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
