@@ -13,6 +13,8 @@ spec:
   dependsOn:
     - name: hermes-gpu
       namespace: default
+    - name: kube-prometheus-stack
+      namespace: observability
     - name: openebs
       namespace: openebs-system
     - name: volsync

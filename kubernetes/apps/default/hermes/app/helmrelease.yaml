@@ -69,8 +69,13 @@ spec:
             image: *image
             env:
               TZ: Europe/Madrid
+              # Delivery-only is independent of the legacy bot. Keeping the
+              # legacy switch off also makes this fail closed on older images.
               HERMES_DISCORD_ENABLED: "false"
+              HERMES_DISCORD_DELIVERY_ONLY: "true"
               HERMES_DISCORD_GUILD_ID: "853884362436116491"
+              HERMES_DISCORD_CHANNEL_ID: "1537861134076350465"
+              HERMES_DISCORD_USER_ID: "243009043260637184"
               HERMES_DISCORD_TOKEN_FILE: /run/secrets/hermes/discord-token
               HERMES_FLEETVIEW_URL: https://fleetview.code.davidapps.dev/mcp
               HERMES_FLEETVIEW_ORIGIN: https://fleetview.code.davidapps.dev

@@ -8,6 +8,8 @@ resources:
   - ./configmap.yaml
   - ./secret.sops.yaml
   - ./networkpolicy.yaml
+  - ./servicemonitor.yaml
+  - ./prometheusrule.yaml
   - ./helmrelease.yaml
 components:
   - ../../../../flux/components/volsync

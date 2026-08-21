@@ -1,0 +1,90 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: hermes
+spec:
+  groups:
+    - name: hermes.availability
+      rules:
+        - alert: HermesGatewayMetricsUnavailable
+          expr: absent(up{namespace="default",service="hermes"}) or max(up{namespace="default",service="hermes"}) < 1
+          for: 5m
+          labels:
+            severity: critical
+            service: hermes
+          annotations:
+            summary: Hermes gateway metrics are unavailable
+            description: Prometheus has not completed a successful Hermes gateway scrape for five minutes.
+    - name: hermes.task-delivery
+      rules:
+        - alert: HermesFleetTaskOutboxStalled
+          expr: hermes_fleet_task_update_oldest_age_seconds > 300
+          for: 5m
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes has not delivered a fleet task update
+            description: The oldest durable Discord task update has remained unacknowledged for more than ten minutes.
+        - alert: HermesFleetTaskOutboxBacklog
+          expr: hermes_fleet_task_updates_pending > 25
+          for: 10m
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes fleet task delivery backlog is growing
+            description: More than 25 durable Discord task updates have awaited delivery for ten minutes.
+        - alert: HermesFleetTaskDiscordSendFailed
+          expr: increase(hermes_fleet_task_update_discord_send_failures_total[15m]) > 0
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes could not send a fleet task update to Discord
+            description: At least one durable fleet task update failed to reach Discord during the last 15 minutes.
+        - alert: HermesFleetTaskDiscordAckFailed
+          expr: increase(hermes_fleet_task_update_discord_ack_failures_total[15m]) > 0
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes could not acknowledge a Discord task update
+            description: Hermes sent an update but could not persist its acknowledgement during the last 15 minutes.
+        - alert: HermesFleetTaskHarnessStale
+          expr: hermes_fleet_task_harness_stale > 0
+          for: 10m
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes has lost track of a running fleet task
+            description: At least one running task has no recent persisted harness observation.
+        - alert: HermesFleetTaskHarnessUnreachable
+          expr: hermes_fleet_task_harness_unreachable > 0
+          for: 5m
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes cannot observe a running fleet task
+            description: At least one running task has repeated harness observation errors.
+    - name: hermes.reconciliation
+      rules:
+        - alert: HermesFleetTaskReconciliationFailed
+          expr: increase(hermes_fleet_task_reconcile_failures_total[15m]) > 0
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes fleet task reconciliation failed
+            description: A durable task recovery operation failed during the last 15 minutes.
+        - alert: HermesFleetTaskMonitoringFailed
+          expr: increase(hermes_fleet_task_monitor_errors_total[15m]) > 0
+          labels:
+            severity: warning
+            service: hermes
+          annotations:
+            summary: Hermes fleet task monitoring failed
+            description: Hermes could not read a task harness during the last 15 minutes.

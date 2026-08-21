@@ -184,6 +184,9 @@ data:
         # uses the separate approval-gated connection below.
         trust: full
         timeout: 21600
+        # The gateway's delivery-only Discord session drains and acknowledges
+        # its durable outbox. Keep task_updates and task_update_ack out of the
+        # Agent so two consumers never race over the same event.
         tools:
           include: [task_start, task_status, task_list, task_takeover, task_resume, task_publish]
           resources: false

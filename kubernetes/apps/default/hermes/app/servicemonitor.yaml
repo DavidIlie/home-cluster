@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hermes
+spec:
+  jobLabel: app.kubernetes.io/name
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hermes
+  endpoints:
+    - port: health
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
