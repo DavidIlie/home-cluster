@@ -170,7 +170,7 @@ spec:
             - name: friends-env
               mountPath: /friends-env
         - name: prepare-runtime
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.d8cc0b2c1a@sha256:2415d21a1451448e6e621dacf783f9d753e12aa1a480bc3f5e630b18ef7ae31c
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.bce4567524@sha256:155ca03b0697ff26b5cf603054f688fc684a693689fd2e36594bece9225ba018
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -211,7 +211,7 @@ spec:
               readOnly: true
       containers:
         - name: app
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.d8cc0b2c1a@sha256:2415d21a1451448e6e621dacf783f9d753e12aa1a480bc3f5e630b18ef7ae31c
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.bce4567524@sha256:155ca03b0697ff26b5cf603054f688fc684a693689fd2e36594bece9225ba018
           args: ["gateway", "run"]
           env:
             - name: TZ
