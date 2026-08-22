@@ -16,6 +16,7 @@ resources:
   - ./homepage/ks.yaml
   - ./it-tools/ks.yaml
   - ./cliproxy/ks.yaml
+  - ./bostan-discord-bot/ks.yaml
   - ./paperless/ks.yaml
   - ./stirling-pdf/ks.yaml
   # - ./n8n/ks.yaml
