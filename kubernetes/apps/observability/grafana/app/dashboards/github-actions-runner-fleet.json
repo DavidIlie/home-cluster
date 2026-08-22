@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Capacity, workload, latency, discovery, cache and physical-link health for the personal GitHub Actions runner fleet on davidapps-cluster. Temporary placement guard: runner compute is restricted to electron and neutron; proton is quarantined until its physical link is repaired and requalified.",
+  "description": "Capacity, workload, latency, discovery, cache and physical-link health for the personal GitHub Actions runner fleet across electron, proton and neutron on davidapps-cluster.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -105,7 +105,7 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Declared PriorityClass-scoped quota remains 12 runner pods. With proton quarantined, 12 / 2 = 6 is only the arithmetic ceiling per eligible node, not guaranteed schedulable capacity.",
+      "description": "Declared PriorityClass-scoped quota is 12 runner pods. Across three eligible nodes, four per node is the balanced arithmetic ceiling, not guaranteed schedulable capacity.",
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -214,16 +214,15 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Pending and running runner pods on the two temporarily eligible nodes. The quota remains 12, so six per node is the balanced arithmetic ceiling. Four or more is shown as caution because production workloads, DaemonSets, resource requests, local-volume affinity and the cluster reserve can make the scheduler queue safely before that ceiling.",
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 6, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 4}, {"color": "red", "value": 6}]}, "unit": "short"}, "overrides": [{"matcher": {"id": "byRegexp", "options": "^QUARANTINED.*"}, "properties": [{"id": "max", "value": 1}, {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}}]}]},
+      "description": "Pending and running runner pods across all three eligible nodes. The quota is 12, so four per node is the balanced arithmetic ceiling. Three or more is shown as caution because production workloads, DaemonSets, resource requests, local-volume affinity and cluster reserve can make the scheduler queue before that ceiling.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 4, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 3}, {"color": "red", "value": 4}]}, "unit": "short"}, "overrides": []},
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
       "id": 11,
       "options": {"displayMode": "gradient", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 16, "minVizWidth": 8, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "valueMode": "color"},
       "targets": [
-        {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\",node=~\"electron|neutron\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"},
-        {"editorMode": "code", "expr": "sum((kube_pod_info{namespace=\"$runner_namespace\",node=\"proton\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1)) or vector(0)", "instant": true, "legendFormat": "QUARANTINED · proton", "range": false, "refId": "B"}
+        {"editorMode": "code", "expr": "sum by(node) ((kube_pod_info{namespace=\"$runner_namespace\",node=~\"electron|proton|neutron\"} * on(namespace,pod) group_left() kube_pod_labels{namespace=\"$runner_namespace\",label_actions_davidapps_dev_fleet=\"account\",label_actions_davidapps_dev_repository=~\"$repository\",label_actions_davidapps_dev_tier=~\"$tier\"}) * on(namespace,pod) group_left() (kube_pod_status_phase{namespace=\"$runner_namespace\",phase=~\"Pending|Running\"} == 1))", "instant": true, "legendFormat": "{{node}}", "range": false, "refId": "A"}
       ],
-      "title": "Runner placement (2 eligible nodes; 6/node theoretical)",
+      "title": "Runner placement (3 eligible nodes; 4/node theoretical)",
       "type": "bargauge"
     },
     {
@@ -664,7 +663,7 @@
       "id": 44,
       "options": {
         "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
-        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. While proton is quarantined, only electron and neutron are eligible: quota 12 / two nodes = six per node in a perfectly balanced placement. That is a mathematical upper bound, not a reservation; practical scheduler headroom can be lower.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Runner workspaces and Docker graphs use pod-scoped generic ephemeral volumes on the separate `ci-zfs-ext4` NVMe class. A later burst peaked at 11 runners and exposed etcd/API pressure, so the declared ceiling remains 12 while the scheduler protects real resource headroom.\n- Empty latency panels mean no jobs matched the current filters.",
+        "content": "### Reading this dashboard\n\n- **Approx. queued assignments** is `assigned - running`; GitHub does not publish a personal-account queue metric to ARC.\n- **Tier** is a low-cardinality scrape label copied from each ARC listener pod.\n- **Per-node pressure** comes from kube-state-metrics pod labels joined to pod placement. Electron, proton and neutron are eligible: quota 12 / three nodes = four per node in a perfectly balanced placement. That is a mathematical upper bound, not a reservation; practical scheduler headroom can be lower.\n- ARC job counters reset when listener pods restart, so throughput panels use `rate()` or `increase()`.\n- Runner workspaces and Docker graphs use pod-scoped generic ephemeral volumes on the separate `ci-zfs-ext4` NVMe class. A later burst peaked at 11 runners and exposed etcd/API pressure, so the declared ceiling remains 12 while the scheduler protects real resource headroom.\n- Empty latency panels mean no jobs matched the current filters.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.10",
@@ -2363,21 +2362,21 @@
       "gridPos": {"h": 1, "w": 24, "x": 0, "y": 208},
       "id": 90,
       "panels": [],
-      "title": "Temporary two-node CI guard and bond health",
+      "title": "Three-node CI placement and bond health",
       "type": "row"
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-davidapps-cluster"},
-      "description": "Static operational annotation for the temporary runner-placement restriction. This dashboard-only change adds no alert rules and leaves existing alert ownership unchanged.",
+      "description": "Static operational annotation for the restored three-node runner placement. This dashboard defines no duplicate alert rules.",
       "gridPos": {"h": 6, "w": 24, "x": 0, "y": 209},
       "id": 91,
       "options": {
         "code": {"language": "plaintext", "showLineNumbers": false, "showMiniMap": false},
-        "content": "### Temporary placement guard · active since 2026-08-18\n\n**Runner compute:** `electron` + `neutron` only. **Quarantined:** `proton` is excluded by required hostname affinity from production runners, benchmark controls, listener templates and the prewarmer until its physical link is repaired and requalified.\n\nThe PriorityClass-scoped quota is still **12**. Dividing it across two eligible nodes gives **6 runners/node only as a theoretical balanced ceiling**. It is not a capacity promise: the scheduler must preserve CPU/memory for production workloads and DaemonSets, honor local-volume and anti-affinity constraints, and retain practical cluster headroom. Queueing before 12 is expected safety backpressure. The pressure panel flags any runner still present on proton during rollout.",
+        "content": "### Three-node placement restored · 2026-08-22\n\n**Runner compute:** `electron` + `proton` + `neutron`. All six 10 GbE bond members remained CRC-clean during the final loaded qualification.\n\nThe PriorityClass-scoped quota remains **12**. Dividing it across three eligible nodes gives **4 runners/node only as a theoretical balanced ceiling**. It is not a capacity promise: the scheduler still preserves CPU and memory for production workloads and DaemonSets, honors local-volume and anti-affinity constraints, and retains practical cluster headroom. Queueing before 12 remains expected safety backpressure.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.10",
-      "title": "Quarantine annotation and capacity semantics",
+      "title": "Restored placement and capacity semantics",
       "transparent": true,
       "type": "text"
     },
