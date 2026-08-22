@@ -19,6 +19,62 @@ SPEC.loader.exec_module(prepare_runtime)
 
 
 class PrepareRuntimeTests(unittest.TestCase):
+    def test_owner_config_merge_is_preserving_authoritative_and_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "config.yaml"
+            managed_path = root / "owner-config.yaml"
+            path.write_text(
+                yaml.safe_dump(
+                    {
+                        "_config_version": 1,
+                        "custom": {"keep": True},
+                        "discord": {"allowed_channels": "old", "runtime_only": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            managed_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "_config_version": 34,
+                        "discord": {"allowed_channels": "owner,new"},
+                        "mcp_servers": {"fleet_tasks": {"url": "http://owner-only"}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            self.assertTrue(
+                prepare_runtime.reconcile_owner_config(path, managed_path)
+            )
+            configured = yaml.safe_load(path.read_text(encoding="utf-8"))
+            self.assertEqual(configured["_config_version"], 34)
+            self.assertEqual(configured["custom"], {"keep": True})
+            self.assertEqual(
+                configured["discord"]["allowed_channels"], "owner,new"
+            )
+            self.assertTrue(configured["discord"]["runtime_only"])
+            self.assertIn("fleet_tasks", configured["mcp_servers"])
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            self.assertFalse(
+                prepare_runtime.reconcile_owner_config(path, managed_path)
+            )
+
+    def test_owner_config_merge_rejects_unsafe_shapes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "config.yaml"
+            managed_path = root / "owner-config.yaml"
+            path.write_text("[]\n", encoding="utf-8")
+            managed_path.write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "config root"):
+                prepare_runtime.reconcile_owner_config(path, managed_path)
+            path.write_text("{}\n", encoding="utf-8")
+            managed_path.write_text("[]\n", encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "managed owner config root"):
+                prepare_runtime.reconcile_owner_config(path, managed_path)
+
     def test_managed_config_is_preserving_and_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "config.yaml"

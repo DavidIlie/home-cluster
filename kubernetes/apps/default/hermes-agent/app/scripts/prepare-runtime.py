@@ -19,6 +19,7 @@ one-to-one thread mapping must all agree before any session is changed.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import stat
@@ -85,6 +86,68 @@ def _atomic_json(path: Path, value: dict[str, Any]) -> None:
             pass
 
 
+def _atomic_yaml(path: Path, value: dict[str, Any]) -> None:
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if path.exists() or path.is_symlink():
+        _regular_file(path)
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            yaml.safe_dump(value, handle, sort_keys=False, default_flow_style=False)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+
+
+def _deep_merge(base: dict[str, Any], managed: dict[str, Any]) -> dict[str, Any]:
+    """Return base with managed values authoritative and unknown values kept."""
+    merged = copy.deepcopy(base)
+    for key, value in managed.items():
+        current = merged.get(key)
+        if isinstance(current, dict) and isinstance(value, dict):
+            merged[key] = _deep_merge(current, value)
+        else:
+            merged[key] = copy.deepcopy(value)
+    return merged
+
+
+def reconcile_owner_config(config_path: Path, managed_path: Path) -> bool:
+    """Apply the owner-only managed config without erasing runtime-only keys."""
+    _regular_file(config_path)
+    _regular_file(managed_path)
+    with config_path.open(encoding="utf-8") as handle:
+        current = yaml.safe_load(handle)
+    with managed_path.open(encoding="utf-8") as handle:
+        managed = yaml.safe_load(handle)
+    if current is None:
+        current = {}
+    if managed is None:
+        managed = {}
+    if not isinstance(current, dict):
+        raise RuntimeError(f"config root must be a mapping: {config_path}")
+    if not isinstance(managed, dict):
+        raise RuntimeError(
+            f"managed owner config root must be a mapping: {managed_path}"
+        )
+
+    reconciled = _deep_merge(current, managed)
+    if reconciled == current:
+        return False
+    _atomic_yaml(config_path, reconciled)
+    return True
+
+
 def configure_runtime_config(
     config_path: Path, memory_char_limit: int, user_char_limit: int
 ) -> bool:
@@ -95,7 +158,9 @@ def configure_runtime_config(
         raise RuntimeError("user character limit is outside the safe range")
     _regular_file(config_path)
     with config_path.open(encoding="utf-8") as handle:
-        config = yaml.safe_load(handle) or {}
+        config = yaml.safe_load(handle)
+    if config is None:
+        config = {}
     if not isinstance(config, dict):
         raise RuntimeError(f"config root must be a mapping: {config_path}")
     browser = config.get("browser")
@@ -124,24 +189,7 @@ def configure_runtime_config(
     if not changed:
         return False
 
-    fd, temporary = tempfile.mkstemp(prefix=".config.yaml.", dir=config_path.parent)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            yaml.safe_dump(config, handle, sort_keys=False, default_flow_style=False)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.chmod(temporary, 0o600)
-        os.replace(temporary, config_path)
-        directory_fd = os.open(config_path.parent, os.O_RDONLY)
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
-    finally:
-        try:
-            os.unlink(temporary)
-        except FileNotFoundError:
-            pass
+    _atomic_yaml(config_path, config)
     return True
 
 
@@ -267,6 +315,7 @@ def main() -> None:
     parser.add_argument("--timezone", required=True)
     parser.add_argument("--memory-char-limit", type=int, required=True)
     parser.add_argument("--user-char-limit", type=int, required=True)
+    parser.add_argument("--owner-config", type=Path)
     parser.add_argument("--replay-thread-id", action="append", default=[])
     parser.add_argument("--skip-replay", action="store_true")
     args = parser.parse_args()
@@ -277,6 +326,16 @@ def main() -> None:
     if not args.user_id.isdigit():
         raise RuntimeError("expected Discord user ID must be numeric")
     configure_timezone(args.timezone)
+
+    if args.owner_config is not None:
+        owner_changed = reconcile_owner_config(
+            home / "config.yaml", args.owner_config.resolve(strict=True)
+        )
+        print(
+            "Reconciled owner-only managed config"
+            if owner_changed
+            else "Owner-only managed config already current"
+        )
 
     changed = configure_runtime_config(
         home / "config.yaml", args.memory_char_limit, args.user_char_limit

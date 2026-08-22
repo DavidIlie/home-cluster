@@ -24,5 +24,10 @@ configMapGenerator:
   - name: hermes-agent-runtime-bootstrap
     files:
       - prepare-runtime.py=scripts/prepare-runtime.py
+  - name: hermes-agent-friends-profile
+    files:
+      - config.yaml=profiles/friends/config.yaml
+      - SOUL.md=profiles/friends/SOUL.md
+      - AGENTS.md=profiles/friends/AGENTS.md
 generatorOptions:
   disableNameSuffixHash: true

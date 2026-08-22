@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hermes-friend-broker-hashes
+type: Opaque
+stringData:
+  friend.sha256: ENC[AES256_GCM,data:B9iQelGiKM306urvt9eYjok2EssLbL2gCWTHkdIg9O49ujSmBNkdAAm/M7oHHjOn23ulZH4tBeqow6jOdYFPoA==,iv:L/rLDR02NahE4nqBf8Z1s60SSsFj2DcnMEjysCVMl54=,tag:9Pmhl7vsAHqAnTXB94Hx+g==,type:str]
+  delivery.sha256: ENC[AES256_GCM,data:9iogE1+5Vx7qmcAxidWyPmvblw3QBNUXhWxyhkU+sKC6N42ea6mfGBlfdn0TLXI7dpOMi4mBrIu/Io1+ITjErA==,iv:1HD7KtB7tLFMz0NXheACiaJU6HnsY9Ln9PMwiLZhS7w=,tag:BTmsyeQlb0iJBnHZUyndrw==,type:str]
+  owner.sha256: ENC[AES256_GCM,data:4/h3sjrsoY2Sm5IgSynpDt4Kg41q+c/tNRMp5c0QVbAhAa8E3NEGiL8zfo9TaUqWMzr0R3TgF51Q58cevMuCJA==,iv:Fmx9inZVLiGmIN/QdKPxBydUqC5gT1HG8yNpvyJdIUw=,tag:3QSEfbUEe/4/FdXZVA7VnA==,type:str]
+sops:
+  age:
+    - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAva3ZyOVNUcVZ3ZUxTUkti
+        RTk0WHkwMlFUZTh0NmhyYmgxT3cyTXFPTmp3Cm54L3JVbXgzSjViZGVFK2szVDNE
+        RWFNS01QdzN1RXpoUHZNc1B5anp1ZWsKLS0tIFpBOWozMTJaTGpKaXRqT1VXdy9K
+        QWVudTdYbmJhbHNyekdRRVdoOGxBc0EK+Kx8g+lawa67BNo7hbZqfCgCJHTMhWYd
+        ZVZX2oVGGco+uQfb1tC59bFJWN8nTKbhgCG3ZocMa7cmmGtzdW76Sg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-08-22T20:28:40Z"
+  mac: ENC[AES256_GCM,data:P4S34LHfnlPtVrxOEJ7jnYrxZpT7wpxGC/68libE61m1J6/H48SoVWRckUtoLNhoi6yfi+dTycj2WO9bU4TTpjXRuG1XxsrkzCq8chznzIosznhUusTxjLE9sCMjp0fa8Vyyi6xKQafSXNG+WN9fqECl/aC6HbT4Am8TSqCCQdo=,iv:6n7VYifYxFkZ2I8NVUlqBJhiW8OmhBTgZlX+iNPjVf4=,tag:cm+m9uQkMw5n8rdcGTdl/w==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.1

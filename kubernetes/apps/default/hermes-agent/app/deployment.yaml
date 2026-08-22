@@ -69,8 +69,10 @@ spec:
             - |
               umask 077
               mkdir -p /opt/data/workspace
-              if [ ! -s /opt/data/config.yaml ] || ! grep -q '^_config_version:' /opt/data/config.yaml; then
-                cp /seed/user-config.yaml /opt/data/config.yaml
+              # The process-wide managed scope must stay profile-neutral. Seed
+              # David's complete owner config into only the default profile.
+              if [ ! -e /opt/data/config.yaml ]; then
+                cp /seed/owner-config.yaml /opt/data/config.yaml
               fi
               cmp -s /seed/SOUL.md /opt/data/SOUL.md || cp /seed/SOUL.md /opt/data/SOUL.md
               mkdir -p /opt/data/memories
@@ -84,6 +86,62 @@ spec:
               chmod 0600 /opt/data/SOUL.md
               chmod 0600 /opt/data/memories/USER.md
               chmod 0600 /opt/data/memories/MEMORY.md
+              mkdir -p /opt/data/profiles/friends/workspace
+              cmp -s /friends-seed/config.yaml /opt/data/profiles/friends/config.yaml || cp /friends-seed/config.yaml /opt/data/profiles/friends/config.yaml
+              cmp -s /friends-seed/SOUL.md /opt/data/profiles/friends/SOUL.md || cp /friends-seed/SOUL.md /opt/data/profiles/friends/SOUL.md
+              cmp -s /friends-seed/AGENTS.md /opt/data/profiles/friends/workspace/AGENTS.md || cp /friends-seed/AGENTS.md /opt/data/profiles/friends/workspace/AGENTS.md
+              printf 'DISCORD_BOT_TOKEN=%s\nDISCORD_ALLOWED_USERS=243009043260637184\nCLIPROXY_API_KEY=%s\nFLEETVIEW_MCP_TOKEN=%s\nFLEET_GATEWAY_MCP_TOKEN=%s\nAPI_SERVER_KEY=%s\nHERMES_FRIEND_CODE_DELIVERY_TOKEN=%s\nHERMES_FRIEND_CODE_OWNER_TOKEN=%s\n' \
+                "$${DISCORD_BOT_TOKEN}" "$${CLIPROXY_API_KEY}" "$${FLEETVIEW_MCP_TOKEN}" \
+                "$${FLEET_GATEWAY_MCP_TOKEN}" "$${API_SERVER_KEY}" \
+                "$${HERMES_FRIEND_CODE_DELIVERY_TOKEN}" "$${HERMES_FRIEND_CODE_OWNER_TOKEN}" > /owner-env/owner.env
+              printf 'CLIPROXY_API_KEY=%s\nDISCORD_ALLOW_ALL_USERS=true\nHERMES_FRIEND_CODE_MCP_TOKEN=%s\n' \
+                "$${CLIPROXY_API_KEY}" "$${HERMES_FRIEND_CODE_MCP_TOKEN}" > /friends-env/friends.env
+              chmod 0600 /opt/data/profiles/friends/config.yaml
+              chmod 0600 /opt/data/profiles/friends/SOUL.md
+              chmod 0600 /opt/data/profiles/friends/workspace/AGENTS.md
+              chmod 0600 /owner-env/owner.env
+              chmod 0600 /friends-env/friends.env
+          env:
+            - name: DISCORD_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: discord-token
+            - name: CLIPROXY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: cliproxy-key
+            - name: FLEETVIEW_MCP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: fleetview-token
+            - name: FLEET_GATEWAY_MCP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: mcp-token
+            - name: API_SERVER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: api-server-key
+            - name: HERMES_FRIEND_CODE_MCP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-friend-agent-tokens
+                  key: friend-token
+            - name: HERMES_FRIEND_CODE_DELIVERY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-friend-agent-tokens
+                  key: delivery-token
+            - name: HERMES_FRIEND_CODE_OWNER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-friend-agent-tokens
+                  key: owner-token
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000
@@ -104,8 +162,15 @@ spec:
             - name: managed
               mountPath: /seed
               readOnly: true
+            - name: friends-profile
+              mountPath: /friends-seed
+              readOnly: true
+            - name: owner-env
+              mountPath: /owner-env
+            - name: friends-env
+              mountPath: /friends-env
         - name: prepare-runtime
-          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.3958702ce@sha256:6f2386dfe3c020282bdccdaac086c59b77bff335e3808054d0d52ea297b66fa2
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.d8cc0b2c1a@sha256:2415d21a1451448e6e621dacf783f9d753e12aa1a480bc3f5e630b18ef7ae31c
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -118,6 +183,8 @@ spec:
             - "24000"
             - --user-char-limit
             - "16000"
+            - --owner-config
+            - /seed/owner-config.yaml
             - --skip-replay
           securityContext:
             runAsNonRoot: true
@@ -139,9 +206,12 @@ spec:
             - name: runtime-bootstrap
               mountPath: /bootstrap
               readOnly: true
+            - name: managed
+              mountPath: /seed
+              readOnly: true
       containers:
         - name: app
-          image: ghcr.io/davidilie/hermes-agent:v2026.8.13-remote-fleet.3958702ce@sha256:6f2386dfe3c020282bdccdaac086c59b77bff335e3808054d0d52ea297b66fa2
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.d8cc0b2c1a@sha256:2415d21a1451448e6e621dacf783f9d753e12aa1a480bc3f5e630b18ef7ae31c
           args: ["gateway", "run"]
           env:
             - name: TZ
@@ -225,6 +295,14 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /opt/data
+            - name: owner-env
+              mountPath: /opt/data/.env
+              subPath: owner.env
+              readOnly: true
+            - name: friends-env
+              mountPath: /opt/data/profiles/friends/.env
+              subPath: friends.env
+              readOnly: true
             - name: managed
               mountPath: /etc/hermes
               readOnly: true
@@ -271,6 +349,14 @@ spec:
           configMap:
             name: hermes-agent-runtime-bootstrap
             defaultMode: 0444
+        - name: friends-profile
+          configMap:
+            name: hermes-agent-friends-profile
+            defaultMode: 0444
+        - name: owner-env
+          emptyDir: {}
+        - name: friends-env
+          emptyDir: {}
         - name: tmp
           emptyDir: {}
         - name: xurl-bin

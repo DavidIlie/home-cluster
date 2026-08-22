@@ -1,0 +1,116 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bernd-schorgers/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: hermes-friend-broker
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      hermes-friend-broker:
+        replicas: 1
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: ghcr.io/davidilie/hermes-friend-broker
+              tag: sha-557cc1587c6e6593c25f5fe74f7a82e8718a7a16@sha256:97be058f3ccd3885e0c2c46151bdd55a05c4c1f0350419416c9b65597694f8db
+            env:
+              TZ: Europe/Madrid
+              HERMES_FRIEND_BROKER_ADDRESS: :8080
+              HERMES_FRIEND_BROKER_DB: /data/friend-code.db
+              HERMES_FRIEND_BROKER_TOKEN_HASH_FILE: /run/secrets/friend-code/friend.sha256
+              HERMES_FRIEND_BROKER_DELIVERY_TOKEN_HASH_FILE: /run/secrets/friend-code/delivery.sha256
+              HERMES_FRIEND_BROKER_OWNER_TOKEN_HASH_FILE: /run/secrets/friend-code/owner.sha256
+              HERMES_FRIEND_BROKER_GUILD_ID: "1540757211146493993"
+              HERMES_FRIEND_BROKER_CHANNEL_ID: "1540773031436353708"
+              HERMES_FRIEND_BROKER_OWNER_GUILD_ID: "853884362436116491"
+              HERMES_FRIEND_BROKER_OWNER_CHANNEL_ID: "1537861134076350465"
+              HERMES_FRIEND_BROKER_OWNER_USER_ID: "243009043260637184"
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /livez
+                    port: &port 8080
+                  initialDelaySeconds: 2
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: *port
+                  initialDelaySeconds: 1
+                  periodSeconds: 5
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                cpu: 250m
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+    serviceAccount:
+      create: true
+      name: hermes-friend-broker
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: docker-regcred
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: hermes-friend-broker
+        ports:
+          http:
+            port: *port
+    persistence:
+      data:
+        existingClaim: hermes-friend-broker
+        globalMounts:
+          - path: /data
+      hashes:
+        type: secret
+        name: hermes-friend-broker-hashes
+        defaultMode: 0444
+        globalMounts:
+          - path: /run/secrets/friend-code
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

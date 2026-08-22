@@ -4,7 +4,8 @@ kind: ConfigMap
 metadata:
   name: hermes-agent-managed
 data:
-  config.yaml: |
+  owner-config.yaml: |
+    _config_version: 34
     model:
       default: gpt-5.6-sol
       provider: custom
@@ -69,13 +70,27 @@ data:
       # free_response_channels makes upstream Hermes deliberately skip
       # auto-thread creation, so disable mention gating globally instead.
       require_mention: false
-      allowed_channels: "1537861134076350465"
+      allowed_channels: "1537861134076350465,1540773031436353708"
       auto_thread: true
       thread_require_mention: false
       history_backfill: true
       reactions: true
       approval_mentions: true
       server_actions: "list_guilds,server_info,list_channels,channel_info,fetch_messages,create_thread"
+
+    platforms:
+      discord:
+        extra:
+          friend_code_approval:
+            enabled: true
+            broker_url: http://hermes-friend-broker.default.svc.cluster.local:8080
+            owner_guild_id: "853884362436116491"
+            owner_channel_id: "1537861134076350465"
+            owner_user_id: "243009043260637184"
+            friend_guild_id: "1540757211146493993"
+            friend_channel_id: "1540773031436353708"
+            poll_interval_seconds: 5
+            request_timeout_seconds: 10
 
     memory:
       memory_enabled: true
@@ -343,14 +358,21 @@ data:
           include: [gpu_job_start, gpu_job_cancel]
           resources: false
           prompts: false
-  user-config.yaml: |
-    _config_version: 34
-    # The current skill index reads external_dirs from the persistent user
-    # config before applying managed-scope overlays. Keep this non-secret path
-    # in the bootstrap seed as well as the authoritative managed config.
-    skills:
-      external_dirs:
-        - /etc/hermes-skills
+  config.yaml: |
+    # Managed scope is process-wide, including multiplexed profiles. Keep only
+    # routing here: owner tools belong in owner-config.yaml and friend tools in
+    # the friends profile, otherwise the managed deep merge would leak David's
+    # privileged MCP catalog into the shared profile.
+    gateway:
+      multiplex_profiles: true
+      multiplex_profile_allowlist:
+        - friends
+      profile_routes:
+        - name: friends-herm-channel
+          platform: discord
+          guild_id: "1540757211146493993"
+          chat_id: "1540773031436353708"
+          profile: friends
   SOUL.md: |
     # Herm
 

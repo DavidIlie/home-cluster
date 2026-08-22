@@ -1,0 +1,142 @@
+_config_version: 34
+
+model:
+  default: gpt-5.6-sol
+  provider: custom
+  base_url: http://cliproxy.default.svc.cluster.local:8317/v1
+  api_key: $${CLIPROXY_API_KEY}
+  api_mode: codex_responses
+  context_length: 1050000
+  max_tokens: 128000
+
+agent:
+  reasoning_effort: low
+  service_tier: priority
+  # Public-server turns are useful but bounded so one abandoned or hostile
+  # request cannot consume the owner's model quota for hours.
+  max_turns: 40
+  gateway_timeout: 1800
+  task_completion_guidance: true
+  tool_use_enforcement: auto
+  intent_ack_continuation: auto
+
+terminal:
+  backend: local
+  cwd: /opt/data/profiles/friends/workspace
+  home_mode: profile
+
+browser:
+  backend: "off"
+
+platform_toolsets:
+  discord:
+    - web
+    - browser
+    - vision
+    - clarify
+
+discord:
+  require_mention: false
+  allowed_channels: "1540773031436353708"
+  # Slash-command gating is opt-in: without an admin list every allowed user
+  # inherits every command. David remains the only command admin; friends get
+  # only bounded controls over their own per-user session.
+  allow_admin_from:
+    - "243009043260637184"
+  user_allowed_commands:
+    - help
+    - whoami
+  group_allow_admin_from:
+    - "243009043260637184"
+  group_user_allowed_commands:
+    - help
+    - whoami
+    - new
+    - retry
+    - undo
+    - title
+    - compress
+    - status
+  auto_thread: true
+  thread_require_mention: false
+  # Channel-wide backfill would reintroduce other friends' messages into an
+  # otherwise per-user session.
+  history_backfill: false
+  reactions: true
+  approval_mentions: false
+  server_actions: ""
+
+platforms:
+  discord:
+    extra:
+      # The component gate reads PlatformConfig.extra directly; this cannot be
+      # expressed only in the top-level Discord tool policy above.
+      require_admin_for_exec_approval: true
+      # This adapter setting must also be profile-local; the legacy env bridge
+      # is process-wide under multiplexing.
+      history_backfill: false
+
+gateway:
+  # Bound shared-account spend and prevent a busy public server from starving
+  # David's owner profile. Excess conversations receive the normal busy reply.
+  max_concurrent_sessions: 3
+  # A Discord thread is shared by default in upstream Hermes. Both switches
+  # are required so one friend can never resume or contribute to another
+  # friend's parent-channel or thread session.
+  group_sessions_per_user: true
+  thread_sessions_per_user: true
+
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+  write_approval: true
+
+skills:
+  template_vars: false
+  inline_shell: false
+  guard_agent_created: true
+  write_approval: true
+  external_dirs: []
+
+delegation:
+  orchestrator_enabled: false
+  subagent_auto_approve: false
+
+approvals:
+  mode: manual
+  timeout: 900
+  cron_mode: deny
+
+security:
+  allow_private_urls: false
+  redact_secrets: true
+  protected_instruction_files: true
+  tirith_enabled: true
+  tirith_fail_open: false
+  allow_lazy_installs: false
+  approval:
+    transport: builtin
+    transport_fallback: deny
+
+cron:
+  allow_agent_scheduling: false
+
+timezone: Europe/Madrid
+
+mcp_servers:
+  friends_public_code:
+    url: http://hermes-friend-broker.default.svc.cluster.local:8080/mcp
+    headers:
+      Authorization: "Bearer $${HERMES_FRIEND_CODE_MCP_TOKEN}"
+    # These tools can verify one exact public repository or record/read/cancel
+    # a request. None can execute code, approve, merge, list, or authenticate.
+    trust: full
+    timeout: 30
+    tools:
+      include:
+        - friend_public_repository_info
+        - friend_code_request
+        - friend_code_status
+        - friend_code_cancel
+      resources: false
+      prompts: false

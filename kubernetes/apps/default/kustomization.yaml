@@ -25,6 +25,7 @@ resources:
   - ./image-automations/ks.yaml
   - ./hermes-gpu/ks.yaml
   - ./hermes/ks.yaml
+  - ./hermes-friend-broker/ks.yaml
   - ./hermes-agent/ks.yaml
   # - ./mailprism/ks.yaml
   # - ./roundcube/ks.yaml

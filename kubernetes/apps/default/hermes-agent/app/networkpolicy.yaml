@@ -47,3 +47,10 @@ spec:
       ports:
         - port: 8080
           protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-broker
+      ports:
+        - port: 8080
+          protocol: TCP
