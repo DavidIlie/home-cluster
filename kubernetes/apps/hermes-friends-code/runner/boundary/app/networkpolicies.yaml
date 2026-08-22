@@ -1,0 +1,474 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: hermes-friends-control
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: hermes-friends-sandbox
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: hermes-friends-runtime
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: hermes-friends-artifact
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: hermes-friends-creator
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: hermes-friends-publisher
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dispatcher-egress
+  namespace: hermes-friends-control
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-dispatcher
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: default
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-broker
+      ports:
+        - port: 8080
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-artifact
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-artifactd
+      ports:
+        - port: 8081
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-creator
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-creator
+      ports:
+        - port: 8082
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-publisher
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-publisher
+      ports:
+        - port: 8083
+          protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: dispatcher-dns
+  namespace: hermes-friends-control
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-dispatcher
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchName: hermes-friend-broker.default.svc.cluster.local
+              - matchName: hermes-friend-artifactd.hermes-friends-artifact.svc.cluster.local
+              - matchName: hermes-friend-creator.hermes-friends-creator.svc.cluster.local
+              - matchName: hermes-friend-publisher.hermes-friends-publisher.svc.cluster.local
+              - matchName: hermes-friend-model-relay.hermes-friends-control.svc.cluster.local
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: dispatcher-kube-api
+  namespace: hermes-friends-control
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-dispatcher
+  egress:
+    - toEntities: [kube-apiserver]
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sandbox-artifact-egress
+  namespace: hermes-friends-sandbox
+spec:
+  podSelector:
+    matchExpressions:
+      - key: hermes.davidapps.dev/friend-role
+        operator: In
+        values: [generator, tester]
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-artifact
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-artifactd
+      ports:
+        - port: 8081
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: generator-model-relay-egress
+  namespace: hermes-friends-sandbox
+spec:
+  podSelector:
+    matchLabels:
+      hermes.davidapps.dev/friend-role: generator
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-control
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-model-relay
+      ports:
+        - port: 8084
+          protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sandbox-dns
+  namespace: hermes-friends-sandbox
+spec:
+  endpointSelector:
+    matchExpressions:
+      - key: hermes.davidapps.dev/friend-role
+        operator: In
+        values: [generator, tester]
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchName: hermes-friend-artifactd.hermes-friends-artifact.svc.cluster.local
+              - matchName: hermes-friend-model-relay.hermes-friends-control.svc.cluster.local
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: artifactd-ingress
+  namespace: hermes-friends-artifact
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-artifactd
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-control
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-dispatcher
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-sandbox
+          podSelector:
+            matchExpressions:
+              - key: hermes.davidapps.dev/friend-role
+                operator: In
+                values: [generator, tester]
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-publisher
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-publisher
+      ports:
+        - port: 8081
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: creator-ingress
+  namespace: hermes-friends-creator
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-creator
+  policyTypes: [Ingress]
+  ingress:
+    - from: &dispatcher-source
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-control
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-dispatcher
+      ports:
+        - port: 8082
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: publisher-ingress
+  namespace: hermes-friends-publisher
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-publisher
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-control
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-dispatcher
+      ports:
+        - port: 8083
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: publisher-artifact-egress
+  namespace: hermes-friends-publisher
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-publisher
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-artifact
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-artifactd
+      ports:
+        - port: 8081
+          protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: github-api
+  namespace: hermes-friends-creator
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-creator
+  egress: &github-egress
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchName: api.github.com
+    - toFQDNs:
+        - matchName: api.github.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: github-api
+  namespace: hermes-friends-publisher
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-publisher
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchName: api.github.com
+              - matchName: hermes-friend-artifactd.hermes-friends-artifact.svc.cluster.local
+    - toFQDNs:
+        - matchName: api.github.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-scrape
+  namespace: hermes-friends-control
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-dispatcher
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+          rules:
+            http:
+              - method: GET
+                path: ^/metrics$
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-scrape
+  namespace: hermes-friends-artifact
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-artifactd
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
+          rules:
+            http:
+              - method: GET
+                path: ^/metrics$
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-scrape
+  namespace: hermes-friends-creator
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-creator
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+      toPorts:
+        - ports:
+            - port: "8082"
+              protocol: TCP
+          rules:
+            http:
+              - method: GET
+                path: ^/metrics$
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-scrape
+  namespace: hermes-friends-publisher
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-publisher
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+      toPorts:
+        - ports:
+            - port: "8083"
+              protocol: TCP
+          rules:
+            http:
+              - method: GET
+                path: ^/metrics$

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+app_root="${repo_root}/kubernetes/apps/hermes-friends-code"
+scratch="$(mktemp -d)"
+trap 'rm -rf "${scratch}"' EXIT
+
+resolve() {
+  if command -v "$1" >/dev/null 2>&1; then
+    command -v "$1"
+    return
+  fi
+  if command -v mise >/dev/null 2>&1; then
+    mise which "$1" 2>/dev/null && return
+  fi
+  echo "missing required command: $1" >&2
+  exit 1
+}
+
+kustomize_bin="${KUSTOMIZE_BIN:-$(resolve kustomize)}"
+yq_bin="${YQ_BIN:-$(resolve yq)}"
+
+"${kustomize_bin}" build "${app_root}" >"${scratch}/root.yaml"
+"${kustomize_bin}" build "${app_root}/runner/boundary/app" >"${scratch}/boundary.yaml"
+"${kustomize_bin}" build "${app_root}/runner/runtime-validation/app" >"${scratch}/runtime.yaml"
+"${kustomize_bin}" build "${app_root}/runner/app" >"${scratch}/workloads.yaml"
+
+if grep -Fxq '  - ./hermes-friends-code' "${repo_root}/kubernetes/apps/kustomization.yaml"; then
+  echo "friends runner unexpectedly referenced by the live apps root" >&2
+  exit 1
+fi
+
+child_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Kustomization" and .apiVersion == "kustomize.toolkit.fluxcd.io/v1")) | length' "${scratch}/root.yaml")"
+suspended_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Kustomization" and .apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .spec.suspend == true)) | length' "${scratch}/root.yaml")"
+if [[ "${child_count}" != "3" || "${suspended_count}" != "3" ]]; then
+  echo "expected three suspended Flux children, got ${suspended_count}/${child_count}" >&2
+  exit 1
+fi
+
+deployment_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Deployment")) | length' "${scratch}/workloads.yaml")"
+zero_deployment_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Deployment" and .spec.replicas == 0)) | length' "${scratch}/workloads.yaml")"
+if [[ "${deployment_count}" != "4" || "${zero_deployment_count}" != "4" ]]; then
+  echo "expected four zero-replica Deployments, got ${zero_deployment_count}/${deployment_count}" >&2
+  exit 1
+fi
+
+for manifest in "${scratch}"/*.yaml; do
+  forbidden="$("${yq_bin}" ea '[.] | map(select(.kind == "Secret" or .kind == "Ingress" or .kind == "HTTPRoute")) | length' "${manifest}")"
+  if [[ "${forbidden}" != "0" ]]; then
+    echo "forbidden live surface or Secret in ${manifest}" >&2
+    exit 1
+  fi
+done
+
+generator_image="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-runner-policy"))[0].data.generator-image' "${scratch}/workloads.yaml")"
+tester_image="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-runner-policy"))[0].data.tester-image' "${scratch}/workloads.yaml")"
+if [[ "${generator_image}" != ghcr.io/davidilie/hermes-friend-generator@sha256:0000000000000000000000000000000000000000000000000000000000000000 ||
+      "${tester_image}" != ghcr.io/davidilie/hermes-friend-tester@sha256:0000000000000000000000000000000000000000000000000000000000000000 ||
+      "${generator_image}" == "${tester_image}" ]]; then
+  echo "generator and tester must remain distinct inert image contracts" >&2
+  exit 1
+fi
+
+runtime_class="$("${yq_bin}" 'select(.kind == "Job").spec.template.spec.runtimeClassName' "${scratch}/runtime.yaml")"
+runtime_revision="$("${yq_bin}" 'select(.kind == "Job").metadata.labels."hermes.davidapps.dev/activation-revision"' "${scratch}/runtime.yaml")"
+runtime_image="$("${yq_bin}" 'select(.kind == "Job").spec.template.spec.containers[0].image' "${scratch}/runtime.yaml")"
+if [[ "${runtime_class}" != "kata-qemu" || "${runtime_revision}" != "UNSET" ||
+      "${runtime_image}" != ghcr.io/davidilie/hermes-friend-runtime-validator@sha256:0000000000000000000000000000000000000000000000000000000000000000 ]]; then
+  echo "staged Kata validation contract is not inert and exact" >&2
+  exit 1
+fi
+
+policy_count="$("${yq_bin}" ea '[.] | map(select(.kind == "ValidatingAdmissionPolicy")) | length' "${scratch}/boundary.yaml")"
+binding_count="$("${yq_bin}" ea '[.] | map(select(.kind == "ValidatingAdmissionPolicyBinding")) | length' "${scratch}/boundary.yaml")"
+if [[ "${policy_count}" != "3" || "${binding_count}" != "3" ]]; then
+  echo "expected three admission policies and bindings" >&2
+  exit 1
+fi
+
+if [[ "${1:-}" == "--activation-preflight" ]]; then
+  kubeconfig="${2:-}"
+  if [[ -z "${kubeconfig}" || ! -f "${kubeconfig}" ]]; then
+    echo "usage: $0 --activation-preflight /path/to/kubeconfig" >&2
+    exit 1
+  fi
+  kubectl_bin="${KUBECTL_BIN:-$(resolve kubectl)}"
+  "${kubectl_bin}" --kubeconfig "${kubeconfig}" get runtimeclass kata-qemu >/dev/null
+  echo "Kata RuntimeClass exists; run the pinned validation child before workloads"
+fi
+
+echo "Hermes friends code staging invariants passed"

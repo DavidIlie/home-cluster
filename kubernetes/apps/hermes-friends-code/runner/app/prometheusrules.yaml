@@ -1,0 +1,102 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: hermes-friends-code
+  namespace: hermes-friends-control
+spec:
+  groups:
+    - name: hermes-friends-code.workloads
+      rules:
+        - alert: HermesFriendRunnerWorkloadUnavailable
+          expr: >-
+            kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"} > 0
+            and on (namespace, deployment)
+            kube_deployment_status_replicas_available{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"}
+            < kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"}
+          for: 10m
+          labels:
+            severity: critical
+            service: hermes-friends-code
+          annotations:
+            summary: A friend public-code runner component is unavailable
+            description: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has fewer available replicas than requested.
+        - alert: HermesFriendSandboxJobFailed
+          expr: kube_job_status_failed{namespace="hermes-friends-sandbox"} > 0
+          for: 5m
+          labels:
+            severity: warning
+            service: hermes-friends-code
+          annotations:
+            summary: A friend public-code sandbox Job failed
+            description: Sandbox Job {{ $labels.job_name }} has remained failed for five minutes.
+        - alert: HermesFriendRunnerMetricsMissing
+          expr: >-
+            kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"} > 0
+            unless on (namespace, deployment)
+            label_replace(
+              max by (namespace, job) (up{namespace=~"hermes-friends-(control|artifact|creator|publisher)",job=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"} == 1),
+              "deployment", "$1", "job", "(.+)"
+            )
+          for: 5m
+          labels:
+            severity: critical
+            service: hermes-friends-code
+          annotations:
+            summary: A running friend-code component has no healthy metrics target
+            description: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} is requested but has not produced a healthy Prometheus scrape for five minutes.
+        - alert: HermesFriendSandboxJobStuck
+          expr: >-
+            (time() - kube_job_status_start_time{namespace="hermes-friends-sandbox"} > 1200)
+            and on (namespace, job_name)
+            kube_job_status_active{namespace="hermes-friends-sandbox"} > 0
+          for: 5m
+          labels:
+            severity: warning
+            service: hermes-friends-code
+          annotations:
+            summary: A friend public-code sandbox Job is stuck
+            description: Sandbox Job {{ $labels.job_name }} has remained active for more than twenty minutes.
+        - alert: HermesFriendRunnerContainerRestarting
+          expr: >-
+            increase(kube_pod_container_status_restarts_total{namespace=~"hermes-friends-(control|artifact|creator|publisher)",container=~"dispatcher|artifactd|creator|publisher"}[15m]) > 1
+          for: 5m
+          labels:
+            severity: warning
+            service: hermes-friends-code
+          annotations:
+            summary: A friend-code control component is restarting
+            description: Container {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} restarted repeatedly in the last fifteen minutes.
+        - alert: HermesFriendSandboxQuotaExhausted
+          expr: >-
+            kube_resourcequota{namespace="hermes-friends-sandbox",resource=~"pods|count/jobs.batch",type="used"}
+            >= on (namespace, resource)
+            kube_resourcequota{namespace="hermes-friends-sandbox",resource=~"pods|count/jobs.batch",type="hard"}
+          for: 5m
+          labels:
+            severity: warning
+            service: hermes-friends-code
+          annotations:
+            summary: The friend sandbox exhausted a concurrency quota
+            description: Sandbox {{ $labels.resource }} usage has remained at its hard quota for five minutes.
+        - alert: HermesFriendKataValidationMissing
+          expr: absent(kube_job_status_succeeded{namespace="hermes-friends-runtime",job_name="hermes-friends-kata-validation"} == 1)
+          for: 10m
+          labels:
+            severity: critical
+            service: hermes-friends-code
+          annotations:
+            summary: The accepted Kata runtime proof is missing
+            description: The retained one-shot Kata validation Job is not recorded as successful while friend-code workloads exist.
+        - alert: HermesFriendPersistentVolumeNearlyFull
+          expr: >-
+            kubelet_volume_stats_used_bytes{namespace=~"hermes-friends-(control|artifact)",persistentvolumeclaim=~"hermes-friend-(dispatcher-journal|artifacts)"}
+            /
+            kubelet_volume_stats_capacity_bytes{namespace=~"hermes-friends-(control|artifact)",persistentvolumeclaim=~"hermes-friend-(dispatcher-journal|artifacts)"} > 0.85
+          for: 15m
+          labels:
+            severity: warning
+            service: hermes-friends-code
+          annotations:
+            summary: A friend-code persistent volume is nearly full
+            description: PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} has stayed above 85% utilization for fifteen minutes.

@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-friend-dispatcher
+  namespace: hermes-friends-control
+  labels:
+    app.kubernetes.io/name: hermes-friend-dispatcher
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hermes-friend-dispatcher
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-friend-artifactd
+  namespace: hermes-friends-artifact
+  labels:
+    app.kubernetes.io/name: hermes-friend-artifactd
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hermes-friend-artifactd
+  ports:
+    - name: http
+      port: 8081
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-friend-creator
+  namespace: hermes-friends-creator
+  labels:
+    app.kubernetes.io/name: hermes-friend-creator
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hermes-friend-creator
+  ports:
+    - name: http
+      port: 8082
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-friend-publisher
+  namespace: hermes-friends-publisher
+  labels:
+    app.kubernetes.io/name: hermes-friend-publisher
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hermes-friend-publisher
+  ports:
+    - name: http
+      port: 8083
+      targetPort: http

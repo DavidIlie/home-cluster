@@ -1,0 +1,110 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hermes-friends-control
+  namespace: hermes-friends-control
+spec:
+  hard:
+    pods: "2"
+    persistentvolumeclaims: "1"
+    requests.storage: 2Gi
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hermes-friends-sandbox
+  namespace: hermes-friends-sandbox
+spec:
+  hard:
+    pods: "4"
+    count/jobs.batch: "4"
+    count/configmaps: "16"
+    requests.cpu: "4"
+    requests.memory: 4Gi
+    requests.ephemeral-storage: 4Gi
+    limits.cpu: "8"
+    limits.memory: 8Gi
+    limits.ephemeral-storage: 8Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: hermes-friends-sandbox
+  namespace: hermes-friends-sandbox
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+        ephemeral-storage: 128Mi
+      default:
+        cpu: "1"
+        memory: 1Gi
+        ephemeral-storage: 1Gi
+      max:
+        cpu: "2"
+        memory: 2Gi
+        ephemeral-storage: 2Gi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hermes-friends-runtime
+  namespace: hermes-friends-runtime
+spec:
+  hard:
+    pods: "1"
+    count/jobs.batch: "1"
+    requests.cpu: 100m
+    requests.memory: 128Mi
+    requests.ephemeral-storage: 128Mi
+    limits.cpu: 250m
+    limits.memory: 256Mi
+    limits.ephemeral-storage: 256Mi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hermes-friends-artifact
+  namespace: hermes-friends-artifact
+spec:
+  hard:
+    pods: "1"
+    persistentvolumeclaims: "1"
+    requests.storage: 4Gi
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hermes-friends-creator
+  namespace: hermes-friends-creator
+spec:
+  hard:
+    pods: "1"
+    requests.cpu: 500m
+    requests.memory: 512Mi
+    limits.cpu: "1"
+    limits.memory: 1Gi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hermes-friends-publisher
+  namespace: hermes-friends-publisher
+spec:
+  hard:
+    pods: "1"
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi

@@ -1,0 +1,47 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-friend-runner-policy
+  namespace: hermes-friends-control
+data:
+  # A later reviewed activation replaces the complete signed policy together
+  # with every real digest. Inertness is enforced by root omission, suspended
+  # Flux children, zero replicas, and impossible image digests.
+  policy-revision: disabled
+  github-api-url: https://api.github.com
+  sandbox-namespace: hermes-friends-sandbox
+  test-catalog-configmap: UNSET
+  sandbox-organization: UNSET
+  creator-app-id: UNSET
+  creator-installation-id: UNSET
+  publisher-app-id: UNSET
+  publisher-installation-id: UNSET
+  generator-image: ghcr.io/davidilie/hermes-friend-generator@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  tester-image: ghcr.io/davidilie/hermes-friend-tester@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  dispatcher-image: &inert-control-image ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  artifactd-image: *inert-control-image
+  creator-image: *inert-control-image
+  publisher-image: *inert-control-image
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-friend-creator-policy
+  namespace: hermes-friends-creator
+data:
+  sandbox-organization: UNSET
+  app-id: UNSET
+  installation-id: UNSET
+  github-api-url: https://api.github.com
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-friend-publisher-policy
+  namespace: hermes-friends-publisher
+data:
+  sandbox-organization: UNSET
+  app-id: UNSET
+  installation-id: UNSET
+  github-api-url: https://api.github.com
