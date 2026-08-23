@@ -36,7 +36,8 @@ platform_toolsets:
     - clarify
 
 discord:
-  require_mention: false
+  require_mention: true
+  free_response_channels: "1540773031436353708"
   allowed_channels: "1540773031436353708"
   # Slash-command gating is opt-in: without an admin list every allowed user
   # inherits every command. David remains the only command admin; friends get
@@ -69,6 +70,7 @@ discord:
 platforms:
   discord:
     extra:
+      auto_thread_free_response_channels: true
       # The component gate reads PlatformConfig.extra directly; this cannot be
       # expressed only in the top-level Discord tool policy above.
       require_admin_for_exec_approval: true

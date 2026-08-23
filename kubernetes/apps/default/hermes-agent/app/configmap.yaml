@@ -71,11 +71,11 @@ data:
         - cronjob
 
     discord:
-      # The channel is already exact-allowlisted below. Leaving it in
-      # free_response_channels makes upstream Hermes deliberately skip
-      # auto-thread creation, so disable mention gating globally instead.
-      require_mention: false
-      allowed_channels: "1537861134076350465,1540773031436353708"
+      # Both dedicated Herm channels accept ordinary messages and launch a
+      # thread. Everywhere else requires an explicit @herm mention.
+      require_mention: true
+      free_response_channels: "1537861134076350465,1540773031436353708"
+      allowed_channels: "*"
       auto_thread: true
       thread_require_mention: false
       history_backfill: true
@@ -86,6 +86,9 @@ data:
     platforms:
       discord:
         extra:
+          # Keep free-response Herm channels thread-first instead of replying
+          # inline. This is intentionally independent from mention admission.
+          auto_thread_free_response_channels: true
           friend_code_approval:
             enabled: true
             broker_url: http://hermes-friend-broker.default.svc.cluster.local:8080
@@ -385,10 +388,9 @@ data:
         - friends-david
         - friends
       profile_routes:
-        - name: david-in-friends-herm-channel
+        - name: david-in-friends-guild
           platform: discord
           guild_id: "1540757211146493993"
-          chat_id: "1540773031436353708"
           user_id: "243009043260637184"
           profile: friends-david
         - name: friends-herm-channel

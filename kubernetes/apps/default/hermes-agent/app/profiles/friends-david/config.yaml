@@ -46,8 +46,9 @@ platform_toolsets:
     - clarify
 
 discord:
-  require_mention: false
-  allowed_channels: "1540773031436353708"
+  require_mention: true
+  free_response_channels: "1540773031436353708"
+  allowed_channels: "*"
   allow_admin_from:
     - "243009043260637184"
   group_allow_admin_from:
@@ -58,6 +59,11 @@ discord:
   reactions: true
   approval_mentions: true
   server_actions: "fetch_messages,create_thread"
+
+platforms:
+  discord:
+    extra:
+      auto_thread_free_response_channels: true
 
 gateway:
   max_concurrent_sessions: 2
