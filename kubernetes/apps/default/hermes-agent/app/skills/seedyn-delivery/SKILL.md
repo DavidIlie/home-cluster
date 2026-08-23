@@ -22,8 +22,9 @@ image.
 
    `curl --fail-with-body --silent --show-error -H "Authorization: Bearer $SEEDYN_BROKER_TOKEN" -F "file=@/absolute/path" -F "kind=auto" http://hermes.default.svc.cluster.local:8080/seedyn/upload`
 
-6. Parse the JSON response, require an `https://i.dave.tips/` URL, and verify it
-   with a bounded HTTP `HEAD` or `GET` request.
+6. Parse the JSON response, require an HTTPS URL on Seedyn's configured media
+   hosts (`i.dave.tips` or `i.gurt.ing`), and verify it with a bounded HTTP
+   `HEAD` or `GET` request.
 7. In the final Discord response, include the verified URL and put
    `MEDIA:/absolute/path` on its own line. Hermes consumes that directive and
    uploads the native attachment; do not wrap it in a code fence.
