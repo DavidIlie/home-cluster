@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/hermes-friend-broker
-              tag: sha-557cc1587c6e6593c25f5fe74f7a82e8718a7a16@sha256:97be058f3ccd3885e0c2c46151bdd55a05c4c1f0350419416c9b65597694f8db
+              tag: sha-e5bc421b6b990bb984d6ef6ac303b01df1c58f8f@sha256:00144a54c171ed7583d980a89b96785f427f04595d52738b9e16ee7be61b200e
             env:
               TZ: Europe/Madrid
               HERMES_FRIEND_BROKER_ADDRESS: :8080
@@ -44,6 +44,15 @@ spec:
               HERMES_FRIEND_BROKER_OWNER_GUILD_ID: "853884362436116491"
               HERMES_FRIEND_BROKER_OWNER_CHANNEL_ID: "1537861134076350465"
               HERMES_FRIEND_BROKER_OWNER_USER_ID: "243009043260637184"
+              HERMES_FRIEND_WORKSPACE_ENABLED: "true"
+              HERMES_FRIEND_BROKER_WORKSPACE_TOKEN_HASH_FILE: /run/secrets/friend-code/workspace.sha256
+              HERMES_FRIEND_WORKSPACE_APPROVAL_SIGNING_KEY_FILE: /run/secrets/friend-workspace/approval-private-key
+              HERMES_FRIEND_WORKSPACE_POLICY_REVISION: workspace-v1
+              HERMES_FRIEND_WORKSPACE_SANDBOX_ORG: DavidIlie-friends-sandbox
+              HERMES_FRIEND_WORKSPACE_CREATOR_APP_ID: "4690613"
+              HERMES_FRIEND_WORKSPACE_CREATOR_INSTALLATION_ID: "155902914"
+              HERMES_FRIEND_WORKSPACE_PUBLISHER_APP_ID: "4690643"
+              HERMES_FRIEND_WORKSPACE_PUBLISHER_INSTALLATION_ID: "155903341"
             probes:
               liveness: &probe
                 enabled: true
@@ -109,6 +118,13 @@ spec:
         defaultMode: 0444
         globalMounts:
           - path: /run/secrets/friend-code
+            readOnly: true
+      workspace-signing:
+        type: secret
+        name: hermes-friend-runner-signing
+        defaultMode: 0440
+        globalMounts:
+          - path: /run/secrets/friend-workspace
             readOnly: true
       tmp:
         type: emptyDir

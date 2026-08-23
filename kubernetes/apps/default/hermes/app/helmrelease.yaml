@@ -33,8 +33,8 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              # Source: DavidIlie/hermes@19e2c0e53971a051283443b08665ce97dece1294
-              tag: sha-19e2c0e53971@sha256:f6aa7d66e5cd18808d99758f07c5f44ed49dd8b6680ff56fef9770828a10e0a0
+              # Source: DavidIlie/hermes@e5bc421b6b990bb984d6ef6ac303b01df1c58f8f
+              tag: sha-e5bc421b6b990bb984d6ef6ac303b01df1c58f8f@sha256:b18bda363bcc5d8f59e0c978b1e0c9e3a52c707a0dd591a0cd67d3a585154b54
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -55,6 +55,11 @@ spec:
                 cp /run/secrets/source/github-observer-token /run/secrets/hermes/github-observer-token
                 cp /run/secrets/source/discord-token /run/secrets/hermes/discord-token
                 cp /run/secrets/source/plausible-api-key /run/secrets/hermes/plausible-api-key
+                cp /run/secrets/source/friend-workspace-token /run/secrets/hermes/friend-workspace-token
+                cp /run/secrets/source/friend-approval-public-key /run/secrets/hermes/friend-approval-public-key
+                cp /run/secrets/source/friend-creator-app-key /run/secrets/hermes/friend-creator-app-key
+                cp /run/secrets/source/friend-publisher-app-key /run/secrets/hermes/friend-publisher-app-key
+                cp /run/secrets/source/friend-ssh-private-key /run/secrets/hermes/friend-ssh-private-key
                 chmod 0600 /run/secrets/hermes/*
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -114,6 +119,18 @@ spec:
               HERMES_PLAUSIBLE_CUSTOM_EVENT_SCHEMAS: '[{"site_id":"mbretrofit.it","event":"hero-redirect","properties":["loggedIn","vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"hero-failed","properties":["vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"car-details-viewed","properties":["vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"error","properties":["error","path"]}]'
               HERMES_DAVIDAPPS_URL: https://id.davidapps.dev
               HERMES_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-api-key
+              HERMES_FRIEND_WORKSPACE_ENABLED: "true"
+              HERMES_FRIEND_WORKSPACE_BROKER_URL: http://hermes-friend-broker.default.svc.cluster.local:8080
+              HERMES_FRIEND_WORKSPACE_TOKEN_FILE: /run/secrets/hermes/friend-workspace-token
+              HERMES_FRIEND_WORKSPACE_APPROVAL_PUBLIC_KEY_FILE: /run/secrets/hermes/friend-approval-public-key
+              HERMES_FRIEND_WORKSPACE_SANDBOX_ORG: DavidIlie-friends-sandbox
+              HERMES_FRIEND_WORKSPACE_CREATOR_APP_ID: "4690613"
+              HERMES_FRIEND_WORKSPACE_CREATOR_INSTALLATION_ID: "155902914"
+              HERMES_FRIEND_WORKSPACE_CREATOR_KEY_FILE: /run/secrets/hermes/friend-creator-app-key
+              HERMES_FRIEND_WORKSPACE_PUBLISHER_APP_ID: "4690643"
+              HERMES_FRIEND_WORKSPACE_PUBLISHER_INSTALLATION_ID: "155903341"
+              HERMES_FRIEND_WORKSPACE_PUBLISHER_KEY_FILE: /run/secrets/hermes/friend-publisher-app-key
+              HERMES_FRIEND_WORKSPACE_SSH_IDENTITY_FILE: /run/secrets/hermes/friend-ssh-private-key
             probes:
               liveness: &probe
                 enabled: true

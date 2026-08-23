@@ -12,6 +12,13 @@ spec:
     - from:
         - podSelector:
             matchLabels:
+              app.kubernetes.io/name: hermes
+      ports:
+        - port: 8080
+          protocol: TCP
+    - from:
+        - podSelector:
+            matchLabels:
               app.kubernetes.io/name: hermes-agent
       ports:
         - port: 8080

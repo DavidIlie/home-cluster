@@ -59,6 +59,14 @@ spec:
       ports:
         - port: 22
           protocol: TCP
+    # The private gateway consumes only David-approved friend execution intents.
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-friend-broker
+      ports:
+        - port: 8080
+          protocol: TCP
     # The fleet gateway talks directly to the two external Kubernetes APIs.
     - to:
         - ipBlock:

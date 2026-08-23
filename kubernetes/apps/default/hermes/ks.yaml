@@ -11,6 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: hermes-friend-broker
+      namespace: default
     - name: hermes-gpu
       namespace: default
     - name: kube-prometheus-stack
