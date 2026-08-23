@@ -33,8 +33,8 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              # Source: DavidIlie/hermes@2c14bb1e2e318c15f7da9ecd27169c41d54ef012
-              tag: sha-2c14bb1e2e31@sha256:c98c549218b5d7410a476ba4a9c4e8a12504a8309f223ef7f1c8b5823e947f5e
+              # Source: DavidIlie/hermes@19e2c0e53971a051283443b08665ce97dece1294
+              tag: sha-19e2c0e53971@sha256:f6aa7d66e5cd18808d99758f07c5f44ed49dd8b6680ff56fef9770828a10e0a0
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -52,6 +52,7 @@ spec:
                 cp /run/secrets/source/grafana-token /run/secrets/hermes/grafana-token
                 cp /run/secrets/source/davidapps-api-key /run/secrets/hermes/davidapps-api-key
                 cp /run/secrets/source/github-token /run/secrets/hermes/github-token
+                cp /run/secrets/source/github-observer-token /run/secrets/hermes/github-observer-token
                 cp /run/secrets/source/discord-token /run/secrets/hermes/discord-token
                 cp /run/secrets/source/plausible-api-key /run/secrets/hermes/plausible-api-key
                 chmod 0600 /run/secrets/hermes/*
@@ -89,6 +90,7 @@ spec:
               HERMES_T3_TASK_CLIENT: /usr/local/bin/t3-fleet-task
               HERMES_GITHUB_OWNER: DavidIlie
               HERMES_GITHUB_TOKEN_FILE: /run/secrets/hermes/github-token
+              HERMES_GITHUB_OBSERVER_TOKEN_FILE: /run/secrets/hermes/github-observer-token
               HERMES_KUBE_HOME_SERVER: https://192.168.100.180:6443
               HERMES_KUBE_DAVIDAPPS_SERVER: https://192.168.100.169:6443
               HERMES_KUBE_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-kube-token
