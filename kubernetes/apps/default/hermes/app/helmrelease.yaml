@@ -33,7 +33,7 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              tag: b53020d@sha256:d2ae66523ca3d43aa9a20c457982a5d43f1ba9d2e6b80599683e07cdb7826618
+              tag: sha-557cc1587c6e@sha256:c56582d95a0bec6b55801a227f2aeba03bdcfabc3c8ac171c3652b7ee610c221
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -83,6 +83,9 @@ spec:
               HERMES_SSH_USER: hermes
               HERMES_SSH_HOME: /home/hermes
               HERMES_MONITOR_INTERVAL: 15s
+              HERMES_T3_TASKS_ENABLED: "true"
+              HERMES_WORKSPACE_ROOT: /srv/fleet/hermes
+              HERMES_T3_TASK_CLIENT: /usr/local/bin/t3-fleet-task
               HERMES_GITHUB_OWNER: DavidIlie
               HERMES_GITHUB_TOKEN_FILE: /run/secrets/hermes/github-token
               HERMES_KUBE_HOME_SERVER: https://192.168.100.180:6443
