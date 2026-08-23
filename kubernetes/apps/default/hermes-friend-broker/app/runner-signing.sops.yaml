@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hermes-friend-runner-signing
+type: Opaque
+stringData:
+  approval-private-key: ENC[AES256_GCM,data:mSEAR7lbWFiEpXOn36RI8tf3nZsErzhJUJe+RtcBT/gMh+FihqPFl6oiHSjGPiBWJm8HqToiK2w/lJHRLdJF61wWMiPpEbaaUW4XDZSg6uQB8ukTiI6u1QJszLEPn2L5ygtPtTK66an+knHQqpwIDk4y4DJXX/sBVTmWw0kAffU=,iv:tIhbuVrTiqlt7Fs53c/teWQKAcJHYyj18TSBprBqOWI=,tag:o9s8Zvsx0Yl3wD87tCgjJw==,type:str]
+sops:
+  age:
+    - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBKR3dvRVpqRWcwVTJHUi9Q
+        dDB6ZWxFQktHYlp6bFBYQ3lUWk94OVpIWUVrCkhNblJFWU13VC9KU3lwVnQ0K0w3
+        dGRrTThJeVZLY2lLYVJEVktaVTBOOVkKLS0tIGxYZ2E3NnM2NlRCNEFJRGF3M1JD
+        RHBYRktxTXNKaEkxZlFsRFVReFRNc3cKUo2LyQdgKpQZxC+jHy8jINFr5iEGN9+Y
+        FN3c8V6e7kZ5JUTptmdhukGPLKuNYb8geAJ0Q2CdEotBNXCeC1gbFQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-08-23T08:43:31Z"
+  mac: ENC[AES256_GCM,data:vtMgUc+tmYpVyPXm+gbi8aZKGsXKGueqOGSLQWXxcsIl4JPJg7EvVAubkV4EPVwHFholT+04bdwN6Q/WlOsWaGMv41KpsUB2fFeDkluCgbtxQZ5f1ooXojrJ4ETanIZk5N9y+88Qdh02lLWEaesQTQMXl7jylujBOhBgpLaUCOM=,iv:PU2YtlnrXx8z6a+ZPDV7YG2Xh1AiBEX6OLpruSHxn5Q=,tag:mlIVhnZonU6WKFMegEqSsQ==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.1

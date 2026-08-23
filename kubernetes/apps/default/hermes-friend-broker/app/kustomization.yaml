@@ -6,5 +6,6 @@ resources:
   - ./claim.yaml
   - ./hashes.sops.yaml
   - ./tokens.sops.yaml
+  - ./runner-signing.sops.yaml
   - ./networkpolicy.yaml
   - ./helmrelease.yaml
