@@ -1,0 +1,542 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-friend-dispatcher
+  namespace: hermes-friends-control
+spec:
+  replicas: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: &dispatcher-labels
+      app.kubernetes.io/name: hermes-friend-dispatcher
+  template:
+    metadata:
+      labels: *dispatcher-labels
+    spec:
+      serviceAccountName: hermes-friend-dispatcher
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: dispatcher
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          command: [/hermes-friend-runner]
+          args: [dispatcher]
+          env:
+            - name: HERMES_FRIEND_BROKER_URL
+              value: http://hermes-friend-broker.default.svc.cluster.local:8080
+            - name: HERMES_FRIEND_BROKER_RUNNER_TOKEN_FILE
+              value: /run/secrets/broker/runner-token
+            - name: HERMES_FRIEND_APPROVAL_PUBLIC_KEY_FILE
+              value: /run/secrets/trust/approval-public-key
+            - name: HERMES_FRIEND_ARTIFACT_URL
+              value: http://hermes-friend-artifactd.hermes-friends-artifact.svc.cluster.local:8081
+            - name: HERMES_FRIEND_CREATOR_URL
+              value: http://hermes-friend-creator.hermes-friends-creator.svc.cluster.local:8082
+            - name: HERMES_FRIEND_PUBLISHER_URL
+              value: http://hermes-friend-publisher.hermes-friends-publisher.svc.cluster.local:8083
+            - name: HERMES_FRIEND_SANDBOX_NAMESPACE
+              value: hermes-friends-sandbox
+            - name: HERMES_FRIEND_SANDBOX_SERVICE_ACCOUNT
+              value: hermes-friend-sandbox
+            - name: HERMES_FRIEND_SANDBOX_RUNTIME_CLASS
+              value: kata-qemu
+            - name: HERMES_FRIEND_GENERATOR_IMAGE_REPOSITORY
+              value: ghcr.io/davidilie/hermes-friend-generator
+            - name: HERMES_FRIEND_TEST_IMAGE_REPOSITORY
+              value: ghcr.io/davidilie/hermes-friend-tester
+            - name: HERMES_FRIEND_RUNNER_JOURNAL
+              value: /var/lib/hermes-friend-runner/journal.db
+            - name: HERMES_FRIEND_MODEL_RELAY_URL
+              value: http://hermes-friend-model-relay.hermes-friends-control.svc.cluster.local:8084
+            - name: HERMES_FRIEND_TEST_CATALOG_CONFIGMAP
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-runner-policy
+                  key: test-catalog-configmap
+            - name: HERMES_FRIEND_KUBERNETES_TOKEN_FILE
+              value: /var/run/secrets/kubernetes.io/serviceaccount/token
+            - name: HERMES_FRIEND_KUBERNETES_CA_FILE
+              value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            - name: HERMES_FRIEND_LISTEN_ADDRESS
+              value: :8080
+          ports:
+            - name: http
+              containerPort: 8080
+          startupProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+              ephemeral-storage: 32Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+              ephemeral-storage: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: journal
+              mountPath: /var/lib/hermes-friend-runner
+            - name: broker-auth
+              mountPath: /run/secrets/broker
+              readOnly: true
+            - name: trust
+              mountPath: /run/secrets/trust
+              readOnly: true
+            - name: kube-api-access
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: journal
+          persistentVolumeClaim:
+            claimName: hermes-friend-dispatcher-journal
+        - name: broker-auth
+          secret:
+            secretName: hermes-friend-dispatcher-auth
+            defaultMode: 0440
+            items:
+              - key: runner-token
+                path: runner-token
+        - name: trust
+          secret:
+            secretName: hermes-friend-trust
+            defaultMode: 0440
+            items:
+              - key: approval-public-key
+                path: approval-public-key
+        - name: kube-api-access
+          projected:
+            defaultMode: 0440
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3600
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-friend-artifactd
+  namespace: hermes-friends-artifact
+spec:
+  replicas: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: &artifact-labels
+      app.kubernetes.io/name: hermes-friend-artifactd
+  template:
+    metadata:
+      labels: *artifact-labels
+    spec:
+      serviceAccountName: hermes-friend-artifactd
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: artifactd
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          command: [/hermes-friend-runner]
+          args: [artifactd]
+          env:
+            - name: HERMES_FRIEND_APPROVAL_PUBLIC_KEY_FILE
+              value: /run/secrets/trust/approval-public-key
+            - name: HERMES_FRIEND_COLLECTOR_PRIVATE_KEY_FILE
+              value: /run/secrets/signer/collector-private-key
+            - name: HERMES_FRIEND_ARTIFACT_DIRECTORY
+              value: /var/lib/hermes-friend-artifacts
+            - name: HERMES_FRIEND_LISTEN_ADDRESS
+              value: :8081
+          ports:
+            - name: http
+              containerPort: 8081
+          startupProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+              ephemeral-storage: 32Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              ephemeral-storage: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: artifacts
+              mountPath: /var/lib/hermes-friend-artifacts
+            - name: trust
+              mountPath: /run/secrets/trust
+              readOnly: true
+            - name: signer
+              mountPath: /run/secrets/signer
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim:
+            claimName: hermes-friend-artifacts
+        - name: trust
+          secret:
+            secretName: hermes-friend-trust
+            defaultMode: 0440
+            items:
+              - key: approval-public-key
+                path: approval-public-key
+        - name: signer
+          secret:
+            secretName: hermes-friend-artifact-signer
+            defaultMode: 0440
+            items:
+              - key: collector-private-key
+                path: collector-private-key
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-friend-creator
+  namespace: hermes-friends-creator
+spec:
+  replicas: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: &creator-labels
+      app.kubernetes.io/name: hermes-friend-creator
+  template:
+    metadata:
+      labels: *creator-labels
+    spec:
+      serviceAccountName: hermes-friend-creator
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: creator
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          command: [/hermes-friend-runner]
+          args: [creator]
+          env:
+            - name: HERMES_FRIEND_CREATOR_APP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-creator-policy
+                  key: app-id
+            - name: HERMES_FRIEND_CREATOR_INSTALLATION_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-creator-policy
+                  key: installation-id
+            - name: HERMES_FRIEND_SANDBOX_ORG
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-creator-policy
+                  key: sandbox-organization
+            - name: HERMES_FRIEND_GITHUB_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-creator-policy
+                  key: github-api-url
+            - name: HERMES_FRIEND_CREATOR_APP_PRIVATE_KEY_FILE
+              value: /run/secrets/github-app/private-key.pem
+            - name: HERMES_FRIEND_APPROVAL_PUBLIC_KEY_FILE
+              value: /run/secrets/trust/approval-public-key
+            - name: HERMES_FRIEND_LISTEN_ADDRESS
+              value: :8082
+          ports:
+            - name: http
+              containerPort: 8082
+          startupProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+              ephemeral-storage: 32Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+              ephemeral-storage: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: github-app
+              mountPath: /run/secrets/github-app
+              readOnly: true
+            - name: trust
+              mountPath: /run/secrets/trust
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: github-app
+          secret:
+            secretName: hermes-friend-creator-github-app
+            defaultMode: 0440
+            items:
+              - key: private-key.pem
+                path: private-key.pem
+        - name: trust
+          secret:
+            secretName: hermes-friend-trust
+            defaultMode: 0440
+            items:
+              - key: approval-public-key
+                path: approval-public-key
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-friend-publisher
+  namespace: hermes-friends-publisher
+spec:
+  replicas: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: &publisher-labels
+      app.kubernetes.io/name: hermes-friend-publisher
+  template:
+    metadata:
+      labels: *publisher-labels
+    spec:
+      serviceAccountName: hermes-friend-publisher
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: publisher
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          command: [/hermes-friend-runner]
+          args: [publisher]
+          env:
+            - name: HERMES_FRIEND_PUBLISHER_APP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-publisher-policy
+                  key: app-id
+            - name: HERMES_FRIEND_PUBLISHER_INSTALLATION_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-publisher-policy
+                  key: installation-id
+            - name: HERMES_FRIEND_SANDBOX_ORG
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-publisher-policy
+                  key: sandbox-organization
+            - name: HERMES_FRIEND_GITHUB_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: hermes-friend-publisher-policy
+                  key: github-api-url
+            - name: HERMES_FRIEND_ARTIFACT_URL
+              value: http://hermes-friend-artifactd.hermes-friends-artifact.svc.cluster.local:8081
+            - name: HERMES_FRIEND_PUBLISHER_APP_PRIVATE_KEY_FILE
+              value: /run/secrets/github-app/private-key.pem
+            - name: HERMES_FRIEND_APPROVAL_PUBLIC_KEY_FILE
+              value: /run/secrets/trust/approval-public-key
+            - name: HERMES_FRIEND_LISTEN_ADDRESS
+              value: :8083
+          ports:
+            - name: http
+              containerPort: 8083
+          startupProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+              ephemeral-storage: 32Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              ephemeral-storage: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: github-app
+              mountPath: /run/secrets/github-app
+              readOnly: true
+            - name: trust
+              mountPath: /run/secrets/trust
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: github-app
+          secret:
+            secretName: hermes-friend-publisher-github-app
+            defaultMode: 0440
+            items:
+              - key: private-key.pem
+                path: private-key.pem
+        - name: trust
+          secret:
+            secretName: hermes-friend-trust
+            defaultMode: 0440
+            items:
+              - key: approval-public-key
+                path: approval-public-key
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi

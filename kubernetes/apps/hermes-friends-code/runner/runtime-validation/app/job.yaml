@@ -1,0 +1,59 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hermes-friends-kata-validation
+  namespace: hermes-friends-runtime
+  labels:
+    app.kubernetes.io/name: hermes-friends-kata-validation
+    hermes.davidapps.dev/activation-revision: UNSET
+spec:
+  backoffLimit: 0
+  completions: 1
+  parallelism: 1
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hermes-friends-kata-validation
+        hermes.davidapps.dev/activation-revision: UNSET
+    spec:
+      runtimeClassName: kata-qemu
+      serviceAccountName: hermes-friends-runtime-validator
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: validate
+          # The inert digest prevents accidental execution. Activation must
+          # pin a reviewed validator and replace both UNSET revision labels.
+          image: ghcr.io/davidilie/hermes-friend-runtime-validator@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          command: [/hermes-friend-runtime-validator]
+          args: [validate, --runtime-class=kata-qemu]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+              ephemeral-storage: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+              ephemeral-storage: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 16Mi

@@ -1,0 +1,70 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hermes-friends-code-boundary
+  namespace: flux-system
+spec:
+  # Activation is deliberately three-step. Apply and prove the deny boundary
+  # before any validation or workload object can exist.
+  suspend: true
+  dependsOn:
+    - name: cilium
+      namespace: kube-system
+  path: ./kubernetes/apps/hermes-friends-code/runner/boundary/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 15m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hermes-friends-code-runtime-validation
+  namespace: flux-system
+spec:
+  suspend: true
+  dependsOn:
+    - name: hermes-friends-code-boundary
+  path: ./kubernetes/apps/hermes-friends-code/runner/runtime-validation/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 15m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hermes-friends-code
+  namespace: flux-system
+spec:
+  # Do not unsuspend until the one-shot Kata validation Kustomization is Ready
+  # at the exact activation revision and David has approved the final policy.
+  suspend: true
+  dependsOn:
+    - name: openebs
+      namespace: openebs-system
+    - name: prometheus-operator-crds
+      namespace: observability
+    - name: hermes-friends-code-runtime-validation
+  path: ./kubernetes/apps/hermes-friends-code/runner/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 15m
