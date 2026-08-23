@@ -35,8 +35,9 @@ spec:
         initContainers:
           # Plugins are c-shared .so files loaded via dlopen. config.yaml is a read-only
           # SOPS secret, so the Plugin Store UI cannot install them (it writes config).
-          # Instead the versions are pinned here and fetched into an emptyDir on every start.
-          # Failures are swallowed on purpose: a plugin download must never block cliproxy.
+          # Cache pinned, checksum-verified binaries on the plugin-data PVC. A cold cache
+          # retries through cluster-start DNS races and fails closed rather than starting
+          # CLIProxy without the routes required by the observability exporter.
           plugin-installer:
             image:
               repository: docker.io/library/alpine
@@ -45,29 +46,59 @@ spec:
               - sh
               - -c
               - |
-                set -u
+                set -eu
 
                 # renovate: datasource=github-releases depName=zhumengling/codex-token-usage
                 CODEX_TOKEN_USAGE_VERSION=0.1.43
+                CODEX_TOKEN_USAGE_ZIP_SHA256=37d9b03f55049d6bd2586cc6acbc495107dfa4a6b679753550711ddb38132ce7
+                CODEX_TOKEN_USAGE_SO_SHA256=c5e36a5a540ba0e075b2c7d26a49ddcd0a6ad1c270147674234da8d846c34bd2
+                PLUGIN_CACHE_DIR=/CLIProxyAPI/plugin-data/plugin-cache
+                DOWNLOAD_ATTEMPTS=24
+                mkdir -p "$${PLUGIN_CACHE_DIR}"
 
                 # NOTE: $$ escapes the $ so Flux's strict-mode envsubst leaves these
                 # shell variables alone during postBuild substitution.
                 install_plugin() {
-                  id="$${1}"; ver="$${2}"; url="$${3}"
-                  if [ -f "/plugins/$${id}-v$${ver}.so" ]; then
-                    echo "plugin $${id} $${ver} already present, skipping"
+                  id="$${1}"
+                  ver="$${2}"
+                  url="$${3}"
+                  zip_sha256="$${4}"
+                  so_sha256="$${5}"
+                  destination="/plugins/$${id}-v$${ver}.so"
+                  cache="$${PLUGIN_CACHE_DIR}/$${id}-v$${ver}.so"
+
+                  rm -f "/plugins/$${id}"*.so
+                  if [ -s "$${cache}" ] \
+                    && echo "$${so_sha256}  $${cache}" | sha256sum -c - >/dev/null 2>&1; then
+                    cp "$${cache}" "$${destination}"
+                    echo "installed $${id} $${ver} from persistent cache"
                     return 0
                   fi
-                  echo "fetching $${id} $${ver}"
-                  rm -f "/plugins/$${id}"*.so
-                  if wget -q -O "/tmp/$${id}.zip" "$${url}" \
-                    && unzip -o -q "/tmp/$${id}.zip" -d /tmp \
-                    && mv "/tmp/$${id}.so" "/plugins/$${id}-v$${ver}.so"; then
-                    echo "installed $${id} $${ver}"
-                  else
-                    echo "WARNING: failed to install $${id} $${ver}, continuing without it"
-                  fi
-                  rm -f "/tmp/$${id}.zip"
+
+                  rm -f "$${cache}"
+                  attempt=1
+                  while [ "$${attempt}" -le "$${DOWNLOAD_ATTEMPTS}" ]; do
+                    workdir="$$(mktemp -d "/tmp/$${id}.XXXXXX")"
+                    echo "fetching $${id} $${ver} (attempt $${attempt}/$${DOWNLOAD_ATTEMPTS})"
+                    if wget -q -T 20 -O "$${workdir}/plugin.zip" "$${url}" \
+                      && echo "$${zip_sha256}  $${workdir}/plugin.zip" | sha256sum -c - >/dev/null \
+                      && unzip -q "$${workdir}/plugin.zip" -d "$${workdir}" \
+                      && echo "$${so_sha256}  $${workdir}/$${id}.so" | sha256sum -c - >/dev/null; then
+                      cp "$${workdir}/$${id}.so" "$${cache}.tmp"
+                      chmod 0644 "$${cache}.tmp"
+                      mv -f "$${cache}.tmp" "$${cache}"
+                      cp "$${cache}" "$${destination}"
+                      rm -rf "$${workdir}"
+                      echo "installed and cached $${id} $${ver}"
+                      return 0
+                    fi
+                    rm -rf "$${workdir}"
+                    attempt="$$(($${attempt} + 1))"
+                    sleep 5
+                  done
+
+                  echo "ERROR: could not install required plugin $${id} $${ver}" >&2
+                  return 1
                 }
 
                 # NOTE: Fwindy/cpa-usage-statistics was removed deliberately. On
@@ -75,7 +106,9 @@ spec:
                 # receives a usage record, so it always answers {} -- it burned a
                 # download and a dlopen for nothing. codex-token-usage covers this.
                 install_plugin codex-token-usage "$${CODEX_TOKEN_USAGE_VERSION}" \
-                  "https://github.com/zhumengling/codex-token-usage/releases/download/v$${CODEX_TOKEN_USAGE_VERSION}/codex-token-usage_$${CODEX_TOKEN_USAGE_VERSION}_linux_amd64.zip"
+                  "https://github.com/zhumengling/codex-token-usage/releases/download/v$${CODEX_TOKEN_USAGE_VERSION}/codex-token-usage_$${CODEX_TOKEN_USAGE_VERSION}_linux_amd64.zip" \
+                  "$${CODEX_TOKEN_USAGE_ZIP_SHA256}" \
+                  "$${CODEX_TOKEN_USAGE_SO_SHA256}"
 
                 ls -la /plugins
                 exit 0
@@ -169,7 +202,8 @@ spec:
         existingClaim: cliproxy
         globalMounts:
           - path: /CLIProxyAPI/auths
-      # Plugin binaries, re-fetched by the plugin-installer initContainer on every start.
+      # Plugin binaries are copied from the persistent, checksum-verified cache into
+      # this runtime-only directory on every start.
       plugins:
         type: emptyDir
         advancedMounts:
