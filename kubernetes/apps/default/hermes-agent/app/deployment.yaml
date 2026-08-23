@@ -192,8 +192,8 @@ spec:
             - name: friends-david-env
               mountPath: /friends-david-env
         - name: prepare-runtime
-          # Source: DavidIlie/hermes-agent@97bcdc0390759da281ef2e3b638d16f191867bc4
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.23-seedyn.97bcdc0390@sha256:303a1f0641d6b8ce981dc82daddb761aeb5edc6ba85485692b065b660a75fc30
+          # Source: DavidIlie/hermes-agent@74525082b4f1e9dd7711f5b962560da71400adea
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.23-seedyn.74525082b4@sha256:13da480e1691dce9b971378348c0127ffa70bc392998a59b974f4de82ace907e
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -234,8 +234,8 @@ spec:
               readOnly: true
       containers:
         - name: app
-          # Source: DavidIlie/hermes-agent@97bcdc0390759da281ef2e3b638d16f191867bc4
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.23-seedyn.97bcdc0390@sha256:303a1f0641d6b8ce981dc82daddb761aeb5edc6ba85485692b065b660a75fc30
+          # Source: DavidIlie/hermes-agent@74525082b4f1e9dd7711f5b962560da71400adea
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.23-seedyn.74525082b4@sha256:13da480e1691dce9b971378348c0127ffa70bc392998a59b974f4de82ace907e
           args: ["gateway", "run"]
           env:
             - name: TZ
