@@ -32,7 +32,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dispatcher
-          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
           command: [/hermes-friend-runner]
           args: [dispatcher]
           env:
@@ -53,7 +53,7 @@ spec:
             - name: HERMES_FRIEND_SANDBOX_SERVICE_ACCOUNT
               value: hermes-friend-sandbox
             - name: HERMES_FRIEND_SANDBOX_RUNTIME_CLASS
-              value: kata-qemu
+              value: kata-clh
             - name: HERMES_FRIEND_GENERATOR_IMAGE_REPOSITORY
               value: ghcr.io/davidilie/hermes-friend-generator
             - name: HERMES_FRIEND_TEST_IMAGE_REPOSITORY
@@ -168,6 +168,117 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: hermes-friend-model-relay
+  namespace: hermes-friends-control
+spec:
+  replicas: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: &model-relay-labels
+      app.kubernetes.io/name: hermes-friend-model-relay
+  template:
+    metadata:
+      labels: *model-relay-labels
+    spec:
+      serviceAccountName: hermes-friend-model-relay
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: model-relay
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
+          command: [/hermes-friend-runner]
+          args: [model-relay]
+          env:
+            - name: HERMES_FRIEND_APPROVAL_PUBLIC_KEY_FILE
+              value: /run/secrets/trust/approval-public-key
+            - name: HERMES_FRIEND_MODEL_API_KEY_FILE
+              value: /run/secrets/model/api-key
+            - name: HERMES_FRIEND_MODEL_BASE_URL
+              value: http://cliproxy.default.svc.cluster.local:8317/v1
+            - name: HERMES_FRIEND_MODEL_NAME
+              value: gpt-5.6-sol
+            - name: HERMES_FRIEND_LISTEN_ADDRESS
+              value: :8084
+          ports:
+            - name: http
+              containerPort: 8084
+          startupProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+              ephemeral-storage: 32Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              ephemeral-storage: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: model-auth
+              mountPath: /run/secrets/model
+              readOnly: true
+            - name: trust
+              mountPath: /run/secrets/trust
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: model-auth
+          secret:
+            secretName: hermes-friend-model-relay-auth
+            defaultMode: 0440
+            items:
+              - key: api-key
+                path: api-key
+        - name: trust
+          secret:
+            secretName: hermes-friend-trust
+            defaultMode: 0440
+            items:
+              - key: approval-public-key
+                path: approval-public-key
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: hermes-friend-artifactd
   namespace: hermes-friends-artifact
 spec:
@@ -198,7 +309,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: artifactd
-          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
           command: [/hermes-friend-runner]
           args: [artifactd]
           env:
@@ -314,7 +425,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: creator
-          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
           command: [/hermes-friend-runner]
           args: [creator]
           env:
@@ -443,7 +554,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: publisher
-          image: ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
           command: [/hermes-friend-runner]
           args: [publisher]
           env:

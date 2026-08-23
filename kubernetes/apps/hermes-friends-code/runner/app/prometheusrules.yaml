@@ -10,10 +10,10 @@ spec:
       rules:
         - alert: HermesFriendRunnerWorkloadUnavailable
           expr: >-
-            kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"} > 0
+            kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|model-relay|artifactd|creator|publisher)"} > 0
             and on (namespace, deployment)
-            kube_deployment_status_replicas_available{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"}
-            < kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"}
+            kube_deployment_status_replicas_available{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|model-relay|artifactd|creator|publisher)"}
+            < kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|model-relay|artifactd|creator|publisher)"}
           for: 10m
           labels:
             severity: critical
@@ -32,10 +32,10 @@ spec:
             description: Sandbox Job {{ $labels.job_name }} has remained failed for five minutes.
         - alert: HermesFriendRunnerMetricsMissing
           expr: >-
-            kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"} > 0
+            kube_deployment_spec_replicas{namespace=~"hermes-friends-(control|artifact|creator|publisher)",deployment=~"hermes-friend-(dispatcher|model-relay|artifactd|creator|publisher)"} > 0
             unless on (namespace, deployment)
             label_replace(
-              max by (namespace, job) (up{namespace=~"hermes-friends-(control|artifact|creator|publisher)",job=~"hermes-friend-(dispatcher|artifactd|creator|publisher)"} == 1),
+              max by (namespace, job) (up{namespace=~"hermes-friends-(control|artifact|creator|publisher)",job=~"hermes-friend-(dispatcher|model-relay|artifactd|creator|publisher)"} == 1),
               "deployment", "$1", "job", "(.+)"
             )
           for: 5m
@@ -59,7 +59,7 @@ spec:
             description: Sandbox Job {{ $labels.job_name }} has remained active for more than twenty minutes.
         - alert: HermesFriendRunnerContainerRestarting
           expr: >-
-            increase(kube_pod_container_status_restarts_total{namespace=~"hermes-friends-(control|artifact|creator|publisher)",container=~"dispatcher|artifactd|creator|publisher"}[15m]) > 1
+            increase(kube_pod_container_status_restarts_total{namespace=~"hermes-friends-(control|artifact|creator|publisher)",container=~"dispatcher|model-relay|artifactd|creator|publisher"}[15m]) > 1
           for: 5m
           labels:
             severity: warning

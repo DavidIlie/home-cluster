@@ -6,7 +6,7 @@ metadata:
   namespace: hermes-friends-runtime
   labels:
     app.kubernetes.io/name: hermes-friends-kata-validation
-    hermes.davidapps.dev/activation-revision: UNSET
+    hermes.davidapps.dev/activation-revision: friends-static-site-v1
 spec:
   backoffLimit: 0
   completions: 1
@@ -16,9 +16,9 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: hermes-friends-kata-validation
-        hermes.davidapps.dev/activation-revision: UNSET
+        hermes.davidapps.dev/activation-revision: friends-static-site-v1
     spec:
-      runtimeClassName: kata-qemu
+      runtimeClassName: kata-clh
       serviceAccountName: hermes-friends-runtime-validator
       automountServiceAccountToken: false
       enableServiceLinks: false
@@ -32,10 +32,10 @@ spec:
       containers:
         - name: validate
           # The inert digest prevents accidental execution. Activation must
-          # pin a reviewed validator and replace both UNSET revision labels.
-          image: ghcr.io/davidilie/hermes-friend-runtime-validator@sha256:0000000000000000000000000000000000000000000000000000000000000000
-          command: [/hermes-friend-runtime-validator]
-          args: [validate, --runtime-class=kata-qemu]
+          # The digest is the locally built, reviewed Hermes runner image.
+          image: ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
+          command: [/hermes-friend-runner]
+          args: [runtime-validate, --runtime-class=kata-clh]
           resources:
             requests:
               cpu: 10m

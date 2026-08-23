@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-friend-test-catalog
+  namespace: hermes-friends-sandbox
+immutable: true
+data:
+  tests.json: |
+    {
+      "schema_version": "v1",
+      "profiles": {
+        "static-site-v1": {
+          "commands": [
+            {
+              "executable": "/usr/local/bin/node",
+              "arguments": ["--check", "app.js"]
+            },
+            {
+              "executable": "/usr/local/bin/node",
+              "arguments": ["--test", "test/site.test.js"]
+            }
+          ]
+        }
+      }
+    }

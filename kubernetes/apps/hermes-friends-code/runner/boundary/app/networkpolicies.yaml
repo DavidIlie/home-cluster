@@ -261,6 +261,74 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: model-relay-ingress
+  namespace: hermes-friends-control
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-model-relay
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes-friends-sandbox
+          podSelector:
+            matchLabels:
+              hermes.davidapps.dev/friend-role: generator
+      ports:
+        - port: 8084
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: model-relay-egress
+  namespace: hermes-friends-control
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-model-relay
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: default
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cliproxy
+      ports:
+        - port: 8317
+          protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: model-relay-dns
+  namespace: hermes-friends-control
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-model-relay
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchName: cliproxy.default.svc.cluster.local
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: creator-ingress
   namespace: hermes-friends-creator
 spec:
@@ -401,6 +469,28 @@ spec:
       toPorts:
         - ports:
             - port: "8080"
+              protocol: TCP
+          rules:
+            http:
+              - method: GET
+                path: ^/metrics$
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-scrape-model-relay
+  namespace: hermes-friends-control
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-model-relay
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+      toPorts:
+        - ports:
+            - port: "8084"
               protocol: TCP
           rules:
             http:

@@ -8,21 +8,22 @@ data:
   # A later reviewed activation replaces the complete signed policy together
   # with every real digest. Inertness is enforced by root omission, suspended
   # Flux children, zero replicas, and impossible image digests.
-  policy-revision: disabled
+  policy-revision: friends-static-site-v1
   github-api-url: https://api.github.com
   sandbox-namespace: hermes-friends-sandbox
-  test-catalog-configmap: UNSET
+  test-catalog-configmap: hermes-friend-test-catalog
   sandbox-organization: UNSET
   creator-app-id: UNSET
   creator-installation-id: UNSET
   publisher-app-id: UNSET
   publisher-installation-id: UNSET
-  generator-image: ghcr.io/davidilie/hermes-friend-generator@sha256:0000000000000000000000000000000000000000000000000000000000000000
-  tester-image: ghcr.io/davidilie/hermes-friend-tester@sha256:0000000000000000000000000000000000000000000000000000000000000000
-  dispatcher-image: &inert-control-image ghcr.io/davidilie/hermes-friend-runner@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  generator-image: ghcr.io/davidilie/hermes-friend-generator@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
+  tester-image: ghcr.io/davidilie/hermes-friend-tester@sha256:2b7b6770386e95db2719d9a706aa64bdc4814fd2d11280cc0a959cacf64d2e1c
+  dispatcher-image: &inert-control-image ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
   artifactd-image: *inert-control-image
   creator-image: *inert-control-image
   publisher-image: *inert-control-image
+  model-relay-image: *inert-control-image
 ---
 apiVersion: v1
 kind: ConfigMap

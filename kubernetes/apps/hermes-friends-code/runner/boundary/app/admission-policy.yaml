@@ -54,7 +54,7 @@ spec:
         object.spec.template.spec.serviceAccountName == 'hermes-friend-sandbox' &&
         object.spec.template.spec.automountServiceAccountToken == false &&
         object.spec.template.spec.enableServiceLinks == false &&
-        object.spec.template.spec.runtimeClassName == 'kata-qemu' &&
+        object.spec.template.spec.runtimeClassName == 'kata-clh' &&
         has(object.spec.template.spec.dnsConfig) &&
         size(object.spec.template.spec.dnsConfig.options) == 1 &&
         object.spec.template.spec.dnsConfig.options[0].name == 'ndots' &&
@@ -73,16 +73,16 @@ spec:
     - expression: >-
         (object.metadata.labels['hermes.davidapps.dev/friend-role'] == 'generator' &&
          object.spec.template.spec.containers[0].name == 'generator' &&
-         object.spec.template.spec.containers[0].image == 'ghcr.io/davidilie/hermes-friend-generator@sha256:0000000000000000000000000000000000000000000000000000000000000000' &&
+         object.spec.template.spec.containers[0].image == 'ghcr.io/davidilie/hermes-friend-generator@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb' &&
          object.spec.template.spec.containers[0].imagePullPolicy == 'IfNotPresent' &&
-         object.metadata.annotations['hermes.davidapps.dev/image-digest'] == 'sha256:0000000000000000000000000000000000000000000000000000000000000000' &&
+         object.metadata.annotations['hermes.davidapps.dev/image-digest'] == 'sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb' &&
          object.spec.template.spec.containers[0].command == ['/hermes-friend-runner'] &&
          object.spec.template.spec.containers[0].args == ['generate', '--input=/input/request.json', '--pid-limit=' + object.metadata.annotations['hermes.davidapps.dev/pid-limit'], '--model-relay=http://hermes-friend-model-relay.hermes-friends-control.svc.cluster.local:8084', '--artifact=http://hermes-friend-artifactd.hermes-friends-artifact.svc.cluster.local:8081']) ||
         (object.metadata.labels['hermes.davidapps.dev/friend-role'] == 'tester' &&
          object.spec.template.spec.containers[0].name == 'tester' &&
-         object.spec.template.spec.containers[0].image == 'ghcr.io/davidilie/hermes-friend-tester@sha256:0000000000000000000000000000000000000000000000000000000000000000' &&
+         object.spec.template.spec.containers[0].image == 'ghcr.io/davidilie/hermes-friend-tester@sha256:2b7b6770386e95db2719d9a706aa64bdc4814fd2d11280cc0a959cacf64d2e1c' &&
          object.spec.template.spec.containers[0].imagePullPolicy == 'IfNotPresent' &&
-         object.metadata.annotations['hermes.davidapps.dev/image-digest'] == 'sha256:0000000000000000000000000000000000000000000000000000000000000000' &&
+         object.metadata.annotations['hermes.davidapps.dev/image-digest'] == 'sha256:2b7b6770386e95db2719d9a706aa64bdc4814fd2d11280cc0a959cacf64d2e1c' &&
          object.spec.template.spec.containers[0].command == ['/hermes-friend-runner'] &&
          object.spec.template.spec.containers[0].args == ['test', '--input=/input/request.json', '--pid-limit=' + object.metadata.annotations['hermes.davidapps.dev/pid-limit'], '--catalog=/config/tests.json', '--work=/work', '--artifact=http://hermes-friend-artifactd.hermes-friends-artifact.svc.cluster.local:8081'])
       message: the role, immutable image, and command must match the reviewed shape
@@ -124,7 +124,7 @@ spec:
           !object.spec.template.spec.volumes.exists(volume, volume.name == 'config')) ||
          (object.metadata.labels['hermes.davidapps.dev/friend-role'] == 'tester' &&
           size(object.spec.template.spec.volumes.filter(volume,
-            volume.name == 'config' && has(volume.configMap) && volume.configMap.name == 'UNSET' && volume.configMap.defaultMode == 292)) == 1))
+            volume.name == 'config' && has(volume.configMap) && volume.configMap.name == 'hermes-friend-test-catalog' && volume.configMap.defaultMode == 292)) == 1))
       message: only the exact input, bounded work, and tester catalog volumes are permitted
     - expression: >-
         size(object.spec.template.spec.containers[0].volumeMounts) ==
@@ -226,7 +226,7 @@ spec:
         object.spec.backoffLimit == 0 && object.spec.completions == 1 && object.spec.parallelism == 1 &&
         object.spec.activeDeadlineSeconds > 0 && object.spec.activeDeadlineSeconds <= 120 &&
         !has(object.spec.ttlSecondsAfterFinished) &&
-        object.spec.template.spec.runtimeClassName == 'kata-qemu' &&
+        object.spec.template.spec.runtimeClassName == 'kata-clh' &&
         object.spec.template.spec.serviceAccountName == 'hermes-friends-runtime-validator' &&
         object.spec.template.spec.automountServiceAccountToken == false &&
         object.spec.template.spec.enableServiceLinks == false &&
@@ -235,10 +235,9 @@ spec:
         size(object.spec.template.spec.containers) == 1 &&
         (!has(object.spec.template.spec.initContainers) || size(object.spec.template.spec.initContainers) == 0) &&
         (!has(object.spec.template.spec.ephemeralContainers) || size(object.spec.template.spec.ephemeralContainers) == 0) &&
-        object.spec.template.spec.containers[0].image.matches('^ghcr.io/davidilie/hermes-friend-runtime-validator@sha256:[0-9a-f]{64}$') &&
-        object.spec.template.spec.containers[0].image != 'ghcr.io/davidilie/hermes-friend-runtime-validator@sha256:0000000000000000000000000000000000000000000000000000000000000000' &&
-        object.spec.template.spec.containers[0].command == ['/hermes-friend-runtime-validator'] &&
-        object.spec.template.spec.containers[0].args == ['validate', '--runtime-class=kata-qemu'] &&
+        object.spec.template.spec.containers[0].image == 'ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb' &&
+        object.spec.template.spec.containers[0].command == ['/hermes-friend-runner'] &&
+        object.spec.template.spec.containers[0].args == ['runtime-validate', '--runtime-class=kata-clh'] &&
         (!has(object.spec.template.spec.containers[0].env) || size(object.spec.template.spec.containers[0].env) == 0) &&
         (!has(object.spec.template.spec.containers[0].envFrom) || size(object.spec.template.spec.containers[0].envFrom) == 0) &&
         object.spec.template.spec.securityContext.runAsNonRoot == true &&

@@ -69,7 +69,7 @@ Secret is safe to commit for it.
 
 Activation must be a later pull request and proceeds in this exact order:
 
-1. Install and independently accept `RuntimeClass/kata-qemu` on the selected
+1. Install and independently accept `RuntimeClass/kata-clh` on the selected
    sandbox nodes. The class is absent from the live cluster as of staging.
 2. Pin the dedicated runtime validator to a reviewed non-inert digest and set
    the same non-`UNSET` activation revision on the Job and Pod template.
@@ -85,7 +85,7 @@ Activation must be a later pull request and proceeds in this exact order:
    DNS-restricted egress, quotas, RBAC, and all three admission policies are
    Ready.
 6. Unsuspend `hermes-friends-code-runtime-validation` alone. It cannot become
-   Ready unless a Pod starts under `kata-qemu` and the one-shot validator exits
+   Ready unless a Pod starts under `kata-clh` and the one-shot validator exits
    successfully. The workload child depends on this Ready condition.
 7. Use a fresh David approval bound to the final policy hash. Old approvals
    must never be grandfathered. Only then change required replicas and
@@ -94,10 +94,10 @@ Activation must be a later pull request and proceeds in this exact order:
    network ingress, and secrets, then enable execution. This staged pull
    request deliberately does not touch the live broker.
 
-The admission policy pins `runtimeClassName: kata-qemu`, distinct generator and
+The admission policy pins `runtimeClassName: kata-clh`, distinct generator and
 tester images, exact commands, tokenless identity, bounded resources and
 volumes, `ndots: 1`, and automatic Job TTL. Dispatcher RBAC permits only
-create/get on sandbox Jobs and ConfigMaps plus get on the named `kata-qemu`
+create/get on sandbox Jobs and ConfigMaps plus get on the named `kata-clh`
 RuntimeClass. The workload child cannot race ahead of either the deny boundary
 or runtime proof because its Flux dependency is fail-closed.
 

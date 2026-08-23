@@ -7,6 +7,16 @@ app_root="${repo_root}/kubernetes/apps/hermes-friends-code"
 scratch="$(mktemp -d)"
 trap 'rm -rf "${scratch}"' EXIT
 
+stage="prepared"
+if [[ "${1:-}" == --stage=* ]]; then
+  stage="${1#--stage=}"
+  shift
+fi
+case "${stage}" in
+  prepared|boundary|runtime|active) ;;
+  *) echo "stage must be prepared, boundary, runtime, or active" >&2; exit 1 ;;
+esac
+
 resolve() {
   if command -v "$1" >/dev/null 2>&1; then
     command -v "$1"
@@ -27,67 +37,97 @@ yq_bin="${YQ_BIN:-$(resolve yq)}"
 "${kustomize_bin}" build "${app_root}/runner/runtime-validation/app" >"${scratch}/runtime.yaml"
 "${kustomize_bin}" build "${app_root}/runner/app" >"${scratch}/workloads.yaml"
 
+root_live=false
 if grep -Fxq '  - ./hermes-friends-code' "${repo_root}/kubernetes/apps/kustomization.yaml"; then
-  echo "friends runner unexpectedly referenced by the live apps root" >&2
+  root_live=true
+fi
+if [[ "${stage}" == prepared && "${root_live}" == true ]]; then
+  echo "prepared stage must not be referenced by the live apps root" >&2
+  exit 1
+fi
+if [[ "${stage}" != prepared && "${root_live}" == false ]]; then
+  echo "${stage} stage must be referenced by the live apps root" >&2
   exit 1
 fi
 
 child_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Kustomization" and .apiVersion == "kustomize.toolkit.fluxcd.io/v1")) | length' "${scratch}/root.yaml")"
 suspended_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Kustomization" and .apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .spec.suspend == true)) | length' "${scratch}/root.yaml")"
-if [[ "${child_count}" != "3" || "${suspended_count}" != "3" ]]; then
-  echo "expected three suspended Flux children, got ${suspended_count}/${child_count}" >&2
+case "${stage}" in
+  prepared) expected_suspended=3 ;;
+  boundary) expected_suspended=2 ;;
+  runtime) expected_suspended=1 ;;
+  active) expected_suspended=0 ;;
+esac
+if [[ "${child_count}" != 3 || "${suspended_count}" != "${expected_suspended}" ]]; then
+  echo "expected ${expected_suspended}/3 suspended Flux children for ${stage}, got ${suspended_count}/${child_count}" >&2
   exit 1
 fi
 
 deployment_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Deployment")) | length' "${scratch}/workloads.yaml")"
-zero_deployment_count="$("${yq_bin}" ea '[.] | map(select(.kind == "Deployment" and .spec.replicas == 0)) | length' "${scratch}/workloads.yaml")"
-if [[ "${deployment_count}" != "4" || "${zero_deployment_count}" != "4" ]]; then
-  echo "expected four zero-replica Deployments, got ${zero_deployment_count}/${deployment_count}" >&2
+expected_replicas=0
+[[ "${stage}" == active ]] && expected_replicas=1
+matching_deployments="$("${yq_bin}" ea "[.] | map(select(.kind == \"Deployment\" and .spec.replicas == ${expected_replicas})) | length" "${scratch}/workloads.yaml")"
+if [[ "${deployment_count}" != 5 || "${matching_deployments}" != 5 ]]; then
+  echo "expected five ${expected_replicas}-replica Deployments, got ${matching_deployments}/${deployment_count}" >&2
   exit 1
 fi
 
 for manifest in "${scratch}"/*.yaml; do
-  forbidden="$("${yq_bin}" ea '[.] | map(select(.kind == "Secret" or .kind == "Ingress" or .kind == "HTTPRoute")) | length' "${manifest}")"
-  if [[ "${forbidden}" != "0" ]]; then
-    echo "forbidden live surface or Secret in ${manifest}" >&2
+  exposed="$(${yq_bin} ea '[.] | map(select(.kind == "Ingress" or .kind == "HTTPRoute")) | length' "${manifest}")"
+  if [[ "${exposed}" != 0 ]]; then
+    echo "friend runner may not expose an Ingress or HTTPRoute: ${manifest}" >&2
     exit 1
   fi
 done
+if grep -R --include='*.sops.yaml' -E '(^|[[:space:]])(REPLACE|UNSET)([[:space:]]|$)' "${app_root}"; then
+  echo "friend runner contains an unprovisioned encrypted secret" >&2
+  exit 1
+fi
+plaintext_secret_values="$("${yq_bin}" ea '[.] | map(select(.kind == "Secret") | (.stringData // {}) | to_entries[] | select(.value | test("^ENC\\[") | not)) | length' "${scratch}/workloads.yaml")"
+if [[ "${plaintext_secret_values}" != 0 ]]; then
+  echo "friend runner Secret data must remain SOPS encrypted" >&2
+  exit 1
+fi
 
 generator_image="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-runner-policy"))[0].data.generator-image' "${scratch}/workloads.yaml")"
 tester_image="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-runner-policy"))[0].data.tester-image' "${scratch}/workloads.yaml")"
-if [[ "${generator_image}" != ghcr.io/davidilie/hermes-friend-generator@sha256:0000000000000000000000000000000000000000000000000000000000000000 ||
-      "${tester_image}" != ghcr.io/davidilie/hermes-friend-tester@sha256:0000000000000000000000000000000000000000000000000000000000000000 ||
-      "${generator_image}" == "${tester_image}" ]]; then
-  echo "generator and tester must remain distinct inert image contracts" >&2
+if [[ ! "${generator_image}" =~ ^ghcr\.io/davidilie/hermes-friend-generator@sha256:[0-9a-f]{64}$ ||
+      ! "${tester_image}" =~ ^ghcr\.io/davidilie/hermes-friend-tester@sha256:[0-9a-f]{64}$ ||
+      "${generator_image}" == "${tester_image}" || "${generator_image}" == *0000000000000000* || "${tester_image}" == *0000000000000000* ]]; then
+  echo "generator and tester must use distinct non-placeholder immutable images" >&2
   exit 1
 fi
 
 runtime_class="$("${yq_bin}" 'select(.kind == "Job").spec.template.spec.runtimeClassName' "${scratch}/runtime.yaml")"
 runtime_revision="$("${yq_bin}" 'select(.kind == "Job").metadata.labels."hermes.davidapps.dev/activation-revision"' "${scratch}/runtime.yaml")"
 runtime_image="$("${yq_bin}" 'select(.kind == "Job").spec.template.spec.containers[0].image' "${scratch}/runtime.yaml")"
-if [[ "${runtime_class}" != "kata-qemu" || "${runtime_revision}" != "UNSET" ||
-      "${runtime_image}" != ghcr.io/davidilie/hermes-friend-runtime-validator@sha256:0000000000000000000000000000000000000000000000000000000000000000 ]]; then
-  echo "staged Kata validation contract is not inert and exact" >&2
+runtime_handler="$("${yq_bin}" 'select(.kind == "RuntimeClass" and .metadata.name == "kata-clh").handler' "${scratch}/boundary.yaml")"
+if [[ "${runtime_class}" != kata-clh || "${runtime_handler}" != kata || "${runtime_revision}" != friends-static-site-v1 ||
+      ! "${runtime_image}" =~ ^ghcr\.io/davidilie/hermes-friend-runner@sha256:[0-9a-f]{64}$ ]]; then
+  echo "Kata Cloud Hypervisor validation contract is not exact" >&2
   exit 1
 fi
 
 policy_count="$("${yq_bin}" ea '[.] | map(select(.kind == "ValidatingAdmissionPolicy")) | length' "${scratch}/boundary.yaml")"
 binding_count="$("${yq_bin}" ea '[.] | map(select(.kind == "ValidatingAdmissionPolicyBinding")) | length' "${scratch}/boundary.yaml")"
-if [[ "${policy_count}" != "3" || "${binding_count}" != "3" ]]; then
+if [[ "${policy_count}" != 3 || "${binding_count}" != 3 ]]; then
   echo "expected three admission policies and bindings" >&2
   exit 1
 fi
 
-if [[ "${1:-}" == "--activation-preflight" ]]; then
+if [[ "${1:-}" == --activation-preflight ]]; then
   kubeconfig="${2:-}"
   if [[ -z "${kubeconfig}" || ! -f "${kubeconfig}" ]]; then
-    echo "usage: $0 --activation-preflight /path/to/kubeconfig" >&2
+    echo "usage: $0 --stage=boundary --activation-preflight /path/to/kubeconfig" >&2
     exit 1
   fi
   kubectl_bin="${KUBECTL_BIN:-$(resolve kubectl)}"
-  "${kubectl_bin}" --kubeconfig "${kubeconfig}" get runtimeclass kata-qemu >/dev/null
+  live_handler="$("${kubectl_bin}" --kubeconfig "${kubeconfig}" get runtimeclass kata-clh -o jsonpath='{.handler}')"
+  if [[ "${live_handler}" != *kata* ]]; then
+    echo "live kata-clh RuntimeClass is missing its Kata handler" >&2
+    exit 1
+  fi
   echo "Kata RuntimeClass exists; run the pinned validation child before workloads"
 fi
 
-echo "Hermes friends code staging invariants passed"
+echo "Hermes friends code ${stage} invariants passed"

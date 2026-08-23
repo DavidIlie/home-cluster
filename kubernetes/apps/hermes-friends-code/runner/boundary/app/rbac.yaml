@@ -33,7 +33,7 @@ metadata:
 rules:
   - apiGroups: [node.k8s.io]
     resources: [runtimeclasses]
-    resourceNames: [kata-qemu]
+    resourceNames: [kata-clh]
     verbs: [get]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

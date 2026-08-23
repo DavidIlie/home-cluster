@@ -20,6 +20,24 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
+  name: hermes-friend-model-relay
+  namespace: hermes-friends-control
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames: [hermes-friends-control]
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-friend-model-relay
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
   name: hermes-friend-artifactd
   namespace: hermes-friends-artifact
 spec:
