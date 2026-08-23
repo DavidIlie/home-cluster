@@ -89,6 +89,41 @@ if [[ "${plaintext_secret_values}" != 0 ]]; then
   exit 1
 fi
 
+github_app_secrets="$("${yq_bin}" ea '[.] | map(select(.kind == "Secret" and (.metadata.name == "hermes-friend-creator-github-app" or .metadata.name == "hermes-friend-publisher-github-app"))) | length' "${scratch}/workloads.yaml")"
+if [[ "${github_app_secrets}" != 2 ]]; then
+  echo "expected exactly two independent GitHub App private-key Secrets" >&2
+  exit 1
+fi
+for identity in \
+  hermes-friends-creator/hermes-friend-creator-github-app \
+  hermes-friends-publisher/hermes-friend-publisher-github-app; do
+  namespace="${identity%%/*}"
+  name="${identity#*/}"
+  matching="$("${yq_bin}" ea "[.] | map(select(.kind == \"Secret\" and .metadata.namespace == \"${namespace}\" and .metadata.name == \"${name}\" and ((.stringData // {}) | keys | sort | join(\",\")) == \"private-key.pem\" and .stringData.\"private-key.pem\" | test(\"^ENC\\\\[\"))) | length" "${scratch}/workloads.yaml")"
+  if [[ "${matching}" != 1 ]]; then
+    echo "GitHub App Secret contract is not exact: ${identity}" >&2
+    exit 1
+  fi
+done
+
+runner_policy_org="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-runner-policy"))[0].data.sandbox-organization' "${scratch}/workloads.yaml")"
+creator_policy="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-creator-policy"))[0].data' "${scratch}/workloads.yaml" -o=json)"
+publisher_policy="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-publisher-policy"))[0].data' "${scratch}/workloads.yaml" -o=json)"
+creator_app_id="$("${yq_bin}" -r '."app-id"' <<<"${creator_policy}")"
+creator_installation_id="$("${yq_bin}" -r '."installation-id"' <<<"${creator_policy}")"
+publisher_app_id="$("${yq_bin}" -r '."app-id"' <<<"${publisher_policy}")"
+publisher_installation_id="$("${yq_bin}" -r '."installation-id"' <<<"${publisher_policy}")"
+if [[ "${runner_policy_org}" != DavidIlie-friends-sandbox ||
+      "$("${yq_bin}" -r '."sandbox-organization"' <<<"${creator_policy}")" != "${runner_policy_org}" ||
+      "$("${yq_bin}" -r '."sandbox-organization"' <<<"${publisher_policy}")" != "${runner_policy_org}" ||
+      ! "${creator_app_id}" =~ ^[0-9]+$ || ! "${creator_installation_id}" =~ ^[0-9]+$ ||
+      ! "${publisher_app_id}" =~ ^[0-9]+$ || ! "${publisher_installation_id}" =~ ^[0-9]+$ ||
+      "${creator_app_id}" == "${publisher_app_id}" ||
+      "${creator_installation_id}" == "${publisher_installation_id}" ]]; then
+  echo "sandbox organization and independent GitHub App identities must be exact" >&2
+  exit 1
+fi
+
 generator_image="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-runner-policy"))[0].data.generator-image' "${scratch}/workloads.yaml")"
 tester_image="$("${yq_bin}" ea '[.] | map(select(.kind == "ConfigMap" and .metadata.name == "hermes-friend-runner-policy"))[0].data.tester-image' "${scratch}/workloads.yaml")"
 if [[ ! "${generator_image}" =~ ^ghcr\.io/davidilie/hermes-friend-generator@sha256:[0-9a-f]{64}$ ||

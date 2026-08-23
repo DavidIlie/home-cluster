@@ -12,11 +12,11 @@ data:
   github-api-url: https://api.github.com
   sandbox-namespace: hermes-friends-sandbox
   test-catalog-configmap: hermes-friend-test-catalog
-  sandbox-organization: UNSET
-  creator-app-id: UNSET
-  creator-installation-id: UNSET
-  publisher-app-id: UNSET
-  publisher-installation-id: UNSET
+  sandbox-organization: DavidIlie-friends-sandbox
+  creator-app-id: "4690613"
+  creator-installation-id: "155902914"
+  publisher-app-id: "4690643"
+  publisher-installation-id: "155903341"
   generator-image: ghcr.io/davidilie/hermes-friend-generator@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
   tester-image: ghcr.io/davidilie/hermes-friend-tester@sha256:2b7b6770386e95db2719d9a706aa64bdc4814fd2d11280cc0a959cacf64d2e1c
   dispatcher-image: &inert-control-image ghcr.io/davidilie/hermes-friend-runner@sha256:47e4812c62b488841d1ba887bfbe385d59f6e3f3dc2e14edaed789bf931de4eb
@@ -31,9 +31,9 @@ metadata:
   name: hermes-friend-creator-policy
   namespace: hermes-friends-creator
 data:
-  sandbox-organization: UNSET
-  app-id: UNSET
-  installation-id: UNSET
+  sandbox-organization: DavidIlie-friends-sandbox
+  app-id: "4690613"
+  installation-id: "155902914"
   github-api-url: https://api.github.com
 ---
 apiVersion: v1
@@ -42,7 +42,7 @@ metadata:
   name: hermes-friend-publisher-policy
   namespace: hermes-friends-publisher
 data:
-  sandbox-organization: UNSET
-  app-id: UNSET
-  installation-id: UNSET
+  sandbox-organization: DavidIlie-friends-sandbox
+  app-id: "4690643"
+  installation-id: "155903341"
   github-api-url: https://api.github.com

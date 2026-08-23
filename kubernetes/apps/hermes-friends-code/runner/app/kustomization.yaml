@@ -6,6 +6,7 @@ resources:
   - ./configmap.yaml
   - ./test-catalog.yaml
   - ./secrets-core.sops.yaml
+  - ./github-apps.sops.yaml
   - ./storage.yaml
   - ./deployments.yaml
   - ./services.yaml

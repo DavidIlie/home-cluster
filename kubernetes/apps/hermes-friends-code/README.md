@@ -22,8 +22,8 @@ media token, observability credential, host mount, or owner Hermes PVC belongs
 in any of these namespaces. Secret names and required keys are contracts only;
 the public repository never contains plaintext or invented credential values.
 
-The later encrypted provisioning change must create exactly these independent
-Secrets in their stated namespaces:
+The encrypted provisioning file creates exactly these independent Secrets in
+their stated namespaces:
 
 | Namespace | Secret | Required key | Consumer |
 | --- | --- | --- | --- |
