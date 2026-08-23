@@ -29,5 +29,13 @@ configMapGenerator:
       - config.yaml=profiles/friends/config.yaml
       - SOUL.md=profiles/friends/SOUL.md
       - AGENTS.md=profiles/friends/AGENTS.md
+  - name: hermes-agent-friends-david-profile
+    files:
+      - config.yaml=profiles/friends-david/config.yaml
+      - SOUL.md=profiles/friends-david/SOUL.md
+      - AGENTS.md=profiles/friends-david/AGENTS.md
+  - name: hermes-agent-seedyn-skills
+    files:
+      - seedyn-delivery-SKILL.md=skills/seedyn-delivery/SKILL.md
 generatorOptions:
   disableNameSuffixHash: true

@@ -48,6 +48,10 @@ data:
     browser:
       backend: "off"
 
+    image_gen:
+      provider: openai
+      model: gpt-image-2-low
+
     platform_toolsets:
       discord:
         - web
@@ -56,6 +60,7 @@ data:
         - file
         - code_execution
         - vision
+        - image_gen
         - skills
         - todo
         - memory
@@ -113,6 +118,7 @@ data:
       write_approval: true
       external_dirs:
         - /etc/hermes-skills
+        - /etc/hermes-seedyn-skills
 
     display:
       memory_notifications: verbose
@@ -358,6 +364,16 @@ data:
           include: [gpu_job_start, gpu_job_cancel]
           resources: false
           prompts: false
+      seedyn:
+        url: http://hermes.default.svc.cluster.local:8080/seedyn/mcp
+        headers:
+          Authorization: "Bearer $${SEEDYN_BROKER_TOKEN}"
+        trust: full
+        timeout: 120
+        tools:
+          include: [seedyn_docs]
+          resources: false
+          prompts: false
   config.yaml: |
     # Managed scope is process-wide, including multiplexed profiles. Keep only
     # routing here: owner tools belong in owner-config.yaml and friend tools in
@@ -366,8 +382,15 @@ data:
     gateway:
       multiplex_profiles: true
       multiplex_profile_allowlist:
+        - friends-david
         - friends
       profile_routes:
+        - name: david-in-friends-herm-channel
+          platform: discord
+          guild_id: "1540757211146493993"
+          chat_id: "1540773031436353708"
+          user_id: "243009043260637184"
+          profile: friends-david
         - name: friends-herm-channel
           platform: discord
           guild_id: "1540757211146493993"

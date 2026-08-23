@@ -33,8 +33,8 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              # Source: DavidIlie/hermes@132424e914a4e2ec7b14beb5755de3cf723f1f4a
-              tag: sha-132424e914a4e2ec7b14beb5755de3cf723f1f4a@sha256:63d298cee6e82201afb5ebf52ecc446c6c1b57614004498da0bf29258a575143
+              # Source: DavidIlie/hermes@234119ca29e965c734cd86f141d57fbe190b8191
+              tag: sha-234119ca29e965c734cd86f141d57fbe190b8191@sha256:2f2524e4547cc2a1dbaf02183d67eea85d179c01fe024e93e1f21e82acbfab7e
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -60,6 +60,8 @@ spec:
                 cp /run/secrets/source/friend-creator-app-key /run/secrets/hermes/friend-creator-app-key
                 cp /run/secrets/source/friend-publisher-app-key /run/secrets/hermes/friend-publisher-app-key
                 cp /run/secrets/source/friend-ssh-private-key /run/secrets/hermes/friend-ssh-private-key
+                cp /run/secrets/seedyn/seedyn-api-key /run/secrets/hermes/seedyn-api-key
+                cp /run/secrets/seedyn/seedyn-broker-token /run/secrets/hermes/seedyn-broker-token
                 chmod 0600 /run/secrets/hermes/*
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -117,6 +119,9 @@ spec:
               HERMES_PLAUSIBLE_TOKEN_FILE: /run/secrets/hermes/plausible-api-key
               HERMES_PLAUSIBLE_SITE_IDS: anaxax.tv,app.kidays.fr,brainbuzzapp.com,controlfits.com,createidol.io,davidilie.com,docs.workroad.app,en.mbretrofit.ro,kidays.fr,mbretrofit.es,mbretrofit.it,mbretrofit.ro,plexo.davidhome.ro,quickgoon.com,ro.davidinfra.co.uk,store.workroad.app,t3.gurt.ing,workroad.app,zerocut.gg
               HERMES_PLAUSIBLE_CUSTOM_EVENT_SCHEMAS: '[{"site_id":"mbretrofit.it","event":"hero-redirect","properties":["loggedIn","vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"hero-failed","properties":["vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"car-details-viewed","properties":["vin"],"vin_property":"vin"},{"site_id":"mbretrofit.it","event":"error","properties":["error","path"]}]'
+              HERMES_SEEDYN_URL: https://seedyn.dave.tips
+              HERMES_SEEDYN_TOKEN_FILE: /run/secrets/hermes/seedyn-api-key
+              HERMES_SEEDYN_BROKER_TOKEN_FILE: /run/secrets/hermes/seedyn-broker-token
               HERMES_DAVIDAPPS_URL: https://id.davidapps.dev
               HERMES_DAVIDAPPS_TOKEN_FILE: /run/secrets/hermes/davidapps-api-key
               HERMES_FRIEND_WORKSPACE_ENABLED: "true"
@@ -204,6 +209,15 @@ spec:
           hermes:
             prepare-secrets:
               - path: /run/secrets/source
+                readOnly: true
+      seedyn-secret-source:
+        type: secret
+        name: hermes-seedyn-secrets
+        defaultMode: 0444
+        advancedMounts:
+          hermes:
+            prepare-secrets:
+              - path: /run/secrets/seedyn
                 readOnly: true
       secrets:
         type: emptyDir

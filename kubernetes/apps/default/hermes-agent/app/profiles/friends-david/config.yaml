@@ -1,0 +1,117 @@
+_config_version: 34
+
+model:
+  default: gpt-5.6-sol
+  provider: custom
+  base_url: http://cliproxy.default.svc.cluster.local:8317/v1
+  api_key: $${CLIPROXY_API_KEY}
+  api_mode: codex_responses
+  context_length: 1050000
+  max_tokens: 128000
+
+agent:
+  reasoning_effort: low
+  service_tier: priority
+  max_turns: 100
+  gateway_timeout: 3600
+  task_completion_guidance: true
+  tool_use_enforcement: auto
+  intent_ack_continuation: auto
+
+terminal:
+  backend: local
+  cwd: /opt/data/profiles/friends-david/workspace
+  timeout: 1800
+  home_mode: profile
+
+browser:
+  backend: "off"
+
+image_gen:
+  provider: openai
+  model: gpt-image-2-low
+
+platform_toolsets:
+  discord:
+    - web
+    - browser
+    - terminal
+    - file
+    - code_execution
+    - vision
+    - image_gen
+    - skills
+    - memory
+    - session_search
+    - clarify
+
+discord:
+  require_mention: false
+  allowed_channels: "1540773031436353708"
+  allow_admin_from:
+    - "243009043260637184"
+  group_allow_admin_from:
+    - "243009043260637184"
+  auto_thread: true
+  thread_require_mention: false
+  history_backfill: true
+  reactions: true
+  approval_mentions: true
+  server_actions: "fetch_messages,create_thread"
+
+gateway:
+  max_concurrent_sessions: 2
+  group_sessions_per_user: true
+  thread_sessions_per_user: true
+
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  memory_char_limit: 12000
+  user_char_limit: 8000
+  write_approval: false
+
+skills:
+  template_vars: false
+  inline_shell: false
+  guard_agent_created: true
+  write_approval: true
+  external_dirs:
+    - /etc/hermes-seedyn-skills
+
+delegation:
+  orchestrator_enabled: false
+  subagent_auto_approve: false
+
+approvals:
+  mode: smart
+  timeout: 900
+  cron_mode: deny
+
+security:
+  allow_private_urls: false
+  redact_secrets: true
+  protected_instruction_files: true
+  tirith_enabled: true
+  tirith_fail_open: false
+  allow_lazy_installs: false
+  approval:
+    transport: builtin
+    transport_fallback: deny
+
+cron:
+  allow_agent_scheduling: false
+
+timezone: Europe/Madrid
+
+mcp_servers:
+  seedyn:
+    url: http://hermes.default.svc.cluster.local:8080/seedyn/mcp
+    headers:
+      Authorization: "Bearer $${SEEDYN_BROKER_TOKEN}"
+    trust: full
+    timeout: 120
+    tools:
+      include: [seedyn_docs]
+      resources: false
+      prompts: false

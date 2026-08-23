@@ -90,17 +90,29 @@ spec:
               cmp -s /friends-seed/config.yaml /opt/data/profiles/friends/config.yaml || cp /friends-seed/config.yaml /opt/data/profiles/friends/config.yaml
               cmp -s /friends-seed/SOUL.md /opt/data/profiles/friends/SOUL.md || cp /friends-seed/SOUL.md /opt/data/profiles/friends/SOUL.md
               cmp -s /friends-seed/AGENTS.md /opt/data/profiles/friends/workspace/AGENTS.md || cp /friends-seed/AGENTS.md /opt/data/profiles/friends/workspace/AGENTS.md
-              printf 'DISCORD_BOT_TOKEN=%s\nDISCORD_ALLOWED_USERS=243009043260637184\nCLIPROXY_API_KEY=%s\nFLEETVIEW_MCP_TOKEN=%s\nFLEET_GATEWAY_MCP_TOKEN=%s\nAPI_SERVER_KEY=%s\nHERMES_FRIEND_CODE_DELIVERY_TOKEN=%s\nHERMES_FRIEND_CODE_OWNER_TOKEN=%s\n' \
-                "$${DISCORD_BOT_TOKEN}" "$${CLIPROXY_API_KEY}" "$${FLEETVIEW_MCP_TOKEN}" \
+              mkdir -p /opt/data/profiles/friends-david/workspace
+              cmp -s /friends-david-seed/config.yaml /opt/data/profiles/friends-david/config.yaml || cp /friends-david-seed/config.yaml /opt/data/profiles/friends-david/config.yaml
+              cmp -s /friends-david-seed/SOUL.md /opt/data/profiles/friends-david/SOUL.md || cp /friends-david-seed/SOUL.md /opt/data/profiles/friends-david/SOUL.md
+              cmp -s /friends-david-seed/AGENTS.md /opt/data/profiles/friends-david/workspace/AGENTS.md || cp /friends-david-seed/AGENTS.md /opt/data/profiles/friends-david/workspace/AGENTS.md
+              printf 'DISCORD_BOT_TOKEN=%s\nDISCORD_ALLOWED_USERS=243009043260637184\nCLIPROXY_API_KEY=%s\nOPENAI_API_KEY=%s\nFLEETVIEW_MCP_TOKEN=%s\nFLEET_GATEWAY_MCP_TOKEN=%s\nAPI_SERVER_KEY=%s\nHERMES_FRIEND_CODE_DELIVERY_TOKEN=%s\nHERMES_FRIEND_CODE_OWNER_TOKEN=%s\nSEEDYN_BROKER_TOKEN=%s\n' \
+                "$${DISCORD_BOT_TOKEN}" "$${CLIPROXY_API_KEY}" "$${CLIPROXY_API_KEY}" \
+                "$${FLEETVIEW_MCP_TOKEN}" \
                 "$${FLEET_GATEWAY_MCP_TOKEN}" "$${API_SERVER_KEY}" \
-                "$${HERMES_FRIEND_CODE_DELIVERY_TOKEN}" "$${HERMES_FRIEND_CODE_OWNER_TOKEN}" > /owner-env/owner.env
+                "$${HERMES_FRIEND_CODE_DELIVERY_TOKEN}" "$${HERMES_FRIEND_CODE_OWNER_TOKEN}" \
+                "$${SEEDYN_BROKER_TOKEN}" > /owner-env/owner.env
               printf 'CLIPROXY_API_KEY=%s\nDISCORD_ALLOW_ALL_USERS=true\nHERMES_FRIEND_CODE_MCP_TOKEN=%s\n' \
                 "$${CLIPROXY_API_KEY}" "$${HERMES_FRIEND_CODE_MCP_TOKEN}" > /friends-env/friends.env
+              printf 'CLIPROXY_API_KEY=%s\nOPENAI_API_KEY=%s\nDISCORD_ALLOWED_USERS=243009043260637184\nSEEDYN_BROKER_TOKEN=%s\n' \
+                "$${CLIPROXY_API_KEY}" "$${CLIPROXY_API_KEY}" "$${SEEDYN_BROKER_TOKEN}" > /friends-david-env/friends-david.env
               chmod 0600 /opt/data/profiles/friends/config.yaml
               chmod 0600 /opt/data/profiles/friends/SOUL.md
               chmod 0600 /opt/data/profiles/friends/workspace/AGENTS.md
+              chmod 0600 /opt/data/profiles/friends-david/config.yaml
+              chmod 0600 /opt/data/profiles/friends-david/SOUL.md
+              chmod 0600 /opt/data/profiles/friends-david/workspace/AGENTS.md
               chmod 0600 /owner-env/owner.env
               chmod 0600 /friends-env/friends.env
+              chmod 0600 /friends-david-env/friends-david.env
           env:
             - name: DISCORD_BOT_TOKEN
               valueFrom:
@@ -142,6 +154,11 @@ spec:
                 secretKeyRef:
                   name: hermes-friend-agent-tokens
                   key: owner-token
+            - name: SEEDYN_BROKER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-seedyn-secrets
+                  key: seedyn-broker-token
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000
@@ -165,12 +182,18 @@ spec:
             - name: friends-profile
               mountPath: /friends-seed
               readOnly: true
+            - name: friends-david-profile
+              mountPath: /friends-david-seed
+              readOnly: true
             - name: owner-env
               mountPath: /owner-env
             - name: friends-env
               mountPath: /friends-env
+            - name: friends-david-env
+              mountPath: /friends-david-env
         - name: prepare-runtime
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.bce4567524@sha256:155ca03b0697ff26b5cf603054f688fc684a693689fd2e36594bece9225ba018
+          # Source: DavidIlie/hermes-agent@97bcdc0390759da281ef2e3b638d16f191867bc4
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.23-seedyn.97bcdc0390@sha256:303a1f0641d6b8ce981dc82daddb761aeb5edc6ba85485692b065b660a75fc30
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -211,7 +234,8 @@ spec:
               readOnly: true
       containers:
         - name: app
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.bce4567524@sha256:155ca03b0697ff26b5cf603054f688fc684a693689fd2e36594bece9225ba018
+          # Source: DavidIlie/hermes-agent@97bcdc0390759da281ef2e3b638d16f191867bc4
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.23-seedyn.97bcdc0390@sha256:303a1f0641d6b8ce981dc82daddb761aeb5edc6ba85485692b065b660a75fc30
           args: ["gateway", "run"]
           env:
             - name: TZ
@@ -222,6 +246,8 @@ spec:
               value: /etc/hermes
             - name: AGENT_BROWSER_ARGS
               value: --no-sandbox,--disable-dev-shm-usage
+            - name: OPENAI_BASE_URL
+              value: http://cliproxy.default.svc.cluster.local:8317/v1
             - name: DISCORD_ALLOWED_USERS
               value: "243009043260637184"
             - name: DISCORD_HOME_CHANNEL
@@ -303,11 +329,18 @@ spec:
               mountPath: /opt/data/profiles/friends/.env
               subPath: friends.env
               readOnly: true
+            - name: friends-david-env
+              mountPath: /opt/data/profiles/friends-david/.env
+              subPath: friends-david.env
+              readOnly: true
             - name: managed
               mountPath: /etc/hermes
               readOnly: true
             - name: managed-skills
               mountPath: /etc/hermes-skills
+              readOnly: true
+            - name: seedyn-skills
+              mountPath: /etc/hermes-seedyn-skills
               readOnly: true
             - name: work-context
               mountPath: /opt/data/workspace/AGENTS.md
@@ -353,9 +386,22 @@ spec:
           configMap:
             name: hermes-agent-friends-profile
             defaultMode: 0444
+        - name: friends-david-profile
+          configMap:
+            name: hermes-agent-friends-david-profile
+            defaultMode: 0444
+        - name: seedyn-skills
+          configMap:
+            name: hermes-agent-seedyn-skills
+            defaultMode: 0444
+            items:
+              - key: seedyn-delivery-SKILL.md
+                path: seedyn-delivery/SKILL.md
         - name: owner-env
           emptyDir: {}
         - name: friends-env
+          emptyDir: {}
+        - name: friends-david-env
           emptyDir: {}
         - name: tmp
           emptyDir: {}

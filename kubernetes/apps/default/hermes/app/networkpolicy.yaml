@@ -152,6 +152,7 @@ spec:
         - matchName: fleetview.code.davidapps.dev
         - matchName: id.davidapps.dev
         - matchName: plausible.davidapps.dev
+        - matchName: seedyn.dave.tips
       toPorts:
         - ports:
             - port: "443"
