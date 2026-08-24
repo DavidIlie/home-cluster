@@ -73,6 +73,9 @@ data:
     discord:
       # Both dedicated Herm channels accept ordinary messages and launch a
       # thread. Everywhere else requires an explicit @herm mention.
+      # Discord is channel-only: DMs are rejected before routing/session work,
+      # and outbound delivery refuses private Discord destinations.
+      allow_dms: false
       require_mention: true
       free_response_channels: "1537861134076350465,1540773031436353708"
       allowed_channels: "*"

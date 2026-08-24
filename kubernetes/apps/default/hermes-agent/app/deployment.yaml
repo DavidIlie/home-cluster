@@ -234,8 +234,8 @@ spec:
               readOnly: true
       containers:
         - name: app
-          # Source: DavidIlie/hermes-agent@e4bd2b4cb1c965d8a99b0f851341c25dd1454154
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.e4bd2b4cb1@sha256:d5f0d8b1e4136b71d83e18e7dc3e50c6d7c09d5933e30e8e11b0651846a8bea1
+          # Source: DavidIlie/hermes-agent@4de06f56ce6b2ca05fa3ec55fea4b1dcd410a146
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.4de06f56ce@sha256:da957adb98f7c562f88f743f1c34469d22dbd6d74c89a52a2d1b56f7561273bf
           args: ["gateway", "run"]
           env:
             - name: TZ
