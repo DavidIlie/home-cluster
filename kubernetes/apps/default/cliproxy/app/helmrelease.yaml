@@ -183,6 +183,10 @@ spec:
                   secretKeyRef:
                     name: cliproxy-employee-hub
                     key: EMPLOYEE_HUB_SERVICE_TOKEN
+              # Persist managed-key quota attribution across rollouts on the
+              # dedicated, backed-up plugin data volume.
+              CLIPROXY_QUOTA_LEDGER_PATH: /CLIProxyAPI/plugin-data/managed-key-quota-ledger.json
+              CLIPROXY_QUOTA_POLL_INTERVAL: 1m
             probes:
               liveness: &probes
                 enabled: true
