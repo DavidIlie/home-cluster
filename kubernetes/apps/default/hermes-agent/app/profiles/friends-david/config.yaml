@@ -109,6 +109,7 @@ security:
 
 cron:
   allow_agent_scheduling: false
+  wrap_response: false
 
 timezone: Europe/Madrid
 
