@@ -21,3 +21,15 @@ spec:
     requests:
       storage: 2Gi
   storageClassName: openebs-hostpath
+---
+# Writable source of truth for config.yaml after the one-shot migration.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cliproxy-config-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: openebs-hostpath

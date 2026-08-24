@@ -31,14 +31,32 @@ spec:
           imagePullSecrets:
             - name: docker-regcred
         annotations:
-          # config.yaml is mounted with subPath, and subPath mounts never receive
-          # kubelet secret updates -- without this, edits to secret.sops.yaml sit
-          # in git looking applied while the pod keeps the old config forever.
+          # Restart for public assertion-key changes. The encrypted config is only
+          # a first-boot seed after migration; the writable PVC is authoritative.
           reloader.stakater.com/auto: "true"
         initContainers:
-          # Plugins are c-shared .so files loaded via dlopen. config.yaml is a read-only
-          # SOPS secret, so the Plugin Store UI cannot install them (it writes config).
-          # Cache pinned, checksum-verified binaries on the plugin-data PVC. A cold cache
+          config-bootstrap:
+            image:
+              repository: docker.io/library/alpine
+              tag: 3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
+            command: ["sh", "-ec"]
+            args:
+              - |
+                if [ ! -s /data/config.yaml ]; then
+                  install -m 0600 /bootstrap/config.yaml /data/config.yaml
+                fi
+            resources:
+              requests:
+                cpu: 5m
+                memory: 16Mi
+              limits:
+                memory: 32Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+          # Plugins are c-shared .so files loaded via dlopen. Cache pinned,
+          # checksum-verified binaries on the plugin-data PVC. A cold cache
           # retries through cluster-start DNS races and fails closed rather than starting
           # CLIProxy without the routes required by the observability exporter.
           plugin-installer:
@@ -129,8 +147,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/cliproxyapi
-              # TODO: replace latest with the immutable digest emitted after the feature branch is pushed.
-              tag: 436c703f834a2510e5abac85e90581ac3adf0971@sha256:140b4aa72f6051f51625504978232b3e9659c22ec43eb7a2271e3a6262a5895d
+              tag: 5f6741b9b75322a3230fb0724258afe186ee4192@sha256:aea92c2e235560933f7ef9fa98c488a059f566c0397341fa3d74335f5d4169e6
             env:
               TZ: Europe/Bucharest
               DAVIDAPPS_ASSERTION_ISSUER:
@@ -248,8 +265,8 @@ spec:
           nginx.ingress.kubernetes.io/auth-always-set-cookie: "true"
           nginx.ingress.kubernetes.io/auth-cache-duration: "200 202 0s, 401 0s"
           nginx.ingress.kubernetes.io/auth-response-headers: X-DA-Assertion,X-DA-User,X-DA-Email,X-DA-Name,X-DA-Kind,X-DA-Rol,X-DA-Epoch,X-DA-Tid
-          nginx.ingress.kubernetes.io/proxy-body-size: 4k
-          nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
+          nginx.ingress.kubernetes.io/proxy-body-size: 2m
+          nginx.ingress.kubernetes.io/client-body-buffer-size: 16k
           nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
           nginx.ingress.kubernetes.io/proxy-read-timeout: "15"
           nginx.ingress.kubernetes.io/proxy-send-timeout: "15"
@@ -281,13 +298,24 @@ spec:
         tls:
           - hosts: [*host]
     persistence:
-      config:
+      config-bootstrap:
         type: secret
         name: cliproxy-config
-        globalMounts:
-          - path: /CLIProxyAPI/config.yaml
-            subPath: config.yaml
-            readOnly: true
+        advancedMounts:
+          cliproxy:
+            config-bootstrap:
+              - path: /bootstrap/config.yaml
+                subPath: config.yaml
+                readOnly: true
+      config-data:
+        existingClaim: cliproxy-config-data
+        advancedMounts:
+          cliproxy:
+            config-bootstrap:
+              - path: /data
+            app:
+              - path: /CLIProxyAPI/config.yaml
+                subPath: config.yaml
       auths:
         existingClaim: cliproxy
         globalMounts:
@@ -313,10 +341,6 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /CLIProxyAPI/logs
-      static:
-        type: emptyDir
-        globalMounts:
-          - path: /CLIProxyAPI/static
       # readOnlyRootFilesystem is on, so the plugin installer needs a writable scratch dir.
       tmp:
         type: emptyDir

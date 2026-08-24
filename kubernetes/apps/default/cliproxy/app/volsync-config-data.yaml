@@ -1,0 +1,35 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: cliproxy-config-data
+spec:
+  sourcePVC: cliproxy-config-data
+  trigger:
+    schedule: "15 */6 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: cliproxy-config-data-volsync-secret
+    retain:
+      hourly: 6
+      daily: 14
+      weekly: 8
+      monthly: 6
+    copyMethod: Direct
+    moverSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    cacheStorageClassName: openebs-hostpath
+    cacheCapacity: 1Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cliproxy-config-data-volsync-secret
+type: Opaque
+stringData:
+  RESTIC_REPOSITORY: "s3:http://192.168.100.63:9000/volsync/cliproxy-config-data"
+  RESTIC_PASSWORD: "${VOLSYNC_RESTIC_PASSWORD}"
+  AWS_ACCESS_KEY_ID: "${VOLSYNC_S3_ACCESS_KEY}"
+  AWS_SECRET_ACCESS_KEY: "${VOLSYNC_S3_SECRET_KEY}"

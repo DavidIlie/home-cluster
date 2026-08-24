@@ -8,8 +8,8 @@ data:
   audience: cliproxy.davidhome.ro
   application-id: cliproxy
   assertion-key-id: gate-home-v1
-  # Public, non-secret verifier material. Replace after the home gate app is provisioned.
-  assertion-public-key: ""
+  # Public, non-secret verifier material derived from gate-home-v1.
+  assertion-public-key: W6gtY0F1AxVZEp_WKAPidEPDt3UXLoQ54d4fExw0Lzc
 ---
 apiVersion: v1
 kind: Service

@@ -8,5 +8,6 @@ resources:
   - ./secret.sops.yaml
   - ./helmrelease.yaml
   - ./volsync-plugin-data.yaml
+  - ./volsync-config-data.yaml
 components:
   - ../../../../flux/components/volsync
