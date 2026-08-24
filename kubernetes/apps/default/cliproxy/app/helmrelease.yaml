@@ -146,8 +146,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/davidilie/cliproxyapi
-              tag: dd4bb4d52b210ecab3862050c609d365e97f16c7@sha256:1c2fc66125a10ef90493bee941b3e280587974eeb95fba98b8756b6747e3c6c1
+              repository: ghcr.io/davidilie/cliproxyapi # {"$imagepolicy": "flux-system:cliproxy:name"}
+              tag: main-0e58038c-1787601036 # {"$imagepolicy": "flux-system:cliproxy:tag"}
             env:
               TZ: Europe/Bucharest
               DAVIDAPPS_ASSERTION_ISSUER:

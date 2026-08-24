@@ -1,0 +1,26 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: cliproxy
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: cliproxy
+  filterTags:
+    pattern: "^main-[a-f0-9]{8}-(?P<ts>[0-9]+)$"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: cliproxy
+  namespace: flux-system
+spec:
+  image: ghcr.io/davidilie/cliproxyapi
+  interval: 1m0s
+  secretRef:
+    name: docker-regcred

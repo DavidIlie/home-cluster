@@ -3,6 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./bostan-discord-bot.yaml
+  - ./cliproxy.yaml
   - ./error-pages.yaml
   - ./personal-dashboard.yaml
   - ./seedyn.yaml
