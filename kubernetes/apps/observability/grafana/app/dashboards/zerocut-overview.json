@@ -1249,7 +1249,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
           "editorMode": "code",
-          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_1)?\",service_name=\"zerocut\"}))",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\"}))",
           "instant": true,
           "legendFormat": "known acquisitions",
           "range": false,
@@ -1286,7 +1286,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
           "editorMode": "code",
-          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_1)?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
           "instant": true,
           "legendFormat": "active acquisitions",
           "range": false,
@@ -1373,7 +1373,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
           "editorMode": "code",
-          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_1)?\",service_name=\"zerocut\"})",
+          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_(1|ratio))?\",service_name=\"zerocut\"})",
           "instant": true,
           "legendFormat": "snapshot",
           "range": false,
@@ -1460,6 +1460,6 @@
   "timezone": "browser",
   "title": "Overview",
   "uid": "zerocut-overview",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }
