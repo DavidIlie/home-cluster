@@ -29,6 +29,8 @@ Instrument server requests, stable route templates, rendering/API phases, depend
 
 Business metrics should use bounded dimensions and integer minor-currency units. Currency, provider, mode, stream, outcome, and credit/debit direction remain separate. Observability is not the accounting ledger.
 
+Use transition metrics for activity in a selected time range and ledger-backed observable gauges for current or lifetime inventory. Do not replay historical purchases as new transition events. Product-usage panels may aggregate privacy-safe browser session IDs, but must be labeled as sessions rather than unique people or accounts.
+
 ## 4. Prove every signal before adding panels
 
 Use the read-only agent connectors to confirm metric names and labels in the live backends:
