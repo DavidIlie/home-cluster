@@ -159,6 +159,22 @@ def upload(image: Path) -> str:
     return url
 
 
+def correction_guidance(correction: dict) -> dict:
+    previous = (correction.get("delivery") or {}).get("spec") or {}
+    shape = str(previous.get("shape") or "daily_list")
+    layout = str(previous.get("layout") or "right_cutout")
+    return {
+        "key": f"correction:{shape}:{layout}",
+        "family": shape,
+        "shape": shape,
+        "top": str(previous.get("top") or "CORRECTED POSTER"),
+        "title_key": str(previous.get("key") or "SAME PREMISE"),
+        "world": f"the same exact situation as the previous {shape} poster",
+        "tension": "fix the stated problem while preserving every uncriticized decision",
+        "layouts": [layout],
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", type=Path)
@@ -170,8 +186,6 @@ def main() -> None:
     run("prepare_assets.py", timeout=3000)
     history = load_history()
     seed = datetime.now(ZoneInfo("Europe/Bucharest")).isoformat(timespec="minutes")
-    guidance = select_guidance(seed, history["guidance_keys"])
-    guidance_key = arguments.guidance_key or guidance["key"]
     correction = None
     feedback_text = ""
     if arguments.feedback_url:
@@ -182,6 +196,12 @@ def main() -> None:
 
         correction = feedback_context(arguments.feedback_url)
         correction["current_feedback"] = feedback_text
+    guidance = (
+        correction_guidance(correction)
+        if correction
+        else select_guidance(seed, history["guidance_keys"])
+    )
+    guidance_key = arguments.guidance_key or guidance["key"]
     if arguments.spec:
         spec = json.loads(arguments.spec.read_text(encoding="utf-8"))
         validate_spec(spec)

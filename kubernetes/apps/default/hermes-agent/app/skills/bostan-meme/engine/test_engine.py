@@ -15,6 +15,7 @@ from PIL import Image
 import meme_engine
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
 import feedback
+from cron_hourly import correction_guidance
 from corpus import POSTERS
 from premises import guided_capacity, title_count
 
@@ -125,6 +126,10 @@ def test_runtime_authoring(target: Path) -> None:
     correction_prompt = author_prompt(guidance, [spec], correction=correction)
     assert "Previous exact spec" in correction_prompt
     assert "portrait larger" in correction_prompt
+    correction_shape = correction_guidance(correction)
+    assert correction_shape["shape"] == spec["shape"]
+    assert correction_shape["layouts"] == [spec["layout"]]
+    assert correction_shape["top"] == spec["top"]
 
 
 def test_delivery_feedback_ledger(target: Path) -> None:
