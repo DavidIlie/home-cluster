@@ -15,6 +15,7 @@ from PIL import Image
 import meme_engine
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
 import feedback
+import author_prompt as author_history
 from cron_hourly import correction_guidance, novelty_history
 from corpus import POSTERS
 from premises import guided_capacity, title_count
@@ -142,7 +143,7 @@ def test_delivery_feedback_ledger(target: Path) -> None:
         feedback.DELIVERIES = target / "deliveries.jsonl"
         feedback.FEEDBACK = target / "feedback.jsonl"
         feedback.LOCK = target / ".ledger.lock"
-        spec = POSTERS[0]
+        spec = json.loads(json.dumps(POSTERS[0]))
         feedback.record_delivery(
             url="https://i.gurt.ing/example.png",
             spec=spec,
@@ -161,6 +162,18 @@ def test_delivery_feedback_ledger(target: Path) -> None:
         feedback.DELIVERIES = original_deliveries
         feedback.FEEDBACK = original_feedback
         feedback.LOCK = original_lock
+
+
+def test_correction_history(target: Path) -> None:
+    original_history = author_history.HISTORY
+    try:
+        author_history.HISTORY = target / "author-history.json"
+        spec = json.loads(json.dumps(POSTERS[0]))
+        author_history.accept_spec(spec, "initial")
+        author_history.accept_spec(spec, "correction", exclude_spec=spec)
+        assert len(author_history.load_history()["specs"]) == 2
+    finally:
+        author_history.HISTORY = original_history
 
 
 def test_blueprints(target: Path) -> int:
@@ -218,6 +231,7 @@ def main() -> None:
         blueprint_count = test_blueprints(target)
         test_runtime_authoring(target)
         test_delivery_feedback_ledger(target)
+        test_correction_history(target)
     print(
         json.dumps(
             {

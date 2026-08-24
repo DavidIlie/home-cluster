@@ -36,10 +36,11 @@ def save_history(history: dict[str, list]) -> None:
     temporary.replace(HISTORY)
 
 
-def accept_spec(spec: dict, guidance_key: str) -> float:
+def accept_spec(spec: dict, guidance_key: str, *, exclude_spec: dict | None = None) -> float:
     history = load_history()
     validate_spec(spec)
-    score = novelty_score(spec, history["specs"])
+    comparison = [item for item in history["specs"] if item != exclude_spec]
+    score = novelty_score(spec, comparison)
     history["guidance_keys"] = (history["guidance_keys"] + [guidance_key])[-100:]
     history["specs"] = (history["specs"] + [spec])[-40:]
     save_history(history)

@@ -234,7 +234,8 @@ def main() -> None:
         raise RuntimeError("renderer did not produce a PNG")
 
     url = upload(image)
-    accept_spec(spec, guidance_key)
+    replaced_spec = (correction.get("delivery") or {}).get("spec") if correction else None
+    accept_spec(spec, guidance_key, exclude_spec=replaced_spec)
     if arguments.feedback_url:
         record_feedback(url=arguments.feedback_url, text=feedback_text, disposition="replace")
     record_delivery(
