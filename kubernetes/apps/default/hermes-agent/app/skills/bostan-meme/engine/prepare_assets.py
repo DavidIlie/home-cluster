@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "assets" / "people"
 DESTINATION = ROOT / "assets" / "transparent"
 SUPPORTED = {".jpg", ".jpeg", ".png", ".webp"}
+LARGEST_SUBJECT_ONLY = {"steve-jobs"}
 
 # Keep the 168 MiB segmentation model on the persistent workspace.  Without
 # this, rembg stores it under the container root and downloads it again after
@@ -21,6 +22,23 @@ SUPPORTED = {".jpg", ".jpeg", ".png", ".webp"}
 os.environ.setdefault("REMBG_HOME", str(ROOT / ".rembg"))
 
 from rembg import new_session, remove  # noqa: E402
+
+
+def keep_largest_subject(portrait: Image.Image) -> Image.Image:
+    """Discard disconnected baked-in captions and watermarks around a person."""
+    import numpy as np
+    from scipy import ndimage
+
+    alpha = np.asarray(portrait.getchannel("A"))
+    labels, count = ndimage.label(alpha > 16)
+    if count < 2:
+        return portrait
+    sizes = np.bincount(labels.ravel())
+    sizes[0] = 0
+    subject = labels == int(sizes.argmax())
+    cleaned = np.where(subject, alpha, 0).astype("uint8")
+    portrait.putalpha(Image.fromarray(cleaned, mode="L"))
+    return portrait
 
 
 def is_valid(path: Path) -> bool:
@@ -62,6 +80,8 @@ def main() -> None:
             try:
                 with Image.open(source) as image:
                     portrait = remove(image.convert("RGBA"), session=session)
+                if source.stem in LARGEST_SUBJECT_ONLY:
+                    portrait = keep_largest_subject(portrait)
                 if not isinstance(portrait, Image.Image) or portrait.getbbox() is None:
                     raise ValueError("background removal produced an empty image")
                 portrait.save(temporary, format="PNG", optimize=True)
