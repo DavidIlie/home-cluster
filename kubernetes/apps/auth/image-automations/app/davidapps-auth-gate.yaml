@@ -8,7 +8,9 @@ spec:
   imageRepositoryRef:
     name: davidapps-auth-gate
   filterTags:
-    pattern: "^release-(?P<number>[0-9]+)$"
+    # release-206 cannot load the current production database snapshot. Keep
+    # the last healthy gate pinned until its schema rollout is complete.
+    pattern: "^release-(?P<number>203)$"
     extract: "$number"
   policy:
     numerical:
