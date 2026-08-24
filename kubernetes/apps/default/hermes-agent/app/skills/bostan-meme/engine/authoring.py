@@ -14,6 +14,7 @@ from premises import ANGLES, FAMILIES
 
 TOKEN = re.compile(r"[A-Z0-9]+")
 ITEM_SHAPES = {"dialogue", "wealth_recipe", "ranked", "timeline", "checklist", "daily_list", "agenda", "ledger"}
+ITEM_COPY_LIMIT = 34
 BUREAUCRACY_WORDS = {
     "APPOINTED", "APPROVAL", "BRIEFING", "COMMITTEE", "DIRECTOR", "FEE",
     "FEES", "INSPECTION", "MANAGER", "MINISTER", "MINISTRY", "MUNICIPAL",
@@ -117,9 +118,9 @@ def author_prompt(
         "top": "headline line one",
         "key": "headline line two",
         "items": (
-            "exactly eight [lead, punch] pairs"
+            f"exactly eight [lead, punch] pairs; each string at most {ITEM_COPY_LIMIT} characters"
             if guidance["shape"] == "timeline"
-            else "exactly five [lead, punch] pairs for item-based shapes"
+            else f"exactly five [lead, punch] pairs for item-based shapes; each string at most {ITEM_COPY_LIMIT} characters"
         ),
         "quote": "quote shapes only",
         "left_title": "comparison shapes only",
@@ -147,6 +148,7 @@ def author_prompt(
             "Treat the supplied title and world as a topic direction, not sacred wording. Replace them with a plainer category headline when they sound invented, narrative, or over-written.",
             "Use short visible copy. No explanation, hashtags, attribution, moral, or generic motivational footer.",
             "For dialogue, wealth_recipe, ranked, checklist, daily_list, agenda, and ledger, write exactly five item pairs. For timeline, write exactly eight.",
+            f"Each item lead and punch must be at most {ITEM_COPY_LIMIT} characters, including spaces.",
             "For comparison, write exactly four concise items on each side. For quote, write one 45-190 character quote.",
             "Every comparison item must be at most 28 characters, including spaces.",
             f"Joke shape: {guidance['shape']}",
@@ -198,13 +200,17 @@ def validate_spec(spec: dict[str, Any]) -> dict[str, Any]:
         expected = 8 if spec["shape"] == "timeline" else 5
         if not isinstance(items, list) or len(items) != expected:
             raise ValueError(f"{spec['shape']} requires {expected} items")
-        for item in items:
+        for item_index, item in enumerate(items, start=1):
             if not isinstance(item, list) or len(item) != 2:
                 raise ValueError("each item must be a two-string pair")
             if not all(isinstance(value, str) and value.strip() for value in item):
                 raise ValueError("item values must be nonempty strings")
-            if max(len(item[0]), len(item[1])) > 34:
-                raise ValueError("item copy is too long")
+            for field, value in zip(("lead", "punch"), item, strict=True):
+                if len(value) > ITEM_COPY_LIMIT:
+                    raise ValueError(
+                        f"item {item_index} {field} is {len(value)} characters; "
+                        f"maximum is {ITEM_COPY_LIMIT}"
+                    )
     elif spec["shape"] == "quote":
         quote = spec.get("quote")
         if not isinstance(quote, str) or not 45 <= len(quote) <= 190:

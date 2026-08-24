@@ -100,6 +100,7 @@ def test_runtime_authoring(target: Path) -> None:
     assert "not permission for unrelated items" in prompt
     assert "could move under an unrelated title" in prompt
     assert "comparison item must be at most 28 characters" in prompt
+    assert "Each item lead and punch must be at most 34 characters" in prompt
     assert "each row is an independent joke" in prompt
     assert "rows do not form a mini-story" in prompt
     assert "ocean paid me with my own bucket" in prompt
@@ -161,6 +162,14 @@ def test_runtime_authoring(target: Path) -> None:
         assert "topic must be" in str(error)
     else:
         raise AssertionError("oversized visible topic was accepted")
+    oversized_item = json.loads(json.dumps(spec))
+    oversized_item["items"][2][1] = "THIS SENTENCE IS DELIBERATELY TOO LONG"
+    try:
+        validate_spec(oversized_item)
+    except ValueError as error:
+        assert str(error) == "item 3 punch is 38 characters; maximum is 34"
+    else:
+        raise AssertionError("oversized item copy was accepted")
     bureaucratic = dict(spec)
     bureaucratic["top"] = "THE CAR PARK"
     bureaucratic["key"] = "APPOINTED YOU"

@@ -153,6 +153,7 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
                         "socially wrong answers, or one oddly specific category error over a fantasy system. "
                         "For quote, keep one plain setup and one clean reversal. Reject poetic personification, "
                         "extended metaphors, and conclusions that need interpretation. "
+                        "For item-based layouts, keep every lead and punch at or below 34 characters, including spaces. "
                         "Reject generic bureaucracy, management, permits, committees, fees, inspections, policy, "
                         "and briefings unless the headline's ordinary setting specifically requires them. "
                         "A row that could move under an unrelated headline without changing must be rewritten. "
