@@ -97,8 +97,10 @@ spec:
               mkdir -p /opt/data/profiles/friends-david/workspace/meme-engine
               for source in /friends-david-meme-engine-seed/*; do
                 target="/opt/data/profiles/friends-david/workspace/meme-engine/$${source##*/}"
-                cmp -s "$${source}" "$${target}" || cp "$${source}" "$${target}"
-                chmod 0644 "$${target}"
+                temporary="$${target}.gitops.tmp"
+                cp "$${source}" "$${temporary}"
+                chmod 0644 "$${temporary}"
+                mv -f "$${temporary}" "$${target}"
               done
               printf 'DISCORD_BOT_TOKEN=%s\nDISCORD_ALLOWED_USERS=243009043260637184\nCLIPROXY_API_KEY=%s\nOPENAI_API_KEY=%s\nFLEETVIEW_MCP_TOKEN=%s\nFLEET_GATEWAY_MCP_TOKEN=%s\nAPI_SERVER_KEY=%s\nHERMES_FRIEND_CODE_DELIVERY_TOKEN=%s\nHERMES_FRIEND_CODE_OWNER_TOKEN=%s\nSEEDYN_BROKER_TOKEN=%s\n' \
                 "$${DISCORD_BOT_TOKEN}" "$${CLIPROXY_API_KEY}" "$${CLIPROXY_API_KEY}" \
