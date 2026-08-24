@@ -15,7 +15,7 @@ from PIL import Image
 import meme_engine
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
 import feedback
-from cron_hourly import correction_guidance
+from cron_hourly import correction_guidance, novelty_history
 from corpus import POSTERS
 from premises import guided_capacity, title_count
 
@@ -130,6 +130,8 @@ def test_runtime_authoring(target: Path) -> None:
     assert correction_shape["shape"] == spec["shape"]
     assert correction_shape["layouts"] == [spec["layout"]]
     assert correction_shape["top"] == spec["top"]
+    assert novelty_history([spec, POSTERS[0]], correction) == [POSTERS[0]]
+    assert novelty_history([spec], None) == [spec]
 
 
 def test_delivery_feedback_ledger(target: Path) -> None:

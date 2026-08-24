@@ -175,6 +175,13 @@ def correction_guidance(correction: dict) -> dict:
     }
 
 
+def novelty_history(history: list[dict], correction: dict | None) -> list[dict]:
+    if not correction:
+        return history
+    target = (correction.get("delivery") or {}).get("spec")
+    return [item for item in history if item != target]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", type=Path)
@@ -202,13 +209,14 @@ def main() -> None:
         else select_guidance(seed, history["guidance_keys"])
     )
     guidance_key = arguments.guidance_key or guidance["key"]
+    recent_specs = novelty_history(history["specs"], correction)
     if arguments.spec:
         spec = json.loads(arguments.spec.read_text(encoding="utf-8"))
         validate_spec(spec)
-        novelty_score(spec, history["specs"])
+        novelty_score(spec, recent_specs)
     else:
-        prompt = author_prompt(guidance, history["specs"], correction=correction)
-        spec = request_spec(prompt, history["specs"])
+        prompt = author_prompt(guidance, recent_specs, correction=correction)
+        spec = request_spec(prompt, recent_specs)
     spec_path = ROOT / ".runtime-spec.json"
     spec_path.write_text(json.dumps(spec, ensure_ascii=False), encoding="utf-8")
     render_arguments = [
