@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -219,7 +220,12 @@ def test_runtime_authoring(target: Path) -> None:
         {"accept": True, "scores": passing_scores, "row_checks": [passing_row]},
         5,
     )
-    assert bostan_meme_hourly.AUTOMATIC_ENABLED is False
+    expected_automatic = os.environ.get("BOSTAN_AUTOMATIC_ENABLED", "false").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    assert bostan_meme_hourly.AUTOMATIC_ENABLED is expected_automatic
 
 
 def test_delivery_feedback_ledger(target: Path) -> None:
