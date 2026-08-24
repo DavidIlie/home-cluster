@@ -6,6 +6,7 @@ resources:
   - ./claim.yaml
   - ./davidapps-gate.yaml
   - ./secret.sops.yaml
+  - ./employee-hub-secret.sops.yaml
   - ./helmrelease.yaml
   - ./volsync-plugin-data.yaml
   - ./volsync-config-data.yaml

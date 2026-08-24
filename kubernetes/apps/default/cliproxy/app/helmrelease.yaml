@@ -178,6 +178,11 @@ spec:
               # which is not set for uid 1000. Point it at the PVC. This is
               # env-only -- there is no YAML config key for it.
               CPA_TOKEN_USAGE_DIR: /CLIProxyAPI/plugin-data/codex-token-usage
+              EMPLOYEE_HUB_SERVICE_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: cliproxy-employee-hub
+                    key: EMPLOYEE_HUB_SERVICE_TOKEN
             probes:
               liveness: &probes
                 enabled: true
@@ -251,6 +256,9 @@ spec:
               - path: /backend-api/codex
                 service: *appService
               - path: /healthz
+                service: *appService
+              - path: /internal/employee-hub/v1/usage
+                pathType: Exact
                 service: *appService
         tls:
           - hosts: [*host]
