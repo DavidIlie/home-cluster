@@ -6,6 +6,8 @@ metadata:
 data:
   issuer: https://id.davidapps.dev
   audience: cliproxy.davidhome.ro
+  application-id: cliproxy
+  assertion-key-id: gate-home-v1
   # Public, non-secret verifier material. Replace after the home gate app is provisioned.
   assertion-public-key: ""
 ---
@@ -97,7 +99,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
     nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
     nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
-    nginx.ingress.kubernetes.io/rewrite-target: /password
+    nginx.ingress.kubernetes.io/rewrite-target: /_da/gate/password
 spec:
   ingressClassName: external
   rules:
@@ -128,7 +130,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
     nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
     nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
-    nginx.ingress.kubernetes.io/rewrite-target: /redeem
+    nginx.ingress.kubernetes.io/rewrite-target: /_da/gate/redeem
 spec:
   ingressClassName: external
   rules:
@@ -159,7 +161,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
     nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
     nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
-    nginx.ingress.kubernetes.io/rewrite-target: /bypass
+    nginx.ingress.kubernetes.io/rewrite-target: /_da/gate/bypass
 spec:
   ingressClassName: external
   rules:

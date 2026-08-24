@@ -143,6 +143,16 @@ spec:
                   configMapKeyRef:
                     name: cliproxy-davidapps-public
                     key: audience
+              DAVIDAPPS_APPLICATION_ID:
+                valueFrom:
+                  configMapKeyRef:
+                    name: cliproxy-davidapps-public
+                    key: application-id
+              DAVIDAPPS_ASSERTION_KID:
+                valueFrom:
+                  configMapKeyRef:
+                    name: cliproxy-davidapps-public
+                    key: assertion-key-id
               DAVIDAPPS_ASSERTION_PUBLIC_KEY:
                 valueFrom:
                   configMapKeyRef:
