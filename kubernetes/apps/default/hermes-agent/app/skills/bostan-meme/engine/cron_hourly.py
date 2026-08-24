@@ -214,6 +214,7 @@ def correction_guidance(correction: dict) -> dict:
         "title_key": str(previous.get("key") or "SAME PREMISE"),
         "world": f"the same exact situation as the previous {shape} poster",
         "tension": "fix the stated problem while preserving every uncriticized decision",
+        "angle": "preserve the original joke angle unless the feedback explicitly rejects it",
         "layouts": [layout],
     }
 

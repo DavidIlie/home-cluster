@@ -18,7 +18,7 @@ import feedback
 import author_prompt as author_history
 from cron_hourly import correction_guidance, correction_person, novelty_history
 from corpus import POSTERS
-from premises import guided_capacity, title_count
+from premises import ANGLES, FAMILIES, guided_capacity, title_count
 
 
 ROOT = Path(__file__).resolve().parent
@@ -81,6 +81,10 @@ def test_catalog() -> None:
 
 def test_runtime_authoring(target: Path) -> None:
     guidance = select_guidance("runtime-authoring-test")
+    family = FAMILIES[guidance["family"]]
+    title_index = family["titles"].index((guidance["top"], guidance["title_key"]))
+    assert guidance["world"] == family["worlds"][title_index]
+    assert guidance["angle"] in ANGLES
     prompt = author_prompt(guidance, [])
     assert "Author six complete candidate" in prompt
     assert "not permission for unrelated items" in prompt

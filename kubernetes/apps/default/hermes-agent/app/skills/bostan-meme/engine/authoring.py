@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from premises import FAMILIES
+from premises import ANGLES, FAMILIES
 
 
 TOKEN = re.compile(r"[A-Z0-9]+")
@@ -50,9 +50,10 @@ def select_guidance(seed: str, recent_keys: list[str] | None = None) -> dict[str
     options: list[dict[str, Any]] = []
     for family_name, family in FAMILIES.items():
         for title_index, title in enumerate(family["titles"]):
-            world_index = rng.randrange(len(family["worlds"]))
+            world_index = title_index
             tension_index = rng.randrange(len(family["tensions"]))
-            key = f"{family_name}:{title_index}:{world_index}:{tension_index}"
+            angle_index = rng.randrange(len(ANGLES))
+            key = f"{family_name}:{title_index}:{world_index}:{tension_index}:{angle_index}"
             if key not in recent:
                 options.append(
                     {
@@ -63,6 +64,7 @@ def select_guidance(seed: str, recent_keys: list[str] | None = None) -> dict[str
                         "title_key": title[1],
                         "world": family["worlds"][world_index],
                         "tension": family["tensions"][tension_index],
+                        "angle": ANGLES[angle_index],
                         "layouts": family["layouts"],
                     }
                 )
@@ -75,6 +77,7 @@ def select_guidance(seed: str, recent_keys: list[str] | None = None) -> dict[str
             "title_key": FAMILIES["dialogue"]["titles"][0][1],
             "world": FAMILIES["dialogue"]["worlds"][0],
             "tension": FAMILIES["dialogue"]["tensions"][0],
+            "angle": ANGLES[0],
             "layouts": FAMILIES["dialogue"]["layouts"],
         }
     ])
@@ -134,6 +137,7 @@ def author_prompt(
             f"Suggested title: {guidance['top']} / {guidance['title_key']}",
             f"Coherent world: {guidance['world']}",
             f"Narrative tension: {guidance['tension']}",
+            f"Comic angle: {guidance['angle']}",
             f"Allowed layouts: {json.dumps(guidance['layouts'])}",
             f"Recent posters to avoid resembling: {json.dumps(recent, ensure_ascii=False)}",
     ]

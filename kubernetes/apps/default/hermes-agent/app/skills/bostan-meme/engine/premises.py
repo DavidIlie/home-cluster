@@ -1,11 +1,26 @@
 """A broad, structured premise bank for runtime poster authorship.
 
-Each family has ten titles, ten coherent worlds, and ten tensions.  A runtime
-author chooses within one family, then writes a complete poster.  This yields
-at least 10,000 guided starting points without combining arbitrary nouns.
+Each family has ten title/world pairs and ten tensions. Ten general comic
+angles vary the escalation without changing the setting. A runtime author
+chooses one aligned pair, one tension, and one angle, yielding 10,000 guided
+starting points without combining arbitrary nouns.
 """
 
 from __future__ import annotations
+
+
+ANGLES = [
+    "an overconfident novice treats the ordinary setting as a personal test",
+    "one harmless misunderstanding becomes a five-step commitment",
+    "a family member takes one mundane rule far too literally",
+    "the narrator solves the immediate problem and creates a larger practical one",
+    "a small social embarrassment becomes an elaborate private system",
+    "the least qualified person behaves as if they rehearsed this exact emergency",
+    "one useful shortcut escalates until it defeats its original purpose",
+    "the narrator mistakes politeness for a binding personal obligation",
+    "a familiar object becomes the only witness to an increasingly specific plan",
+    "the final payoff reveals the narrator could have simply gone home",
+]
 
 
 FAMILIES: dict[str, dict[str, object]] = {
@@ -55,7 +70,7 @@ FAMILIES: dict[str, dict[str, object]] = {
             ("BECOME A LOCAL OLIGARCH", "BEFORE THE MALL OPENS"),
             ("SEVEN STEPS TO OWN", "YOUR ENTIRE POSTCODE"),
             ("HOW I MADE MY FIRST", "INDOOR WEATHER MILLION"),
-            ("THE FASTEST WAY TO BUY", "A MUNICIPAL AFTERNOON"),
+            ("HOW TO GET RICH", "RENTING THE SUNSET"),
             ("TURN ONE TOLL BOOTH", "INTO GENERATIONAL WEALTH"),
             ("HOW TO MONETIZE", "A REVOLVING DOOR"),
             ("BUILD AN EMPIRE", "FROM A HOTEL BIBLE"),
@@ -67,7 +82,7 @@ FAMILIES: dict[str, dict[str, object]] = {
             "a dying shopping mall turned into a private city-state",
             "a postcode acquired through tiny local service monopolies",
             "indoor weather rights sold to offices by the minute",
-            "a person attempting to own one recurring part of the day",
+            "a seaside kiosk selling reserved sunset viewing slots",
             "a lonely toll booth expanded into a financial institution",
             "a revolving door licensed as public transport",
             "hotel room objects repackaged as alternative assets",
@@ -255,7 +270,7 @@ FAMILIES: dict[str, dict[str, object]] = {
             ("SIGNS THE AIRPORT", "REMEMBERS YOUR NAME"),
             ("HOW TO TELL", "THE LANDLORD HAS A BOARD"),
             ("SIGNS YOUR CALENDAR", "REPORTS TO SOMEONE ELSE"),
-            ("PROOF THE CAR PARK", "HAS SELECTED YOU"),
+            ("SIGNS YOUR SUPERMARKET", "THINKS YOU WORK THERE"),
         ],
         "worlds": [
             "status judged through access to mundane conveniences",
@@ -267,7 +282,7 @@ FAMILIES: dict[str, dict[str, object]] = {
             "an airport behaving like an old acquaintance",
             "a landlord forming executive governance",
             "a calendar acting like an employer",
-            "a car park choosing one driver for a mysterious role",
+            "a supermarket repeatedly assigning staff tasks to one ordinary shopper",
         ],
         "tensions": [
             "five symptoms with one concrete observation each",
@@ -408,7 +423,7 @@ def title_count() -> int:
 
 def guided_capacity() -> int:
     return sum(
-        len(family["titles"]) * len(family["worlds"]) * len(family["tensions"])
+        len(family["titles"]) * len(family["tensions"]) * len(ANGLES)
         for family in FAMILIES.values()
     )
 
