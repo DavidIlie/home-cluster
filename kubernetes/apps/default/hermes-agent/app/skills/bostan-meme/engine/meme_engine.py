@@ -529,8 +529,6 @@ def render(
         darken(image, (25, 25, 455, 270), 145)
         darken(image, (475, 25, 1050, 1245), 120)
         draw = ImageDraw.Draw(image)
-        eyebrow = str(blueprint.get("eyebrow", topic)).upper()
-        put(draw, (45, 62), eyebrow, fit(eyebrow, 380, 62), accent)
         draw.line((470, 35, 470, 1245), fill=accent, width=5)
         put(draw, (515, 55), top, fit(top, 500, 74))
         put(draw, (515, 122), key, fit(key, 500, 84), accent)

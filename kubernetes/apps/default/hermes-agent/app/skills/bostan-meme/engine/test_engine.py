@@ -230,6 +230,10 @@ def test_blueprints(target: Path) -> int:
             assert metadata["poster"] == blueprint["id"]
             if metadata["layout"] == "left_editorial":
                 assert all(value != "FIELD DIRECTOR" for value, _box in placements)
+                assert all(
+                    value != str(blueprint["topic"]).upper()
+                    for value, _box in placements
+                )
             assert output.stat().st_size > 35_000
             rendered += 1
     return rendered
