@@ -18,7 +18,13 @@ import bostan_meme_hourly
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
 import feedback
 import author_prompt as author_history
-from cron_hourly import audit_accepts, correction_guidance, correction_person, novelty_history
+from cron_hourly import (
+    audit_accepts,
+    correction_guidance,
+    correction_person,
+    novelty_history,
+    survives_hermes_redaction,
+)
 from corpus import POSTERS
 from premises import ANGLES, FAMILIES, guided_capacity, title_count
 
@@ -82,6 +88,12 @@ def test_catalog() -> None:
 
 
 def test_runtime_authoring(target: Path) -> None:
+    assert survives_hermes_redaction(
+        "https://i.gurt.ing/s4kZVXm_8Q3L110BZarL5RKqFX8j-YRSLs.png"
+    )
+    assert not survives_hermes_redaction(
+        "https://i.gurt.ing/sk_jMkTbMLc9rekqT4abb3_6_w0wkE9_0s.png"
+    )
     guidance = select_guidance("runtime-authoring-test")
     family = FAMILIES[guidance["family"]]
     title_index = family["titles"].index((guidance["top"], guidance["title_key"]))

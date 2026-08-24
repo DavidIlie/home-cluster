@@ -10,6 +10,7 @@ import re
 import subprocess
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import requests
@@ -33,6 +34,7 @@ AUDIT_SCORES = (
     "comic_specificity",
     "source_grammar",
 )
+HERMES_REDACTED_MEDIA_PREFIXES = ("sk-", "sk_", "syt_", "SG.")
 
 
 def profile_secret(name: str) -> str:
@@ -215,25 +217,34 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
     raise RuntimeError(f"author model failed validation after five attempts: {failure}")
 
 
+def survives_hermes_redaction(url: str) -> bool:
+    """Reject public slugs that resemble credentials in Hermes stdout."""
+    filename = Path(urlparse(url).path).name
+    return not filename.startswith(HERMES_REDACTED_MEDIA_PREFIXES)
+
+
 def upload(image: Path) -> str:
-    with image.open("rb") as payload:
-        response = requests.post(
-            UPLOAD_URL,
-            headers={"Authorization": f"Bearer {profile_secret('SEEDYN_BROKER_TOKEN')}"},
-            files={"file": (image.name, payload, "image/png")},
-            data={"kind": "image"},
-            timeout=120,
-            allow_redirects=False,
-        )
-    response.raise_for_status()
-    url = str(response.json().get("url") or "").strip()
-    if not url.startswith("https://"):
-        raise RuntimeError("Seedyn returned no HTTPS media URL")
-    verify = requests.get(url, timeout=60, allow_redirects=False)
-    verify.raise_for_status()
-    if not str(verify.headers.get("content-type") or "").startswith("image/"):
-        raise RuntimeError("uploaded media URL did not return an image")
-    return url
+    for _attempt in range(5):
+        with image.open("rb") as payload:
+            response = requests.post(
+                UPLOAD_URL,
+                headers={"Authorization": f"Bearer {profile_secret('SEEDYN_BROKER_TOKEN')}"},
+                files={"file": (image.name, payload, "image/png")},
+                data={"kind": "image"},
+                timeout=120,
+                allow_redirects=False,
+            )
+        response.raise_for_status()
+        url = str(response.json().get("url") or "").strip()
+        if not url.startswith("https://"):
+            raise RuntimeError("Seedyn returned no HTTPS media URL")
+        verify = requests.get(url, timeout=60, allow_redirects=False)
+        verify.raise_for_status()
+        if not str(verify.headers.get("content-type") or "").startswith("image/"):
+            raise RuntimeError("uploaded media URL did not return an image")
+        if survives_hermes_redaction(url):
+            return url
+    raise RuntimeError("Seedyn returned only media URLs that Hermes would redact")
 
 
 def correction_guidance(correction: dict) -> dict:
