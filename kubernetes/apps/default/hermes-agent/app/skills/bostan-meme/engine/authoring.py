@@ -114,9 +114,9 @@ def author_prompt(
         ),
         "quote": "quote shapes only",
         "left_title": "comparison shapes only",
-        "left_items": ["four comparison rows"],
+        "left_items": ["exactly four comparison rows, each at most 28 characters"],
         "right_title": "comparison shapes only",
-        "right_items": ["four comparison rows"],
+        "right_items": ["exactly four comparison rows, each at most 28 characters"],
     }
     lines = [
             "Author six complete candidate Bostan posters, then return only the strongest JSON object.",
@@ -133,6 +133,7 @@ def author_prompt(
             "Use short visible copy. No explanation, hashtags, attribution, moral, or generic motivational footer.",
             "For dialogue, wealth_recipe, ranked, checklist, daily_list, agenda, and ledger, write exactly five item pairs. For timeline, write exactly eight.",
             "For comparison, write exactly four concise items on each side. For quote, write one 45-190 character quote.",
+            "Every comparison item must be at most 28 characters, including spaces.",
             f"Joke shape: {guidance['shape']}",
             f"Suggested title: {guidance['top']} / {guidance['title_key']}",
             f"Coherent world: {guidance['world']}",

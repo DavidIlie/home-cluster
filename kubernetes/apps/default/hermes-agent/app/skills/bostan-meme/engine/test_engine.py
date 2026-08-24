@@ -89,6 +89,7 @@ def test_runtime_authoring(target: Path) -> None:
     assert "Author six complete candidate" in prompt
     assert "not permission for unrelated items" in prompt
     assert "could be moved under an unrelated title" in prompt
+    assert "comparison item must be at most 28 characters" in prompt
     assert "10,000" not in prompt
     spec = {
         "id": "fire-drill-shareholder",

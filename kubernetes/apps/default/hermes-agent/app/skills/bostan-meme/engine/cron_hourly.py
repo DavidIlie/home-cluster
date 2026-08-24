@@ -127,6 +127,7 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
                         "and briefings unless the headline's ordinary setting specifically requires them. "
                         "A row that could move under an unrelated headline without changing must be rewritten. "
                         "The topic is visible copy: keep it to 2-5 plain words and at most 30 characters. "
+                        "For comparison layouts, keep every side item at or below 28 characters. "
                         "Keep all visible strings short.\n"
                         f"Candidate: {json.dumps(spec, ensure_ascii=False)}"
                     ),
