@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: ghcr.io/koush/scrypted
-              tag: v0.144.1-noble-nvidia@sha256:ec2746f4f847fd44f1f275ac3a535610b10a0e883b0644d02ac4925b43da2df3
+              tag: v0.144.3-noble-nvidia@sha256:f5da0a00bc2d7a8f9556d13e5fdd8261c4878b1e144dd3d32ac83fb30752b9e6
             resources:
               requests:
                 cpu: 136m
