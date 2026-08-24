@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: auth
 resources:
   - ./davidapps-gate/ks.yaml
+  - ./image-automations/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/regcred

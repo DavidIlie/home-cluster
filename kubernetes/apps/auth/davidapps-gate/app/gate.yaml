@@ -30,9 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: gate
-          # Keep the regional checker pinned to the same released gate build as
-          # the central identity platform.
-          image: ghcr.io/davidilie/davidapps-auth-gate:ae4f3c2a361468dc98e91971c8eb9ba366280a6d@sha256:ca9222c471e05be442e20190cbafe045ef85ab334fc0cbdf9c44aa2ba63b6b92
+          image: ghcr.io/davidilie/davidapps-auth-gate:release-203@sha256:de2f1a209747f5318e6242a33bf08d7e51214c502981d480b4535980cc081c6a # {"$imagepolicy": "flux-system:davidapps-auth-gate"}
           imagePullPolicy: IfNotPresent
           env:
             - name: DATABASE_URL
