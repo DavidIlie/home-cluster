@@ -48,7 +48,7 @@ platform_toolsets:
 discord:
   allow_dms: false
   require_mention: true
-  free_response_channels: "1540773031436353708"
+  free_response_channels: "1540773031436353708,1540773014717726771"
   allowed_channels: "*"
   allow_admin_from:
     - "243009043260637184"
@@ -85,6 +85,7 @@ skills:
   write_approval: true
   external_dirs:
     - /etc/hermes-seedyn-skills
+    - /etc/hermes-friends-david-skills
 
 delegation:
   orchestrator_enabled: false
@@ -122,3 +123,10 @@ mcp_servers:
       include: [seedyn_docs]
       resources: false
       prompts: false
+
+quick_commands:
+  meme:
+    type: exec
+    command: >-
+      /opt/data/profiles/friends-david/workspace/meme-engine/.venv/bin/python
+      /opt/data/profiles/friends-david/workspace/meme-engine/cron_hourly.py

@@ -94,6 +94,12 @@ spec:
               cmp -s /friends-david-seed/config.yaml /opt/data/profiles/friends-david/config.yaml || cp /friends-david-seed/config.yaml /opt/data/profiles/friends-david/config.yaml
               cmp -s /friends-david-seed/SOUL.md /opt/data/profiles/friends-david/SOUL.md || cp /friends-david-seed/SOUL.md /opt/data/profiles/friends-david/SOUL.md
               cmp -s /friends-david-seed/AGENTS.md /opt/data/profiles/friends-david/workspace/AGENTS.md || cp /friends-david-seed/AGENTS.md /opt/data/profiles/friends-david/workspace/AGENTS.md
+              mkdir -p /opt/data/profiles/friends-david/workspace/meme-engine
+              for source in /friends-david-meme-engine-seed/*; do
+                target="/opt/data/profiles/friends-david/workspace/meme-engine/$${source##*/}"
+                cmp -s "$${source}" "$${target}" || cp "$${source}" "$${target}"
+                chmod 0644 "$${target}"
+              done
               printf 'DISCORD_BOT_TOKEN=%s\nDISCORD_ALLOWED_USERS=243009043260637184\nCLIPROXY_API_KEY=%s\nOPENAI_API_KEY=%s\nFLEETVIEW_MCP_TOKEN=%s\nFLEET_GATEWAY_MCP_TOKEN=%s\nAPI_SERVER_KEY=%s\nHERMES_FRIEND_CODE_DELIVERY_TOKEN=%s\nHERMES_FRIEND_CODE_OWNER_TOKEN=%s\nSEEDYN_BROKER_TOKEN=%s\n' \
                 "$${DISCORD_BOT_TOKEN}" "$${CLIPROXY_API_KEY}" "$${CLIPROXY_API_KEY}" \
                 "$${FLEETVIEW_MCP_TOKEN}" \
@@ -185,6 +191,9 @@ spec:
             - name: friends-david-profile
               mountPath: /friends-david-seed
               readOnly: true
+            - name: friends-david-meme-engine
+              mountPath: /friends-david-meme-engine-seed
+              readOnly: true
             - name: owner-env
               mountPath: /owner-env
             - name: friends-env
@@ -192,8 +201,8 @@ spec:
             - name: friends-david-env
               mountPath: /friends-david-env
         - name: prepare-runtime
-          # Source: DavidIlie/hermes-agent@74525082b4f1e9dd7711f5b962560da71400adea
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.e4bd2b4cb1@sha256:d5f0d8b1e4136b71d83e18e7dc3e50c6d7c09d5933e30e8e11b0651846a8bea1
+          # Source: DavidIlie/hermes-agent@164fe111b89fcc1263cae42fea22bcd30d8aed46
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.164fe111b8@sha256:33a57aa277db0eb8e323c9cc5c2e2a249e54b0f4bf651a97ae2ec218759ac3e5
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -234,8 +243,8 @@ spec:
               readOnly: true
       containers:
         - name: app
-          # Source: DavidIlie/hermes-agent@4de06f56ce6b2ca05fa3ec55fea4b1dcd410a146
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.4de06f56ce@sha256:da957adb98f7c562f88f743f1c34469d22dbd6d74c89a52a2d1b56f7561273bf
+          # Source: DavidIlie/hermes-agent@164fe111b89fcc1263cae42fea22bcd30d8aed46
+          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.164fe111b8@sha256:33a57aa277db0eb8e323c9cc5c2e2a249e54b0f4bf651a97ae2ec218759ac3e5
           args: ["gateway", "run"]
           env:
             - name: TZ
@@ -342,6 +351,9 @@ spec:
             - name: seedyn-skills
               mountPath: /etc/hermes-seedyn-skills
               readOnly: true
+            - name: friends-david-skills
+              mountPath: /etc/hermes-friends-david-skills
+              readOnly: true
             - name: work-context
               mountPath: /opt/data/workspace/AGENTS.md
               subPath: AGENTS.md
@@ -390,6 +402,10 @@ spec:
           configMap:
             name: hermes-agent-friends-david-profile
             defaultMode: 0444
+        - name: friends-david-meme-engine
+          configMap:
+            name: hermes-agent-friends-david-meme-engine
+            defaultMode: 0444
         - name: seedyn-skills
           configMap:
             name: hermes-agent-seedyn-skills
@@ -397,6 +413,13 @@ spec:
             items:
               - key: seedyn-delivery-SKILL.md
                 path: seedyn-delivery/SKILL.md
+        - name: friends-david-skills
+          configMap:
+            name: hermes-agent-friends-david-skills
+            defaultMode: 0444
+            items:
+              - key: bostan-meme-SKILL.md
+                path: bostan-meme/SKILL.md
         - name: owner-env
           emptyDir: {}
         - name: friends-env

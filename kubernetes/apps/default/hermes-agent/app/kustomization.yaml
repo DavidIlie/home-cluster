@@ -37,5 +37,22 @@ configMapGenerator:
   - name: hermes-agent-seedyn-skills
     files:
       - seedyn-delivery-SKILL.md=skills/seedyn-delivery/SKILL.md
+  - name: hermes-agent-friends-david-skills
+    files:
+      - bostan-meme-SKILL.md=skills/bostan-meme/SKILL.md
+  - name: hermes-agent-friends-david-meme-engine
+    files:
+      - README.md=skills/bostan-meme/engine/README.md
+      - STYLE_GUIDE.md=skills/bostan-meme/engine/STYLE_GUIDE.md
+      - author_prompt.py=skills/bostan-meme/engine/author_prompt.py
+      - authoring.py=skills/bostan-meme/engine/authoring.py
+      - corpus.py=skills/bostan-meme/engine/corpus.py
+      - cron_hourly.py=skills/bostan-meme/engine/cron_hourly.py
+      - feedback.py=skills/bostan-meme/engine/feedback.py
+      - import_thread_people.py=skills/bostan-meme/engine/import_thread_people.py
+      - meme_engine.py=skills/bostan-meme/engine/meme_engine.py
+      - premises.py=skills/bostan-meme/engine/premises.py
+      - prepare_assets.py=skills/bostan-meme/engine/prepare_assets.py
+      - test_engine.py=skills/bostan-meme/engine/test_engine.py
 generatorOptions:
   disableNameSuffixHash: true
