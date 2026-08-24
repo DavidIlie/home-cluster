@@ -87,6 +87,7 @@ def author_prompt(
     guidance: dict[str, Any],
     recent_specs: list[dict[str, Any]] | None = None,
     *,
+    rejected_specs: list[dict[str, Any]] | None = None,
     correction: dict[str, Any] | None = None,
 ) -> str:
     """Build the prompt Herm uses to reason about fresh copy at execution time."""
@@ -99,6 +100,14 @@ def author_prompt(
             "text": spec_text(item),
         }
         for item in (recent_specs or [])[-12:]
+    ]
+    rejected = [
+        {
+            "title": f"{item.get('top', '')} {item.get('key', '')}".strip(),
+            "shape": item.get("shape", ""),
+            "text": spec_text(item),
+        }
+        for item in (rejected_specs or [])[-12:]
     ]
     contract = {
         "id": "short-kebab-case",
@@ -120,16 +129,22 @@ def author_prompt(
     }
     lines = [
             "Author six complete candidate Bostan posters, then return only the strongest JSON object.",
-            "The saved references supply rhythm and composition, not reusable lore or captions.",
-            "Every candidate needs one recognizable comic situation. Every row must refer to an action, object, role, or consequence that belongs to the exact scene named by the headline.",
+            "Match the comedy grammar of the saved references, without copying their captions or recurring nouns.",
+            "The source format is a plain self-help, advice, ranking, comparison, or routine headline followed by terse answers that fit that exact category.",
+            "For every item-based shape except timeline, each row is an independent joke. Read the headline followed by that row alone. It must form an immediately understandable answer, sign, instruction, person, object, or consequence. The rows do not form a mini-story and must not depend on earlier rows for pronouns, setup, or meaning.",
+            "The strongest source jokes use a normal category and one bluntly wrong, rude, literal, or oddly specific answer. They do not invent a fantasy system and explain how it operates.",
+            "A list may mix plausible, socially bad, and impossible entries, but every entry must still be grammatically valid under the title. Short category errors beat elaborate lore.",
+            "For quote only, use one plain setup and one clean reversal. A reader must understand the joke on the first pass. Do not write a fable, personify an object into an employee, or end with a poetic image that needs interpretation.",
+            "For timeline only, chronological dependence is allowed. Each timestamp still needs one short, concrete action.",
+            "Every candidate needs one recognizable comic situation. Every row must name a concrete action, object, role, person, or condition that belongs under the exact headline.",
             "The headline must read as a natural human sentence even when its claim is absurd. Never invent phrases such as 'municipal afternoon' that need interpretation before they can be funny.",
-            "Use one conceptual leap only: begin with an ordinary scene, introduce one absurd rule, then make the five rows progress through setup, escalation, consequence, climax, and payoff.",
             "Do not default to managers, permits, committees, inspections, policy, fees, briefings, municipal jargon, or fake corporate authority. Use those only when the supplied situation explicitly calls for bureaucracy.",
             "For daily_list only, a bilingual count parenthetical such as FIVE (CINCO) is allowed. It is a small surface gag, not permission for unrelated items.",
-            "Make the logic absurd but causal: the strange action should be a warped response to the headline's situation. Reject random-noun combinations, strained grammar, and rows that could be moved under an unrelated title unchanged.",
-            "Before returning the winner, silently test all five rows against the headline. If a row has no concrete semantic connection, rewrite it.",
+            "Reject random-noun combinations, strained grammar, puns stretched across several rows, and text that becomes coherent only after an explanation.",
+            "Before returning the winner, silently prepend the headline to every row and read it as a standalone unit. Rewrite any row that is not instantly clear, is not an actual answer to the title, or needs another row to make sense.",
+            "A row that could move under an unrelated title without changing meaning has failed the format and must be replaced.",
             "Do not use rare fish unless the chosen situation specifically requires one, and never build a recurring fish universe.",
-            "Prefer the supplied title, but invent a better new title when it is more original and still fits the same joke shape.",
+            "Treat the supplied title and world as a topic direction, not sacred wording. Replace them with a plainer category headline when they sound invented, narrative, or over-written.",
             "Use short visible copy. No explanation, hashtags, attribution, moral, or generic motivational footer.",
             "For dialogue, wealth_recipe, ranked, checklist, daily_list, agenda, and ledger, write exactly five item pairs. For timeline, write exactly eight.",
             "For comparison, write exactly four concise items on each side. For quote, write one 45-190 character quote.",
@@ -141,6 +156,7 @@ def author_prompt(
             f"Comic angle: {guidance['angle']}",
             f"Allowed layouts: {json.dumps(guidance['layouts'])}",
             f"Recent posters to avoid resembling: {json.dumps(recent, ensure_ascii=False)}",
+            f"Previously rejected posters. Do not imitate their story chains, forced wordplay, or explainable nonsense: {json.dumps(rejected, ensure_ascii=False)}",
     ]
     if correction:
         delivery = correction.get("delivery") or {}

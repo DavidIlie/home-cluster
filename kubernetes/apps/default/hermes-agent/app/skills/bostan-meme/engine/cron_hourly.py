@@ -16,7 +16,7 @@ import requests
 
 from author_prompt import accept_spec, load_history
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
-from feedback import record_delivery, record_feedback
+from feedback import record_delivery, record_feedback, rejected_specs
 
 
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", "/opt/data/profiles/friends-david"))
@@ -26,6 +26,13 @@ UPLOAD_URL = "http://hermes.default.svc.cluster.local:8080/seedyn/upload"
 MODEL_URL = "http://cliproxy.default.svc.cluster.local:8317/v1/responses"
 MODEL = os.environ.get("BOSTAN_AUTHOR_MODEL", "gpt-5.6-sol")
 REASONING = os.environ.get("BOSTAN_AUTHOR_REASONING", "medium")
+AUDIT_SCORES = (
+    "title_fit",
+    "instant_clarity",
+    "standalone_rows",
+    "comic_specificity",
+    "source_grammar",
+)
 
 
 def profile_secret(name: str) -> str:
@@ -88,6 +95,25 @@ def parse_spec(text: str) -> dict:
     return payload
 
 
+def audit_accepts(verdict: dict, expected_checks: int) -> bool:
+    scores = verdict.get("scores")
+    row_checks = verdict.get("row_checks")
+    return bool(
+        verdict.get("accept") is True
+        and isinstance(scores, dict)
+        and all(isinstance(scores.get(name), int) and scores[name] >= 4 for name in AUDIT_SCORES)
+        and isinstance(row_checks, list)
+        and len(row_checks) == expected_checks
+        and all(
+            isinstance(row, dict)
+            and row.get("fits_title") is True
+            and row.get("understandable") is True
+            and row.get("funny") is True
+            for row in row_checks
+        )
+    )
+
+
 def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
     failure = ""
     for _attempt in range(5):
@@ -119,13 +145,18 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
                         "Act as the final editor for this absurd poster. Return only one JSON object "
                         "with the same schema and layout. You may replace the premise completely when it is "
                         "strained, pseudo-profound, or based on an invented phrase. "
-                        "Every item must be grammatically natural and concretely tied to the exact situation "
-                        "named by the headline. The absurdity must be a warped action or consequence inside "
-                        "that situation, never disconnected word salad. Use one understandable conceptual leap. "
-                        "The rows must progress through setup, escalation, consequence, climax, and payoff. "
+                        "Match the source format: a plain category headline and terse entries that each answer "
+                        "that headline independently. Except for timeline, rows must not form a story, rely on "
+                        "previous rows, or use pronouns whose referent lives in another row. "
+                        "Every item must be grammatically natural, instantly understandable, and concretely tied "
+                        "to the exact category named by the headline. Prefer blunt bad advice, literal mistakes, "
+                        "socially wrong answers, or one oddly specific category error over a fantasy system. "
+                        "For quote, keep one plain setup and one clean reversal. Reject poetic personification, "
+                        "extended metaphors, and conclusions that need interpretation. "
                         "Reject generic bureaucracy, management, permits, committees, fees, inspections, policy, "
                         "and briefings unless the headline's ordinary setting specifically requires them. "
                         "A row that could move under an unrelated headline without changing must be rewritten. "
+                        "A row that is only defensible after an explanation must be rewritten. "
                         "The topic is visible copy: keep it to 2-5 plain words and at most 30 characters. "
                         "For comparison layouts, keep every side item at or below 28 characters. "
                         "Keep all visible strings short.\n"
@@ -147,13 +178,18 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
                     "model": MODEL,
                     "input": (
                         "Audit this poster as a strict comedy editor. Return only JSON with keys "
-                        "accept (boolean), reason (short string), and scores (object). Scores must include "
-                        "natural_headline, recognizable_scene, causal_coherence, row_specificity, and "
-                        "comic_progression, each an integer from 1 to 5. Accept only if every score is at "
-                        "least 4. The headline must be immediately understandable. The body must tell one "
-                        "escalating mini-story with a payoff, not merely reuse related vocabulary. Reject "
-                        "invented concepts that need interpretation, arbitrary noun combinations, and generic "
-                        "bureaucratic or corporate framing pasted onto an unrelated setting.\n"
+                        "accept (boolean), reason (short string), scores (object), and row_checks (array). "
+                        "Scores must include title_fit, instant_clarity, standalone_rows, comic_specificity, "
+                        "and source_grammar, each an integer from 1 to 5. For every visible item, row_checks must "
+                        "contain an object with fits_title, understandable, and funny booleans. Accept only if "
+                        "every score is at least 4 and every boolean is true. Test each list row by reading the "
+                        "headline followed by that row alone. Except for timeline, reject story chains, repeated "
+                        "setup, cross-row pronouns, and five-step explanations of one pun. The saved-reference "
+                        "grammar is a normal advice, category, ranking, comparison, or routine headline with "
+                        "short independent entries. Absurdity may be rude, literal, impossible, or oddly specific, "
+                        "but it must be immediately intelligible. Reject invented concepts, forced wordplay, "
+                        "poetic conclusions, arbitrary noun combinations, and anything that becomes coherent "
+                        "only after explanation. A technically traceable plot is not enough.\n"
                         f"Poster: {json.dumps(reviewed, ensure_ascii=False)}"
                     ),
                     "reasoning": {"effort": REASONING},
@@ -163,19 +199,14 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
             )
             audit.raise_for_status()
             verdict = parse_spec(extract_output_text(audit.json()))
-            score_names = (
-                "natural_headline",
-                "recognizable_scene",
-                "causal_coherence",
-                "row_specificity",
-                "comic_progression",
+            expected_checks = (
+                1
+                if reviewed["shape"] == "quote"
+                else 8
+                if reviewed["shape"] == "comparison"
+                else len(reviewed.get("items") or [])
             )
-            scores = verdict.get("scores")
-            if (
-                verdict.get("accept") is not True
-                or not isinstance(scores, dict)
-                or any(not isinstance(scores.get(name), int) or scores[name] < 4 for name in score_names)
-            ):
+            if not audit_accepts(verdict, expected_checks):
                 raise ValueError(f"semantic audit rejected candidate: {verdict.get('reason', 'low score')}")
             return reviewed
         except (ValueError, json.JSONDecodeError) as error:
@@ -263,12 +294,18 @@ def main() -> None:
     )
     guidance_key = arguments.guidance_key or guidance["key"]
     recent_specs = novelty_history(history["specs"], correction)
+    rejected = rejected_specs()
     if arguments.spec:
         spec = json.loads(arguments.spec.read_text(encoding="utf-8"))
         validate_spec(spec)
         novelty_score(spec, recent_specs)
     else:
-        prompt = author_prompt(guidance, recent_specs, correction=correction)
+        prompt = author_prompt(
+            guidance,
+            recent_specs,
+            rejected_specs=rejected,
+            correction=correction,
+        )
         spec = request_spec(prompt, recent_specs)
     spec_path = ROOT / ".runtime-spec.json"
     spec_path.write_text(json.dumps(spec, ensure_ascii=False), encoding="utf-8")

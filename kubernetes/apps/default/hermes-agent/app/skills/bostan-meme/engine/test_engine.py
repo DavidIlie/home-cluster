@@ -13,10 +13,11 @@ from pathlib import Path
 from PIL import Image
 
 import meme_engine
+import bostan_meme_hourly
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
 import feedback
 import author_prompt as author_history
-from cron_hourly import correction_guidance, correction_person, novelty_history
+from cron_hourly import audit_accepts, correction_guidance, correction_person, novelty_history
 from corpus import POSTERS
 from premises import ANGLES, FAMILIES, guided_capacity, title_count
 
@@ -85,11 +86,23 @@ def test_runtime_authoring(target: Path) -> None:
     title_index = family["titles"].index((guidance["top"], guidance["title_key"]))
     assert guidance["world"] == family["worlds"][title_index]
     assert guidance["angle"] in ANGLES
-    prompt = author_prompt(guidance, [])
+    rejected = {
+        "id": "rejected-story-chain",
+        "topic": "billing the tide",
+        "shape": "quote",
+        "layout": "single_quote",
+        "top": "THE TIDE WRECKED MY CASTLE",
+        "key": "SO I SENT AN INVOICE",
+        "quote": "The ocean paid me with my own bucket after reading the invoice.",
+    }
+    prompt = author_prompt(guidance, [], rejected_specs=[rejected])
     assert "Author six complete candidate" in prompt
     assert "not permission for unrelated items" in prompt
-    assert "could be moved under an unrelated title" in prompt
+    assert "could move under an unrelated title" in prompt
     assert "comparison item must be at most 28 characters" in prompt
+    assert "each row is an independent joke" in prompt
+    assert "rows do not form a mini-story" in prompt
+    assert "ocean paid me with my own bucket" in prompt
     assert "10,000" not in prompt
     spec = {
         "id": "fire-drill-shareholder",
@@ -165,6 +178,40 @@ def test_runtime_authoring(target: Path) -> None:
     else:
         raise AssertionError("bureaucracy pasted onto an unrelated setting was accepted")
 
+    passing_scores = {
+        "title_fit": 5,
+        "instant_clarity": 5,
+        "standalone_rows": 4,
+        "comic_specificity": 4,
+        "source_grammar": 5,
+    }
+    passing_row = {"fits_title": True, "understandable": True, "funny": True}
+    assert audit_accepts(
+        {"accept": True, "scores": passing_scores, "row_checks": [passing_row] * 5},
+        5,
+    )
+    story_chain = dict(passing_scores)
+    story_chain["standalone_rows"] = 3
+    assert not audit_accepts(
+        {"accept": True, "scores": story_chain, "row_checks": [passing_row] * 5},
+        5,
+    )
+    unfunny_row = dict(passing_row)
+    unfunny_row["funny"] = False
+    assert not audit_accepts(
+        {
+            "accept": True,
+            "scores": passing_scores,
+            "row_checks": [passing_row] * 4 + [unfunny_row],
+        },
+        5,
+    )
+    assert not audit_accepts(
+        {"accept": True, "scores": passing_scores, "row_checks": [passing_row]},
+        5,
+    )
+    assert bostan_meme_hourly.AUTOMATIC_ENABLED is False
+
 
 def test_delivery_feedback_ledger(target: Path) -> None:
     original_deliveries = feedback.DELIVERIES
@@ -189,6 +236,7 @@ def test_delivery_feedback_ledger(target: Path) -> None:
         recovered = feedback.context("https://i.gurt.ing/example.png")
         assert recovered["delivery"]["spec"] == json.loads(json.dumps(spec))
         assert recovered["feedback"][0]["text"] == "The portrait is too small."
+        assert feedback.rejected_specs() == [json.loads(json.dumps(spec))]
     finally:
         feedback.DELIVERIES = original_deliveries
         feedback.FEEDBACK = original_feedback

@@ -13,10 +13,13 @@ Run the reviewed author-render-upload pipeline with the terminal tool:
 
 `/opt/data/profiles/friends-david/workspace/meme-engine/.venv/bin/python /opt/data/profiles/friends-david/workspace/meme-engine/cron_hourly.py`
 
-It asks GPT-5.6 Sol at medium reasoning to author six coherent candidates from a
-10,000-premise guide, validates novelty and geometry, renders the strongest,
-uploads through the bounded Seedyn broker, verifies the returned image, and
-records the exact spec behind its URL. Return only the HTTPS URL.
+It asks GPT-5.6 Sol at medium reasoning to author six source-format candidates
+from a 10,000-premise guide. List entries must independently answer the plain
+headline and make sense on first read. The pipeline rejects story chains,
+forced wordplay, and explainable nonsense, then validates novelty and geometry,
+renders the strongest, uploads through the bounded Seedyn broker, verifies the
+returned image, and records the exact spec behind its URL. Return only the
+HTTPS URL.
 
 ## Feedback on a delivered poster
 

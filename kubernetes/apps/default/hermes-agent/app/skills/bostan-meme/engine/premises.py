@@ -1,7 +1,7 @@
 """A broad, structured premise bank for runtime poster authorship.
 
 Each family has ten title/world pairs and ten tensions. Ten general comic
-angles vary the escalation without changing the setting. A runtime author
+angles vary the independent answers without changing the setting. A runtime author
 chooses one aligned pair, one tension, and one angle, yielding 10,000 guided
 starting points without combining arbitrary nouns.
 """
@@ -10,16 +10,16 @@ from __future__ import annotations
 
 
 ANGLES = [
-    "an overconfident novice treats the ordinary setting as a personal test",
-    "one harmless misunderstanding becomes a five-step commitment",
-    "a family member takes one mundane rule far too literally",
-    "the narrator solves the immediate problem and creates a larger practical one",
-    "a small social embarrassment becomes an elaborate private system",
-    "the least qualified person behaves as if they rehearsed this exact emergency",
-    "one useful shortcut escalates until it defeats its original purpose",
-    "the narrator mistakes politeness for a binding personal obligation",
-    "a familiar object becomes the only witness to an increasingly specific plan",
-    "the final payoff reveals the narrator could have simply gone home",
+    "five independent answers that are all valid under the title but socially terrible",
+    "four ordinary entries and one impossible entry delivered with equal confidence",
+    "one instruction takes a familiar phrase literally while the other rows stay concrete",
+    "each row names a different person or role that clearly belongs to the title's category",
+    "blunt advice becomes funny through specificity rather than a continuing story",
+    "one oddly precise number appears among otherwise short categorical answers",
+    "the final entry is the shortest and most confidently wrong answer",
+    "a serious self-help headline contains one embarrassing personal admission",
+    "the list mixes practical, rude, and impossible answers without changing subjects",
+    "each entry can be understood alone when read immediately after the headline",
 ]
 
 

@@ -84,6 +84,27 @@ def feedback_for_url(url: str) -> list[dict[str, Any]]:
     return [item for item in _read(FEEDBACK) if item.get("url") == url]
 
 
+def rejected_specs(limit: int = 12) -> list[dict[str, Any]]:
+    """Return delivered specs that David marked for critique or replacement."""
+    rejected_urls = {
+        str(item.get("url"))
+        for item in _read(FEEDBACK)
+        if item.get("disposition") in {"critique", "replace"}
+    }
+    if not rejected_urls:
+        return []
+    specs = []
+    for delivery in reversed(_read(DELIVERIES)):
+        if delivery.get("url") not in rejected_urls:
+            continue
+        spec = delivery.get("spec")
+        if isinstance(spec, dict):
+            specs.append(spec)
+        if len(specs) >= limit:
+            break
+    return list(reversed(specs))
+
+
 def record_feedback(*, url: str, text: str, disposition: str) -> dict[str, Any]:
     delivery = find_delivery(url)
     if delivery is None:

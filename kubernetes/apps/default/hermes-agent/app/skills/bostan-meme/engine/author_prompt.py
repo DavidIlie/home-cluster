@@ -10,7 +10,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
-from feedback import context as feedback_context
+from feedback import context as feedback_context, rejected_specs
 
 
 ROOT = Path(__file__).resolve().parent
@@ -74,7 +74,12 @@ def main() -> None:
                 correction["current_feedback"] = arguments.feedback_file.read_text(encoding="utf-8").strip()
         print(json.dumps({
             "guidance_key": guidance["key"],
-            "prompt": author_prompt(guidance, history["specs"], correction=correction),
+            "prompt": author_prompt(
+                guidance,
+                history["specs"],
+                rejected_specs=rejected_specs(),
+                correction=correction,
+            ),
         }))
         return
 

@@ -13,6 +13,11 @@ from pathlib import Path
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", "/opt/data/profiles/friends-david"))
 ENGINE = HERMES_HOME / "workspace" / "meme-engine"
 ERROR_LOG = ENGINE / "cron-errors.log"
+AUTOMATIC_ENABLED = os.environ.get("BOSTAN_AUTOMATIC_ENABLED", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 
 
 def record_failure(detail: str) -> None:
@@ -26,6 +31,9 @@ def record_failure(detail: str) -> None:
 
 
 def main() -> None:
+    if not AUTOMATIC_ENABLED:
+        print("[SILENT]")
+        return
     python = ENGINE / ".venv" / "bin" / "python"
     child = subprocess.Popen(
         [str(python), str(ENGINE / "cron_hourly.py")],
