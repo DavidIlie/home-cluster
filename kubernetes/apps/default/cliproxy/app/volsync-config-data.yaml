@@ -29,7 +29,7 @@ metadata:
   name: cliproxy-config-data-volsync-secret
 type: Opaque
 stringData:
-  RESTIC_REPOSITORY: "s3:http://192.168.100.63:9000/volsync/cliproxy-config-data"
+  RESTIC_REPOSITORY: "s3:http://192.168.100.63:9000/volsync/cliproxy-config-data-v2"
   RESTIC_PASSWORD: "${VOLSYNC_RESTIC_PASSWORD}"
   AWS_ACCESS_KEY_ID: "${VOLSYNC_S3_ACCESS_KEY}"
   AWS_SECRET_ACCESS_KEY: "${VOLSYNC_S3_SECRET_KEY}"
