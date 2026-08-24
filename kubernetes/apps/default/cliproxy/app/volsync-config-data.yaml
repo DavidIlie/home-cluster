@@ -2,14 +2,14 @@
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationSource
 metadata:
-  name: cliproxy-config-data
+  name: cliproxy-config-data-v2
 spec:
   sourcePVC: cliproxy-config-data
   trigger:
     schedule: "15 */6 * * *"
   restic:
     pruneIntervalDays: 7
-    repository: cliproxy-config-data-volsync-secret
+    repository: cliproxy-config-data-v2-volsync-secret
     retain:
       hourly: 6
       daily: 14
@@ -26,7 +26,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: cliproxy-config-data-volsync-secret
+  name: cliproxy-config-data-v2-volsync-secret
 type: Opaque
 stringData:
   RESTIC_REPOSITORY: "s3:http://192.168.100.63:9000/volsync/cliproxy-config-data-v2"
