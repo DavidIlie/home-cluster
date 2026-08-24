@@ -140,6 +140,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", type=Path)
     parser.add_argument("--guidance-key")
+    parser.add_argument("--person")
     parser.add_argument("--feedback-url")
     parser.add_argument("--feedback-file", type=Path)
     arguments = parser.parse_args()
@@ -167,16 +168,16 @@ def main() -> None:
         spec = request_spec(prompt, history["specs"])
     spec_path = ROOT / ".runtime-spec.json"
     spec_path.write_text(json.dumps(spec, ensure_ascii=False), encoding="utf-8")
-    rendered = json.loads(
-        run(
-            "meme_engine.py",
-            "--seed",
-            seed.replace(":", "-"),
-            "--spec",
-            str(spec_path),
-            timeout=180,
-        )
-    )
+    render_arguments = [
+        "meme_engine.py",
+        "--seed",
+        seed.replace(":", "-"),
+        "--spec",
+        str(spec_path),
+    ]
+    if arguments.person:
+        render_arguments.extend(["--person", arguments.person])
+    rendered = json.loads(run(*render_arguments, timeout=180))
     image = Path(rendered["png"])
     if not image.is_file() or image.stat().st_size == 0:
         raise RuntimeError("renderer did not produce a PNG")

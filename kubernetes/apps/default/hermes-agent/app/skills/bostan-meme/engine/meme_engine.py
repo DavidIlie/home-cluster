@@ -619,12 +619,13 @@ def main() -> None:
     )
     parser.add_argument("--output")
     parser.add_argument("--spec")
+    parser.add_argument("--person")
     arguments = parser.parse_args()
     output = Path(arguments.output) if arguments.output else OUT / f"meme-{arguments.seed}.png"
     spec = None
     if arguments.spec:
         spec = json.loads(Path(arguments.spec).read_text(encoding="utf-8"))
-    print(json.dumps(render(arguments.seed, output, spec=spec)))
+    print(json.dumps(render(arguments.seed, output, spec=spec, person_name=arguments.person)))
 
 
 if __name__ == "__main__":

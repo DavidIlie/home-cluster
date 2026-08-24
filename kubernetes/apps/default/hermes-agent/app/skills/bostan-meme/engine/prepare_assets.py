@@ -7,7 +7,7 @@ import json
 import os
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 ROOT = Path(__file__).resolve().parent
@@ -38,6 +38,30 @@ def keep_largest_subject(portrait: Image.Image) -> Image.Image:
     subject = labels == int(sizes.argmax())
     cleaned = np.where(subject, alpha, 0).astype("uint8")
     portrait.putalpha(Image.fromarray(cleaned, mode="L"))
+    return portrait
+
+
+def clip_steve_jobs_reference(portrait: Image.Image) -> Image.Image:
+    """Keep the portrait while excluding the reference poster's baked-in copy."""
+    width, height = portrait.size
+    guard = Image.new("L", portrait.size, 0)
+    ImageDraw.Draw(guard).polygon(
+        [
+            (round(width * 0.49), 0),
+            (width, 0),
+            (width, round(height * 0.90)),
+            (round(width * 0.66), round(height * 0.90)),
+            (round(width * 0.62), round(height * 0.70)),
+            (round(width * 0.57), round(height * 0.50)),
+            (round(width * 0.52), round(height * 0.25)),
+        ],
+        fill=255,
+    )
+    import numpy as np
+
+    alpha = np.asarray(portrait.getchannel("A"))
+    guarded = np.minimum(alpha, np.asarray(guard)).astype("uint8")
+    portrait.putalpha(Image.fromarray(guarded, mode="L"))
     return portrait
 
 
@@ -82,6 +106,8 @@ def main() -> None:
                     portrait = remove(image.convert("RGBA"), session=session)
                 if source.stem in LARGEST_SUBJECT_ONLY:
                     portrait = keep_largest_subject(portrait)
+                if source.stem == "steve-jobs":
+                    portrait = clip_steve_jobs_reference(portrait)
                 if not isinstance(portrait, Image.Image) or portrait.getbbox() is None:
                     raise ValueError("background removal produced an empty image")
                 portrait.save(temporary, format="PNG", optimize=True)
