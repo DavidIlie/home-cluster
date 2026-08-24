@@ -20,11 +20,12 @@ slurs, sexual material, private information, and claims about real people.
 ## Bilingual anti-logic list
 
 The supplied Steve Jobs reference adds one distinct format: a giant count word
-with a deadpan parenthetical translation, followed by five numbered commands
-that make abrupt semantic jumps. The list works because the speaker's voice is
-consistently certain, not because the nouns are randomly combined. Use at most
-one parenthetical translation, make every line a visual action, and let one
-line break reality while another invokes an ordinary family or legal duty.
+with a deadpan parenthetical translation, followed by five numbered commands.
+The parenthetical is only a surface gag. Every command must still be a warped
+response to the exact situation in the title: a nap list concerns sleep, an
+elevator list concerns the stopped lift, and a fire-drill list concerns the
+drill. Use at most one parenthetical translation, make every line a visual
+action, and reject any row that could move under an unrelated title unchanged.
 Do not reuse the reference's rare-fish, evaporation, uncle, sand, or legal-name
 lines. This grammar belongs mainly to `daily_list` / `right_cutout` and should
 not leak into every other poster family.

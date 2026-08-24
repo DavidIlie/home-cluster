@@ -109,7 +109,30 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
             spec = parse_spec(extract_output_text(response.json()))
             validate_spec(spec)
             novelty_score(spec, recent_specs)
-            return spec
+            review = requests.post(
+                MODEL_URL,
+                headers={"Authorization": f"Bearer {profile_secret('CLIPROXY_API_KEY')}"},
+                json={
+                    "model": MODEL,
+                    "input": (
+                        "Act as the final editor for this absurd poster. Return only one JSON object "
+                        "with the same schema. Preserve its premise and layout, but rewrite any weak copy. "
+                        "Every item must be grammatically natural and concretely tied to the exact situation "
+                        "named by the headline. The absurdity must be a warped action or consequence inside "
+                        "that situation, never disconnected word salad. A row that could move under an "
+                        "unrelated headline without changing must be rewritten. Keep all visible strings short.\n"
+                        f"Candidate: {json.dumps(spec, ensure_ascii=False)}"
+                    ),
+                    "reasoning": {"effort": "low"},
+                    "service_tier": "priority",
+                },
+                timeout=300,
+            )
+            review.raise_for_status()
+            reviewed = parse_spec(extract_output_text(review.json()))
+            validate_spec(reviewed)
+            novelty_score(reviewed, recent_specs)
+            return reviewed
         except (ValueError, json.JSONDecodeError) as error:
             failure = str(error)
     raise RuntimeError(f"author model failed validation after three attempts: {failure}")

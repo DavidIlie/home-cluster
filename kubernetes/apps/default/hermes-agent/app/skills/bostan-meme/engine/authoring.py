@@ -112,8 +112,10 @@ def author_prompt(
     lines = [
             "Author six complete candidate Bostan posters, then return only the strongest JSON object.",
             "The saved references supply rhythm and composition, not reusable lore or captions.",
-            "Every candidate needs a recognizable comic logic. Most shapes use one coherent miniature situation; daily_list may use deliberate hard cuts between unrelated duties when the same arrogant voice ties them together.",
-            "For daily_list only, a bilingual count parenthetical such as FIVE (CINCO) is allowed. Use it sparingly, and invent new list items instead of copying any reference caption.",
+            "Every candidate needs one recognizable comic situation. Every row must refer to an action, object, role, or consequence that belongs to the exact scene named by the headline.",
+            "For daily_list only, a bilingual count parenthetical such as FIVE (CINCO) is allowed. It is a small surface gag, not permission for unrelated items.",
+            "Make the logic absurd but causal: the strange action should be a warped response to the headline's situation. Reject random-noun combinations, strained grammar, and rows that could be moved under an unrelated title unchanged.",
+            "Before returning the winner, silently test all five rows against the headline. If a row has no concrete semantic connection, rewrite it.",
             "Do not use rare fish unless the chosen situation specifically requires one, and never build a recurring fish universe.",
             "Prefer the supplied title, but invent a better new title when it is more original and still fits the same joke shape.",
             "Use short visible copy. No explanation, hashtags, attribution, moral, or generic motivational footer.",

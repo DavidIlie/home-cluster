@@ -232,11 +232,11 @@ POSTERS: list[dict[str, object]] = [
         "top": "FIVE (CINCO) THINGS",
         "key": "TO DO BEFORE NAP TIME",
         "items": [
-            ("1", "RETURN THE MAYOR'S LADDER"),
-            ("2", "BECOME TEMPORARILY MARBLE"),
-            ("3", "CALL YOUR COUSIN'S LAWYER"),
-            ("4", "RECEIVE ONE CERTIFIED PEAR"),
-            ("5", "RENAME THE GUEST BATHROOM"),
+            ("1", "PUT YOUR PHONE IN ANOTHER TIMEZONE"),
+            ("2", "INFORM THE CEILING YOU ARE OFFLINE"),
+            ("3", "DEMOTE THE ALARM TO DECORATION"),
+            ("4", "REHEARSE THE DREAM UNDER NDA"),
+            ("5", "GIVE THE PILLOW A SEVEN-YEAR PLAN"),
         ],
     },
     {

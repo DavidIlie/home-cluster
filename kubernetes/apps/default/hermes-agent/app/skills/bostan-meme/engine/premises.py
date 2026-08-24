@@ -297,7 +297,7 @@ FAMILIES: dict[str, dict[str, object]] = {
             ("WAYS TO IMPROVE", "A COMPLETELY NORMAL PICNIC"),
         ],
         "worlds": [
-            "an anti-logic self-improvement list whose hard cuts share one completely sincere voice",
+            "a pre-nap routine whose warped logistics all concern sleep, alarms, pillows, or going offline",
             "a family meal treated as a formal public performance",
             "a fire drill optimized for status rather than safety",
             "an elevator delay turned into a temporary government",

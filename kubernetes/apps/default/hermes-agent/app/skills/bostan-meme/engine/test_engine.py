@@ -81,6 +81,8 @@ def test_runtime_authoring(target: Path) -> None:
     guidance = select_guidance("runtime-authoring-test")
     prompt = author_prompt(guidance, [])
     assert "Author six complete candidate" in prompt
+    assert "not permission for unrelated items" in prompt
+    assert "could be moved under an unrelated title" in prompt
     assert "10,000" not in prompt
     spec = {
         "id": "fire-drill-shareholder",
