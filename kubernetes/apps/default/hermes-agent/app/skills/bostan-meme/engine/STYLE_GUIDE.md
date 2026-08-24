@@ -6,9 +6,16 @@ thread images, and the Apple Photos `memes` album establish the house style.
 - Black or near-black background, one dominant portrait, condensed all-caps type.
 - A plausible self-help or money headline starts the bit.
 - Four to six terse steps escalate through one coherent, oddly specific world.
+- Each poster uses one conceptual leap. Its rows form a mini-story: setup,
+  escalation, consequence, climax, then payoff.
 - One phrase per row carries a saturated accent color.
 - Specific logistics beat random nouns: named documents, brokers, times, ports,
   invoices, relatives, permits, and commodities.
+- Bureaucratic and corporate language is not a default joke engine. Managers,
+  permits, committees, inspections, fees, policy, and briefings belong only in
+  a premise whose ordinary setting already calls for them.
+- A headline must be immediately understandable as a sentence. Reject invented
+  concepts that need interpretation before they can be funny.
 - The final row is overconfident and refuses to explain itself.
 - Rotate composition, portrait, frame, and motif independently; do not repeat
   any of them in adjacent posts.

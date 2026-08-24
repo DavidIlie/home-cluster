@@ -14,6 +14,12 @@ from premises import FAMILIES
 
 TOKEN = re.compile(r"[A-Z0-9]+")
 ITEM_SHAPES = {"dialogue", "wealth_recipe", "ranked", "timeline", "checklist", "daily_list", "agenda", "ledger"}
+BUREAUCRACY_WORDS = {
+    "APPOINTED", "APPROVAL", "BRIEFING", "COMMITTEE", "DIRECTOR", "FEE",
+    "FEES", "INSPECTION", "MANAGER", "MINISTER", "MINISTRY", "MUNICIPAL",
+    "PERMIT", "POLICY", "REPORTS",
+}
+BUREAUCRACY_SETTINGS = {"BOARD", "COUNCIL", "ELECTION", "GOVERNMENT", "MEETING", "OFFICE"}
 
 
 def words(value: str) -> set[str]:
@@ -93,7 +99,7 @@ def author_prompt(
     ]
     contract = {
         "id": "short-kebab-case",
-        "topic": "specific subject, not a recurring universe",
+        "topic": "2-5 plain words, at most 30 characters; this is visible copy",
         "shape": guidance["shape"],
         "layout": f"one of {guidance['layouts']}",
         "top": "headline line one",
@@ -113,6 +119,9 @@ def author_prompt(
             "Author six complete candidate Bostan posters, then return only the strongest JSON object.",
             "The saved references supply rhythm and composition, not reusable lore or captions.",
             "Every candidate needs one recognizable comic situation. Every row must refer to an action, object, role, or consequence that belongs to the exact scene named by the headline.",
+            "The headline must read as a natural human sentence even when its claim is absurd. Never invent phrases such as 'municipal afternoon' that need interpretation before they can be funny.",
+            "Use one conceptual leap only: begin with an ordinary scene, introduce one absurd rule, then make the five rows progress through setup, escalation, consequence, climax, and payoff.",
+            "Do not default to managers, permits, committees, inspections, policy, fees, briefings, municipal jargon, or fake corporate authority. Use those only when the supplied situation explicitly calls for bureaucracy.",
             "For daily_list only, a bilingual count parenthetical such as FIVE (CINCO) is allowed. It is a small surface gag, not permission for unrelated items.",
             "Make the logic absurd but causal: the strange action should be a warped response to the headline's situation. Reject random-noun combinations, strained grammar, and rows that could be moved under an unrelated title unchanged.",
             "Before returning the winner, silently test all five rows against the headline. If a row has no concrete semantic connection, rewrite it.",
@@ -153,8 +162,16 @@ def validate_spec(spec: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("unknown shape")
     if spec["layout"] not in FAMILIES[spec["shape"]]["layouts"]:
         raise ValueError("layout is incompatible with shape")
+    if len(spec["topic"]) > 30 or not 2 <= len(spec["topic"].split()) <= 5:
+        raise ValueError("topic must be 2-5 plain words and at most 30 characters")
     if len(spec["top"]) > 42 or len(spec["key"]) > 42:
         raise ValueError("headline is too long")
+    visible_words = words(spec_text(spec))
+    if (
+        len(visible_words & BUREAUCRACY_WORDS) >= 3
+        and not visible_words & BUREAUCRACY_SETTINGS
+    ):
+        raise ValueError("generic bureaucracy is carrying an unrelated premise")
     if spec["shape"] in ITEM_SHAPES:
         items = spec.get("items")
         expected = 8 if spec["shape"] == "timeline" else 5

@@ -116,11 +116,17 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
                     "model": MODEL,
                     "input": (
                         "Act as the final editor for this absurd poster. Return only one JSON object "
-                        "with the same schema. Preserve its premise and layout, but rewrite any weak copy. "
+                        "with the same schema and layout. You may replace the premise completely when it is "
+                        "strained, pseudo-profound, or based on an invented phrase. "
                         "Every item must be grammatically natural and concretely tied to the exact situation "
                         "named by the headline. The absurdity must be a warped action or consequence inside "
-                        "that situation, never disconnected word salad. A row that could move under an "
-                        "unrelated headline without changing must be rewritten. Keep all visible strings short.\n"
+                        "that situation, never disconnected word salad. Use one understandable conceptual leap. "
+                        "The rows must progress through setup, escalation, consequence, climax, and payoff. "
+                        "Reject generic bureaucracy, management, permits, committees, fees, inspections, policy, "
+                        "and briefings unless the headline's ordinary setting specifically requires them. "
+                        "A row that could move under an unrelated headline without changing must be rewritten. "
+                        "The topic is visible copy: keep it to 2-5 plain words and at most 30 characters. "
+                        "Keep all visible strings short.\n"
                         f"Candidate: {json.dumps(spec, ensure_ascii=False)}"
                     ),
                     "reasoning": {"effort": "low"},
@@ -132,6 +138,43 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
             reviewed = parse_spec(extract_output_text(review.json()))
             validate_spec(reviewed)
             novelty_score(reviewed, recent_specs)
+            audit = requests.post(
+                MODEL_URL,
+                headers={"Authorization": f"Bearer {profile_secret('CLIPROXY_API_KEY')}"},
+                json={
+                    "model": MODEL,
+                    "input": (
+                        "Audit this poster as a strict comedy editor. Return only JSON with keys "
+                        "accept (boolean), reason (short string), and scores (object). Scores must include "
+                        "natural_headline, recognizable_scene, causal_coherence, row_specificity, and "
+                        "comic_progression, each an integer from 1 to 5. Accept only if every score is at "
+                        "least 4. The headline must be immediately understandable. The body must tell one "
+                        "escalating mini-story with a payoff, not merely reuse related vocabulary. Reject "
+                        "invented concepts that need interpretation, arbitrary noun combinations, and generic "
+                        "bureaucratic or corporate framing pasted onto an unrelated setting.\n"
+                        f"Poster: {json.dumps(reviewed, ensure_ascii=False)}"
+                    ),
+                    "reasoning": {"effort": "low"},
+                    "service_tier": "priority",
+                },
+                timeout=300,
+            )
+            audit.raise_for_status()
+            verdict = parse_spec(extract_output_text(audit.json()))
+            score_names = (
+                "natural_headline",
+                "recognizable_scene",
+                "causal_coherence",
+                "row_specificity",
+                "comic_progression",
+            )
+            scores = verdict.get("scores")
+            if (
+                verdict.get("accept") is not True
+                or not isinstance(scores, dict)
+                or any(not isinstance(scores.get(name), int) or scores[name] < 4 for name in score_names)
+            ):
+                raise ValueError(f"semantic audit rejected candidate: {verdict.get('reason', 'low score')}")
             return reviewed
         except (ValueError, json.JSONDecodeError) as error:
             failure = str(error)

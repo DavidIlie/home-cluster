@@ -135,6 +135,30 @@ def test_runtime_authoring(target: Path) -> None:
     assert novelty_history([spec], None) == [spec]
     assert correction_person(correction) == "friend-studio.png"
     assert correction_person(None) is None
+    invalid_topic = dict(spec)
+    invalid_topic["topic"] = "raising money to buy a municipal afternoon"
+    try:
+        validate_spec(invalid_topic)
+    except ValueError as error:
+        assert "topic must be" in str(error)
+    else:
+        raise AssertionError("oversized visible topic was accepted")
+    bureaucratic = dict(spec)
+    bureaucratic["top"] = "THE CAR PARK"
+    bureaucratic["key"] = "APPOINTED YOU"
+    bureaucratic["items"] = [
+        ["BARRIER", "OPENS FOR INSPECTION"],
+        ["TICKET", "READS ACTING MANAGER"],
+        ["BAY 12", "AWAITS APPROVAL"],
+        ["TROLLEY", "REPORTS FOR BRIEFING"],
+        ["EXIT", "REQUESTS A POLICY"],
+    ]
+    try:
+        validate_spec(bureaucratic)
+    except ValueError as error:
+        assert "generic bureaucracy" in str(error)
+    else:
+        raise AssertionError("bureaucracy pasted onto an unrelated setting was accepted")
 
 
 def test_delivery_feedback_ledger(target: Path) -> None:
@@ -199,6 +223,8 @@ def test_blueprints(target: Path) -> int:
                 assert image.mode == "RGB"
             assert metadata["layout"] == blueprint["layout"]
             assert metadata["poster"] == blueprint["id"]
+            if metadata["layout"] == "left_editorial":
+                assert all(value != "FIELD DIRECTOR" for value, _box in placements)
             assert output.stat().st_size > 35_000
             rendered += 1
     return rendered
