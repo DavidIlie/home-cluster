@@ -16,7 +16,7 @@ import meme_engine
 from authoring import author_prompt, novelty_score, select_guidance, validate_spec
 import feedback
 import author_prompt as author_history
-from cron_hourly import correction_guidance, novelty_history
+from cron_hourly import correction_guidance, correction_person, novelty_history
 from corpus import POSTERS
 from premises import guided_capacity, title_count
 
@@ -120,7 +120,7 @@ def test_runtime_authoring(target: Path) -> None:
     assert result["poster"] == spec["id"]
     assert output.stat().st_size > 35_000
     correction = {
-        "delivery": {"spec": spec},
+        "delivery": {"spec": spec, "render": {"person": "friend-studio.png"}},
         "feedback": [],
         "current_feedback": "Make the portrait larger and stop the headline overlap.",
     }
@@ -133,6 +133,8 @@ def test_runtime_authoring(target: Path) -> None:
     assert correction_shape["top"] == spec["top"]
     assert novelty_history([spec, POSTERS[0]], correction) == [POSTERS[0]]
     assert novelty_history([spec], None) == [spec]
+    assert correction_person(correction) == "friend-studio.png"
+    assert correction_person(None) is None
 
 
 def test_delivery_feedback_ledger(target: Path) -> None:

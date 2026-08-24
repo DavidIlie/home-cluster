@@ -182,6 +182,13 @@ def novelty_history(history: list[dict], correction: dict | None) -> list[dict]:
     return [item for item in history if item != target]
 
 
+def correction_person(correction: dict | None) -> str | None:
+    if not correction:
+        return None
+    person = ((correction.get("delivery") or {}).get("render") or {}).get("person")
+    return str(person) if isinstance(person, str) and person.strip() else None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", type=Path)
@@ -226,8 +233,9 @@ def main() -> None:
         "--spec",
         str(spec_path),
     ]
-    if arguments.person:
-        render_arguments.extend(["--person", arguments.person])
+    selected_person = arguments.person or correction_person(correction)
+    if selected_person:
+        render_arguments.extend(["--person", selected_person])
     rendered = json.loads(run(*render_arguments, timeout=180))
     image = Path(rendered["png"])
     if not image.is_file() or image.stat().st_size == 0:
