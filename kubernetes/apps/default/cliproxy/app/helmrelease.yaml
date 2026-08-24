@@ -147,7 +147,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/cliproxyapi
-              tag: 5f6741b9b75322a3230fb0724258afe186ee4192@sha256:aea92c2e235560933f7ef9fa98c488a059f566c0397341fa3d74335f5d4169e6
+              tag: dd4bb4d52b210ecab3862050c609d365e97f16c7@sha256:1c2fc66125a10ef90493bee941b3e280587974eeb95fba98b8756b6747e3c6c1
             env:
               TZ: Europe/Bucharest
               DAVIDAPPS_ASSERTION_ISSUER:
