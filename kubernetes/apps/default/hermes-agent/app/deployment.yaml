@@ -261,6 +261,8 @@ spec:
               value: /opt/xurl:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             - name: HERMES_MANAGED_DIR
               value: /etc/hermes
+            - name: BOSTAN_AUTOMATIC_ENABLED
+              value: "true"
             - name: AGENT_BROWSER_ARGS
               value: --no-sandbox,--disable-dev-shm-usage
             - name: OPENAI_BASE_URL
