@@ -25,6 +25,7 @@ PYTHON = ROOT / ".venv" / "bin" / "python"
 UPLOAD_URL = "http://hermes.default.svc.cluster.local:8080/seedyn/upload"
 MODEL_URL = "http://cliproxy.default.svc.cluster.local:8317/v1/responses"
 MODEL = os.environ.get("BOSTAN_AUTHOR_MODEL", "gpt-5.6-sol")
+REASONING = os.environ.get("BOSTAN_AUTHOR_REASONING", "medium")
 
 
 def profile_secret(name: str) -> str:
@@ -89,7 +90,7 @@ def parse_spec(text: str) -> dict:
 
 def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
     failure = ""
-    for _attempt in range(3):
+    for _attempt in range(5):
         effective_prompt = prompt
         if failure:
             effective_prompt += f"\nThe prior candidate failed validation: {failure}. Return a corrected JSON object."
@@ -99,7 +100,7 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
             json={
                 "model": MODEL,
                 "input": effective_prompt,
-                "reasoning": {"effort": "low"},
+                "reasoning": {"effort": REASONING},
                 "service_tier": "priority",
             },
             timeout=300,
@@ -129,7 +130,7 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
                         "Keep all visible strings short.\n"
                         f"Candidate: {json.dumps(spec, ensure_ascii=False)}"
                     ),
-                    "reasoning": {"effort": "low"},
+                    "reasoning": {"effort": REASONING},
                     "service_tier": "priority",
                 },
                 timeout=300,
@@ -154,7 +155,7 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
                         "bureaucratic or corporate framing pasted onto an unrelated setting.\n"
                         f"Poster: {json.dumps(reviewed, ensure_ascii=False)}"
                     ),
-                    "reasoning": {"effort": "low"},
+                    "reasoning": {"effort": REASONING},
                     "service_tier": "priority",
                 },
                 timeout=300,
@@ -178,7 +179,7 @@ def request_spec(prompt: str, recent_specs: list[dict]) -> dict:
             return reviewed
         except (ValueError, json.JSONDecodeError) as error:
             failure = str(error)
-    raise RuntimeError(f"author model failed validation after three attempts: {failure}")
+    raise RuntimeError(f"author model failed validation after five attempts: {failure}")
 
 
 def upload(image: Path) -> str:

@@ -40,7 +40,7 @@ Hermes cron schedule (Europe/Bucharest):
 0 0,9-23 * * *
 ```
 
-The no-agent cron job runs `cron_hourly.py`. That script asks GPT-5.6 Sol at low
+The no-agent cron job runs `cron_hourly.py`. That script asks GPT-5.6 Sol at medium
 reasoning for a validated runtime spec, renders it, uploads through the bounded
 Seedyn broker, verifies the media response, stores the URL-to-spec record, and
 prints only the HTTPS URL. Hermes delivers it to Discord channel
