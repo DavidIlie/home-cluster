@@ -130,7 +130,7 @@ spec:
             image:
               repository: ghcr.io/davidilie/cliproxyapi
               # TODO: replace latest with the immutable digest emitted after the feature branch is pushed.
-              tag: latest
+              tag: 436c703f834a2510e5abac85e90581ac3adf0971@sha256:140b4aa72f6051f51625504978232b3e9659c22ec43eb7a2271e3a6262a5895d
             env:
               TZ: Europe/Bucharest
               DAVIDAPPS_ASSERTION_ISSUER:
