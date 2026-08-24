@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: default
 resources:
   - ./claim.yaml
+  - ./davidapps-gate.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml
   - ./volsync-plugin-data.yaml

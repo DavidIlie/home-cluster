@@ -1,0 +1,177 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cliproxy-davidapps-public
+data:
+  issuer: https://id.davidapps.dev
+  audience: cliproxy.davidhome.ro
+  # Public, non-secret verifier material. Replace after the home gate app is provisioned.
+  assertion-public-key: ""
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: davidapps-gate
+spec:
+  type: ExternalName
+  externalName: davidapps-gate.auth.svc.cluster.local
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cliproxy-gate-start
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    nginx.ingress.kubernetes.io/proxy-body-size: 4k
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
+    nginx.ingress.kubernetes.io/rewrite-target: /start
+spec:
+  ingressClassName: external
+  rules:
+    - host: cliproxy.davidhome.ro
+      http:
+        paths:
+          - path: /_da/gate/start
+            pathType: Exact
+            backend:
+              service:
+                name: davidapps-gate
+                port:
+                  number: 8080
+  tls:
+    - hosts: [cliproxy.davidhome.ro]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cliproxy-gate-callback
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    nginx.ingress.kubernetes.io/proxy-body-size: 4k
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
+    nginx.ingress.kubernetes.io/rewrite-target: /callback
+spec:
+  ingressClassName: external
+  rules:
+    - host: cliproxy.davidhome.ro
+      http:
+        paths:
+          - path: /_da/callback
+            pathType: Exact
+            backend:
+              service:
+                name: davidapps-gate
+                port:
+                  number: 8080
+  tls:
+    - hosts: [cliproxy.davidhome.ro]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cliproxy-gate-password
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    nginx.ingress.kubernetes.io/proxy-body-size: 4k
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
+    nginx.ingress.kubernetes.io/rewrite-target: /password
+spec:
+  ingressClassName: external
+  rules:
+    - host: cliproxy.davidhome.ro
+      http:
+        paths:
+          - path: /_da/gate/password
+            pathType: Exact
+            backend:
+              service:
+                name: davidapps-gate
+                port:
+                  number: 8080
+  tls:
+    - hosts: [cliproxy.davidhome.ro]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cliproxy-gate-redeem
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    nginx.ingress.kubernetes.io/proxy-body-size: 4k
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
+    nginx.ingress.kubernetes.io/rewrite-target: /redeem
+spec:
+  ingressClassName: external
+  rules:
+    - host: cliproxy.davidhome.ro
+      http:
+        paths:
+          - path: /_da/gate/redeem
+            pathType: Exact
+            backend:
+              service:
+                name: davidapps-gate
+                port:
+                  number: 8080
+  tls:
+    - hosts: [cliproxy.davidhome.ro]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cliproxy-gate-bypass
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    nginx.ingress.kubernetes.io/proxy-body-size: 4k
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "15"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
+    nginx.ingress.kubernetes.io/rewrite-target: /bypass
+spec:
+  ingressClassName: external
+  rules:
+    - host: cliproxy.davidhome.ro
+      http:
+        paths:
+          - path: /_da/gate/bypass
+            pathType: Exact
+            backend:
+              service:
+                name: davidapps-gate
+                port:
+                  number: 8080
+  tls:
+    - hosts: [cliproxy.davidhome.ro]

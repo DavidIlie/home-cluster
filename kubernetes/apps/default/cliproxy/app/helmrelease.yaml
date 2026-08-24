@@ -27,6 +27,9 @@ spec:
       cliproxy:
         replicas: 1
         strategy: Recreate
+        pod:
+          imagePullSecrets:
+            - name: docker-regcred
         annotations:
           # config.yaml is mounted with subPath, and subPath mounts never receive
           # kubelet secret updates -- without this, edits to secret.sops.yaml sit
@@ -125,10 +128,26 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/eceasy/cli-proxy-api
-              tag: v7.2.141@sha256:7f598ce64478a8a5f90ed76875e0e9b0e7d77b80e17184b13df18c3d5bdb3def
+              repository: ghcr.io/davidilie/cliproxyapi
+              # TODO: replace latest with the immutable digest emitted after the feature branch is pushed.
+              tag: latest
             env:
               TZ: Europe/Bucharest
+              DAVIDAPPS_ASSERTION_ISSUER:
+                valueFrom:
+                  configMapKeyRef:
+                    name: cliproxy-davidapps-public
+                    key: issuer
+              DAVIDAPPS_ASSERTION_AUDIENCE:
+                valueFrom:
+                  configMapKeyRef:
+                    name: cliproxy-davidapps-public
+                    key: audience
+              DAVIDAPPS_ASSERTION_PUBLIC_KEY:
+                valueFrom:
+                  configMapKeyRef:
+                    name: cliproxy-davidapps-public
+                    key: assertion-public-key
               # The plugin resolves its SQLite directory from $HOME by default,
               # which is not set for uid 1000. Point it at the PVC. This is
               # env-only -- there is no YAML config key for it.
@@ -170,21 +189,82 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    serviceMonitor:
       app:
-        className: internal
+        serviceName: cliproxy
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+    ingress:
+      open-api:
+        className: external
         annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidapps.dev"
           gethomepage.dev/enabled: "false"
+          nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
           gatus.home-operations.com/endpoint: |-
             name: CLI Proxy API
             group: Utilities
-            url: https://cliproxy.davidhome.ro
+            url: https://cliproxy.davidhome.ro/healthz
             interval: 1m
             conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "cliproxy.davidhome.ro"
             paths:
+              - path: /v1
+                service: &appService
+                  identifier: app
+                  port: http
+              - path: /v1beta
+                service: *appService
+              - path: /openai/v1
+                service: *appService
+              - path: /backend-api/codex
+                service: *appService
+              - path: /healthz
+                service: *appService
+        tls:
+          - hosts: [*host]
+      management:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidapps.dev"
+          nginx.ingress.kubernetes.io/auth-url: "http://davidapps-gate.auth.svc.cluster.local:8080/gate/check"
+          nginx.ingress.kubernetes.io/auth-signin: "https://$host/_da/gate/start"
+          nginx.ingress.kubernetes.io/auth-signin-redirect-param: rd
+          nginx.ingress.kubernetes.io/auth-always-set-cookie: "true"
+          nginx.ingress.kubernetes.io/auth-cache-duration: "200 202 0s, 401 0s"
+          nginx.ingress.kubernetes.io/auth-response-headers: X-DA-Assertion,X-DA-User,X-DA-Email,X-DA-Name,X-DA-Kind,X-DA-Rol,X-DA-Epoch,X-DA-Tid
+          nginx.ingress.kubernetes.io/proxy-body-size: 4k
+          nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
+          nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "15"
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "15"
+          nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
+          nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+          nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
+        hosts:
+          - host: *host
+            paths:
               - path: /
+                pathType: Exact
+                service: *appService
+              - path: /management.html
+                pathType: Exact
+                service: *appService
+              - path: /v0/management
+                service: *appService
+              - path: /anthropic/callback
+                pathType: Exact
+                service: *appService
+              - path: /codex/callback
+                pathType: Exact
+                service: *appService
+              - path: /antigravity/callback
+                pathType: Exact
                 service:
                   identifier: app
                   port: http

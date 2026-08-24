@@ -136,3 +136,22 @@ spec:
       port: 8080
       targetPort: http
       protocol: TCP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: davidapps-empty-trusted-headers
+data:
+  X-DA-Assertion: ""
+  X-DA-User: ""
+  X-DA-Email: ""
+  X-DA-Name: ""
+  X-DA-Kind: ""
+  X-DA-Rol: ""
+  X-DA-Epoch: ""
+  X-DA-Tid: ""
+  X-Original-Method: ""
+  X-Original-URL: ""
+  X-Original-Host: ""
+  X-Davidapps-Protection-Bypass: ""
+  X-Davidapps-Set-Bypass-Cookie: ""
