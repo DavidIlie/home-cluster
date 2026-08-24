@@ -46,6 +46,7 @@ configMapGenerator:
       - STYLE_GUIDE.md=skills/bostan-meme/engine/STYLE_GUIDE.md
       - author_prompt.py=skills/bostan-meme/engine/author_prompt.py
       - authoring.py=skills/bostan-meme/engine/authoring.py
+      - bostan_meme_hourly.py=skills/bostan-meme/engine/bostan_meme_hourly.py
       - corpus.py=skills/bostan-meme/engine/corpus.py
       - cron_hourly.py=skills/bostan-meme/engine/cron_hourly.py
       - feedback.py=skills/bostan-meme/engine/feedback.py

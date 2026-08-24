@@ -102,6 +102,12 @@ spec:
                 chmod 0644 "$${temporary}"
                 mv -f "$${temporary}" "$${target}"
               done
+              mkdir -p /opt/data/profiles/friends-david/scripts
+              cron_target=/opt/data/profiles/friends-david/scripts/bostan_meme_hourly.py
+              cron_temporary="$${cron_target}.gitops.tmp"
+              cp /friends-david-meme-engine-seed/bostan_meme_hourly.py "$${cron_temporary}"
+              chmod 0755 "$${cron_temporary}"
+              mv -f "$${cron_temporary}" "$${cron_target}"
               printf 'DISCORD_BOT_TOKEN=%s\nDISCORD_ALLOWED_USERS=243009043260637184\nCLIPROXY_API_KEY=%s\nOPENAI_API_KEY=%s\nFLEETVIEW_MCP_TOKEN=%s\nFLEET_GATEWAY_MCP_TOKEN=%s\nAPI_SERVER_KEY=%s\nHERMES_FRIEND_CODE_DELIVERY_TOKEN=%s\nHERMES_FRIEND_CODE_OWNER_TOKEN=%s\nSEEDYN_BROKER_TOKEN=%s\n' \
                 "$${DISCORD_BOT_TOKEN}" "$${CLIPROXY_API_KEY}" "$${CLIPROXY_API_KEY}" \
                 "$${FLEETVIEW_MCP_TOKEN}" \
