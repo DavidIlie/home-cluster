@@ -36,10 +36,7 @@ spec:
             args:
               - |
                 export PGDATABASE="$DATABASE_URL"
-                {
-                  printf '\set reader_password %s\n' "$PLAUSIBLE_READER_PASSWORD"
-                  cat /bootstrap/employee-hub-reader.sql
-                } | psql --variable=ON_ERROR_STOP=1
+                psql --variable=ON_ERROR_STOP=1 --file=/bootstrap/employee-hub-reader.sql
             env:
               DATABASE_URL:
                 valueFrom:

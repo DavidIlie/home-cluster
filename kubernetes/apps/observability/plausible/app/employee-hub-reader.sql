@@ -1,4 +1,11 @@
 \set ON_ERROR_STOP on
+\getenv reader_password PLAUSIBLE_READER_PASSWORD
+
+\if :{?reader_password}
+\else
+  \echo 'PLAUSIBLE_READER_PASSWORD is required'
+  SELECT 1 / 0;
+\endif
 
 BEGIN;
 
