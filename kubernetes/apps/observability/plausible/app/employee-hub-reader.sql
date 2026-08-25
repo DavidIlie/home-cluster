@@ -1,5 +1,7 @@
 \set ON_ERROR_STOP on
 
+BEGIN;
+
 SELECT 'CREATE ROLE employee_hub_plausible_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS'
 WHERE NOT EXISTS (
   SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = 'employee_hub_plausible_owner'
@@ -19,6 +21,13 @@ WHERE NOT EXISTS (
 ALTER ROLE employee_hub_plausible_reader
   LOGIN PASSWORD :'reader_password'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
+
+ALTER ROLE employee_hub_plausible_reader SET default_transaction_read_only TO true;
+ALTER ROLE employee_hub_plausible_reader SET statement_timeout TO '5s';
+ALTER ROLE employee_hub_plausible_reader SET lock_timeout TO '2s';
+ALTER ROLE employee_hub_plausible_reader SET idle_in_transaction_session_timeout TO '5s';
+ALTER ROLE employee_hub_plausible_reader SET search_path TO pg_catalog;
+ALTER ROLE employee_hub_plausible_reader SET temp_file_limit TO '16MB';
 
 SELECT format('REVOKE %I FROM employee_hub_plausible_owner', granted_role.rolname)
 FROM pg_catalog.pg_auth_members AS membership
@@ -88,7 +97,7 @@ BEGIN
         'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'
       )
   ) THEN
-    RAISE EXCEPTION 'Employee Hub reader has direct public relation access';
+    RAISE EXCEPTION 'Employee Hub reader has effective public relation access';
   END IF;
 
   IF EXISTS (
@@ -105,7 +114,78 @@ BEGIN
         ELSE false
       END
   ) THEN
-    RAISE EXCEPTION 'Employee Hub reader has direct public sequence access';
+    RAISE EXCEPTION 'Employee Hub reader has effective public sequence access';
+  END IF;
+
+  IF pg_catalog.has_schema_privilege(
+    'employee_hub_plausible_reader',
+    'public',
+    'CREATE'
+  ) OR pg_catalog.has_schema_privilege(
+    'employee_hub_plausible_reader',
+    'employee_hub',
+    'CREATE'
+  ) THEN
+    RAISE EXCEPTION 'Employee Hub reader can create durable schema objects';
+  END IF;
+
+  IF pg_catalog.has_schema_privilege(
+    'employee_hub_plausible_owner',
+    'public',
+    'CREATE'
+  ) THEN
+    RAISE EXCEPTION 'Employee Hub function owner can create objects in public';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_proc AS function
+    WHERE function.prosecdef
+      AND function.oid <> 'employee_hub.list_sites()'::pg_catalog.regprocedure
+      AND pg_catalog.has_function_privilege(
+        'employee_hub_plausible_reader',
+        function.oid,
+        'EXECUTE'
+      )
+  ) THEN
+    RAISE EXCEPTION 'Employee Hub reader can execute an unexpected SECURITY DEFINER function';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_auth_members AS membership
+    JOIN pg_catalog.pg_roles AS member_role ON member_role.oid = membership.member
+    WHERE member_role.rolname IN (
+      'employee_hub_plausible_owner',
+      'employee_hub_plausible_reader'
+    )
+  ) THEN
+    RAISE EXCEPTION 'Employee Hub database roles retain inherited memberships';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_roles AS reader
+    WHERE reader.rolname = 'employee_hub_plausible_reader'
+      AND (
+        EXISTS (SELECT 1 FROM pg_catalog.pg_namespace WHERE nspowner = reader.oid)
+        OR EXISTS (SELECT 1 FROM pg_catalog.pg_class WHERE relowner = reader.oid)
+        OR EXISTS (SELECT 1 FROM pg_catalog.pg_proc WHERE proowner = reader.oid)
+        OR EXISTS (SELECT 1 FROM pg_catalog.pg_type WHERE typowner = reader.oid)
+      )
+  ) THEN
+    RAISE EXCEPTION 'Employee Hub reader owns database objects';
+  END IF;
+
+  -- The shared database grants CONNECT and TEMPORARY to PUBLIC. TEMPORARY is
+  -- session-local; durable data remains protected by the effective relation
+  -- checks above, default read-only transactions, and the SECURITY DEFINER audit.
+  IF NOT pg_catalog.has_database_privilege(
+    'employee_hub_plausible_reader',
+    pg_catalog.current_database(),
+    'CONNECT'
+  ) THEN
+    RAISE EXCEPTION 'Employee Hub reader cannot connect to the Plausible database';
   END IF;
 
   IF NOT pg_catalog.has_function_privilege(
@@ -117,3 +197,5 @@ BEGIN
   END IF;
 END
 $check$;
+
+COMMIT;
