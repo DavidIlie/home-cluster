@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zerocut-canary-backup-api
+  namespace: databases
+type: Opaque
+stringData:
+  username: ENC[AES256_GCM,data:fFhRjUeWFA==,iv:Xy8c7LDpQv+psfSJXQFd7ndSeYN/LhDU/MMzKXYCzJs=,tag:pwFfLs7VfHzOmBCeiUIQiQ==,type:str]
+  password: ENC[AES256_GCM,data:kihHx0FRRyMRxWyK+RSce19IrLnKK1YYjXEyGVGI+ZloCAGKfzos83H1sJJUalb6lKw6WHm1MQAL1sVv99DCtQ==,iv:z7P4LKRRknvcBk+nsClsPFcI2jwc47tBucJVIb83dWc=,tag:HLXjCNScP/J6SFHVTE7Riw==,type:str]
+sops:
+  age:
+    - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsQ0Z3ZFltcVJhdEMyZlpE
+        YVk0aUpQR0FZUW05MW5lTm5NdEQzM0FvRFZnCmxyMHB5TTBOZXZnNkFCOWo0NzJl
+        SXZZZVpQNG5IakpOL0pGUndaMmZJc0UKLS0tIHh5YWI4Zm1pRWdKWlJUVExXdmQx
+        dDR0ajZra0lnbWV5c1FTdUIyWWlwMG8K7SXQl2kuBozkQpO1N8j+69HBAbEa1bq6
+        WGcCWblsSjtAmtnhTtp4QRV0jBUKxtpMwRjK8QZ5svfRvv3nSIXZKA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-08-25T09:16:37Z"
+  mac: ENC[AES256_GCM,data:sn90xUVaaOhZuO8dIpMIdk2TCgRp9sSGP92ctFhppgcdMnZ0KnqV2vDNMOTyxZVEnW3JU71GxqyavsiG2kch9IrHu2VE/JzH7WMGb3ftqe/t8Ei8WF6XVchYzRVZK+ih7dSusfx58hnJBxUWY5a7JR8BYVLO9497UpH6gRmT3vo=,iv:C8w+/JQdZkj2ZxUsuCFdbRiqrOiSkhDDh5EBclOUtsw=,tag:jcwHVOtbNOHCw7tKcGEU9A==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.1

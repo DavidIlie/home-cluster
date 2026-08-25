@@ -1,0 +1,114 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zerocut-canary-clickhouse
+spec:
+  podSelector:
+    matchLabels:
+      clickhouse.altinity.com/chi: zerocut-canary
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - port: 8123
+          protocol: TCP
+        - port: 9000
+          protocol: TCP
+        - port: 9009
+          protocol: TCP
+        - port: 9363
+          protocol: TCP
+        - port: 7171
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - port: 7000
+          protocol: TCP
+        - port: 9363
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector: {}
+      ports:
+        - port: 2181
+          protocol: TCP
+        - port: 8123
+          protocol: TCP
+        - port: 9000
+          protocol: TCP
+        - port: 9009
+          protocol: TCP
+    - to:
+        - ipBlock:
+            cidr: 192.168.100.102/32
+      ports:
+        - port: 443
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zerocut-canary-keeper
+spec:
+  podSelector:
+    matchLabels:
+      clickhouse-keeper.altinity.com/chk: zerocut-canary-keeper
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - port: 2181
+          protocol: TCP
+        - port: 7000
+          protocol: TCP
+        - port: 9444
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - port: 7000
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector: {}
+      ports:
+        - port: 2181
+          protocol: TCP
+        - port: 9444
+          protocol: TCP

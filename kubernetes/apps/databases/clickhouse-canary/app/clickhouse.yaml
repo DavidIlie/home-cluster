@@ -1,0 +1,205 @@
+---
+apiVersion: clickhouse.altinity.com/v1
+kind: ClickHouseInstallation
+metadata:
+  name: zerocut-canary
+spec:
+  defaults:
+    storageManagement:
+      provisioner: Operator
+      reclaimPolicy: Retain
+    templates:
+      podTemplate: clickhouse
+      dataVolumeClaimTemplate: clickhouse-data
+      serviceTemplate: clickhouse-service
+  configuration:
+    zookeeper:
+      keeper:
+        name: zerocut-canary-keeper
+        namespace: databases
+      session_timeout_ms: 30000
+      operation_timeout_ms: 10000
+    settings:
+      prometheus/endpoint: /metrics
+      prometheus/port: "9363"
+      prometheus/metrics: "true"
+      prometheus/events: "true"
+      prometheus/asynchronous_metrics: "true"
+      prometheus/status_info: "true"
+    users:
+      zerocut_canary/password_sha256_hex:
+        valueFrom:
+          secretKeyRef:
+            name: zerocut-canary-credentials
+            key: password_sha256_hex
+      zerocut_canary/networks/ip:
+        - 10.42.0.0/16
+      zerocut_canary/profile: default
+      zerocut_canary/quota: default
+      zerocut_canary/named_collection_control: 1
+      zerocut_canary/grants/query:
+        - GRANT CREATE,ALTER,DROP,TRUNCATE,SELECT,INSERT,SHOW,dictGet,REMOTE ON *.*
+      zerocut_canary_backup/password_sha256_hex:
+        valueFrom:
+          secretKeyRef:
+            name: zerocut-canary-backup-user
+            key: password_sha256_hex
+      zerocut_canary_backup/networks/ip:
+        - 127.0.0.1
+      zerocut_canary_backup/profile: default
+      zerocut_canary_backup/quota: default
+      zerocut_canary_backup/grants/query:
+        - GRANT SELECT ON system.*
+        - GRANT ALTER FREEZE PARTITION,ALTER FETCH PARTITION,CREATE TABLE,DROP TABLE,CREATE DATABASE,DROP DATABASE,INSERT,SHOW ON *.*
+    clusters:
+      - name: zerocut
+        layout:
+          shardsCount: 1
+          replicasCount: 1
+  templates:
+    podTemplates:
+      - name: clickhouse
+        metadata:
+          labels:
+            app.kubernetes.io/name: zerocut-canary-clickhouse
+        spec:
+          nodeSelector:
+            kubernetes.io/arch: amd64
+            kubernetes.io/os: linux
+          securityContext:
+            fsGroup: 101
+          containers:
+            - name: clickhouse
+              image: clickhouse/clickhouse-server:26.3@sha256:8a47d18f8de3fbe12e7556ec3c72200ef47ff1c112958b4cb3ca083459cd3003
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 1Gi
+                limits:
+                  cpu: 2
+                  memory: 4Gi
+              volumeMounts:
+                - name: clickhouse-data
+                  mountPath: /var/lib/clickhouse
+            - name: clickhouse-backup
+              image: altinity/clickhouse-backup:2.8.0@sha256:d830170d635a3afa1568e13e81dd8194eac954195941b9554f15440cf6bc6c1b
+              imagePullPolicy: IfNotPresent
+              args:
+                - server
+                - --watch
+              env:
+                - name: TZ
+                  value: UTC
+                - name: LOG_LEVEL
+                  value: info
+                - name: CLICKHOUSE_HOST
+                  value: 127.0.0.1
+                - name: CLICKHOUSE_PORT
+                  value: "9000"
+                - name: CLICKHOUSE_USERNAME
+                  value: zerocut_canary_backup
+                - name: CLICKHOUSE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: zerocut-canary-backup-user
+                      key: password
+                - name: REMOTE_STORAGE
+                  value: s3
+                - name: S3_ENDPOINT
+                  value: https://s3.davidapps.dev
+                - name: S3_BUCKET
+                  value: clickhouse-zerocut-canary-backups
+                - name: S3_PATH
+                  value: zerocut-canary/shard-{shard}
+                - name: S3_REGION
+                  value: us-east-1
+                - name: S3_FORCE_PATH_STYLE
+                  value: "true"
+                - name: S3_DISABLE_SSL
+                  value: "false"
+                - name: S3_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: zerocut-canary-backup-s3
+                      key: access_key
+                - name: S3_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: zerocut-canary-backup-s3
+                      key: secret_key
+                - name: ALLOW_EMPTY_BACKUPS
+                  value: "true"
+                - name: BACKUPS_TO_KEEP_LOCAL
+                  value: "1"
+                - name: BACKUPS_TO_KEEP_REMOTE
+                  value: "32"
+                - name: REBASE_BEFORE_REMOVE_OLD_REMOTE
+                  value: "true"
+                - name: SHARDED_OPERATION_MODE
+                  value: first-replica
+                - name: WATCH_SCHEDULES
+                  value: name=canary,full=0 1 * * 0,increment=0 */6 * * *
+                - name: WATCH_BACKUP_NAME_TEMPLATE
+                  value: shard{shard}-{type}-{time:20060102T150405Z}
+                - name: API_LISTEN
+                  value: 0.0.0.0:7171
+                - name: API_ENABLE_METRICS
+                  value: "true"
+                - name: API_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: zerocut-canary-backup-api
+                      key: username
+                - name: API_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: zerocut-canary-backup-api
+                      key: password
+              ports:
+                - name: backup-rest
+                  containerPort: 7171
+                  protocol: TCP
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsGroup: 101
+                runAsNonRoot: true
+                runAsUser: 101
+              volumeMounts:
+                - name: clickhouse-data
+                  mountPath: /var/lib/clickhouse
+    volumeClaimTemplates:
+      - name: clickhouse-data
+        provisioner: Operator
+        reclaimPolicy: Retain
+        spec:
+          storageClassName: openebs-hostpath
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+    serviceTemplates:
+      - name: clickhouse-service
+        generateName: clickhouse-zerocut-canary
+        spec:
+          ports:
+            - name: http
+              port: 8123
+            - name: tcp
+              port: 9000
+            - name: interserver
+              port: 9009
+            - name: metrics
+              port: 9363
+          type: ClusterIP
