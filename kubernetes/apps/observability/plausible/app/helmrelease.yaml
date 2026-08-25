@@ -79,6 +79,7 @@ spec:
               BASE_URL: https://plausible.davidapps.dev
               DISABLE_REGISTRATION: invite_only
               IP_GEOLOCATION_DB: /usr/share/GeoIP/GeoLite2-City.mmdb
+              SSO_SAML_ADAPTER: real
             envFrom:
               - secretRef:
                   name: plausible-secret
