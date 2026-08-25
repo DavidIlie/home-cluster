@@ -147,6 +147,7 @@ spec:
             image:
               repository: ghcr.io/davidilie/cliproxyapi # {"$imagepolicy": "flux-system:cliproxy:name"}
               tag: main-d866fe9c-1787697512 # {"$imagepolicy": "flux-system:cliproxy:tag"}
+            args: ["-config", "/config-data/config.yaml"]
             env:
               TZ: Europe/Bucharest
               DAVIDAPPS_ASSERTION_ISSUER:
@@ -354,8 +355,7 @@ spec:
             config-bootstrap:
               - path: /data
             app:
-              - path: /CLIProxyAPI/config.yaml
-                subPath: config.yaml
+              - path: /config-data
       auths:
         existingClaim: cliproxy
         globalMounts:
