@@ -248,7 +248,7 @@ spec:
             conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host "cliproxy.davidhome.ro"
-            paths:
+            paths: &openApiPaths
               - path: /v1
                 service: &appService
                   identifier: app
@@ -264,8 +264,10 @@ spec:
               - path: /internal/employee-hub/v1/usage
                 pathType: Exact
                 service: *appService
+          - host: &apiHost "cliproxyapi.davidhome.ro"
+            paths: *openApiPaths
         tls:
-          - hosts: [*host]
+          - hosts: [*host, *apiHost]
       management:
         className: external
         annotations:
