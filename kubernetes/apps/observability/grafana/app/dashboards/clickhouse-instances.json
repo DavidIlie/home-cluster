@@ -36,7 +36,7 @@
   "id": null,
   "uid": "clickhouse-instances",
   "title": "ClickHouse Instances",
-  "description": "Health, query workload, MergeTree storage, errors, and Kubernetes resources for the ZeroCut and Plausible ClickHouse instances. Disk-free metrics describe their shared analytics SSD; MergeTree bytes are instance-specific.",
+  "description": "Health, query workload, MergeTree storage, errors, and Kubernetes resources for the ZeroCut and Plausible ClickHouse instances. Select the owning cluster's Prometheus receiver before selecting an instance.",
   "links": [],
   "tags": [
     "clickhouse",
@@ -46,6 +46,25 @@
   ],
   "templating": {
     "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "prometheus-davidapps-cluster",
+          "value": "prometheus-davidapps-cluster"
+        },
+        "description": "Prometheus receiver for the cluster that owns the selected ClickHouse job.",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metrics source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "/prometheus-(davidapps|home)-cluster/",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
       {
         "allValue": "clickhouse|plausible-clickhouse|zerocut-canary-clickhouse|zerocut-clickhouse",
         "current": {
@@ -59,7 +78,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus-home-cluster"
+          "uid": "${datasource}"
         },
         "definition": "label_values(ClickHouseAsyncMetrics_Uptime{job=~\"clickhouse|plausible-clickhouse|zerocut-canary-clickhouse|zerocut-clickhouse\"}, job)",
         "description": "ClickHouse ServiceMonitor scrape job.",
@@ -76,39 +95,6 @@
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus-home-cluster"
-        },
-        "definition": "label_values(ClickHouseAsyncMetrics_Uptime{job=~\"${instance:regex}\"}, pod)",
-        "description": "Pods belonging to the selected ClickHouse scrape jobs.",
-        "hide": 2,
-        "includeAll": true,
-        "label": "Pod",
-        "multi": true,
-        "name": "pod",
-        "options": [],
-        "query": {
-          "query": "label_values(ClickHouseAsyncMetrics_Uptime{job=~\"${instance:regex}\"}, pod)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
         "sort": 1,
         "type": "query"
       }
@@ -139,7 +125,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -188,7 +174,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "min(up{job=~\"${instance:regex}\"})",
@@ -206,7 +192,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -255,7 +241,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "min(ClickHouseAsyncMetrics_Uptime{job=~\"${instance:regex}\"})",
@@ -272,7 +258,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -321,7 +307,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -338,7 +324,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -387,7 +373,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -404,7 +390,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -453,7 +439,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -470,7 +456,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -519,7 +505,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum(ClickHouseAsyncMetrics_MemoryResident{job=~\"${instance:regex}\"})",
@@ -532,11 +518,11 @@
     },
     {
       "id": 8,
-      "title": "Shared SSD free",
+      "title": "Minimum local disk free",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -585,7 +571,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "min(ClickHouseAsyncMetrics_DiskAvailable_default{job=~\"${instance:regex}\"})",
@@ -595,7 +581,7 @@
           "refId": "A"
         }
       ],
-      "description": "Free space on the shared analytics filesystem, not an instance allocation."
+      "description": "Minimum free space reported by a selected ClickHouse server."
     },
     {
       "id": 9,
@@ -603,7 +589,7 @@
       "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 5,
@@ -652,10 +638,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{pod=~\"${pod:regex}\",container=~\"app|clickhouse|clickhouse-backup\"}[$__range]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"databases|observability|personal-projects\",pod=~\"(clickhouse|plausible-clickhouse|chi-zerocut)-.*\",container=~\"app|clickhouse\"}[$__range]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -682,7 +668,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -728,7 +714,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -745,7 +731,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -791,7 +777,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectQuery{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -803,7 +789,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertQuery{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -820,7 +806,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -866,7 +852,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "100 * sum by (job) (rate(ClickHouseProfileEvents_FailedQuery{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
@@ -883,7 +869,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -929,7 +915,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "1e-6 * sum by (job) (rate(ClickHouseProfileEvents_QueryTimeMicroseconds{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_Query{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
@@ -946,7 +932,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -992,7 +978,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1004,7 +990,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1021,7 +1007,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1067,7 +1053,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_SelectedBytes{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1079,7 +1065,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_InsertedBytes{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1109,7 +1095,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1155,7 +1141,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -1172,7 +1158,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1218,7 +1204,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -1230,7 +1216,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{job=~\"${instance:regex}\"})",
@@ -1247,7 +1233,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1293,7 +1279,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "max by (job) (ClickHouseAsyncMetrics_MaxPartCountForPartition{job=~\"${instance:regex}\"})",
@@ -1310,7 +1296,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1356,7 +1342,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_Merge{job=~\"${instance:regex}\"})",
@@ -1368,7 +1354,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_PartMutation{job=~\"${instance:regex}\"})",
@@ -1380,7 +1366,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_DelayedInserts{job=~\"${instance:regex}\"})",
@@ -1397,7 +1383,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1443,7 +1429,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseProfileEvents_MergedRows{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1460,7 +1446,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1506,7 +1492,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "100 * sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{job=~\"${instance:regex}\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(ClickHouseProfileEvents_MarkCacheHits{job=~\"${instance:regex}\"}[$__rate_interval]) + rate(ClickHouseProfileEvents_MarkCacheMisses{job=~\"${instance:regex}\"}[$__rate_interval])), 0.000001)",
@@ -1536,7 +1522,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1582,7 +1568,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_ALL{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1599,7 +1585,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1645,7 +1631,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_MEMORY_LIMIT_EXCEEDED{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1657,7 +1643,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_TOO_MANY_PARTS{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1674,7 +1660,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1720,7 +1706,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_TIMEOUT_EXCEEDED{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1732,7 +1718,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (rate(ClickHouseErrorMetric_NETWORK_ERROR{job=~\"${instance:regex}\"}[$__rate_interval]))",
@@ -1749,7 +1735,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1795,7 +1781,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_Query{job=~\"${instance:regex}\"})",
@@ -1807,7 +1793,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum by (job) (ClickHouseMetrics_Merge{job=~\"${instance:regex}\"})",
@@ -1837,7 +1823,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1883,10 +1869,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{pod=~\"${pod:regex}\",container=~\"app|clickhouse|clickhouse-backup\"})",
+          "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{namespace=~\"databases|observability|personal-projects\",pod=~\"(clickhouse|plausible-clickhouse|chi-zerocut)-.*\",container=~\"app|clickhouse\"})",
           "legendFormat": "{{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -1900,7 +1886,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -1946,10 +1932,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{pod=~\"${pod:regex}\",container=~\"app|clickhouse|clickhouse-backup\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"databases|observability|personal-projects\",pod=~\"(clickhouse|plausible-clickhouse|chi-zerocut)-.*\",container=~\"app|clickhouse\"}[$__rate_interval]))",
           "legendFormat": "{{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -1963,7 +1949,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -2009,10 +1995,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_network_receive_bytes_total{pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_network_receive_bytes_total{namespace=~\"databases|observability|personal-projects\",pod=~\"(clickhouse|plausible-clickhouse|chi-zerocut)-.*\"}[$__rate_interval]))",
           "legendFormat": "receive \u00b7 {{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -2021,10 +2007,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_network_transmit_bytes_total{pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_network_transmit_bytes_total{namespace=~\"databases|observability|personal-projects\",pod=~\"(clickhouse|plausible-clickhouse|chi-zerocut)-.*\"}[$__rate_interval]))",
           "legendFormat": "transmit \u00b7 {{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -2038,7 +2024,7 @@
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
@@ -2084,10 +2070,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_fs_reads_bytes_total{pod=~\"${pod:regex}\",container=~\"app|clickhouse|clickhouse-backup\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_fs_reads_bytes_total{namespace=~\"databases|observability|personal-projects\",pod=~\"(clickhouse|plausible-clickhouse|chi-zerocut)-.*\",container=~\"app|clickhouse\"}[$__rate_interval]))",
           "legendFormat": "read \u00b7 {{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -2096,10 +2082,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, pod) (rate(container_fs_writes_bytes_total{pod=~\"${pod:regex}\",container=~\"app|clickhouse|clickhouse-backup\"}[$__rate_interval]))",
+          "expr": "sum by (namespace, pod) (rate(container_fs_writes_bytes_total{namespace=~\"databases|observability|personal-projects\",pod=~\"(clickhouse|plausible-clickhouse|chi-zerocut)-.*\",container=~\"app|clickhouse\"}[$__rate_interval]))",
           "legendFormat": "write \u00b7 {{namespace}} / {{pod}}",
           "range": true,
           "instant": false,
@@ -2115,42 +2101,47 @@
         "x": 0,
         "y": 90
       },
-      "id": 45,
+      "id": 50,
       "panels": [],
-      "title": "Recovery backups",
+      "title": "S3 backups and node-local storage",
       "type": "row"
     },
     {
+      "id": 51,
+      "title": "Oldest shard backup",
+      "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 28800
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
+        "uid": "${datasource}"
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 6,
         "x": 0,
         "y": 91
       },
-      "id": 46,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2170,169 +2161,37 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "time() - (clickhouse_backup_last_create_remote_finish{job=~\"${instance:regex}\",clickhouse_altinity_com_replica=\"0\"} > 0)",
-          "instant": true,
-          "legendFormat": "{{pod}}",
+          "expr": "time() - min(clickhouse_backup_last_create_remote_finish{namespace=\"personal-projects\",clickhouse_altinity_com_replica=\"0\"} > 0)",
+          "legendFormat": "",
           "range": false,
+          "instant": true,
           "refId": "A"
         }
-      ],
-      "title": "Remote backup age",
-      "type": "stat"
+      ]
     },
     {
+      "id": 52,
+      "title": "Remote backup inventory",
+      "type": "stat",
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-home-cluster"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "text": "Failed"
-                },
-                "1": {
-                  "color": "green",
-                  "text": "Succeeded"
-                },
-                "2": {
-                  "color": "yellow",
-                  "text": "Not run"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              },
-              {
-                "color": "yellow",
-                "value": 2
-              }
-            ]
-          }
-        },
-        "overrides": []
+        "uid": "${datasource}"
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 6,
         "x": 6,
         "y": 91
       },
-      "id": 47,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-home-cluster"
-          },
-          "editorMode": "code",
-          "expr": "clickhouse_backup_last_create_remote_status{job=~\"${instance:regex}\",clickhouse_altinity_com_replica=\"0\"}",
-          "instant": true,
-          "legendFormat": "{{pod}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Last remote backup",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-home-cluster"
-      },
       "fieldConfig": {
         "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
-        "y": 91
-      },
-      "id": 48,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
           },
-          "editorMode": "code",
-          "expr": "clickhouse_backup_number_backups_remote{job=~\"${instance:regex}\",clickhouse_altinity_com_replica=\"0\"}",
-          "instant": true,
-          "legendFormat": "{{pod}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Remote backups retained",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-home-cluster"
-      },
-      "fieldConfig": {
-        "defaults": {
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2349,13 +2208,6 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 91
-      },
-      "id": 49,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2375,18 +2227,287 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-home-cluster"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(clickhouse_backup_failed_create_remotes{job=~\"${instance:regex}\"}[$__range])) + sum(increase(clickhouse_backup_failed_parts_count{job=~\"${instance:regex}\"}[$__range]))",
-          "instant": true,
+          "expr": "sum(clickhouse_backup_number_backups_remote{namespace=\"personal-projects\",clickhouse_altinity_com_replica=\"0\"})",
           "legendFormat": "",
           "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "title": "Production shards",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 91
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "count(ClickHouseAsyncMetrics_Uptime{namespace=\"personal-projects\",job=\"zerocut-clickhouse\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
           "refId": "A"
         }
       ],
-      "title": "Backup failures in range",
-      "type": "stat"
+      "description": "The single-copy production target is exactly three unique shards."
+    },
+    {
+      "id": 54,
+      "title": "Highest PVC utilization",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 91
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "100 * max(kubelet_volume_stats_used_bytes{namespace=\"personal-projects\",persistentvolumeclaim=~\"clickhouse-data-chi-zerocut-.*\"} / kubelet_volume_stats_capacity_bytes{namespace=\"personal-projects\",persistentvolumeclaim=~\"clickhouse-data-chi-zerocut-.*\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "title": "Backup age by shard",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 96
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "time() - max by (clickhouse_altinity_com_shard) (clickhouse_backup_last_create_remote_finish{namespace=\"personal-projects\",clickhouse_altinity_com_replica=\"0\"} > 0)",
+          "legendFormat": "{{clickhouse_altinity_com_shard}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "title": "ClickHouse PVC use",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 96
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "kubelet_volume_stats_used_bytes{namespace=\"personal-projects\",persistentvolumeclaim=~\"clickhouse-data-chi-zerocut-.*\"}",
+          "legendFormat": "used \u00b7 {{persistentvolumeclaim}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "kubelet_volume_stats_capacity_bytes{namespace=\"personal-projects\",persistentvolumeclaim=~\"clickhouse-data-chi-zerocut-.*\"}",
+          "legendFormat": "ceiling \u00b7 {{persistentvolumeclaim}}",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ]
     }
   ]
 }
