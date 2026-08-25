@@ -25,7 +25,42 @@ spec:
           # existed, so reloader silently never restarted this Deployment on a
           # credential change. The Secret actually consumed via envFrom below
           # is `plausible-secret`.
-          secret.reloader.stakater.com/reload: plausible-secret
+          secret.reloader.stakater.com/reload: plausible-secret,plausible-employee-hub-reader-secret
+          configmap.reloader.stakater.com/reload: plausible-employee-hub-reader-sql
+        initContainers:
+          employee-hub-reader:
+            image:
+              repository: ghcr.io/cloudnative-pg/postgresql
+              tag: 17.2-32@sha256:b17d21f8ec36add9b3c0ea3fb354d05f62a8fddf8ba65ae94e63ba77bc42202e
+            command: ["sh", "-ec"]
+            args:
+              - |
+                export PGDATABASE="$DATABASE_URL"
+                {
+                  printf '\set reader_password %s\n' "$PLAUSIBLE_READER_PASSWORD"
+                  cat /bootstrap/employee-hub-reader.sql
+                } | psql --variable=ON_ERROR_STOP=1
+            env:
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: plausible-secret
+                    key: DATABASE_URL
+              PLAUSIBLE_READER_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: plausible-employee-hub-reader-secret
+                    key: PLAUSIBLE_READER_PASSWORD
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
         containers:
           app:
             image:
@@ -74,6 +109,15 @@ spec:
             supplementalGroups: [10000]
             seccompProfile: { type: RuntimeDefault }
     persistence:
+      employee-hub-reader-sql:
+        type: configMap
+        name: plausible-employee-hub-reader-sql
+        advancedMounts:
+          plausible:
+            employee-hub-reader:
+              - path: /bootstrap/employee-hub-reader.sql
+                subPath: employee-hub-reader.sql
+                readOnly: true
       tmp:
         enabled: true
         type: emptyDir
