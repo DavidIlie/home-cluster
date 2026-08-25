@@ -4,4 +4,13 @@ kind: Kustomization
 namespace: default
 resources:
   - ./secret.sops.yaml
+  - ./employee-hub-reader-secret.sops.yaml
   - ./helmrelease.yaml
+
+configMapGenerator:
+  - name: plausible-employee-hub-reader-sql
+    files:
+      - employee-hub-reader.sql
+
+generatorOptions:
+  disableNameSuffixHash: true
