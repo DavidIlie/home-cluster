@@ -35,8 +35,8 @@ spec:
             command: ["sh", "-ec"]
             args:
               - |
-                export PGDATABASE="$DATABASE_URL"
-                psql --variable=ON_ERROR_STOP=1 --file=/bootstrap/employee-hub-reader.sql
+                test -n "$DATABASE_URL"
+                psql --dbname="$DATABASE_URL" --variable=ON_ERROR_STOP=1 --file=/bootstrap/employee-hub-reader.sql
             env:
               DATABASE_URL:
                 valueFrom:
