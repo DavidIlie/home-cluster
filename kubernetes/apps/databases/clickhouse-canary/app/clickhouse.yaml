@@ -71,6 +71,10 @@ spec:
             - name: clickhouse
               image: clickhouse/clickhouse-server:26.3@sha256:8a47d18f8de3fbe12e7556ec3c72200ef47ff1c112958b4cb3ca083459cd3003
               imagePullPolicy: IfNotPresent
+              ports:
+                - name: metrics
+                  containerPort: 9363
+                  protocol: TCP
               resources:
                 requests:
                   cpu: 250m

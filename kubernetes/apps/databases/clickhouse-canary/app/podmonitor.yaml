@@ -12,7 +12,7 @@ spec:
     - clickhouse.altinity.com/shard
     - clickhouse.altinity.com/replica
   podMetricsEndpoints:
-    - targetPort: 9363
+    - port: metrics
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
