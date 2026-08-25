@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: databases
+resources:
+  - ./backup-api.sops.yaml
+  - ./backup-user.sops.yaml
+  - ./backup.sops.yaml
+  - ./credentials.sops.yaml
+  - ./keeper.yaml
+  - ./clickhouse.yaml
+  - ./networkpolicy.yaml
+  - ./podmonitor.yaml

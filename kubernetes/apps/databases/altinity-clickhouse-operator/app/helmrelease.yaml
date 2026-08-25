@@ -1,0 +1,63 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: altinity-clickhouse-operator
+spec:
+  interval: 30m
+  timeout: 15m
+  chart:
+    spec:
+      chart: altinity-clickhouse-operator
+      version: 0.27.3
+      sourceRef:
+        kind: HelmRepository
+        name: altinity
+        namespace: flux-system
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    fullnameOverride: altinity-clickhouse-operator
+    crdHook:
+      enabled: false
+    secret:
+      create: false
+    watchNamespaces:
+      - databases
+    operator:
+      image:
+        tag: "0.27.3@sha256:0520bfb8015dcb270f0600f542cad117e637cdcdc791bfd71b7964ff067d1589"
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+    metrics:
+      image:
+        tag: "0.27.3@sha256:1e7c1d8167aad902513be37dcf7e439cf8a2564779a23008b8c81d879e71fb60"
+      resources:
+        requests:
+          cpu: 25m
+          memory: 96Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
+    serviceMonitor:
+      enabled: true
+      keeperMetrics:
+        enabled: true
+        namespaceSelector:
+          any: false
+          matchNames:
+            - databases
+        selector:
+          clickhouse-keeper.altinity.com/Service: chk

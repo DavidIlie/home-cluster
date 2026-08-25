@@ -1,0 +1,29 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: zerocut-clickhouse-canary
+spec:
+  jobLabel: app.kubernetes.io/name
+  selector:
+    matchLabels:
+      clickhouse.altinity.com/chi: zerocut-canary
+  podTargetLabels:
+    - clickhouse.altinity.com/shard
+    - clickhouse.altinity.com/replica
+  podMetricsEndpoints:
+    - targetPort: 9363
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+    - port: backup-rest
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      basicAuth:
+        username:
+          name: zerocut-canary-backup-api
+          key: username
+        password:
+          name: zerocut-canary-backup-api
+          key: password
