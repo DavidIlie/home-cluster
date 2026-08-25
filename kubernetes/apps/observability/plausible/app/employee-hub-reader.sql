@@ -9,7 +9,7 @@ ALTER ROLE employee_hub_plausible_owner
   NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
 
 SELECT format(
-  'CREATE ROLE employee_hub_plausible_reader LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOREPLICATION NOBYPASSRLS',
+  'CREATE ROLE employee_hub_plausible_reader LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS',
   :'reader_password'
 )
 WHERE NOT EXISTS (
@@ -18,7 +18,21 @@ WHERE NOT EXISTS (
 
 ALTER ROLE employee_hub_plausible_reader
   LOGIN PASSWORD :'reader_password'
-  NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOREPLICATION NOBYPASSRLS;
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
+
+SELECT format('REVOKE %I FROM employee_hub_plausible_owner', granted_role.rolname)
+FROM pg_catalog.pg_auth_members AS membership
+JOIN pg_catalog.pg_roles AS granted_role ON granted_role.oid = membership.roleid
+JOIN pg_catalog.pg_roles AS member_role ON member_role.oid = membership.member
+WHERE member_role.rolname = 'employee_hub_plausible_owner'
+\gexec
+
+SELECT format('REVOKE %I FROM employee_hub_plausible_reader', granted_role.rolname)
+FROM pg_catalog.pg_auth_members AS membership
+JOIN pg_catalog.pg_roles AS granted_role ON granted_role.oid = membership.roleid
+JOIN pg_catalog.pg_roles AS member_role ON member_role.oid = membership.member
+WHERE member_role.rolname = 'employee_hub_plausible_reader'
+\gexec
 
 CREATE SCHEMA IF NOT EXISTS employee_hub AUTHORIZATION employee_hub_plausible_owner;
 ALTER SCHEMA employee_hub OWNER TO employee_hub_plausible_owner;
