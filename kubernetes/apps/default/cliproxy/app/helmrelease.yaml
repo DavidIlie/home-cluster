@@ -277,6 +277,9 @@ spec:
               - path: /internal/employee-hub/v1/api-key/reveal
                 pathType: Exact
                 service: *appService
+              - path: /internal/employee-hub/v1/api-key/owner-binding
+                pathType: Exact
+                service: *appService
           - host: &apiHost "cliproxyapi.davidhome.ro"
             paths: *openApiPaths
         tls:
