@@ -64,8 +64,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/plausible/community-edition
-              tag: v3.2.1@sha256:33e60bfb40f2df5da00f8753b76fad04f67dba3abe6d73eb516e440e3fb62985
+              repository: ghcr.io/davidilie/plausible-enterprise
+              tag: v3.2.1@sha256:d38102aff07b6f80a68bd568f7d3103f321ccb30a414efbaf0902bbc395984d2
               pullPolicy: IfNotPresent
             command:
               - sh
@@ -99,6 +99,8 @@ spec:
                 cpu: 50m
                 memory: 768Mi
         pod:
+          imagePullSecrets:
+            - name: docker-regcred
           terminationGracePeriodSeconds: 1
           securityContext:
             runAsNonRoot: true
