@@ -21,6 +21,7 @@ DASHBOARDS = ROOT / "kubernetes/apps/observability/grafana/app/dashboards"
 PROM = {"type": "prometheus", "uid": "prometheus-davidapps-cluster"}
 SPAN_PROM = {"type": "prometheus", "uid": "prometheus-home-cluster"}
 KUBE_PROM = {"type": "prometheus", "uid": "prometheus-kube-stack"}
+CLICKHOUSE_PROM = {"type": "prometheus", "uid": "${datasource}"}
 VLOGS = {"type": "victoriametrics-logs-datasource", "uid": "victoria-logs"}
 
 APP = "${application:regex}"
@@ -212,12 +213,12 @@ def application_variable() -> dict:
 def clickhouse_variable() -> dict:
     query = (
         'label_values(ClickHouseAsyncMetrics_Uptime{'
-        'job=~"clickhouse|plausible-clickhouse"}, job)'
+        'job=~"clickhouse|plausible-clickhouse|zerocut-canary-clickhouse|zerocut-clickhouse"}, job)'
     )
     return {
-        "allValue": "clickhouse|plausible-clickhouse",
+        "allValue": "clickhouse|plausible-clickhouse|zerocut-canary-clickhouse|zerocut-clickhouse",
         "current": {"selected": True, "text": ["All"], "value": ["$__all"]},
-        "datasource": copy.deepcopy(KUBE_PROM),
+        "datasource": copy.deepcopy(CLICKHOUSE_PROM),
         "definition": query,
         "description": "ClickHouse ServiceMonitor scrape job.",
         "hide": 0,
@@ -233,6 +234,39 @@ def clickhouse_variable() -> dict:
         "sort": 1,
         "type": "query",
     }
+
+
+def clickhouse_datasource_variable() -> dict:
+    return {
+        "current": {
+            "selected": True,
+            "text": "prometheus-davidapps-cluster",
+            "value": "prometheus-davidapps-cluster",
+        },
+        "description": "Prometheus receiver for the cluster that owns the selected ClickHouse job.",
+        "hide": 0,
+        "includeAll": False,
+        "label": "Metrics source",
+        "multi": False,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "/prometheus-(davidapps|home)-cluster/",
+        "skipUrlSync": False,
+        "type": "datasource",
+    }
+
+
+def replace_prometheus_datasource(value: object, datasource: dict) -> None:
+    if isinstance(value, dict):
+        if value.get("type") == "prometheus" and "uid" in value:
+            value["uid"] = datasource["uid"]
+        for nested in value.values():
+            replace_prometheus_datasource(nested, datasource)
+    elif isinstance(value, list):
+        for nested in value:
+            replace_prometheus_datasource(nested, datasource)
 
 
 def build_all_projects() -> None:
@@ -1448,19 +1482,27 @@ def build_zerocut_delivery() -> None:
     )
 
     panels.append(row(41, "ClickHouse event analytics", 77))
-    clickhouse = 'job="clickhouse"'
-    clickhouse_pod = 'namespace="databases",pod=~"clickhouse-.*",container="app"'
+    clickhouse = 'namespace="personal-projects",job="zerocut-clickhouse"'
+    clickhouse_pod = 'namespace="personal-projects",pod=~"chi-zerocut-.*",container="clickhouse"'
+    clickhouse_pvc = (
+        'namespace="personal-projects",'
+        'persistentvolumeclaim=~"clickhouse-data-chi-zerocut-.*"'
+    )
     panels.extend(
         [
             stat(
                 stat_proto,
                 42,
-                "Available",
+                "Healthy shards",
                 0,
                 78,
                 6,
-                prom_target(f'min(up{{{clickhouse}}})', datasource=KUBE_PROM, instant=True),
-                description="One means Prometheus can scrape the ZeroCut ClickHouse instance.",
+                prom_target(
+                    f'count(ClickHouseAsyncMetrics_Uptime{{{clickhouse}}})',
+                    datasource=PROM,
+                    instant=True,
+                ),
+                description="Three means every unique production shard is reporting.",
             ),
             stat(
                 stat_proto,
@@ -1471,7 +1513,7 @@ def build_zerocut_delivery() -> None:
                 6,
                 prom_target(
                     f'sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{{{clickhouse}}})',
-                    datasource=KUBE_PROM,
+                    datasource=PROM,
                     instant=True,
                 ),
                 unit="bytes",
@@ -1485,22 +1527,24 @@ def build_zerocut_delivery() -> None:
                 6,
                 prom_target(
                     f'sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{{{clickhouse}}})',
-                    datasource=KUBE_PROM,
+                    datasource=PROM,
                     instant=True,
                 ),
             ),
             stat(
                 stat_proto,
                 45,
-                "Parts",
+                "S3 backup age",
                 18,
                 78,
                 6,
                 prom_target(
-                    f'sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{{{clickhouse}}})',
-                    datasource=KUBE_PROM,
+                    'time() - min(clickhouse_backup_last_create_remote_finish{'
+                    'namespace="personal-projects",clickhouse_altinity_com_replica="0"} > 0)',
+                    datasource=PROM,
                     instant=True,
                 ),
+                unit="s",
             ),
             timeseries(
                 ts_proto,
@@ -1513,13 +1557,13 @@ def build_zerocut_delivery() -> None:
                     prom_target(
                         f'sum(rate(ClickHouseProfileEvents_SelectQuery{{{clickhouse}}}[$__rate_interval]))',
                         "select",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="A",
                     ),
                     prom_target(
                         f'sum(rate(ClickHouseProfileEvents_InsertQuery{{{clickhouse}}}[$__rate_interval]))',
                         "insert",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="B",
                     ),
                 ],
@@ -1536,13 +1580,13 @@ def build_zerocut_delivery() -> None:
                     prom_target(
                         f'1e-6 * sum(rate(ClickHouseProfileEvents_QueryTimeMicroseconds{{{clickhouse}}}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{{{clickhouse}}}[$__rate_interval])), 0.000001)',
                         "average query seconds",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="A",
                     ),
                     prom_target(
                         f'100 * sum(rate(ClickHouseProfileEvents_FailedQuery{{{clickhouse}}}[$__rate_interval])) / clamp_min(sum(rate(ClickHouseProfileEvents_Query{{{clickhouse}}}[$__rate_interval])), 0.000001)',
                         "failed query percent",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="B",
                     ),
                 ],
@@ -1558,19 +1602,19 @@ def build_zerocut_delivery() -> None:
                     prom_target(
                         f'sum(rate(ClickHouseErrorMetric_ALL{{{clickhouse}}}[$__rate_interval]))',
                         "errors / second",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="A",
                     ),
                     prom_target(
                         f'sum(ClickHouseMetrics_Query{{{clickhouse}}})',
                         "queries",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="B",
                     ),
                     prom_target(
                         f'sum(ClickHouseMetrics_Merge{{{clickhouse}}})',
                         "merges",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="C",
                     ),
                 ],
@@ -1579,7 +1623,7 @@ def build_zerocut_delivery() -> None:
             timeseries(
                 ts_proto,
                 49,
-                "Memory and shared SSD headroom",
+                "Memory and NVMe volume use",
                 12,
                 91,
                 12,
@@ -1587,18 +1631,18 @@ def build_zerocut_delivery() -> None:
                     prom_target(
                         f'sum(container_memory_working_set_bytes{{{clickhouse_pod}}})',
                         "container memory",
-                        datasource=KUBE_PROM,
+                        datasource=PROM,
                         ref_id="A",
                     ),
                     prom_target(
-                        f'min(ClickHouseAsyncMetrics_DiskAvailable_default{{{clickhouse}}})',
-                        "shared analytics SSD free",
-                        datasource=KUBE_PROM,
+                        f'sum(kubelet_volume_stats_used_bytes{{{clickhouse_pvc}}})',
+                        "ClickHouse PVC used",
+                        datasource=PROM,
                         ref_id="B",
                     ),
                 ],
                 unit="bytes",
-                description="Disk free is for the shared analytics filesystem; MergeTree data is the instance-specific footprint.",
+                description="The PVCs are node-local thin ZFS volumes; this is written data, not their logical growth ceiling.",
             ),
         ]
     )
@@ -1635,12 +1679,14 @@ def build_clickhouse_dashboard() -> None:
             "title": "ClickHouse Instances",
             "description": (
                 "Health, query workload, MergeTree storage, errors, and Kubernetes resources "
-                "for the ZeroCut and Plausible ClickHouse instances. Disk-free metrics describe "
-                "their shared analytics SSD; MergeTree bytes are instance-specific."
+                "for the ZeroCut and Plausible ClickHouse instances. Select the owning cluster's "
+                "Prometheus receiver before selecting an instance."
             ),
             "links": [],
             "tags": ["clickhouse", "databases", "plausible", "zerocut"],
-            "templating": {"list": [clickhouse_variable()]},
+            "templating": {
+                "list": [clickhouse_datasource_variable(), clickhouse_variable()]
+            },
             "time": {"from": "now-24h", "to": "now"},
             "version": 1,
         }
@@ -1648,8 +1694,13 @@ def build_clickhouse_dashboard() -> None:
 
     instance = 'job=~"${instance:regex}"'
     clickhouse_pods = (
-        'namespace=~"databases|observability",'
-        'pod=~"(${instance:regex})-.*",container="app"'
+        'namespace=~"databases|observability|personal-projects",'
+        'pod=~"(clickhouse|plausible-clickhouse|chi-zerocut)-.*",'
+        'container=~"app|clickhouse"'
+    )
+    clickhouse_pod_names = (
+        'namespace=~"databases|observability|personal-projects",'
+        'pod=~"(clickhouse|plausible-clickhouse|chi-zerocut)-.*"'
     )
     panels: list[dict] = [row(1, "Overview", 0)]
     overview_stats = [
@@ -1659,8 +1710,8 @@ def build_clickhouse_dashboard() -> None:
         (5, "Rows", 'sum(ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{' + instance + '})', "short", None),
         (6, "Parts", 'sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{' + instance + '})', "short", None),
         (7, "Resident memory", 'sum(ClickHouseAsyncMetrics_MemoryResident{' + instance + '})', "bytes", None),
-        (8, "Shared SSD free", 'min(ClickHouseAsyncMetrics_DiskAvailable_default{' + instance + '})', "bytes", "Free space on the shared analytics filesystem, not an instance allocation."),
-        (9, "Restarts · selected range", 'sum(increase(kube_pod_container_status_restarts_total{namespace=~"databases|observability",pod=~"(${instance:regex})-.*",container="app"}[$__range]))', "short", None),
+        (8, "Minimum local disk free", 'min(ClickHouseAsyncMetrics_DiskAvailable_default{' + instance + '})', "bytes", "Minimum free space reported by a selected ClickHouse server."),
+        (9, "Restarts · selected range", 'sum(increase(kube_pod_container_status_restarts_total{namespace=~"databases|observability|personal-projects",pod=~"(clickhouse|plausible-clickhouse|chi-zerocut)-.*",container=~"app|clickhouse"}[$__range]))', "short", None),
     ]
     for offset, (panel_id, title, expr, unit, description) in enumerate(overview_stats):
         panels.append(
@@ -1779,11 +1830,112 @@ def build_clickhouse_dashboard() -> None:
         [
             timeseries(ts_proto, 41, "Container memory", 0, 74, 12, [prom_target(f'sum by (namespace, pod) (container_memory_working_set_bytes{{{clickhouse_pods}}})', "{{namespace}} / {{pod}}", datasource=KUBE_PROM)], unit="bytes"),
             timeseries(ts_proto, 42, "Container CPU", 12, 74, 12, [prom_target(f'sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{{{clickhouse_pods}}}[$__rate_interval]))', "{{namespace}} / {{pod}}", datasource=KUBE_PROM)], unit="cores"),
-            timeseries(ts_proto, 43, "Container network", 0, 82, 12, [prom_target('sum by (namespace, pod) (rate(container_network_receive_bytes_total{namespace=~"databases|observability",pod=~"(${instance:regex})-.*"}[$__rate_interval]))', "receive · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="A"), prom_target('sum by (namespace, pod) (rate(container_network_transmit_bytes_total{namespace=~"databases|observability",pod=~"(${instance:regex})-.*"}[$__rate_interval]))', "transmit · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="B")], unit="Bps"),
+            timeseries(ts_proto, 43, "Container network", 0, 82, 12, [prom_target(f'sum by (namespace, pod) (rate(container_network_receive_bytes_total{{{clickhouse_pod_names}}}[$__rate_interval]))', "receive · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (namespace, pod) (rate(container_network_transmit_bytes_total{{{clickhouse_pod_names}}}[$__rate_interval]))', "transmit · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="B")], unit="Bps"),
             timeseries(ts_proto, 44, "Container filesystem I/O", 12, 82, 12, [prom_target(f'sum by (namespace, pod) (rate(container_fs_reads_bytes_total{{{clickhouse_pods}}}[$__rate_interval]))', "read · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="A"), prom_target(f'sum by (namespace, pod) (rate(container_fs_writes_bytes_total{{{clickhouse_pods}}}[$__rate_interval]))', "write · {{namespace}} / {{pod}}", datasource=KUBE_PROM, ref_id="B")], unit="Bps"),
         ]
     )
 
+    panels.append(row(50, "S3 backups and node-local storage", 90))
+    panels.extend(
+        [
+            stat(
+                stat_proto,
+                51,
+                "Oldest shard backup",
+                0,
+                91,
+                6,
+                prom_target(
+                    'time() - min(clickhouse_backup_last_create_remote_finish{namespace="personal-projects",clickhouse_altinity_com_replica="0"} > 0)',
+                    datasource=CLICKHOUSE_PROM,
+                    instant=True,
+                ),
+                unit="s",
+            ),
+            stat(
+                stat_proto,
+                52,
+                "Remote backup inventory",
+                6,
+                91,
+                6,
+                prom_target(
+                    'sum(clickhouse_backup_number_backups_remote{namespace="personal-projects",clickhouse_altinity_com_replica="0"})',
+                    datasource=CLICKHOUSE_PROM,
+                    instant=True,
+                ),
+            ),
+            stat(
+                stat_proto,
+                53,
+                "Production shards",
+                12,
+                91,
+                6,
+                prom_target(
+                    'count(ClickHouseAsyncMetrics_Uptime{namespace="personal-projects",job="zerocut-clickhouse"})',
+                    datasource=CLICKHOUSE_PROM,
+                    instant=True,
+                ),
+                description="The single-copy production target is exactly three unique shards.",
+            ),
+            stat(
+                stat_proto,
+                54,
+                "Highest PVC utilization",
+                18,
+                91,
+                6,
+                prom_target(
+                    '100 * max(kubelet_volume_stats_used_bytes{namespace="personal-projects",persistentvolumeclaim=~"clickhouse-data-chi-zerocut-.*"} / kubelet_volume_stats_capacity_bytes{namespace="personal-projects",persistentvolumeclaim=~"clickhouse-data-chi-zerocut-.*"})',
+                    datasource=CLICKHOUSE_PROM,
+                    instant=True,
+                ),
+                unit="percent",
+            ),
+            timeseries(
+                ts_proto,
+                55,
+                "Backup age by shard",
+                0,
+                96,
+                12,
+                [
+                    prom_target(
+                        'time() - max by (clickhouse_altinity_com_shard) (clickhouse_backup_last_create_remote_finish{namespace="personal-projects",clickhouse_altinity_com_replica="0"} > 0)',
+                        "{{clickhouse_altinity_com_shard}}",
+                        datasource=CLICKHOUSE_PROM,
+                    )
+                ],
+                unit="s",
+            ),
+            timeseries(
+                ts_proto,
+                56,
+                "ClickHouse PVC use",
+                12,
+                96,
+                12,
+                [
+                    prom_target(
+                        'kubelet_volume_stats_used_bytes{namespace="personal-projects",persistentvolumeclaim=~"clickhouse-data-chi-zerocut-.*"}',
+                        "used · {{persistentvolumeclaim}}",
+                        datasource=CLICKHOUSE_PROM,
+                        ref_id="A",
+                    ),
+                    prom_target(
+                        'kubelet_volume_stats_capacity_bytes{namespace="personal-projects",persistentvolumeclaim=~"clickhouse-data-chi-zerocut-.*"}',
+                        "ceiling · {{persistentvolumeclaim}}",
+                        datasource=CLICKHOUSE_PROM,
+                        ref_id="B",
+                    ),
+                ],
+                unit="bytes",
+            ),
+        ]
+    )
+
+    replace_prometheus_datasource(panels, CLICKHOUSE_PROM)
     dashboard["panels"] = panels
     save("clickhouse-instances.json", dashboard)
 
