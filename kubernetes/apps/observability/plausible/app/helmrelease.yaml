@@ -56,6 +56,9 @@ spec:
                 memory: 128Mi
             securityContext:
               allowPrivilegeEscalation: false
+              runAsUser: 26
+              runAsGroup: 26
+              runAsNonRoot: true
               readOnlyRootFilesystem: true
               capabilities: {drop: ["ALL"]}
         containers:
