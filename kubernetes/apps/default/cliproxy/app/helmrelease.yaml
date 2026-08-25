@@ -237,7 +237,7 @@ spec:
       open-api:
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: "external.davidapps.dev"
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "false"
           nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
           gatus.home-operations.com/endpoint: |-
@@ -271,7 +271,7 @@ spec:
       management:
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: "external.davidapps.dev"
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           nginx.ingress.kubernetes.io/auth-url: "http://davidapps-gate.auth.svc.cluster.local:8080/gate/check"
           nginx.ingress.kubernetes.io/auth-signin: "https://$host/_da/gate/start"
           nginx.ingress.kubernetes.io/auth-signin-redirect-param: rd

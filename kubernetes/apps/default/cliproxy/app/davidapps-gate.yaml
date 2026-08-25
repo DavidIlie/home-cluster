@@ -28,7 +28,7 @@ kind: Ingress
 metadata:
   name: cliproxy-gate-start
   annotations:
-    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
     nginx.ingress.kubernetes.io/proxy-body-size: 4k
     nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
@@ -59,7 +59,7 @@ kind: Ingress
 metadata:
   name: cliproxy-gate-callback
   annotations:
-    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
     nginx.ingress.kubernetes.io/proxy-body-size: 4k
     nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
@@ -90,7 +90,7 @@ kind: Ingress
 metadata:
   name: cliproxy-gate-password
   annotations:
-    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
     nginx.ingress.kubernetes.io/proxy-body-size: 4k
     nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
@@ -121,7 +121,7 @@ kind: Ingress
 metadata:
   name: cliproxy-gate-redeem
   annotations:
-    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
     nginx.ingress.kubernetes.io/proxy-body-size: 4k
     nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
@@ -152,7 +152,7 @@ kind: Ingress
 metadata:
   name: cliproxy-gate-bypass
   annotations:
-    external-dns.alpha.kubernetes.io/target: external.davidapps.dev
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
     nginx.ingress.kubernetes.io/proxy-body-size: 4k
     nginx.ingress.kubernetes.io/client-body-buffer-size: 4k
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
