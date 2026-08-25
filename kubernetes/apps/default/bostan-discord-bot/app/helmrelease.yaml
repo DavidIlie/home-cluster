@@ -34,7 +34,7 @@ spec:
           app:
             image:
               repository: ghcr.io/bostanenterprise/bostan-discord-bot # {"$imagepolicy": "flux-system:bostan-discord-bot:name"}
-              tag: main-aea4d1b1-1787523397 # {"$imagepolicy": "flux-system:bostan-discord-bot:tag"}
+              tag: main-9f0877bd-1787656181 # {"$imagepolicy": "flux-system:bostan-discord-bot:tag"}
             env:
               NODE_ENV: production
               TZ: Europe/Bucharest
