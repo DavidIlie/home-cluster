@@ -93,11 +93,35 @@ spec:
         # Required so the owner->GrafanaAdmin branch can actually assign server
         # admin. Non-owners are demoted out of GrafanaAdmin on next login.
         allow_assign_grafana_admin: true
-        # Per-project folder access is layered on top of this org-wide role via
-        # Grafana teams + folder permissions, driven by DavidApps groups. Team
-        # membership is reconciled by the grafana-project-access agent recipe
-        # today; a future `groups` claim + groups_attribute_path would make it
-        # declarative (spec handed to davidapps-auth, not enabled here yet).
+        # DavidApps emits a `groups` claim: a string array of opaque group ids
+        # (`group_...`) for the groups this user belongs to that hold an ALLOW
+        # grant on THIS app. Deny-excluded, capped at 100, and omitted entirely
+        # when empty.
+        #
+        # Read this carefully before assuming team membership is declarative:
+        # this instance is Grafana OSS (docker.io/grafana/grafana, no license).
+        # Grafana's group -> team membership sync ("Team Sync") is Enterprise /
+        # Cloud only. On OSS `groups_attribute_path` parses the claim and feeds
+        # `allowed_groups` login gating -- it does NOT create or populate teams.
+        # Project folder access therefore still needs the actuator in
+        # docs/runbooks/grafana-project-access.md.
+        #
+        # It is set anyway because it is inert-but-correct on OSS, and it is the
+        # exact prerequisite that makes team membership declarative the moment a
+        # license exists: Team Sync matches the claim value against each team's
+        # registered EXTERNAL GROUP ID (POST /api/teams/:id/groups {"groupId"}),
+        # not against the team name -- so opaque group ids work as-is and teams
+        # keep human-readable names. No renaming required.
+        groups_attribute_path: groups
+        # Deliberately NOT set: allowed_groups. It would harden login to
+        # claim-carrying group members only, but the claim is OMITTED when a
+        # user is in no granted group, and Grafana denies login when
+        # allowed_groups is set and no group matches -- so enabling it locks out
+        # every directly-granted (non-group) user, including break-glass admins
+        # who sign in through DavidApps. Only enable it once every human reaching
+        # Grafana is in a granted DavidApps group, and verify with a real login
+        # before committing.
+        # allowed_groups: ""
       feature_toggles:
         # Keep the SQL Expressions execution surface off even on patched
         # versions; this instance does not use it.

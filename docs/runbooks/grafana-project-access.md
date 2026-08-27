@@ -18,7 +18,8 @@ DavidApps groups — on top of that.
 | Layer | Question it answers | Where it is decided | How it is applied |
 | --- | --- | --- | --- |
 | Org role | Can you sign in, and are you Viewer / Editor / Admin org-wide? | DavidApps grant + `role_attribute_path` in `grafana` HelmRelease | Automatically on every SSO login |
-| Folder RBAC | What can you do inside a specific project folder? | DavidApps group grant (this runbook) | Imperatively via Grafana HTTP API + this runbook |
+| Folder RBAC | What can you do inside a specific project folder? | DavidApps group grant (this runbook) | Grafana folder permission granted to a Grafana team |
+| Team membership | Which project teams are you in? | DavidApps `groups` claim | Declaratively on login **only on Grafana Enterprise**; imperative reconcile on OSS (Step 4) |
 
 Layer 1 already ships in
 `kubernetes/apps/observability/grafana/app/helmrelease.yaml`. The claim shape
@@ -27,6 +28,8 @@ comes from `apps/web/src/server/platform-idp/oidc-claims.ts` in
 
 - `o.rol` — org role: `owner | admin | member`
 - `app_role` — app role: `visitor | member | reader | writer | admin`
+- `groups` — string array of opaque DavidApps group ids (`group_...`) holding an
+  ALLOW grant on this app; deny-excluded, capped at 100, omitted when empty
 
 The mapping (JMESPath) is:
 
@@ -51,9 +54,60 @@ which defeats project isolation.
   permissions are Grafana-native objects the agent actuates.
 - **DavidApps groups are the unit of project access.** One DavidApps group maps
   to one Grafana team; the team gets a permission level on the project folder.
-- Grafana **team membership** is the one piece that is not yet declarative (see
-  Gaps). Until a `groups` claim exists, this runbook reconciles membership
-  imperatively.
+- Grafana **team membership** is declarative only on Grafana Enterprise. See
+  "Team membership: what is actually declarative" below before assuming the
+  `groups` claim populates teams here.
+
+## Team membership: what is actually declarative
+
+DavidApps emits a `groups` claim (a string array of opaque `group_...` ids for
+the groups the user belongs to **that hold an ALLOW grant on this app**;
+deny-excluded, capped at 100, omitted when empty). The HelmRelease consumes it
+with `groups_attribute_path: groups`.
+
+That claim alone does **not** create Grafana team membership on this instance:
+
+- This instance runs `docker.io/grafana/grafana:12.3.10` — Grafana **OSS**, with
+  no license secret in `observability`.
+- Grafana's group → team membership feature is **Team Sync**, which is
+  "available in Grafana Enterprise and Grafana Cloud." On OSS,
+  `groups_attribute_path` only parses the claim and feeds `allowed_groups`
+  login gating. It creates and populates nothing.
+- The `team_ids` / `teams_url` / `team_ids_attribute_path` trio is a common
+  wrong turn: it is a **login gate** ("user must be a member of one of these
+  teams to log in"), not an assignment mechanism. It will not put anyone in a
+  team.
+
+So on this cluster today, Step 4's imperative reconcile is still required.
+
+### Team names vs group ids (decision)
+
+Team Sync matches a claim value against each team's registered **external group
+id**, not against the team name:
+
+```
+GET    /api/teams/:teamId/groups
+POST   /api/teams/:teamId/groups        {"groupId": "group_..."}
+DELETE /api/teams/:teamId/groups?groupId=group_...
+```
+
+(UI equivalent: team → **External group sync** → **Add group**. Matching is case
+insensitive.)
+
+**Decision: do not rename Grafana teams to DavidApps group ids.** Teams keep
+human-readable names (`Bostan Enterprise Employees`); the opaque `group_...` id
+is registered as the team's external group id. This is the cleanest path — it
+works with opaque ids as-is, keeps the UI readable, and needs no mapping table.
+
+Consequence: the day a Grafana Enterprise license exists, project access becomes
+fully declarative with **one** API call per team (Step 4A) and Step 4B's
+reconcile loop is deleted. Nothing else in this runbook changes.
+
+`allowed_groups` is deliberately left unset in the HelmRelease. It looks like
+free hardening but the claim is **omitted when empty**, and Grafana denies login
+when `allowed_groups` is set and nothing matches — enabling it locks out every
+user granted directly rather than through a group. Only turn it on once every
+human reaching Grafana is in a granted group, and test a real login first.
 
 ## Prerequisites
 
@@ -169,26 +223,79 @@ curl -s "${AUTH[@]}" -H 'Content-Type: application/json' \
 For a second folder at a different level (e.g. read-only on Ops), repeat 3a/3c
 with that folder's uid and `permission:1`, reusing the same `$TID`.
 
-### Step 4 — Reconcile team membership
+### Step 4 — Team membership
 
-A DavidApps person becomes a Grafana user only after their first SSO login.
-For each member email, look up the OAuth-provisioned Grafana user and add it to
-the team; users who have not logged in yet are skipped and picked up on a later
-reconcile (or their first login, once the `groups` claim lands — see Gaps).
+Pick **4A** if this Grafana has an Enterprise/Cloud license, otherwise **4B**.
+Check with `GET /api/licensing/check` or just try 4A: on OSS the external group
+sync endpoint is not served.
+
+#### Step 4A — Declarative (Grafana Enterprise): bind the team to the group
+
+One call per team, then Grafana syncs membership on every login forever. Register
+the DavidApps group id (`$GID`, the opaque `group_...` value that appears in the
+`groups` claim) as the team's external group id:
 
 ```sh
+curl -s "${AUTH[@]}" -H 'Content-Type: application/json' \
+  -X POST "$B/api/teams/$TID/groups" -d "{\"groupId\":\"$GID\"}"
+# {"message":"Group added to Team"}   (400 = already bound, which is fine)
+
+curl -s "${AUTH[@]}" "$B/api/teams/$TID/groups"   # verify the binding
+```
+
+Then stop. Do not run 4B: Grafana adds and **removes** synced members on login
+by itself, and a manual add creates a member it will never prune.
+
+Revoking the DavidApps grant (or removing the person from the group) drops the
+group from their next token, and Grafana removes them from the team on their next
+login. Nothing to clean up in Grafana.
+
+#### Step 4B — Imperative reconcile (Grafana OSS: the path in use today)
+
+A DavidApps person becomes a Grafana user only after their first SSO login. For
+each member email, look up the OAuth-provisioned Grafana user and add it to the
+team; users who have not logged in yet are skipped and picked up on a later
+reconcile.
+
+This loop must also **prune**, or someone removed from the DavidApps group keeps
+folder access forever — the failure mode that matters most here, because Layer 1
+revocation does not touch team membership.
+
+```sh
+# desired: Grafana user ids for current DavidApps group members who have logged in
+WANT=""
 for EMAIL in $(P "SELECT u.email FROM team_member tm JOIN \"user\" u ON u.id=tm.user_id WHERE tm.team_id='$GID';"); do
-  UID=$(curl -s "${AUTH[@]}" "$B/api/users/lookup?loginOrEmail=$EMAIL" \
+  GUID=$(curl -s "${AUTH[@]}" "$B/api/users/lookup?loginOrEmail=$EMAIL" \
     | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d.get("id") or "")')
-  [ -n "$UID" ] && curl -s "${AUTH[@]}" -H 'Content-Type: application/json' \
-    -X POST "$B/api/teams/$TID/members" -d "{\"userId\":$UID}" >/dev/null \
-    && echo "added $EMAIL" || echo "pending first login: $EMAIL"
+  if [ -n "$GUID" ]; then
+    WANT="$WANT $GUID"
+    curl -s "${AUTH[@]}" -H 'Content-Type: application/json' \
+      -X POST "$B/api/teams/$TID/members" -d "{\"userId\":$GUID}" >/dev/null \
+      && echo "in team: $EMAIL ($GUID)"
+  else
+    echo "pending first login: $EMAIL"
+  fi
+done
+
+# prune: anyone in the Grafana team who is no longer a DavidApps group member
+for HAVE in $(curl -s "${AUTH[@]}" "$B/api/teams/$TID/members" \
+  | python3 -c 'import sys,json;[print(m["userId"]) for m in json.load(sys.stdin)]'); do
+  case " $WANT " in
+    *" $HAVE "*) ;;
+    *) [ "$HAVE" != "1" ] \
+         && curl -s "${AUTH[@]}" -X DELETE "$B/api/teams/$TID/members/$HAVE" >/dev/null \
+         && echo "pruned user id $HAVE" ;;
+  esac
 done
 ```
 
-Only ever add OAuth-provisioned accounts to a project team. Do not add the
-local `admin`/`david` recovery account; Grafana auto-adds the team creator, so
-remove user id `1` if it appears (`DELETE /api/teams/$TID/members/1`).
+Only ever add OAuth-provisioned accounts to a project team. Do not add the local
+`admin`/`david` recovery account; Grafana auto-adds the team creator, so remove
+user id `1` if it appears (`DELETE /api/teams/$TID/members/1`). The prune loop
+skips id `1` rather than fighting that.
+
+Because this is a point-in-time reconcile, re-run it after any DavidApps group
+change. There is no controller doing it on a schedule (see Gaps).
 
 ## Verify
 
@@ -197,7 +304,23 @@ remove user id `1` if it appears (`DELETE /api/teams/$TID/members/1`).
 curl -s "${AUTH[@]}" "$B/api/folders/bostan-analytics/permissions"
 # team membership reflects logged-in group members
 curl -s "${AUTH[@]}" "$B/api/teams/$TID/members"
+# Enterprise only: the team is bound to the DavidApps group id
+curl -s "${AUTH[@]}" "$B/api/teams/$TID/groups"
 ```
+
+Confirm the claim itself is reaching Grafana. The claim is only live once
+davidapps-auth has released it:
+
+```sh
+curl -s https://id.davidapps.dev/.well-known/openid-configuration \
+  | python3 -c 'import sys,json;c=json.load(sys.stdin)["claims_supported"];print("groups" in c, c)'
+```
+
+If that prints `False`, `groups_attribute_path` is parsing a claim that is not
+being sent yet — harmless, but Step 4A cannot work regardless of licensing.
+Grafana logs the parsed groups at debug level
+(`kubectl logs -n observability deploy/grafana | grep -i group`), which is the
+quickest end-to-end proof once a real login has happened.
 
 A correct end state:
 
@@ -227,20 +350,22 @@ mint.
 
 ## Gaps / upgrade path
 
-1. **Team membership is not declarative.** Grafana teams are populated only by
-   this reconcile loop, and only for users who have already logged in. The clean
-   fix is a bounded `groups` claim in DavidApps + `groups_attribute_path` in the
-   Grafana HelmRelease, which makes Grafana create/sync team membership on every
-   login. A precise spec for that DavidApps change is proposed separately (file
-   `apps/web/src/server/platform-idp/oidc-claims.ts`); it is **not** enabled
-   here yet. When it lands, add to the HelmRelease under `auth.generic_oauth`:
+1. **Team membership is not declarative on OSS, and the blocker is licensing —
+   not the claim.** The `groups` claim and `groups_attribute_path` are both in
+   place; Grafana OSS simply does not implement group → team sync (Team Sync is
+   Enterprise/Cloud). The options, honestly ranked:
 
-   ```yaml
-   groups_attribute_path: groups   # array of DavidApps group ids
-   team_ids_attribute_path: ...    # optional, if mapping ids directly
-   ```
+   - **Buy/enable a Grafana Enterprise license.** Then Step 4A is one call per
+     team and Step 4B disappears. Highest leverage, costs money.
+   - **Write a reconcile controller** (CronJob) that does Step 4B on a schedule.
+     Removes the "someone forgot to re-run it" gap but not the imperative
+     nature. Blocked on cross-cluster access: the identity Postgres lives on
+     davidapps-cluster and Grafana on home-cluster, so this needs either an MCP
+     group-member listing or a network path that does not exist today.
+   - **Third-party `grafana-oss-team-sync`.** Entra-ID-only sources today and it
+     asserts itself as sole owner of team membership. Not a fit.
 
-   and drop Step 4's reconcile loop.
+   Until then, Step 4B must be re-run after every DavidApps group change.
 
 2. **`enabledModules` does not reach Grafana.** It is intent + audit only. The
    actuator (this runbook) is the bridge. If the token later carried folder
