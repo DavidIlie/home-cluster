@@ -78,7 +78,26 @@ spec:
         login_attribute_path: sub
         name_attribute_path: name
         email_attribute_path: email
-        skip_org_role_sync: true
+        # DavidApps is the identity authority for the org-wide Grafana role.
+        # Sync it from the token on every login instead of pinning Viewer.
+        skip_org_role_sync: false
+        # JMESPath over DavidApps claims (see apps/web/.../oidc-claims.ts):
+        #   o.rol   = org role  (owner|admin|member)
+        #   app_role= app role  (visitor|member|reader|writer|admin)
+        # Mapping: org owner -> Grafana server admin; app admin -> Admin;
+        # reader/writer -> Editor; everything else -> Viewer. Always returns a
+        # role, so login never fails on an unmapped value.
+        role_attribute_path: >-
+          o.rol == 'owner' && 'GrafanaAdmin' || app_role == 'admin' && 'Admin'
+          || contains(['writer','reader'], app_role) && 'Editor' || 'Viewer'
+        # Required so the owner->GrafanaAdmin branch can actually assign server
+        # admin. Non-owners are demoted out of GrafanaAdmin on next login.
+        allow_assign_grafana_admin: true
+        # Per-project folder access is layered on top of this org-wide role via
+        # Grafana teams + folder permissions, driven by DavidApps groups. Team
+        # membership is reconciled by the grafana-project-access agent recipe
+        # today; a future `groups` claim + groups_attribute_path would make it
+        # declarative (spec handed to davidapps-auth, not enabled here yet).
       feature_toggles:
         # Keep the SQL Expressions execution surface off even on patched
         # versions; this instance does not use it.
