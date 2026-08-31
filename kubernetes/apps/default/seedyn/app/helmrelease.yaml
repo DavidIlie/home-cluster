@@ -43,7 +43,7 @@ spec:
           migrate:
             image: &image
               repository: ghcr.io/davidilie/seedyn # {"$imagepolicy": "flux-system:seedyn:name"}
-              tag: master-7aaaedda-1788172792 # {"$imagepolicy": "flux-system:seedyn:tag"}
+              tag: master-50974712-1788174439 # {"$imagepolicy": "flux-system:seedyn:tag"}
             command:
               - node
               - node_modules/prisma/build/index.js
