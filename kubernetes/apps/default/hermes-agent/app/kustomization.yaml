@@ -6,6 +6,7 @@ resources:
   - ./claim.yaml
   - ./configmap.yaml
   - ./deployment.yaml
+  - ./invoice-profile.sops.yaml
   - ./service.yaml
   - ./networkpolicy.yaml
 components:
@@ -17,6 +18,9 @@ configMapGenerator:
       - david-work-audit-protocol.md=skills/david-work-audit/references/audit-protocol.md
       - david-contract-writing-SKILL.md=skills/david-contract-writing/SKILL.md
       - david-contract-writing-method.md=skills/david-contract-writing/references/contract-method.md
+      - david-invoice-writing-SKILL.md=skills/david-invoice-writing/SKILL.md
+      - david-invoice-writing-method.md=skills/david-invoice-writing/references/invoice-method.md
+      - david-invoice-engine.py=skills/david-invoice-writing/scripts/invoice_engine.py
       - media-library-SKILL.md=skills/media-library/SKILL.md
   - name: hermes-agent-work-context
     files:

@@ -358,6 +358,9 @@ spec:
             - name: managed-skills
               mountPath: /etc/hermes-skills
               readOnly: true
+            - name: invoice-profile
+              mountPath: /etc/hermes-invoice-private
+              readOnly: true
             - name: seedyn-skills
               mountPath: /etc/hermes-seedyn-skills
               readOnly: true
@@ -394,8 +397,18 @@ spec:
                 path: david-contract-writing/SKILL.md
               - key: david-contract-writing-method.md
                 path: david-contract-writing/references/contract-method.md
+              - key: david-invoice-writing-SKILL.md
+                path: david-invoice-writing/SKILL.md
+              - key: david-invoice-writing-method.md
+                path: david-invoice-writing/references/invoice-method.md
+              - key: david-invoice-engine.py
+                path: david-invoice-writing/scripts/invoice_engine.py
               - key: media-library-SKILL.md
                 path: media-library/SKILL.md
+        - name: invoice-profile
+          secret:
+            secretName: hermes-invoice-profile
+            defaultMode: 0440
         - name: work-context
           configMap:
             name: hermes-agent-work-context

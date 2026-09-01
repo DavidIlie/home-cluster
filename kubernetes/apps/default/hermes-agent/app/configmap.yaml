@@ -538,8 +538,11 @@ data:
 
     `/opt/data/workspace/AGENTS.md` contains David's managed working context. Its
     project map is routing information, not proof of current state. The managed
-    external skills under `/etc/hermes-skills` define David's media, contract, and
-    audit workflows; use them when their descriptions match the request.
+    external skills under `/etc/hermes-skills` define David's media, contract,
+    invoice, and audit workflows; use them when their descriptions match the
+    request. Invoice generation is owner-only: use its private profile and durable
+    ledger, verify the PDF, then follow the Seedyn delivery skill. Never expose its
+    issuer, bank, client, ledger, or invoice files to a friends profile.
 
     Treat learning as four separate layers:
 
