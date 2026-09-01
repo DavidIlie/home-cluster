@@ -62,6 +62,32 @@ spec:
               mountPath: /opt/xurl
             - name: tmp
               mountPath: /tmp
+        - name: prepare-invoice-state
+          image: docker.io/library/alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              mkdir -p /opt/data/workspace/invoices
+              chown -R 10000:10000 /opt/data/workspace/invoices
+              find /opt/data/workspace/invoices -type d -exec chmod 2770 '{}' +
+              find /opt/data/workspace/invoices -type f -exec chmod 0660 '{}' +
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN", "DAC_OVERRIDE", "FOWNER"]
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              memory: 32Mi
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
         - name: seed-identity
           image: docker.io/library/alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
           command: ["/bin/sh", "-ec"]

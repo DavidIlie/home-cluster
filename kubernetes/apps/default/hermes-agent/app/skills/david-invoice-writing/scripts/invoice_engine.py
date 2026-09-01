@@ -18,6 +18,7 @@ import os
 import re
 import signal
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -35,6 +36,8 @@ PERIOD = re.compile(r"^(\d{4})-(0[1-9]|1[0-2])$")
 SAFE_KEY = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 SAFE_ITEM_KEY = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 MAX_ITEMS = 12
+PRIVATE_DIRECTORY_MODE = 0o2770
+PRIVATE_FILE_MODE = 0o660
 
 
 class InvoiceError(RuntimeError):
@@ -42,6 +45,29 @@ class InvoiceError(RuntimeError):
         super().__init__(message)
         self.code = code
         self.details = details
+
+
+def _ensure_mode(path: Path, mode: int) -> None:
+    if stat.S_IMODE(path.stat().st_mode) == mode:
+        return
+    try:
+        os.chmod(path, mode)
+    except PermissionError as error:
+        raise InvoiceError(
+            "state_permissions",
+            f"invoice state permissions could not be normalized: {path}",
+        ) from error
+
+
+def _prepare_private_directory(path: Path) -> None:
+    try:
+        path.mkdir(parents=True, exist_ok=True, mode=PRIVATE_DIRECTORY_MODE)
+        _ensure_mode(path, PRIVATE_DIRECTORY_MODE)
+    except PermissionError as error:
+        raise InvoiceError(
+            "state_permissions",
+            f"invoice state directory is not accessible: {path}",
+        ) from error
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -99,7 +125,7 @@ def _currency(value: Decimal, code: str) -> str:
 
 
 def _atomic_json(path: Path, value: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    _prepare_private_directory(path.parent)
     fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
@@ -107,7 +133,7 @@ def _atomic_json(path: Path, value: dict[str, Any]) -> None:
             handle.write("\n")
             handle.flush()
             os.fsync(handle.fileno())
-        os.chmod(temporary, 0o600)
+        os.chmod(temporary, PRIVATE_FILE_MODE)
         os.replace(temporary, path)
         directory_fd = os.open(path.parent, os.O_RDONLY)
         try:
@@ -642,8 +668,7 @@ def _pdf_page_count(path: Path) -> int:
 
 def _render(invoice: dict[str, Any], profile: dict[str, Any], state_dir: Path, browser: Path) -> dict[str, Any]:
     client_dir = state_dir / invoice["client_key"]
-    client_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
-    os.chmod(client_dir, 0o700)
+    _prepare_private_directory(client_dir)
     stem = f"{invoice['client'].get('file_stem', invoice['client_key'].title())}_Invoice_{invoice['invoice_number']}"
     if not re.fullmatch(r"[A-Za-z0-9_-]{1,160}", stem):
         raise InvoiceError("invalid_filename", "client file_stem produced an unsafe filename")
@@ -696,9 +721,9 @@ def _render(invoice: dict[str, Any], profile: dict[str, Any], state_dir: Path, b
             ("preview_path", preview_path),
             ("manifest_path", manifest_path),
         ):
-            os.chmod(source, 0o600)
+            os.chmod(source, PRIVATE_FILE_MODE)
             os.replace(source, final[key])
-            os.chmod(final[key], 0o600)
+            os.chmod(final[key], PRIVATE_FILE_MODE)
     return {**{key: str(value) for key, value in final.items()}, **manifest}
 
 
@@ -725,7 +750,7 @@ def _safe_record(record: dict[str, Any]) -> dict[str, Any]:
 def status(profile_path: Path, state_dir: Path) -> dict[str, Any]:
     profile = _load_json(profile_path)
     _validate_profile(profile)
-    state_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    _prepare_private_directory(state_dir)
     ledger = _load_ledger(state_dir / "ledger.json", profile)
     by_year: dict[str, int] = {}
     for record in ledger["invoices"]:
@@ -749,11 +774,10 @@ def create(profile_path: Path, state_dir: Path, request_path: Path, browser_path
     profile = _load_json(profile_path)
     _validate_profile(profile)
     request = _load_json(request_path)
-    state_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
-    os.chmod(state_dir, 0o700)
+    _prepare_private_directory(state_dir)
     lock_path = state_dir / ".ledger.lock"
-    lock_path.touch(mode=0o600, exist_ok=True)
-    os.chmod(lock_path, 0o600)
+    lock_path.touch(mode=PRIVATE_FILE_MODE, exist_ok=True)
+    _ensure_mode(lock_path, PRIVATE_FILE_MODE)
     with lock_path.open("r+") as lock:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
         ledger_path = state_dir / "ledger.json"

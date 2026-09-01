@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -183,6 +184,23 @@ class InvoiceEngineTests(unittest.TestCase):
         serialized = json.dumps(output)
         self.assertNotIn("RO00 EXAMPLE", serialized)
         self.assertNotIn("Example Bank", serialized)
+
+    def test_state_directory_remains_shared_with_the_hermes_group(self) -> None:
+        profile_path = self.root / "profile.json"
+        state_dir = self.root / "state"
+        profile_path.write_text(json.dumps(self.profile), encoding="utf-8")
+
+        invoice_engine.status(profile_path, state_dir)
+
+        self.assertEqual(stat.S_IMODE(state_dir.stat().st_mode), 0o2770)
+
+    def test_atomic_ledger_remains_shared_with_the_hermes_group(self) -> None:
+        ledger_path = self.root / "state" / "ledger.json"
+
+        invoice_engine._atomic_json(ledger_path, self.ledger)
+
+        self.assertEqual(stat.S_IMODE(ledger_path.parent.stat().st_mode), 0o2770)
+        self.assertEqual(stat.S_IMODE(ledger_path.stat().st_mode), 0o660)
 
 
 if __name__ == "__main__":
