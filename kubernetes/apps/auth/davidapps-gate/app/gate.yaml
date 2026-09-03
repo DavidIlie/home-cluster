@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: gate
-          image: ghcr.io/davidilie/davidapps-auth-gate:release-33738823261@sha256:5073bfc3257035a6f962a3b861bce514d2e3b7cb86d8705e08376583f8d0944f # {"$imagepolicy": "flux-system:davidapps-auth-gate"}
+          image: ghcr.io/davidilie/davidapps-auth-gate:release-33759018933@sha256:4c3a139649e2431b900c099d4246d2cd1c59902bbd14dd283a0b8308497d4f21 # {"$imagepolicy": "flux-system:davidapps-auth-gate"}
           imagePullPolicy: IfNotPresent
           env:
             - name: DATABASE_URL
