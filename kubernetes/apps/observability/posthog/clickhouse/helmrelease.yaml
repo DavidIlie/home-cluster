@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: clickhouse/clickhouse-server
-              tag: 26.3.17.110-alpine@sha256:7811a0640cdf23b5e7249a49d477ec1e3adfe41d29fdd46713bd0574564d8d81
+              tag: 26.8.2.7-alpine@sha256:8f1dd1ec7213410276c8e9aee11b25b458fe9d53eee13ad8cfdf7c79e36aad17
               pullPolicy: IfNotPresent
             env:
               KAFKA_HOSTS: posthog-redpanda.observability.svc.cluster.local:9092
