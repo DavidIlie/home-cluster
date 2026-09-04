@@ -69,7 +69,7 @@ spec:
             - name: GATE_ED25519_KEY_ID
               value: gate-home-v1
             - name: HANDOFF_JWKS_URL
-              value: https://id.davidapps.dev/api/auth/jwks
+              value: https://id.davidapps.dev/api/auth/handoff-jwks
             - name: REVOCATION_GATE_ID
               value: gate-home
             - name: REVOCATION_POLL_URL
