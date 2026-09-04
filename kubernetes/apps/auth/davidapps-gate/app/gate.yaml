@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: gate
-          image: ghcr.io/davidilie/davidapps-auth-gate:release-33738823261@sha256:5073bfc3257035a6f962a3b861bce514d2e3b7cb86d8705e08376583f8d0944f # {"$imagepolicy": "flux-system:davidapps-auth-gate"}
+          image: ghcr.io/davidilie/davidapps-auth-gate:release-33870977814@sha256:5bc4c5e20c0e7362109b073612275a0fff4661365e45c103a6d50493d40672d6 # {"$imagepolicy": "flux-system:davidapps-auth-gate"}
           imagePullPolicy: IfNotPresent
           env:
             - name: DATABASE_URL
@@ -69,7 +69,7 @@ spec:
             - name: GATE_ED25519_KEY_ID
               value: gate-home-v1
             - name: HANDOFF_JWKS_URL
-              value: https://id.davidapps.dev/api/auth/jwks
+              value: https://id.davidapps.dev/api/auth/handoff-jwks
             - name: REVOCATION_GATE_ID
               value: gate-home
             - name: REVOCATION_POLL_URL
