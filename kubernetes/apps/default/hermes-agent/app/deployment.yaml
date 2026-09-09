@@ -38,11 +38,13 @@ spec:
               mkdir -p /opt/xurl/libexec
               tar -xzf "$${archive}" -C /opt/xurl/libexec xurl
               chmod 0555 /opt/xurl/libexec/xurl
-              cat > /opt/xurl/xurl <<'EOF'
+              wrapper="$$(mktemp /opt/xurl/.xurl.XXXXXX)"
+              cat > "$${wrapper}" <<'EOF'
               #!/bin/sh
               HOME=/opt/data/home exec /opt/xurl/libexec/xurl "$@"
               EOF
-              chmod 0555 /opt/xurl/xurl
+              chmod 0555 "$${wrapper}"
+              mv -f "$${wrapper}" /opt/xurl/xurl
           securityContext:
             runAsNonRoot: true
             runAsUser: 10000
