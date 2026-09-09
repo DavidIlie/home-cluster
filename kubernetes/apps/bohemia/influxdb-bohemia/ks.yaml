@@ -4,13 +4,13 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app influxdb-bohemia
-  namespace: &namespace observability
+  namespace: &namespace bohemia
 spec:
   targetNamespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/observability/influxdb-bohemia/app
+  path: ./kubernetes/apps/bohemia/influxdb-bohemia/app
   prune: true
   sourceRef:
     kind: GitRepository

@@ -26,7 +26,6 @@ resources:
   - ./graphite-exporter/ks.yaml
   - ./analytics-storage-exporter/ks.yaml
   - ./cliproxy-exporter/ks.yaml
-  - ./influxdb-bohemia/ks.yaml
 components:
   - ../../flux/components/namespace
   - ../../flux/components/regcred

@@ -26,11 +26,12 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: influxdb-bohemia
-  namespace: observability
+  namespace: bohemia
 spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: influxdb-bohemia
+  volumeName: influxdb-bohemia
   resources:
     requests:
       storage: 800Gi

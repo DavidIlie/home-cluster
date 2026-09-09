@@ -1,0 +1,55 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app idrac-bohemia
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: &port 8167
+      targetPort: *port
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: idrac-bohemia
+  namespace: external-services
+  labels:
+    kubernetes.io/service-name: idrac-bohemia
+addressType: IPv4
+ports:
+  - name: https
+    appProtocol: https
+    protocol: TCP
+    port: 8167
+endpoints:
+  - addresses:
+      - "192.168.10.150"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idrac-bohemia
+  namespace: external-services
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host idrac.bohemia.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: idrac-bohemia
+                port:
+                  number: 8167
+  tls:
+    - hosts: [*host]

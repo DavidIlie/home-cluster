@@ -9,6 +9,7 @@ resources:
   - ./proxmox-nucleus.yaml
   - ./truenas.yaml
   - ./idrac.yaml
+  - ./idrac-bohemia.yaml
   - ./pelican.yaml
   - ./macbook.yaml
   - ./unifi.yaml

@@ -6,6 +6,7 @@ resources:
   # - ./adapter-demo
   - ./ai
   - ./auth
+  - ./bohemia
   - ./cert-manager
   - ./databases
   - ./default
