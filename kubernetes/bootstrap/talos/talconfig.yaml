@@ -36,6 +36,11 @@ nodes:
           diskSelector:
             match: disk.dev_path == "/dev/vdb"
           minSize: 100GiB
+      - name: bohemia-storage
+        provisioning:
+          diskSelector:
+            match: disk.dev_path == "/dev/vdc"
+          minSize: 700GiB
     networkInterfaces:
       - interface: "ens18"
         dhcp: false

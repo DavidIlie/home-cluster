@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: influxdb-bohemia
+spec:
+  capacity:
+    storage: 800Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: influxdb-bohemia
+  local:
+    path: /var/mnt/bohemia-storage/influxdb
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - kube-home
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb-bohemia
+  namespace: observability
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: influxdb-bohemia
+  resources:
+    requests:
+      storage: 800Gi

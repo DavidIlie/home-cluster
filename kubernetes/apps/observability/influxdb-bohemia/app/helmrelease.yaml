@@ -1,0 +1,91 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.7.3/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: influxdb-bohemia
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  driftDetection:
+    mode: enabled
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      influxdb-bohemia:
+        type: statefulset
+        containers:
+          app:
+            image:
+              repository: influxdb
+              tag: 2.7.12-alpine
+            env:
+              INFLUXD_BOLT_PATH: /var/lib/influxdb2/influxd.bolt
+              INFLUXD_ENGINE_PATH: /var/lib/influxdb2/engine
+              INFLUXD_SQLITE_PATH: /var/lib/influxdb2/influxd.sqlite
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8086
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 4Gi
+            ports:
+              - name: http
+                containerPort: *port
+                hostPort: *port
+                protocol: TCP
+    service:
+      app:
+        controller: influxdb-bohemia
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
+        hosts:
+          - host: &host "influxdb-bohemia.davidhome.ro"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
+    persistence:
+      data:
+        enabled: true
+        existingClaim: influxdb-bohemia
+        globalMounts:
+          - path: /var/lib/influxdb2
