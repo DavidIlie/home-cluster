@@ -32,7 +32,7 @@ spec:
           app:
             image:
               repository: influxdb
-              tag: 2.7.12-alpine
+              tag: 2.9.1-alpine
             env:
               INFLUXD_BOLT_PATH: /var/lib/influxdb2/influxd.bolt
               INFLUXD_ENGINE_PATH: /var/lib/influxdb2/engine
