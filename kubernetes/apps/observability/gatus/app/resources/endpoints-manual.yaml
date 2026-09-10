@@ -28,13 +28,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: Zerocut ClickHouse
-    group: Databases
-    url: http://clickhouse.databases.svc.cluster.local:8123/ping
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
   # Cluster
   - name: Kubernetes API
     group: Cluster
@@ -46,13 +39,6 @@ endpoints:
       - "[STATUS] == any(200, 401, 403)"
 
   # Services with no Ingress at all
-  - name: Agregarr
-    group: Media
-    url: http://agregarr.media.svc.cluster.local:7171/api/v1/status
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
   - name: FlareSolverr
     group: Downloads
     url: http://flaresolverr.downloads.svc.cluster.local:80/health

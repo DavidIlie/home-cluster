@@ -290,12 +290,6 @@ spec:
           gethomepage.dev/name: PostHog
           gethomepage.dev/icon: posthog.png
           gethomepage.dev/description: Product Analytics
-          gatus.home-operations.com/endpoint: |-
-            name: PostHog
-            group: Monitoring
-            url: https://posthog.davidapps.dev/_health
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
           nginx.ingress.kubernetes.io/proxy-body-size: "100m"
           nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
         hosts:

@@ -179,12 +179,6 @@ spec:
           gethomepage.dev/name: Temporal
           gethomepage.dev/icon: mdi-timer-outline
           gethomepage.dev/description: PostHog workflow engine
-          gatus.home-operations.com/endpoint: |-
-            name: Temporal UI
-            group: Monitoring
-            url: https://temporal.internal
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
         hosts:
           - host: &host temporal.internal
             paths:
