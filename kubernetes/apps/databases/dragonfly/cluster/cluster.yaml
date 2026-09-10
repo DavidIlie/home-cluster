@@ -5,7 +5,7 @@ metadata:
   name: dragonfly
   namespace: databases
 spec:
-  image: ghcr.io/dragonflydb/dragonfly:v1.40.1
+  image: ghcr.io/dragonflydb/dragonfly:v1.40.2@sha256:18afa43e911f1dff18c7d1eb452361876d9702bb1cdff5c5d75c69617a4065c9
   # operator v1.6.1 defaults to a same-namespace-only NetworkPolicy which
   # blocks every cross-namespace consumer (paperless etc.) — restore the
   # pre-1.6 behavior of no NetworkPolicy
