@@ -81,9 +81,9 @@ spec:
           gatus.home-operations.com/endpoint: |-
             name: Kromgo
             group: Monitoring
-            url: https://kromgo.davidhome.ro
+            url: https://kromgo.davidhome.ro/cluster_node_count
             interval: 1m
-            conditions: ["[STATUS] == 404"]
+            conditions: ["[STATUS] == 200", "[BODY].message == 1"]
         hosts:
           - host: &host "kromgo.davidhome.ro"
             paths:
