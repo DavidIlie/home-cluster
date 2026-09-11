@@ -362,6 +362,22 @@
         'renovate/github-action',
       ],
     },
+    {
+      // 2026-09-11 multi-zone DNS outage. external-dns 1.22.0 stopped honouring
+      // `external-dns.alpha.kubernetes.io/target` on Ingress, so it recomputed
+      // every record as an A to the internal LoadBalancer IP, deleted the working
+      // proxied CNAMEs under `policy: sync`, then could not create the replacements
+      // (Cloudflare rejects proxied records pointing at RFC1918). kidays.fr,
+      // mbretrofit.it/.es/.ro, workroad.app and davidilie.com all went NXDOMAIN.
+      // Helm minor bumps automerge with `ignoreTests`, so nothing stood between the
+      // bot and production DNS. Unpin only after confirming on a non-production zone
+      // that the target annotation still yields CNAMEs.
+      description: ['Pin external-dns — 1.22.0 caused a multi-zone DNS outage'],
+      matchDatasources: ['helm'],
+      matchPackageNames: ['external-dns'],
+      enabled: false,
+      automerge: false,
+    },
   ],
   customManagers: [
     {
