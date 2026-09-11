@@ -363,6 +363,22 @@
       ],
     },
     {
+      // Reachability components. A bad version here does not degrade one
+      // workload, it removes the route to every workload, and the blast radius
+      // is whole zones rather than one namespace. Helm minor/patch bumps
+      // otherwise automerge with `ignoreTests`, which is how external-dns
+      // 1.22.0 reached production and emptied four Cloudflare zones on
+      // 2026-09-11. These still raise PRs; a human reads them first.
+      description: ['No automerge for DNS, ingress and certificate infrastructure'],
+      matchPackageNames: [
+        '/external-dns/',
+        '/ingress-nginx/',
+        '/cloudflared/',
+        '/cert-manager/',
+      ],
+      automerge: false,
+    },
+    {
       // 2026-09-11 multi-zone DNS outage. external-dns 1.22.0 stopped honouring
       // `external-dns.alpha.kubernetes.io/target` on Ingress, so it recomputed
       // every record as an A to the internal LoadBalancer IP, deleted the working
