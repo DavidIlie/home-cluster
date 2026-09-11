@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-talosVersion: v1.12.1
+talosVersion: v1.12.12
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.35.0
 
@@ -64,6 +64,7 @@ patches:
   - "@./patches/global/machine-time.yaml"
   - "@./patches/global/machine-features.yaml"
   - "@./patches/global/gpu-patch.yaml"
+  - "@./patches/global/machine-oom.yaml"
 
 # Controller patches
 controlPlane:

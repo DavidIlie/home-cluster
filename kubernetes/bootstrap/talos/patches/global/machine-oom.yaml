@@ -1,0 +1,17 @@
+---
+# Talos v1.12.1 ships a userspace OOM controller whose default trigger is
+# `memory_full_avg10 > 12.0`, evaluated every 500ms with no QoS protection.
+# Page-cache reclaim from large-volume workloads (InfluxDB restore on 2026-09-09,
+# Prometheus TSDB on 2026-09-11) pushed the node past 12% for a few seconds while
+# 35 GiB was still available, and the controller SIGKILLed kube-apiserver,
+# Prometheus, and others in a loop, taking the whole cluster down.
+#
+# Only intervene on a genuine, sustained stall. Below this the kernel's own
+# cgroup limits and reclaim handle pressure by slowing workloads instead of
+# killing them. This matches the catastrophic fallback used upstream from
+# v1.12.12 onward; the QoS-aware primary clause there needs newer CEL
+# variables that 1.12.1 does not provide.
+apiVersion: v1alpha1
+kind: OOMConfig
+triggerExpression: 'memory_full_avg10 > 75.0 && time_since_trigger > duration("10s")'
+sampleInterval: 500ms
