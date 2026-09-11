@@ -31,7 +31,7 @@ spec:
           init-db:
             image:
               repository: ghcr.io/home-operations/postgres-init
-              tag: 18.4
+              tag: 18.4@sha256:ebd9d30add17acdf935d73eb004758c7dfd9388aaa605fda70ad74378ab92aec
             envFrom:
               - secretRef:
                   name: openwebui
@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: ghcr.io/open-webui/open-webui
-              tag: v0.11.3
+              tag: v0.11.3@sha256:41daa0cf2561a5d4c8d1ff31ee2a98d93ab4d3ac2605cac69366ff6a3374a933
             env:
               # Ollama connection
               - name: OLLAMA_BASE_URL

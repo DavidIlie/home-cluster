@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/personal-dashboard # {"$imagepolicy": "flux-system:personal-dashboard:name"}
-              tag: master-b37a119f-1787007249 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
+              tag: master-b37a119f-1787007249@sha256:67df75d4a69fc46ea8392384fe2850250a877a9bbded43c936f9f292948a3666 # {"$imagepolicy": "flux-system:personal-dashboard:tag"}
             envFrom:
               - secretRef:
                   name: personal-dashboard-secret

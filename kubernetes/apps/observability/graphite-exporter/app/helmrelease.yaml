@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: prom/graphite-exporter
-              tag: v0.17.0
+              tag: v0.17.0@sha256:c1a266f63a84fd11048ab6ad1552a4c497b14522d02823925247698e41eeac2b
             args:
               - --graphite.mapping-config=/config/graphite_mapping.conf
               - --graphite.listen-address=:2003
