@@ -25,10 +25,18 @@ spec:
     controllers:
       cliproxy:
         replicas: 1
-        strategy: Recreate
+        # Bring the new pod up before the old one stops so a rollout no longer
+        # freezes in-flight streams. Both pods briefly share the RWO volumes on
+        # this single node; the old pod only drains during the overlap.
+        strategy: RollingUpdate
+        rollingUpdate:
+          surge: 1
+          unavailable: 0
         pod:
           imagePullSecrets:
             - name: docker-regcred
+          # The server drains open streams for up to 30s after SIGTERM.
+          terminationGracePeriodSeconds: 90
         annotations:
           # Restart for public assertion-key changes. The encrypted config is only
           # a first-boot seed after migration; the writable PVC is authoritative.
@@ -210,6 +218,12 @@ spec:
               # dedicated, backed-up plugin data volume.
               CLIPROXY_QUOTA_LEDGER_PATH: /CLIProxyAPI/plugin-data/managed-key-quota-ledger.json
               CLIPROXY_QUOTA_POLL_INTERVAL: 1m
+            lifecycle:
+              preStop:
+                exec:
+                  # Let the endpoint controller stop routing new requests here
+                  # before the process begins draining.
+                  command: ["sleep", "5"]
             probes:
               liveness: &probes
                 enabled: true
