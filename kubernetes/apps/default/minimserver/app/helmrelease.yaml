@@ -54,7 +54,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/minimserver
-              tag: 0.8.4-8da9fd9@sha256:f561bf3e08f46ee0743d9df9943563b05ca8f799b9d61f53260ec1cbb14920c1
+              tag: 0.8.4-3255241@sha256:3d9fcb68e1e872bd9007f7f220cf1bb8bd7ed02ec2ead6876536d14fef3c02ea
             env:
               TZ: Europe/Bucharest
               MINIM_INDEX_ROLE: primary
@@ -63,29 +63,36 @@ spec:
               MINIM_SCAN_PREFETCH_THREADS: "16"
               MINIM_TRUST_CACHE_ON_BROWSE: "true"
             probes:
-              liveness: &probes
+              liveness:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /
-                    port: &port 9790
-                  initialDelaySeconds: 0
+                    path: /livez
+                    port: 9790
                   periodSeconds: 30
                   timeoutSeconds: 5
-                  failureThreshold: 6
-              readiness: *probes
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: 9790
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
               startup:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /
-                    port: *port
-                  initialDelaySeconds: 0
+                    path: /readyz
+                    port: 9790
                   periodSeconds: 5
                   timeoutSeconds: 5
-                  failureThreshold: 60
+                  failureThreshold: 120
             securityContext:
               allowPrivilegeEscalation: false
               capabilities: { drop: ["ALL"] }
@@ -109,6 +116,7 @@ spec:
         path: /mnt/data/share/Music
         globalMounts:
           - path: /media
+            readOnly: true
       index:
         existingClaim: minimserver-index-nfs
         globalMounts:
@@ -118,7 +126,7 @@ spec:
         controller: minimserver
         ports:
           http:
-            port: *port
+            port: 9790
     ingress:
       app:
         className: internal
