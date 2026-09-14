@@ -54,7 +54,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/minimserver
-              tag: 0.8.4-3255241@sha256:3d9fcb68e1e872bd9007f7f220cf1bb8bd7ed02ec2ead6876536d14fef3c02ea
+              tag: 0.8.4-c9beb44@sha256:b59055fda90752009465ecadf9c6418cf63491b1891ab32621c7af02e9f84a2e
             env:
               TZ: Europe/Bucharest
               MINIM_INDEX_ROLE: primary
