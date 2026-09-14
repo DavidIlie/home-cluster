@@ -139,7 +139,7 @@ spec:
           gatus.home-operations.com/endpoint: |-
             name: MinimServer
             group: Media
-            url: https://dlna.davidhome.ro
+            url: https://dlna.davidhome.ro/readyz
             interval: 1m
             conditions: ["[STATUS] == 200"]
         hosts:
