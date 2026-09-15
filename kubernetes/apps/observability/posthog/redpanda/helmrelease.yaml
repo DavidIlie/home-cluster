@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: docker.redpanda.com/redpandadata/redpanda
-              tag: v25.1.9
+              tag: v25.1.12
               pullPolicy: IfNotPresent
             command:
               - /bin/bash
