@@ -22,6 +22,11 @@ class AppearancePlugin implements Plugin
                             'mocha' => 'Soft purple accents and dark backgrounds. Dark mode only.',
                             'hairline' => 'Compact spacing and sharp borders. Light and dark modes.',
                             'nord' => 'Cool blue and grey colours. Light and dark modes.',
+                            'deepfield' => 'Space backgrounds with violet accents.',
+                            'voidwave' => 'Animated cosmic backgrounds. Dark mode only.',
+                            'starrynight' => 'Stars and meteors. Light and dark modes.',
+                            'neobrutalism' => 'Bold outlines and strong shadows.',
+                            'fluffy' => 'Playful handwritten lettering and pastel colours.',
                             'default' => 'The standard Pelican appearance. Light and dark modes.',
                         ])->required(),
                 ])

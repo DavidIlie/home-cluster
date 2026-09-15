@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 class ThemePreference
 {
-    public const OPTIONS = ['mocha' => 'Catppuccin Mocha', 'hairline' => 'Hairline', 'nord' => 'Nord', 'default' => 'Pelican default'];
+    public const OPTIONS = ['mocha' => 'Catppuccin Mocha', 'hairline' => 'Hairline', 'nord' => 'Nord', 'deepfield' => 'Deepfield', 'voidwave' => 'Voidwave', 'starrynight' => 'StarryNight', 'neobrutalism' => 'Neobrutalism', 'fluffy' => 'Fluffy', 'default' => 'Pelican default'];
     public static function current(): string {
         if (!user()) { return 'hairline'; }
         $theme = DB::table('davidapps_theme_preferences')->where('user_id', user()->id)->value('theme');

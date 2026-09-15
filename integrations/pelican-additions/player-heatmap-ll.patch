@@ -1,0 +1,44 @@
+--- a/player-heatmap-ll/src/Console/Commands/CollectPlayerCounts.php
++++ b/player-heatmap-ll/src/Console/Commands/CollectPlayerCounts.php
+@@ -86,6 +86,10 @@
+             return -1; // Signal to skip
+         }
+ 
++        $details = (new \App\Repositories\Daemon\DaemonServerRepository())->setServer($server)->getDetails();
++        $state = $details['state'] ?? null;
++        if ($state === 'offline') { return 0; }
++        if ($state !== 'running') { return -1; }
+         return PlayerEvent::getEstimatedOnlineCount($server->id);
+     }
+ }
+--- a/player-heatmap-ll/src/Console/Commands/ScanLogs.php
++++ b/player-heatmap-ll/src/Console/Commands/ScanLogs.php
+@@ -73,6 +73,10 @@
+ 
+     protected function scanServer(Server $server): int
+     {
++        $details = (new \App\Repositories\Daemon\DaemonServerRepository())->setServer($server)->getDetails();
++        if (($details['state'] ?? null) !== 'running') {
++            return 0;
++        }
+         $fileRepo = (new DaemonFileRepository())->setServer($server);
+ 
+         $logPaths = config('player-heatmap-ll.log_paths', [
+--- a/player-heatmap-ll/src/CoolPluginPlugin.php
++++ b/player-heatmap-ll/src/CoolPluginPlugin.php
+@@ -53,6 +53,15 @@
+         //
+     }
+ 
++    public function getSettingsFormData(): array
++    {
++        return [
++            'widget_position' => config('player-heatmap-ll.widget_position', 'below_console'),
++            'show_peak_indicator' => config('player-heatmap-ll.show_peak_indicator', true),
++            'show_stats_header' => config('player-heatmap-ll.show_stats_header', true),
++        ];
++    }
++
+     public function getSettingsForm(): array
+     {
+         return [

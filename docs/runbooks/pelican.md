@@ -137,15 +137,16 @@ settings or whitelist entries were changed during installation.
 
 The custom `davidapps-appearance` plugin lives in
 `integrations/pelican-appearance`. The user menu's Appearance action selects
-Catppuccin Mocha, Hairline, Nord, or Pelican default. Preferences are saved in
+Catppuccin Mocha, Hairline, Nord, Deepfield, Voidwave, StarryNight,
+Neobrutalism, Fluffy, or Pelican default. Preferences are saved in
 `davidapps_theme_preferences` by authenticated user ID. Other users' preferences
 cannot be supplied to the save operation. Hairline is the fallback; David's
-initial selection is Catppuccin Mocha.
+current selection is Nord.
 
-Keep the three vendor theme plugins installed but disabled globally. Appearance
+Keep all eight vendor theme plugins installed but disabled globally. Appearance
 applies exactly one theme for the current account when Filament serves a page.
 Hairline's provider is invoked only for Hairline users, including its console
-widget and server-card override. Catppuccin Mocha forces dark mode; the other
+widget and server-card override. Catppuccin Mocha and Voidwave force dark mode; the other
 choices retain Pelican's light/dark controls. All Vite theme entries are built
 at container startup, including disabled theme plugins.
 
@@ -154,3 +155,40 @@ Config 0.2.0 comes from download 216. Preserve plugin metadata when copying
 updates into the persistent plugin directory. Reapply the Minecraft read-error
 patch after upstream updates, and verify the Appearance integration when
 updating vendor themes.
+
+
+Appearance registers only the render hooks appended by the selected theme,
+because account identity becomes available after Filament registers the panel's
+initial hooks. This avoids repeating Concierge and other existing hooks.
+Voidwave preference routes explicitly require authentication for writes.
+
+## Egg images and player heatmap
+
+Egg Images 1.0.2 and Player-Heatmap-LL 2.0.0 are enabled. Egg Images is under
+Admin → Egg Images. Artwork was added for Hytale and the four installed Steam
+games with explicit app IDs: Insurgency 222880, Team Fortress 2 440, Garry's Mod
+4000, and Rust 252490. These images are protected against automatic replacement.
+IGDB is optional and is not configured. Avoid bulk name matching for Minecraft,
+Hytale, and generic server eggs: Steam's first search result can be unrelated.
+
+Player Heatmap is available per server and in the admin panel, with a console
+widget. It reads Minecraft join/leave logs every five minutes and collects
+estimated counts every minute. Logs are estimates, not a protocol-level player
+query. Data starts at installation; no historic activity was fabricated.
+The local patch checks the actual Wings power state before reading logs, records
+zero for stopped servers, skips unknown states, and implements the settings
+method required by beta38. Game files are only read. Hytale is not supported.
+
+Pinned archive hashes and compatibility patches are retained in
+`integrations/pelican-additions`. Apply those patches after reinstalling these
+exact upstream versions; review them before upgrading. The plugin files live
+on the PVC and are included in the protected full panel-data backup.
+
+## Java runtime mismatch
+
+On 2026-09-15, Ana Streaming SMP's server jar failed with class version 69
+(Java 25) while running Java 21 (class version 65). Java 25 was added to the
+Vanilla Minecraft egg's allowed images and server 2 was switched to
+`ghcr.io/parkervcp/yolks:java_25`, then synchronized to Wings without a power
+action. Server 1's Java choice was preserved. The unsupported-version dialog
+rejects selecting the current image; that validation is expected.

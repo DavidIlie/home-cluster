@@ -1,0 +1,11 @@
+--- a/voidwave-theme/src/Providers/VoidwaveRoutesProvider.php
++++ b/voidwave-theme/src/Providers/VoidwaveRoutesProvider.php
+@@ -15,7 +15,7 @@
+                 ->get('/voidwave/preferences', [PreferencesController::class, 'show'])
+                 ->name('voidwave.preferences.show');
+ 
+-            Route::middleware(['web', 'auth.session', 'throttle:30,1'])->group(function (): void {
++            Route::middleware(['web', 'auth', 'auth.session', 'throttle:30,1'])->group(function (): void {
+                 Route::put('/voidwave/preferences', [PreferencesController::class, 'update'])
+                     ->name('voidwave.preferences.update');
+                 Route::delete('/voidwave/preferences', [PreferencesController::class, 'destroy'])
