@@ -37,6 +37,7 @@ spec:
                   name: pelican-secret
         containers:
           app:
+            command: ["/bin/sh", "/etc/pelican-start.sh"]
             image:
               repository: ghcr.io/pelican/panel
               tag: v1.0.0-beta38@sha256:46f356f3fda423b1d43f0dc3c71efc056cd8b9bec365d1d7817306a17ee5694a
@@ -74,7 +75,7 @@ spec:
                   initialDelaySeconds: 0
                   periodSeconds: 5
                   timeoutSeconds: 5
-                  failureThreshold: 60
+                  failureThreshold: 180
             securityContext:
               privileged: true
             resources:
@@ -135,4 +136,11 @@ spec:
         globalMounts:
           - path: /var/www/html/plugins/generic-oidc-providers/src/Extensions/OAuth/Providers/GenericOIDCProvider.php
             subPath: GenericOIDCProvider.php
+            readOnly: true
+      startup:
+        type: configMap
+        name: pelican-startup
+        globalMounts:
+          - path: /etc/pelican-start.sh
+            subPath: start.sh
             readOnly: true

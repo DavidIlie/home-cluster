@@ -15,5 +15,8 @@ configMapGenerator:
   - name: pelican-oidc-provider
     files:
       - GenericOIDCProvider.php=./config/GenericOIDCProvider.php
+  - name: pelican-startup
+    files:
+      - start.sh=./config/start.sh
 generatorOptions:
   disableNameSuffixHash: true
