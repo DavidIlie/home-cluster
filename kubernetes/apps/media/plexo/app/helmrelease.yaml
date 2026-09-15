@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/plexo # {"$imagepolicy": "flux-system:plexo:name"}
-              tag: master-4eba121c-1787675989 # {"$imagepolicy": "flux-system:plexo:tag"}
+              tag: master-4eba121c-1787675989@sha256:71b321d1e169a7d11bd60eed76b31c1f264791057d8a962e6d17f9fdee9323c0 # {"$imagepolicy": "flux-system:plexo:tag"}
             envFrom:
               - secretRef:
                   name: plexo-secret
