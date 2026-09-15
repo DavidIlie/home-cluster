@@ -65,3 +65,60 @@ plugin; it is not installed by this configuration.
 Concierge uses the existing in-cluster CLIProxy OpenAI-compatible endpoint.
 Its model credential is stored in Pelican's encrypted plugin settings. Keep
 its confirmation cards enabled and preserve existing user permissions.
+
+Concierge runs `gpt-5.6-luna` with `low` reasoning, the lowest level accepted by
+CLIProxy. The startup patch `app/config/concierge-effort.php` adds the parameter
+that its OpenAI-compatible adapter otherwise omits. Recheck this patch when
+updating Concierge. Enrico receives server-care tools, without user or role
+administration tools.
+
+## Minecraft public addresses
+
+The custom plugin source and relay service are in
+`integrations/pelican-forwarder`. The installed plugin is persisted on the
+panel PVC as `plugins/davidapps-forwarder`. When updating it, preserve the
+installed `plugin.json` metadata; copy code files without replacing that file.
+After changing plugin registration, run `php artisan optimize:clear`, restart
+PHP-FPM, and restart the queue worker. A fresh installation uses
+`php artisan p:plugin:install davidapps-forwarder`.
+
+The path is public TCP 25565 on `mc-forward.davidapps.dev` (79.76.102.151),
+through `mc-router` on `ubuntu@mc-forward.davidapps.dev`, over WireGuard to
+`192.168.100.163:<primary allocation port>`. This router speaks Minecraft Java;
+Hytale and Bedrock are excluded. Eligible eggs have both the `minecraft` tag
+and the `java_version` feature, on node 1.
+
+The minute scheduler reconciles server creation, allocation changes, and
+server deletion. Existing addresses remain `im.gurt.ing` and `mc.anaxax.tv`.
+New servers receive `<uuid_short>.mc-forward.davidapps.dev`. A DNS-only wildcard
+CNAME for `*.mc-forward.davidapps.dev` targets `mc-forward.davidapps.dev` in
+Cloudflare. Its record ID is `e091960563cc3c477ef4db6976182048`, in zone
+`2b2e1259b957d17f81562bd8fb410e0d`. ExternalDNS does not manage this zone here.
+
+The **Public address** server page shows the join hostname, last provisioning
+result, DNS status, and CNAME instructions. The owner or a root administrator
+can change the hostname after adding the displayed `_pelican.<new-hostname>`
+TXT proof. A unique hostname constraint and relay ownership checks prevent
+cross-server takeover. Subusers can read the page but cannot change the domain.
+A route/DNS check does not claim the game is running.
+
+On the relay, `/root/mc-router/docker-compose.yml` pins the existing router
+image digest. `/root/mc-router/data/routes.json` stores routes and owner UUIDs.
+The router mounts that directory read-only and reloads with SIGHUP. The Python
+service `mc-forwarder` writes the JSON atomically, serializes changes, and only
+accepts backend ports 1024–65535 on `192.168.100.163`. It listens on WireGuard
+`192.168.2.5:8091`, authenticating with `/etc/mc-forwarder.env`. The matching
+panel Secret is SOPS-encrypted in `app/forwarder-secret.sops.yaml`. The router's
+own unauthenticated API is bound only to host loopback `127.0.0.1:8092`.
+
+Back up `routes.json`, the compose file, service script/unit and root-only token
+file, plus the panel PostgreSQL database. The pre-change compose backup is in
+`/var/backups/mc-router-20260915`. Restoring only the old compose returns the
+original two environment mappings but disables automatic provisioning.
+
+The tests in `integrations/pelican-forwarder/tests` cover API authentication,
+backend restrictions, hostname ownership, transactional server lifecycle,
+allocation changes, DNS, and user access. `wireguard-path.py` creates a temporary
+route and a bounded listener on port 25599 to check the complete public path;
+it leaves game containers stopped. Tests must run against this deployment,
+with port 25599 free, and create no retained test servers.

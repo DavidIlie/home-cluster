@@ -33,7 +33,8 @@ class Forwarder
         return DB::table('davidapps_forward_addresses')->where('server_id', $server->id)->first();
     }
     public function syncAll(): void {
-        Cache::lock('davidapps-forwarder-sync', 120)->get(function () {
+        Cache::lock('davidapps-forwarder-sync', 300)->get(function () {
+            $managedOwners = DB::table('davidapps_forward_addresses')->pluck('server_uuid')->all();
             foreach (Server::with(['egg', 'allocation'])->get() as $server) {
                 if (!$this->supports($server)) { continue; }
                 $row = $this->address($server);
@@ -58,6 +59,15 @@ class Forwarder
                     DB::table('davidapps_forward_addresses')->where('id', $row->id)->delete();
                 } catch (\Throwable $e) { report($e); }
             }
+            try {
+                $desired = DB::table('davidapps_forward_addresses')->pluck('hostname')->all();
+                $routes = $this->request('GET');
+                foreach ($routes['owners'] as $host => $owner) {
+                    if (in_array($owner, $managedOwners, true) && !in_array($host, $desired, true)) {
+                        $this->request('DELETE', ['hostname' => $host, 'owner' => $owner, 'backend' => $routes['mappings'][$host]]);
+                    }
+                }
+            } catch (\Throwable $e) { report($e); }
         });
     }
     public function dns(string $host): bool {

@@ -74,6 +74,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self.reply(422, {'error': 'Invalid route'})
                 if host in state['mappings'] and state['owners'].get(host) != owner:
                     return self.reply(409, {'error': 'Hostname belongs to another server'})
+                if self.command == 'PUT' and state['mappings'].get(host) == backend:
+                    return self.reply(200, {'saved': True})
                 if self.command == 'PUT':
                     state['mappings'][host] = backend
                     state['owners'][host] = owner
