@@ -24,7 +24,7 @@ spec:
   values:
     controllers:
       pelican:
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
@@ -38,10 +38,11 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/pelican-dev/panel
-              tag: v1.0.0-beta31@sha256:5c57b17627eb134d52c0589bc1eaccf198b811a47c33cceb6416ff29504b2fa5
+              repository: ghcr.io/pelican/panel
+              tag: v1.0.0-beta38@sha256:46f356f3fda423b1d43f0dc3c71efc056cd8b9bec365d1d7817306a17ee5694a
             env:
               XDG_DATA_HOME: /pelican-data
+              BEHIND_PROXY: "true"
               APP_URL: https://panel.davidapps.dev
               ADMIN_EMAIL: david@davidilie.com
             envFrom:
