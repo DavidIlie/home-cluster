@@ -116,6 +116,8 @@ spec:
         existingClaim: pelican
         globalMounts:
           - path: /pelican-data
+          - path: /var/www/html/plugins
+            subPath: plugins
       media:
         existingClaim: pelican-logs
         globalMounts:
