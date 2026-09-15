@@ -137,10 +137,19 @@ spec:
           - path: /var/www/html/plugins/generic-oidc-providers/src/Extensions/OAuth/Providers/GenericOIDCProvider.php
             subPath: GenericOIDCProvider.php
             readOnly: true
+      forwarder-secret:
+        type: secret
+        name: pelican-forwarder
+        globalMounts:
+          - path: /etc/pelican-forwarder
+            readOnly: true
       startup:
         type: configMap
         name: pelican-startup
         globalMounts:
           - path: /etc/pelican-start.sh
             subPath: start.sh
+            readOnly: true
+          - path: /etc/pelican-concierge-effort.php
+            subPath: concierge-effort.php
             readOnly: true

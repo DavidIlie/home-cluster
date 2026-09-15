@@ -1,0 +1,12 @@
+services:
+  router:
+    image: ghcr.io/davidilie/mc-router@sha256:e10c5c1cb2fe6865bb4e76f177183449a976f489842f6ac8e8c803ad85ce3220
+    restart: unless-stopped
+    environment:
+      ROUTES_CONFIG: /routes/routes.json
+      API_BINDING: 0.0.0.0:8081
+    volumes:
+      - ./data:/routes:ro
+    ports:
+      - "25565:25565"
+      - "127.0.0.1:8092:8081"

@@ -1,0 +1,14 @@
+{
+  "id": "davidapps-forwarder",
+  "name": "DavidApps Public Address",
+  "author": "DavidApps",
+  "version": "1.0.0",
+  "description": "Minecraft Java addresses through the DavidApps WireGuard relay.",
+  "category": "plugin",
+  "namespace": "DavidApps\\Forwarder",
+  "class": "ForwarderPlugin",
+  "panels": [
+    "server"
+  ],
+  "api_version": 1
+}

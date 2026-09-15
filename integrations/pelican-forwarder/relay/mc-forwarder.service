@@ -1,0 +1,23 @@
+[Unit]
+Description=Pelican Minecraft route provisioning
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/mc-forwarder/forwarder.py
+EnvironmentFile=/etc/mc-forwarder.env
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/root/mc-router/data
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET
+
+[Install]
+WantedBy=multi-user.target

@@ -6,6 +6,7 @@ resources:
   - ./helmrelease.yaml
   - ./claim.yaml
   - ./secret.sops.yaml
+  - ./forwarder-secret.sops.yaml
 components:
   - ../../../../flux/components/volsync
 configMapGenerator:
@@ -18,5 +19,6 @@ configMapGenerator:
   - name: pelican-startup
     files:
       - start.sh=./config/start.sh
+      - concierge-effort.php=./config/concierge-effort.php
 generatorOptions:
   disableNameSuffixHash: true

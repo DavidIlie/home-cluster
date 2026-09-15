@@ -6,6 +6,7 @@ composer require --no-scripts --no-interaction --update-no-dev --minimal-changes
   'xpaw/php-minecraft-query:5.0.0' \
   'xpaw/php-source-query-class:6.0.0' \
   'anthropic-ai/sdk:0.7.0'
+php /etc/pelican-concierge-effort.php
 yarn install --frozen-lockfile
 yarn build
 exec /bin/ash /entrypoint.sh supervisord -n -c /etc/supervisord.conf
