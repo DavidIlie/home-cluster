@@ -12,5 +12,8 @@ configMapGenerator:
   - name: pelican-caddyfile
     files:
       - Caddyfile=./config/Caddyfile
+  - name: pelican-oidc-provider
+    files:
+      - GenericOIDCProvider.php=./config/GenericOIDCProvider.php
 generatorOptions:
   disableNameSuffixHash: true
