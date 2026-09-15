@@ -1,0 +1,16 @@
+{
+  "id": "davidapps-appearance",
+  "name": "Appearance",
+  "author": "DavidApps",
+  "version": "1.0.0",
+  "description": "Choose a Pelican theme per account.",
+  "category": "plugin",
+  "namespace": "DavidApps\\Appearance",
+  "class": "AppearancePlugin",
+  "panels": [
+    "admin",
+    "app",
+    "server"
+  ],
+  "api_version": 1
+}

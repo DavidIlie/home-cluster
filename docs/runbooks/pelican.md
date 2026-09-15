@@ -122,3 +122,35 @@ allocation changes, DNS, and user access. `wireguard-path.py` creates a temporar
 route and a bounded listener on port 25599 to check the complete public path;
 it leaves game containers stopped. Tests must run against this deployment,
 with port 25599 free, and create no retained test servers.
+
+## Minecraft settings editor
+
+Minecraft Server Config 0.2.0 is installed from the Pelican Hub distribution,
+with the MIT source retained in `integrations/minecraft-config`. The local
+patch rechecks owner access on mount and save, and treats only a genuine 404
+as a missing settings/whitelist/Code of Conduct file. Connection failures and
+invalid whitelist JSON propagate rather than being treated as empty data.
+The plugin is owner-only, matching its upstream policy. No existing game
+settings or whitelist entries were changed during installation.
+
+## Per-account appearance
+
+The custom `davidapps-appearance` plugin lives in
+`integrations/pelican-appearance`. The user menu's Appearance action selects
+Catppuccin Mocha, Hairline, Nord, or Pelican default. Preferences are saved in
+`davidapps_theme_preferences` by authenticated user ID. Other users' preferences
+cannot be supplied to the save operation. Hairline is the fallback; David's
+initial selection is Catppuccin Mocha.
+
+Keep the three vendor theme plugins installed but disabled globally. Appearance
+applies exactly one theme for the current account when Filament serves a page.
+Hairline's provider is invoked only for Hairline users, including its console
+widget and server-card override. Catppuccin Mocha forces dark mode; the other
+choices retain Pelican's light/dark controls. All Vite theme entries are built
+at container startup, including disabled theme plugins.
+
+Catppuccin Mocha 1.0.0 comes from Pelican Hub download 166. Minecraft Server
+Config 0.2.0 comes from download 216. Preserve plugin metadata when copying
+updates into the persistent plugin directory. Reapply the Minecraft read-error
+patch after upstream updates, and verify the Appearance integration when
+updating vendor themes.

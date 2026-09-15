@@ -1,0 +1,15 @@
+{
+    "id": "minecraft-config",
+    "name": "Minecraft Server Config",
+    "author": "N3rdMade",
+    "version": "0.2.0",
+    "description": "Adds an all-in-one Minecraft Config page for server.properties and whitelist management with friendly controls and editable custom settings.",
+    "category": "plugin",
+    "namespace": "N3rdMade\\MinecraftConfig",
+    "class": "MinecraftConfigPlugin",
+    "panels": [
+        "server"
+    ],
+    "panel_version": null,
+    "composer_packages": null
+}
