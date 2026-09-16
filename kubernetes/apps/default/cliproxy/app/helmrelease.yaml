@@ -349,6 +349,9 @@ spec:
                 service: *appService
               - path: /v0/management
                 service: *appService
+              - path: /v0/resource/plugins
+                pathType: Prefix
+                service: *appService
               - path: /anthropic/callback
                 pathType: Exact
                 service: *appService
