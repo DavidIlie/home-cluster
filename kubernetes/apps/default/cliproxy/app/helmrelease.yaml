@@ -25,13 +25,9 @@ spec:
     controllers:
       cliproxy:
         replicas: 1
-        # Bring the new pod up before the old one stops so a rollout no longer
-        # freezes in-flight streams. Both pods briefly share the RWO volumes on
-        # this single node; the old pod only drains during the overlap.
-        strategy: RollingUpdate
-        rollingUpdate:
-          surge: 1
-          unavailable: 0
+        # The file-backed quota ledger supports one writer; overlapping pods
+        # can overwrite usage and resurrect reservations from completed requests.
+        strategy: Recreate
         pod:
           imagePullSecrets:
             - name: docker-regcred
