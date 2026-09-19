@@ -23,7 +23,7 @@ spec:
           setup-temp-dir:
             image:
               repository: busybox
-              tag: latest
+              tag: latest@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
               pullPolicy: IfNotPresent
             command:
               - sh
@@ -40,7 +40,7 @@ spec:
           app:
             image:
               repository: nginx
-              tag: latest
+              tag: latest@sha256:abe47724e466aeab9a345d8e46a221c2fa8953c7848bb4a3bd9976a7199f8cf2
               pullPolicy: IfNotPresent
             args:
               - nginx
