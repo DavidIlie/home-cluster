@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/cliproxyapi
-              tag: d74bf13cd83899645eeb08d47bb7b4b1a2a32c63
+              tag: d81972af4545cf40a012e7b075cbe6d4ead4ec8d
             command: ["/CLIProxyAPI/gurt-router"]
             env:
               CLIPROXY_URL: http://cliproxy.default.svc.cluster.local:8317
