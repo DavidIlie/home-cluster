@@ -4,10 +4,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: ai
 resources:
+  - ./gurt-luna/ks.yaml
   - ./ollama/ks.yaml
   - ./open-webui/ks.yaml
   - ./searxng/ks.yaml
   - ./volsync-secret.sops.yaml
 components:
+  - ../../flux/components/regcred
   - ../../flux/components/namespace
   - ../../flux/components/sops
