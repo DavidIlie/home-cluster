@@ -150,7 +150,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/cliproxyapi # {"$imagepolicy": "flux-system:cliproxy:name"}
-              tag: 8fc168e53aff27b755de1400e8dfa68530674216
+              tag: ee479a3a925a79f0b642071fac4c5c5ca2b0f1ad
             command: ["/CLIProxyAPI/CLIProxyAPI"]
             args: ["-config", "/config-data/config.yaml"]
             env:
