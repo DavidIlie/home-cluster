@@ -5,4 +5,5 @@ kind: Kustomization
 resources:
   - ./claim.yaml
   - ./secret.sops.yaml
+  - ./workroad-secret.sops.yaml
   - ./helmrelease.yaml

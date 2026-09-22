@@ -43,6 +43,7 @@ spec:
               DISCORD_BOT_TOKEN_FILE: /run/secrets/bostan/discord-bot-token
               INTERACTION_SIGNING_SECRET_FILE: /run/secrets/bostan/interaction-signing-secret
               GITHUB_TOKEN_FILE: /run/secrets/bostan/github-token
+              GITHUB_WORKROAD_TOKEN_FILE: /run/secrets/workroad/github-workroad-token
               GITHUB_POLL_INTERVAL_SECONDS: "60"
               DATA_DIR: /data
               HEALTH_PORT: "8080"
@@ -109,6 +110,13 @@ spec:
         defaultMode: 0440
         globalMounts:
           - path: /run/secrets/bostan
+            readOnly: true
+      workroad-secret:
+        type: secret
+        name: bostan-discord-bot-workroad-secret
+        defaultMode: 0440
+        globalMounts:
+          - path: /run/secrets/workroad
             readOnly: true
       tmp:
         type: emptyDir
