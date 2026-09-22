@@ -270,6 +270,7 @@ spec:
       open-api:
         className: external
         annotations:
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "false"
           nginx.ingress.kubernetes.io/proxy-set-headers: auth/davidapps-empty-trusted-headers
