@@ -86,7 +86,7 @@ spec:
                 - name: clickhouse-data
                   mountPath: /var/lib/clickhouse
             - name: clickhouse-backup
-              image: altinity/clickhouse-backup:2.8.0@sha256:d830170d635a3afa1568e13e81dd8194eac954195941b9554f15440cf6bc6c1b
+              image: altinity/clickhouse-backup:2.8.1@sha256:08016b048f7e6035c048501315c2a788e5a782f15f168e042c7bd48d5a388cc4
               imagePullPolicy: IfNotPresent
               args:
                 - server
