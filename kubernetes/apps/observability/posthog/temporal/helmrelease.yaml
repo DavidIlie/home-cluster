@@ -35,7 +35,7 @@ spec:
           init-temporal-db:
             image: &initImage
               repository: ghcr.io/home-operations/postgres-init
-              tag: 18.4
+              tag: 18.4@sha256:ebd9d30add17acdf935d73eb004758c7dfd9388aaa605fda70ad74378ab92aec
             env: &initEnvBase
               INIT_POSTGRES_HOST: postgres17-rw.databases.svc.cluster.local
               INIT_POSTGRES_USER: temporal
@@ -54,7 +54,7 @@ spec:
           app:
             image:
               repository: temporalio/auto-setup
-              tag: "1.29.7"
+              tag: "1.29.7@sha256:f14912b699cf73015ad5c4fc18d522d4b014db90e794039214dfb7c022c2644f"
               pullPolicy: IfNotPresent
             env:
               DB: postgres12
@@ -114,7 +114,7 @@ spec:
           app:
             image:
               repository: temporalio/ui
-              tag: "2.54.1"
+              tag: "2.54.1@sha256:ff0943fe532b8e33c46cd28b29e81e0ce0b6f55b9ee50a38ef1b437cc4de3fa5"
               pullPolicy: IfNotPresent
             env:
               TEMPORAL_ADDRESS: posthog-temporal-frontend.observability.svc.cluster.local:7233
