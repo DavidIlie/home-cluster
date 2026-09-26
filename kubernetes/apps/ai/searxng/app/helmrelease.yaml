@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/searxng/searxng
-              tag: 2026.1.20-410996df9
+              tag: 2026.1.20-410996df9@sha256:b1d1e80c75adda484544b6162ee12b790813905430ac6f0d2ca3da83fe4de846
             env:
               SEARXNG_BASE_URL: http://searxng.ai.svc.cluster.local:8080
               SEARXNG_PORT: &port 8080
