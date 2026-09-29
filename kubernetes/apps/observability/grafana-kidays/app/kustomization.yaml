@@ -1,0 +1,35 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./query-gateway.yaml
+  - ./networkpolicy.yaml
+  # Written by the audited non-model mover (davidapps-auth
+  # scripts/davidapps-sops-import.mjs); never edit or decrypt by hand.
+  - ./oidc-secret.sops.yaml
+  - ./admin-secret.sops.yaml
+  - ./gateway-secret.sops.yaml
+configMapGenerator:
+  # Grafana and the gateway read the same files. Grafana's copy keeps a stable
+  # name because the HelmRelease references it by name; the gateway's copy is
+  # content-hashed so any dashboard change rolls the gateway and reloads the
+  # allowlist.
+  - name: grafana-kidays-dashboards
+    files:
+      - ./dashboards/kidays-overview.json
+      - ./dashboards/kidays-server.json
+      - ./dashboards/kidays-browser.json
+      - ./dashboards/kidays-backend.json
+    options:
+      disableNameSuffixHash: true
+  - name: kidays-query-gateway-dashboards
+    files:
+      - ./dashboards/kidays-overview.json
+      - ./dashboards/kidays-server.json
+      - ./dashboards/kidays-browser.json
+      - ./dashboards/kidays-backend.json
+  - name: kidays-query-gateway-config
+    files:
+      - config.json=./gateway/config.json

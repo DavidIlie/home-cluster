@@ -33,6 +33,8 @@ ingress:
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "monitoring.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+  - hostname: "kidays-monitoring.davidapps.dev"
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "plausible.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "posthog.davidapps.dev"

@@ -1,0 +1,136 @@
+---
+# Only the Kidays Grafana server may reach the gateway, and the gateway may
+# reach only the three backends it forwards to.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kidays-query-gateway
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: kidays-query-gateway
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: grafana-kidays
+      ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: prometheus-davidapps-cluster
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: prometheus-home-cluster
+      ports:
+        - port: 9090
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: victoria-logs-single
+              app.kubernetes.io/instance: victoria-logs
+      ports:
+        - port: 9428
+          protocol: TCP
+---
+# The Kidays Grafana has no route to any shared backend: only the external
+# ingress-nginx controller may reach it, and it may reach only the gateway and DNS here. HTTPS egress
+# is a separate FQDN allowlist below.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: grafana-kidays
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana-kidays
+  policyTypes: [Ingress, Egress]
+  ingress:
+    # Only the external ingress-nginx controller pods, and only in the network
+    # namespace (namespace AND pod selector in one peer).
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: network
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+              app.kubernetes.io/instance: external-ingress-nginx
+              app.kubernetes.io/component: controller
+      ports:
+        - port: 3000
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: kidays-query-gateway
+      ports:
+        - port: 8080
+          protocol: TCP
+---
+# Standard NetworkPolicy cannot name an FQDN. HTTPS leaves the pod only for:
+# - id.davidapps.dev: OIDC authorize/token/userinfo/JWKS;
+# - grafana.com and storage.googleapis.com: the pinned
+#   victoriametrics-logs-datasource@0.32.0 preinstall (the catalog API redirects
+#   the archive to storage.googleapis.com; Grafana verifies the plugin
+#   signature before loading it).
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: grafana-kidays-https
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana-kidays
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: id.davidapps.dev
+        - matchName: grafana.com
+        - matchName: storage.googleapis.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
