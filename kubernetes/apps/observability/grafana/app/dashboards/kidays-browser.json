@@ -642,7 +642,7 @@
     },
     {
       "title": "Browser fetch rate by method",
-      "description": "Faro fetch/XHR spans (span metrics, service kidays-web).",
+      "description": "Faro fetch/XHR spans only (span names HTTP <METHOD>, service kidays-web); document-load spans are excluded.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -688,7 +688,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-web\"}[$__rate_interval]))",
+          "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-web\",span_name=~\"HTTP .+\"}[$__rate_interval]))",
           "legendFormat": "{{span_name}}",
           "range": true,
           "instant": false,
@@ -704,8 +704,8 @@
       }
     },
     {
-      "title": "Browser fetch p95",
-      "description": "p95 of browser fetch and document-load spans.",
+      "title": "Browser span p95 (fetch and document load)",
+      "description": "p95 per browser span name: HTTP <METHOD> fetches plus documentLoad/documentFetch.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",

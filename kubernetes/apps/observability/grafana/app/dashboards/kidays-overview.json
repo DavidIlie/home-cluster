@@ -510,8 +510,8 @@
       "type": "row"
     },
     {
-      "title": "Web server requests by status",
-      "description": "Server request spans per second, split by span status (unset/ok vs error).",
+      "title": "Web server requests by trace status",
+      "description": "Server request spans per second by OpenTelemetry span status (unset / ok / error). This is the trace status, not the HTTP status code; see Server & rendering and the ingress panels for HTTP codes.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -574,7 +574,7 @@
     },
     {
       "title": "Backend operations by outcome",
-      "description": "Closed Convex operation spans (webhooks, payment intents, workflow terminals) per second by operation/detail/outcome name.",
+      "description": "Closed Convex operation spans (webhooks, payment intents, workflow terminals) per second by operation/detail/outcome name. The telemetry.canary diagnostic is excluded.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -620,7 +620,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-convex-backend\"}[$__rate_interval]))",
+          "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-convex-backend\",span_name!~\"telemetry\\\\..+\"}[$__rate_interval]))",
           "legendFormat": "{{span_name}}",
           "range": true,
           "instant": false,

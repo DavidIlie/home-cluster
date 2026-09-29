@@ -73,7 +73,7 @@
     },
     {
       "title": "Stripe deliveries by type and outcome",
-      "description": "One span per webhook delivery handled by Convex: `stripe.webhook <event type|_unverified|_other> <processed|duplicate|rejected|retry_requested|throttled|failed>`.",
+      "description": "One span per signature-verified delivery: `stripe.webhook <event type|_other> <processed|duplicate|retry_requested|rejected|failed>`. Unverified or throttled requests are not recorded; `_unverified failed` is a server fault before verification.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
