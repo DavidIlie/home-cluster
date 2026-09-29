@@ -357,7 +357,7 @@
     },
     {
       "title": "Browser errors · range",
-      "description": "Uncaught browser errors, exported only as a closed class + route event (kidays.browser_error). Not unique users.",
+      "description": "Uncaught browser errors from consenting visitors, exported only as a closed class + route event (kidays.browser_error). Not unique users.",
       "type": "stat",
       "datasource": {
         "type": "victoriametrics-logs-datasource",
@@ -896,7 +896,7 @@
     },
     {
       "title": "Telemetry release (service.version)",
-      "description": "Exact 40-character commit reported by each exporting service (Tempo target info).",
+      "description": "Exact 40-character commit reported by the server and Convex exporters (Tempo target info). The browser sends no traces; its release is app_version on Browser experience.",
       "type": "table",
       "datasource": {
         "type": "prometheus",
@@ -923,7 +923,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "max by (service, service_version) (traces_target_info{service=~\"kidays-fr-app|kidays-web|kidays-fr-convex-backend\"})",
+          "expr": "max by (service, service_version) (traces_target_info{service=~\"kidays-fr-app|kidays-fr-convex-backend\"})",
           "legendFormat": "",
           "range": false,
           "instant": true,

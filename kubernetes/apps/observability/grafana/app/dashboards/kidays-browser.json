@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Faro browser telemetry from app.kidays.fr through the public gateway (j9w3fh6s.kidays.fr). Closed projection: route-template page URLs, Web Vitals numbers, error class + route events, fetch method/status/dependency. No sessions, storage, console, replay or user identity; not unique people.",
+  "description": "Faro browser telemetry from app.kidays.fr through the public gateway (j9w3fh6s.kidays.fr), sent only by visitors whose current consent cookie (version 3) accepts analytics. Closed projection: route-template page URLs, Web Vitals numbers, error class + route events. No traces, sessions, storage, console, replay or identity. Counts cover consenting visitors only; they are not traffic totals or unique people.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -637,134 +637,8 @@
       },
       "id": 11,
       "panels": [],
-      "title": "Browser requests and ingest",
+      "title": "Ingest",
       "type": "row"
-    },
-    {
-      "title": "Browser fetch rate by method",
-      "description": "Faro fetch/XHR spans only (span names HTTP <METHOD>, service kidays-web); document-load spans are excluded.",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-home-cluster"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "noValue": "No data",
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-home-cluster"
-          },
-          "editorMode": "code",
-          "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-web\",span_name=~\"HTTP .+\"}[$__rate_interval]))",
-          "legendFormat": "{{span_name}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ],
-      "id": 12,
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 36
-      }
-    },
-    {
-      "title": "Browser span p95 (fetch and document load)",
-      "description": "p95 per browser span name: HTTP <METHOD> fetches plus documentLoad/documentFetch.",
-      "type": "timeseries",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-home-cluster"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "noValue": "No data",
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-home-cluster"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, span_name) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-web\"}[$__rate_interval])))",
-          "legendFormat": "{{span_name}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ],
-      "id": 13,
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 36
-      }
     },
     {
       "title": "Gateway ingest outcomes",
@@ -821,11 +695,11 @@
           "refId": "A"
         }
       ],
-      "id": 14,
+      "id": 12,
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 12,
+        "x": 0,
         "y": 36
       }
     },
@@ -883,12 +757,12 @@
           "refId": "A"
         }
       ],
-      "id": 15,
+      "id": 13,
       "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 44
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
       }
     }
   ],
