@@ -33,7 +33,7 @@ spec:
     # the pod starts. Bump this when a URL-provisioned dashboard changes so Flux
     # rolls the pod after the merged JSON is live.
     podAnnotations:
-      davidapps.dev/url-dashboards-revision: "2026-09-29-zerocut-telemetry"
+      davidapps.dev/url-dashboards-revision: "2026-09-29-kidays-telemetry"
     resources:
       requests:
         cpu: 25m
@@ -555,6 +555,8 @@ spec:
           - name: apps-kidays
             orgId: 1
             folder: Apps / Kidays
+            # Existing folder UID; the dedicated Kidays Grafana reuses it.
+            folderUid: afv5x41dfcw00c
             type: file
             disableDeletion: false
             editable: true
@@ -742,6 +744,12 @@ spec:
       apps-kidays:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-overview.json
+        server:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-server.json
+        browser:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-browser.json
+        backend:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-backend.json
       telemetry-platform:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/telemetry-platform.json
