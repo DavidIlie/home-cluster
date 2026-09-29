@@ -1,0 +1,55 @@
+{
+  "datasources": [
+    {
+      "uid": "prometheus-davidapps-cluster",
+      "kind": "prometheus",
+      "upstream": "http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090"
+    },
+    {
+      "uid": "prometheus-home-cluster",
+      "kind": "prometheus",
+      "upstream": "http://prometheus-home-cluster.observability.svc.cluster.local:9090"
+    },
+    {
+      "uid": "victoria-logs",
+      "kind": "victorialogs",
+      "upstream": "http://victoria-logs-server.observability.svc.cluster.local:9428"
+    }
+  ],
+  "scope": {
+    "prometheusMatchers": {
+      "namespace": [
+        "kidays-fr"
+      ],
+      "exported_namespace": [
+        "kidays-fr"
+      ],
+      "service": [
+        "kidays-fr-app",
+        "kidays-web",
+        "kidays-fr-convex-backend"
+      ],
+      "project": [
+        "kidays"
+      ],
+      "host": [
+        "app.kidays.fr"
+      ]
+    },
+    "logsStreamPrefixes": [
+      "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"kidays-web\"",
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"kidays-fr\"}",
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"kidays-fr\",app=\"kidays-fr-convex-backend\"}"
+    ]
+  },
+  "limits": {
+    "maxRangeSeconds": 2592000,
+    "horizonSeconds": 2592000,
+    "maxFutureSkewSeconds": 300,
+    "maxPoints": 11000,
+    "minStepSeconds": 1,
+    "maxLogLimit": 1000,
+    "maxResponseBytes": 16777216,
+    "upstreamTimeoutSeconds": 30
+  }
+}
