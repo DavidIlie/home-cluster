@@ -683,7 +683,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "Minor-currency units per second, split by stream, direction, and currency. Credit and debit lines are not combined.",
+      "description": "Minor-currency units per second, split by stream, direction, mode (live/test), and currency. Credit and debit lines, modes, and currencies are never combined.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -732,9 +732,9 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_stream, revenue_net_direction, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__rate_interval]))",
+          "expr": "sum by (revenue_stream, revenue_net_direction, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__rate_interval]))",
           "instant": false,
-          "legendFormat": "{{revenue_stream}} · {{revenue_net_direction}} · {{commerce_currency}}",
+          "legendFormat": "{{revenue_stream}} · {{revenue_net_direction}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": true,
           "refId": "A"
         }
