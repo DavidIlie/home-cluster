@@ -29,6 +29,11 @@ spec:
       sha: 91032506559aa7477105b5835c5a17475b4909635fbe240bd6aff50512717a5b
     deploymentStrategy:
       type: Recreate
+    # URL dashboards are downloaded from raw `main` by an init container only when
+    # the pod starts. Bump this when a URL-provisioned dashboard changes so Flux
+    # rolls the pod after the merged JSON is live.
+    podAnnotations:
+      davidapps.dev/url-dashboards-revision: "2026-09-29-zerocut-telemetry"
     resources:
       requests:
         cpu: 25m

@@ -44,7 +44,7 @@
       "targetBlank": true,
       "title": "Repository",
       "type": "link",
-      "url": "https://github.com/DavidIlie/zerocut"
+      "url": "https://github.com/davidapps-org/zerocut"
     },
     {
       "includeVars": false,
@@ -90,7 +90,7 @@
   "templating": {
     "list": []
   },
-  "version": 1,
+  "version": 2,
   "panels": [
     {
       "collapsed": false,
@@ -2342,6 +2342,479 @@
         }
       ],
       "description": "The PVCs are node-local thin ZFS volumes; this is written data, not their logical growth ceiling."
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 99
+      },
+      "id": 50,
+      "panels": [],
+      "title": "Live alert delivery (SSE streams and creator webhooks)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "SSE streams open across pods now. Each pod reports only its own streams, so pods are summed. No data means the running release predates the zerocut.realtime.connections gauge.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "noValue": "No data",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 100
+      },
+      "id": 51,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum({__name__=\"zerocut_realtime_connections\",service_name=\"zerocut\",deployment_environment_name=\"production\"})",
+          "instant": true,
+          "legendFormat": "streams",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Open realtime streams",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Creator webhook attempts through the Hooker forwarder (outbox deliveries and settings test sends).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "noValue": "No data",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 100
+      },
+      "id": 52,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "attempts",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook attempts · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Attempts whose outcome was not delivered (http_error, transport_error, unknown). Retries are separate attempts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "noValue": "No data",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.2
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 100
+      },
+      "id": 53,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",webhook_outcome!=\"delivered\"}[$__range])) / clamp_min(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])), 1)",
+          "instant": true,
+          "legendFormat": "failure ratio",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook failure ratio · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "p95 time until the forwarder answered, from explicit buckets 0.1 to 11 seconds (the attempt timeout).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "noValue": "No data",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 100
+      },
+      "id": 54,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate({__name__=~\"webhook_delivery_duration(_seconds)?_bucket\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__rate_interval])))",
+          "instant": true,
+          "legendFormat": "p95",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook p95 duration",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "app = dashboards and OBS overlays (/api/realtime); public_api = API-key event streams. A drop to zero during a rollout means overlays are reconnecting.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 104
+      },
+      "id": 55,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (realtime_surface) ({__name__=\"zerocut_realtime_connections\",service_name=\"zerocut\",deployment_environment_name=\"production\"})",
+          "instant": false,
+          "legendFormat": "{{realtime_surface}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Open streams by surface",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Attempt rate per fixed destination name and outcome. Destinations never contain creator, URL, or ID data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 104
+      },
+      "id": 56,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (webhook_destination, webhook_outcome) (rate({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "{{webhook_destination}} · {{webhook_outcome}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook attempts by destination and outcome",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "p95 forwarder response time per destination.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 112
+      },
+      "id": 57,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, webhook_destination) (rate({__name__=~\"webhook_delivery_duration(_seconds)?_bucket\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__rate_interval])))",
+          "instant": false,
+          "legendFormat": "{{webhook_destination}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook p95 duration by destination",
+      "type": "timeseries"
     }
   ]
 }

@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -21,7 +24,9 @@
       "asDropdown": true,
       "includeVars": false,
       "keepTime": true,
-      "tags": ["zerocut"],
+      "tags": [
+        "zerocut"
+      ],
       "targetBlank": false,
       "title": "ZeroCut dashboards",
       "type": "dashboards"
@@ -40,7 +45,7 @@
       "targetBlank": true,
       "title": "Repository",
       "type": "link",
-      "url": "https://github.com/DavidIlie/zerocut"
+      "url": "https://github.com/davidapps-org/zerocut"
     },
     {
       "includeVars": false,
@@ -55,39 +60,63 @@
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "panels": [],
       "title": "ZeroCut platform payments",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Positive amount movements recorded by ZeroCut's own billing ledger in the selected range. Each tile is one product, outcome, provider, mode, and currency. Values are integer minor-currency units; do not add different outcomes or currencies.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "decimals": 0,
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 1 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
       "id": 2,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__range]))",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -98,39 +127,64 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Net platform revenue movement in the selected range: explicit credits minus explicit debits. Neutral compensation/lifecycle signals are excluded. Results stay separate by product, provider, mode, and currency and are not a reconciled ledger.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 0 }
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 1 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
       "id": 3,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "(sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) - sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range])))",
+          "expr": "(sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) - sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range])))",
           "instant": true,
           "legendFormat": "{{revenue_product}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -141,32 +195,51 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Number of durable platform billing transitions observed in the selected range, split by bounded business dimensions. A count is an operational event count, not an invoice count from an accounting system.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "decimals": 0,
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 8 },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      },
       "id": 4,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__range]))",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -177,34 +250,60 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Per-second rate of durable platform billing transitions. Use the legend to distinguish successful payments, refunds, disputes, and compensation without combining their meanings.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 12,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "unit": "ops"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 16, "x": 8, "y": 8 },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 8
+      },
       "id": 5,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__rate_interval]))",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": true,
@@ -216,39 +315,63 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
       "id": 6,
       "panels": [],
       "title": "Supporter-to-creator donations",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Positive creator-donation amount movements in the selected range after ZeroCut's durable Stripe or PayPal authority wins. Each tile is one outcome, provider, mode, and currency. Values are integer minor-currency units and are creator funds, not ZeroCut platform revenue.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "decimals": 0,
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 16 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
       "id": 7,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -259,39 +382,64 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Net creator-fund movement in the selected range: explicit credits minus explicit debits, with neutral lifecycle signals excluded. Results stay separate by provider, mode, and currency. This is operational flow telemetry, not creator payout accounting.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 0 }
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 16 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
       "id": 8,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "(sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) - sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range])))",
+          "expr": "(sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) - sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range])))",
           "instant": true,
           "legendFormat": "{{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -302,32 +450,51 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Number of durable creator-donation transitions in the selected range. Stripe and PayPal are counted only after application authority and retry deduplication.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "decimals": 0,
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 23 },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 23
+      },
       "id": 9,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -338,34 +505,60 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Per-second rate of durable creator-donation transitions, split by outcome, provider, mode, and currency.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 12,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "unit": "ops"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 16, "x": 8, "y": 23 },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 23
+      },
       "id": 10,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__rate_interval]))",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": true,
@@ -377,43 +570,73 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
       "id": 11,
       "panels": [],
       "title": "Server reliability and runtime",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 }
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           },
           "unit": "percentunit"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 31 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 31
+      },
       "id": 12,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "sum(kube_deployment_status_replicas_available{namespace=\"personal-projects\",deployment=\"zerocut\"}) / clamp_min(sum(kube_deployment_spec_replicas{namespace=\"personal-projects\",deployment=\"zerocut\"}), 1)",
           "instant": true,
@@ -426,36 +649,61 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 31 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 31
+      },
       "id": 13,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"personal-projects\",pod=~\"zerocut-.*\"}[$__range]))",
           "instant": true,
@@ -468,40 +716,68 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
-      "description": "p95 latency for server-kind ZeroCut spans generated by Tempo span metrics.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "description": "p95 latency for server-kind ZeroCut spans generated by Tempo span metrics. Long-lived SSE routes (/api/realtime, /api/v1/events/stream) are excluded.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 3,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 0.5 },
-              { "color": "red", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
             ]
           },
           "unit": "s"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 31 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 31
+      },
       "id": 14,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\".*(/api/realtime|/events/stream).*\"}[$__rate_interval])))",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -512,38 +788,66 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
       "description": "Error-status server spans divided by all server spans over the current rate interval.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 0.01 },
-              { "color": "red", "value": 0.05 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.05
+              }
             ]
           },
           "unit": "percentunit"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 31 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 31
+      },
       "id": 15,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
           "editorMode": "code",
           "expr": "sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])), 0.000001)",
           "instant": true,
@@ -556,31 +860,57 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 12,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "unit": "ops"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 35 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
       "id": 16,
       "options": {
-        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
           "editorMode": "code",
           "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval]))",
           "instant": false,
@@ -593,31 +923,57 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 20,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "unit": "ops"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 35 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
       "id": 17,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
           "editorMode": "code",
           "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
           "instant": false,
@@ -630,31 +986,57 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 12,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "unit": "cores"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 43 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 43
+      },
       "id": 18,
       "options": {
-        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"personal-projects\",pod=~\"zerocut-.*\",container!=\"POD\",image!=\"\"}[$__rate_interval]))",
           "instant": false,
@@ -667,31 +1049,57 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 12,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "unit": "bytes"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 43 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 43
+      },
       "id": 19,
       "options": {
-        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"personal-projects\",pod=~\"zerocut-.*\",container!=\"POD\",image!=\"\"})",
           "instant": false,
@@ -705,68 +1113,145 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 50 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
       "id": 29,
       "panels": [],
       "title": "Runtime placement and activity",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Current ZeroCut application pods only. Pod IP is the workload instance address; the Prometheus instance label belongs to kube-state-metrics and is intentionally hidden.",
       "fieldConfig": {
         "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Value #A" },
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
             "properties": [
-              { "id": "displayName", "value": "Ready" },
+              {
+                "id": "displayName",
+                "value": "Ready"
+              },
               {
                 "id": "mappings",
                 "value": [
                   {
                     "options": {
-                      "0": { "color": "red", "index": 0, "text": "Not ready" },
-                      "1": { "color": "green", "index": 1, "text": "Ready" }
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "Not ready"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "Ready"
+                      }
                     },
                     "type": "value"
                   }
                 ]
               },
-              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value #B" },
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
             "properties": [
-              { "id": "displayName", "value": "Restarts" },
-              { "id": "decimals", "value": 0 },
-              { "id": "unit", "value": "short" }
+              {
+                "id": "displayName",
+                "value": "Restarts"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value #C" },
+            "matcher": {
+              "id": "byName",
+              "options": "Value #C"
+            },
             "properties": [
-              { "id": "displayName", "value": "Uptime" },
-              { "id": "decimals", "value": 0 },
-              { "id": "unit", "value": "s" }
+              {
+                "id": "displayName",
+                "value": "Uptime"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "s"
+              }
             ]
           }
         ]
       },
-      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 51 },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 51
+      },
       "id": 30,
       "options": {
         "cellHeight": "sm",
-        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
-        "sortBy": [{ "desc": false, "displayName": "Node" }]
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Node"
+          }
+        ]
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "max by (pod, node, host_ip, pod_ip) (kube_pod_info{namespace=\"personal-projects\",created_by_kind=\"ReplicaSet\",created_by_name=~\"zerocut-.*\"}) * on (pod) group_left() max by (pod) (kube_pod_status_ready{namespace=\"personal-projects\",condition=\"true\"})",
           "format": "table",
@@ -776,7 +1261,10 @@
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "sum by (pod) (kube_pod_container_status_restarts_total{namespace=\"personal-projects\",pod=~\"zerocut-.*\",container=\"app\"})",
           "format": "table",
@@ -786,7 +1274,10 @@
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "time() - max by (pod) (kube_pod_start_time{namespace=\"personal-projects\"} and on (namespace, pod) kube_pod_info{namespace=\"personal-projects\",created_by_kind=\"ReplicaSet\",created_by_name=~\"zerocut-.*\"})",
           "format": "table",
@@ -800,12 +1291,18 @@
       "transformations": [
         {
           "id": "joinByField",
-          "options": { "byField": "pod", "mode": "outer" }
+          "options": {
+            "byField": "pod",
+            "mode": "outer"
+          }
         },
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true, "__name__": true },
+            "excludeByName": {
+              "Time": true,
+              "__name__": true
+            },
             "indexByName": {
               "pod": 0,
               "node": 1,
@@ -827,18 +1324,28 @@
       "type": "table"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "Running ZeroCut application pods by their actual Kubernetes node. Scheduled jobs are excluded.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "continuous-GrYlRd" },
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
           "decimals": 0,
           "mappings": [],
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 51 },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 51
+      },
       "id": 31,
       "options": {
         "displayMode": "gradient",
@@ -846,14 +1353,23 @@
         "minVizWidth": 0,
         "namePlacement": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showUnfilled": true,
         "sizing": "auto",
         "valueMode": "color"
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "sum by (node) (max by (namespace, pod, node) (kube_pod_info{namespace=\"personal-projects\",created_by_kind=\"ReplicaSet\",created_by_name=~\"zerocut-.*\"}) * on (namespace, pod) group_left() max by (namespace, pod) (kube_pod_status_phase{namespace=\"personal-projects\",phase=\"Running\"} == 1))",
           "instant": true,
@@ -866,31 +1382,57 @@
       "type": "bargauge"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
       "description": "Server-side ZeroCut log activity split by the real Kubernetes node and pod. Old pod names can remain visible when the selected range spans a rollout.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "bars",
             "fillOpacity": 30,
             "lineWidth": 1,
             "showPoints": "never",
-            "stacking": { "group": "A", "mode": "normal" }
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 59 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 59
+      },
       "id": 32,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:\"zerocut\" | stats by (_time:5m, k_host, k_pod_name) count()",
           "legendFormat": "{{k_host}} · {{k_pod_name}}",
@@ -903,47 +1445,87 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 67 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
       "id": 20,
       "panels": [],
       "title": "Browser experience",
       "type": "row"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
       "description": "p75 Largest Contentful Paint emitted by Faro, split by exact browser release SHA. The expected flattened field is verified after the first deployment canary.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 15,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 2500 },
-              { "color": "red", "value": 4000 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2500
+              },
+              {
+                "color": "red",
+                "value": 4000
+              }
             ]
           },
           "unit": "ms"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 68 },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 68
+      },
       "id": 21,
       "options": {
-        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"measurement\" | stats by (_time:5m, app_version) quantile(0.75, lcp) if (lcp:*) as lcp_p75",
           "legendFormat": "{{app_version}}",
@@ -955,40 +1537,75 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
       "description": "p75 Interaction to Next Paint emitted by Faro, split by exact browser release SHA.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 15,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 200 },
-              { "color": "red", "value": 500 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
             ]
           },
           "unit": "ms"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 68 },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 68
+      },
       "id": 22,
       "options": {
-        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"measurement\" | stats by (_time:5m, app_version) quantile(0.75, inp) if (inp:*) as inp_p75",
           "legendFormat": "{{app_version}}",
@@ -1000,40 +1617,75 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
       "description": "p75 Cumulative Layout Shift emitted by Faro, split by exact browser release SHA.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 15,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 0.1 },
-              { "color": "red", "value": 0.25 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.25
+              }
             ]
           },
           "unit": "none"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 68 },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 68
+      },
       "id": 23,
       "options": {
-        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"measurement\" | stats by (_time:5m, app_version) quantile(0.75, cls) if (cls:*) as cls_p75",
           "legendFormat": "{{app_version}}",
@@ -1045,33 +1697,59 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
-      "description": "Browser exception/error volume split by exact deployed browser SHA. URLs and messages are privacy-scrubbed by the telemetry package before ingestion.",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Faro exceptions per exact release. Console errors are exceptions in Faro 2 (including errors caught by the root error boundary), so this is the error count; warnings are not.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "bars",
             "fillOpacity": 35,
             "lineWidth": 1,
             "showPoints": "never",
-            "stacking": { "group": "A", "mode": "normal" }
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 76 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 76
+      },
       "id": 24,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
-          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:~\"exception|log\" _msg:~\"(?i)(error|exception|fatal|panic)\" | stats by (_time:5m, app_version, kind) count()",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"exception\" | stats by (_time:5m, app_version) count()",
           "legendFormat": "{{app_version}} · {{kind}}",
           "queryType": "statsRange",
           "refId": "A"
@@ -1082,38 +1760,69 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 84 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 84
+      },
       "id": 25,
       "panels": [],
       "title": "Logs, trace correlation, and active release",
       "type": "row"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
       "description": "Server container logs and browser Faro records. Browser and server series remain distinct.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "bars",
             "fillOpacity": 35,
             "lineWidth": 1,
             "showPoints": "never",
-            "stacking": { "group": "A", "mode": "normal" }
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 85 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 85
+      },
       "id": 26,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:\"zerocut\" | stats by (_time:5m, app) count()",
           "legendFormat": "server · {{app}}",
@@ -1121,7 +1830,10 @@
           "refId": "A"
         },
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "collector:\"alloy\" app_name:\"zerocut-web\" | stats by (_time:5m, app_name) count()",
           "legendFormat": "browser · {{app_name}}",
@@ -1133,9 +1845,17 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
       "description": "Recent server and browser errors. VictoriaLogs-derived trace IDs open the correlated Tempo trace through the datasource link.",
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 85 },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 85
+      },
       "id": 27,
       "options": {
         "dedupStrategy": "none",
@@ -1150,16 +1870,22 @@
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:\"zerocut\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _msg, _time, app, k_pod_name, k_container_name, trace_id, span_id | sort desc | limit 200",
           "queryType": "range",
           "refId": "A"
         },
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
-          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:~\"exception|log\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _msg, _time, kind, app_name, app_version, page_url, trace_id, span_id | sort desc | limit 200",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" (kind:\"exception\" or (kind:\"log\" level:\"error\")) | fields _msg, _time, kind, app_name, app_version, page_url, trace_id, span_id | sort desc | limit 200",
           "queryType": "range",
           "refId": "B"
         }
@@ -1168,11 +1894,20 @@
       "type": "logs"
     },
     {
-      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "Server and browser trace resources carry the exact 40-character deployed Git SHA as service_version. Click a release row to open that immutable commit; container image identity is retained alongside it.",
       "fieldConfig": {
         "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "links": [
             {
               "targetBlank": true,
@@ -1183,17 +1918,32 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 95 },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 95
+      },
       "id": 28,
       "options": {
         "cellHeight": "sm",
-        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
           "expr": "max by (namespace, pod, container, image, image_id) (kube_pod_container_info{namespace=\"personal-projects\",pod=~\"zerocut-.*\"})",
           "instant": true,
@@ -1202,7 +1952,10 @@
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-home-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
           "editorMode": "code",
           "expr": "max by (job, service_version) (traces_target_info{davidapps_project_id=\"zerocut\",job=~\"davidapps/zerocut(-web)?\",service_version!=\"\"})",
           "instant": true,
@@ -1216,112 +1969,198 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 102 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 102
+      },
       "id": 33,
       "panels": [],
-      "title": "Product acquisition and creator usage",
+      "title": "Legacy purchase inventory and creator usage",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
-      "description": "All ZeroCut product acquisitions present in the canonical payment ledger, including acquisitions that predate telemetry. Refunded and disputed rows remain part of the lifetime inventory.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "One-time APP_PURCHASE and PREMIUM_UPGRADE rows in the durable AppPurchasePayment ledger, in every state. Premium subscriptions, founder intro payments, and collaborator seats are separate ledgers and are not counted. Every replica reports the same totals, so the value is the max across replicas.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 103 },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 103
+      },
       "id": 34,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\"}))",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\",deployment_environment_name=\"production\"}))",
           "instant": true,
           "legendFormat": "known acquisitions",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Known acquisitions",
+      "title": "Legacy one-time purchases",
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
-      "description": "Current ZeroCut acquisitions whose canonical payment-ledger state is active. This is an inventory gauge rather than a selected-range event count.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Legacy one-time purchases that are still active (not refunded or disputed). Not a count of current subscribers.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 103 },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 103
+      },
       "id": 35,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\",deployment_environment_name=\"production\",acquisition_status=\"active\"}))",
           "instant": true,
           "legendFormat": "active acquisitions",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Active acquisitions",
+      "title": "Active legacy one-time purchases",
       "type": "stat"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
-      "description": "Distinct privacy-safe Faro sessions that loaded an authenticated /app workspace page in the selected range. This is a usage proxy, not a count of unique creator accounts.",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Distinct privacy-safe Faro sessions that loaded an authenticated /app workspace page in the selected range. This is a usage proxy, not a count of unique creator accounts. page_url is exported as origin plus route pattern (for example /app/dashboard/donations or /[handle]); records from releases before path normalization can still show raw paths inside the selected range.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 103 },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 103
+      },
       "id": 36,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats count_uniq(session_id) as workspace_sessions",
           "queryType": "stats",
@@ -1332,17 +2171,28 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
       "description": "1 means the latest periodic read of the canonical acquisition ledger succeeded; 0 means the app could not refresh it. This separates an empty ledger from a failed snapshot.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
           "mappings": [
             {
               "options": {
-                "0": { "color": "red", "text": "Failed" },
-                "1": { "color": "green", "text": "Healthy" }
+                "0": {
+                  "color": "red",
+                  "text": "Failed"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "Healthy"
+                }
               },
               "type": "value"
             }
@@ -1350,30 +2200,50 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 }
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 103 },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 103
+      },
       "id": 37,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto",
         "wideLayout": true
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-davidapps-cluster" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
           "editorMode": "code",
-          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_(1|ratio))?\",service_name=\"zerocut\"})",
+          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_(1|ratio))?\",service_name=\"zerocut\",deployment_environment_name=\"production\"})",
           "instant": true,
           "legendFormat": "snapshot",
           "range": false,
@@ -1384,33 +2254,59 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
-      "description": "Distinct authenticated-workspace Faro sessions per hour. One person may create multiple sessions, so the series deliberately describes sessions rather than creator identities.",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Distinct authenticated-workspace Faro sessions per hour. One person may create multiple sessions, so the series deliberately describes sessions rather than creator identities. page_url is exported as origin plus route pattern (for example /app/dashboard/donations or /[handle]); records from releases before path normalization can still show raw paths inside the selected range.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 20,
             "lineWidth": 2,
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "decimals": 0,
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 110 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 110
+      },
       "id": 38,
       "options": {
-        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats by (_time:1h) count_uniq(session_id) as active_sessions",
           "legendFormat": "workspace sessions",
@@ -1422,25 +2318,49 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
-      "description": "Authenticated ZeroCut workspace pages ranked by distinct Faro sessions and total browser signals. Public marketing and creator-profile traffic is excluded.",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Authenticated ZeroCut workspace pages ranked by distinct Faro sessions and total browser signals. Public marketing and creator-profile traffic is excluded. page_url is exported as origin plus route pattern (for example /app/dashboard/donations or /[handle]); records from releases before path normalization can still show raw paths inside the selected range.",
       "fieldConfig": {
         "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 110 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 110
+      },
       "id": 39,
       "options": {
         "cellHeight": "sm",
-        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
       "targets": [
         {
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
           "editorMode": "code",
           "expr": "collector:\"alloy\" app_name:\"zerocut-web\" page_url:~\"https://zerocut.gg/app.*\" | stats by (page_url) count_uniq(session_id) as sessions, count() as signals | sort by (sessions desc) | limit 20",
           "queryType": "stats",
@@ -1449,17 +2369,254 @@
       ],
       "title": "Most-used workspace pages",
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 118
+      },
+      "id": 40,
+      "panels": [],
+      "title": "Live alert delivery (SSE streams and creator webhooks)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "SSE streams open across pods now. Each pod reports only its own streams, so pods are summed. No data means the running release predates the zerocut.realtime.connections gauge.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "noValue": "No data",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 119
+      },
+      "id": 41,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum({__name__=\"zerocut_realtime_connections\",service_name=\"zerocut\",deployment_environment_name=\"production\"})",
+          "instant": true,
+          "legendFormat": "streams",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Open realtime streams",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Creator webhook attempts through the Hooker forwarder (outbox deliveries and settings test sends).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "noValue": "No data",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 119
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "attempts",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook attempts · selected range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Attempts whose outcome was not delivered (http_error, transport_error, unknown). Retries are separate attempts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "noValue": "No data",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.2
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 119
+      },
+      "id": 43,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",webhook_outcome!=\"delivered\"}[$__range])) / clamp_min(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])), 1)",
+          "instant": true,
+          "legendFormat": "failure ratio",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook failure ratio · selected range",
+      "type": "stat"
     }
   ],
   "refresh": "30s",
   "schemaVersion": 42,
-  "tags": ["apps", "zerocut", "otel", "overview", "revenue"],
-  "templating": { "list": [] },
-  "time": { "from": "now-24h", "to": "now" },
-  "timepicker": { "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h"] },
+  "tags": [
+    "apps",
+    "zerocut",
+    "otel",
+    "overview",
+    "revenue"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h"
+    ]
+  },
   "timezone": "browser",
   "title": "Overview",
   "uid": "zerocut-overview",
-  "version": 6,
+  "version": 7,
   "weekStart": ""
 }
