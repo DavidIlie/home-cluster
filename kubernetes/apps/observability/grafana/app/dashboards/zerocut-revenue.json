@@ -45,7 +45,7 @@
       "targetBlank": true,
       "title": "Repository",
       "type": "link",
-      "url": "https://github.com/DavidIlie/zerocut"
+      "url": "https://github.com/davidapps-org/zerocut"
     },
     {
       "includeVars": false,
@@ -116,7 +116,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__range]))",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -184,7 +184,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "(sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) - sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range])))",
+          "expr": "(sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) - sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\",revenue_net_direction=\"debit\"}[$__range])))",
           "instant": true,
           "legendFormat": "{{revenue_product}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -239,7 +239,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__range]))",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -303,7 +303,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"platform\"}[$__rate_interval]))",
+          "expr": "sum by (revenue_product, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"platform\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{revenue_product}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": true,
@@ -371,7 +371,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -439,7 +439,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "(sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) - sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range])))",
+          "expr": "(sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) - sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range]))) or sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"credit\"}[$__range])) or (-1 * sum by (commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\",revenue_net_direction=\"debit\"}[$__range])))",
           "instant": true,
           "legendFormat": "{{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -494,7 +494,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -558,7 +558,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__rate_interval]))",
+          "expr": "sum by (commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_stream=\"creator_donation\",revenue_product=\"creator_donation\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": true,
@@ -613,7 +613,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_stream, revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_net_direction=\"credit\"}[$__range]))",
+          "expr": "sum by (revenue_stream, revenue_product, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_net_direction=\"credit\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{revenue_stream}} · {{revenue_product}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -668,7 +668,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_stream, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",revenue_net_direction=\"debit\"}[$__range]))",
+          "expr": "sum by (revenue_stream, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (increase({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\",revenue_net_direction=\"debit\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{revenue_stream}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": false,
@@ -683,7 +683,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "Minor-currency units per second, split by stream, direction, and currency. Credit and debit lines are not combined.",
+      "description": "Minor-currency units per second, split by stream, direction, mode (live/test), and currency. Credit and debit lines, modes, and currencies are never combined.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -732,9 +732,9 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_stream, revenue_net_direction, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\"}[$__rate_interval]))",
+          "expr": "sum by (revenue_stream, revenue_net_direction, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_sum\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__rate_interval]))",
           "instant": false,
-          "legendFormat": "{{revenue_stream}} · {{revenue_net_direction}} · {{commerce_currency}}",
+          "legendFormat": "{{revenue_stream}} · {{revenue_net_direction}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": true,
           "refId": "A"
         }
@@ -796,7 +796,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_stream, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\"}[$__rate_interval]))",
+          "expr": "sum by (revenue_stream, commerce_outcome, commerce_provider, commerce_mode, commerce_currency) (rate({__name__=~\"zerocut_revenue_amount(_minor_currency_unit)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{revenue_stream}} · {{commerce_outcome}} · {{commerce_provider}} · {{commerce_mode}} · {{commerce_currency}}",
           "range": true,
@@ -816,7 +816,7 @@
       },
       "id": 15,
       "panels": [],
-      "title": "Durable acquisition inventory",
+      "title": "Legacy one-time purchase inventory (durable ledger)",
       "type": "row"
     },
     {
@@ -824,7 +824,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "All ZeroCut product acquisitions present in the canonical AppPurchasePayment ledger, including purchases made before telemetry was deployed. Refunded and disputed acquisitions remain counted and are split by state in the detailed series.",
+      "description": "One-time APP_PURCHASE and PREMIUM_UPGRADE rows in the durable AppPurchasePayment ledger, in every state. Premium subscriptions, founder intro payments, and collaborator seats are separate ledgers and are not counted. Every replica reports the same totals, so the value is the max across replicas.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -873,14 +873,14 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\"}))",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\",deployment_environment_name=\"production\"}))",
           "instant": true,
           "legendFormat": "known acquisitions",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Known acquisitions",
+      "title": "Legacy one-time purchases",
       "type": "stat"
     },
     {
@@ -888,7 +888,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "ZeroCut product acquisitions whose canonical ledger state is active. This is a current inventory gauge, not an event count constrained by the dashboard time range.",
+      "description": "Legacy one-time purchases that are still active (not refunded or disputed). Not a count of current subscribers.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -937,14 +937,14 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
+          "expr": "sum(max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_count(_(1|ratio))?\",service_name=\"zerocut\",deployment_environment_name=\"production\",acquisition_status=\"active\"}))",
           "instant": true,
           "legendFormat": "active acquisitions",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Active acquisitions",
+      "title": "Active legacy one-time purchases",
       "type": "stat"
     },
     {
@@ -952,7 +952,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "Current active acquisition value after refunds, kept separate by product and currency. Values are integer minor-currency units and must not be added across currencies.",
+      "description": "Amount after refunds for active legacy one-time purchases, per currency in integer minor units. Currencies are never added together.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -992,14 +992,14 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (revenue_product, commerce_currency) (max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_net_amount(_minor_currency_unit)?\",service_name=\"zerocut\",acquisition_status=\"active\"}))",
+          "expr": "sum by (revenue_product, commerce_currency) (max by (revenue_product, acquisition_status, commerce_provider, commerce_currency) ({__name__=~\"zerocut_acquisition_net_amount(_minor_currency_unit)?\",service_name=\"zerocut\",deployment_environment_name=\"production\",acquisition_status=\"active\"}))",
           "instant": true,
           "legendFormat": "{{revenue_product}} · {{commerce_currency}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Active acquisition value",
+      "title": "Active legacy purchase value",
       "type": "stat"
     },
     {
@@ -1075,7 +1075,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_(1|ratio))?\",service_name=\"zerocut\"})",
+          "expr": "min({__name__=~\"zerocut_acquisition_snapshot_success(_(1|ratio))?\",service_name=\"zerocut\",deployment_environment_name=\"production\"})",
           "instant": true,
           "legendFormat": "snapshot",
           "range": false,
@@ -1084,6 +1084,26 @@
       ],
       "title": "Ledger snapshot",
       "type": "stat"
+    },
+    {
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 20,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "**Platform** rows are ZeroCut's own revenue (app purchases, Premium, seats, custom domains). **Creator donation** rows are supporter money moving to creators through ZeroCut; they are not ZeroCut revenue and must never be added to platform rows. Amounts are integer minor units per currency and mode (live/test); never add currencies or modes. Revenue events are counters (increase/sum over the range) emitted once per durable transition and are best-effort: a crash between commit and export loses a point. The legacy inventory gauges read only the one-time AppPurchasePayment ledger (max across replicas) and exclude subscriptions and seats. Use Stripe/PayPal and the durable stores for accounting.",
+        "mode": "markdown"
+      },
+      "title": "How to read these numbers",
+      "type": "text"
     }
   ],
   "refresh": "30s",
@@ -1117,6 +1137,6 @@
   "timezone": "browser",
   "title": "Revenue & donations",
   "uid": "zerocut-revenue",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }

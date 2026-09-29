@@ -45,7 +45,7 @@
       "targetBlank": true,
       "title": "Repository",
       "type": "link",
-      "url": "https://github.com/DavidIlie/zerocut"
+      "url": "https://github.com/davidapps-org/zerocut"
     },
     {
       "includeVars": false,
@@ -440,7 +440,7 @@
         "type": "victoriametrics-logs-datasource",
         "uid": "victoria-logs"
       },
-      "description": "Browser exception/error volume split by exact deployed browser SHA. URLs and messages are privacy-scrubbed by the telemetry package before ingestion.",
+      "description": "Faro exceptions per exact release. Console errors are exceptions in Faro 2 (including errors caught by the root error boundary), so this is the error count; warnings are not.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -488,7 +488,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:~\"exception|log\" _msg:~\"(?i)(error|exception|fatal|panic)\" | stats by (_time:5m, app_version, kind) count()",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"exception\" | stats by (_time:5m, app_version) count()",
           "legendFormat": "{{app_version}} · {{kind}}",
           "queryType": "statsRange",
           "refId": "A"
@@ -541,7 +541,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:~\"exception|log\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _msg, _time, kind, app_name, app_version, page_url, trace_id, span_id | sort desc | limit 200",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" (kind:\"exception\" or (kind:\"log\" level:\"error\")) | fields _msg, _time, kind, app_name, app_version, page_url, trace_id, span_id | sort desc | limit 200",
           "queryType": "range",
           "refId": "B"
         }
@@ -620,7 +620,7 @@
       },
       "id": 11,
       "options": {
-        "content": "Browser and workspace panels are event-dependent. An empty selected range means no matching Faro signals were received; release comparison uses the exact 40-character deployed Git SHA.",
+        "content": "Browser panels are event-dependent: an empty range means no matching Faro signals were received, not zero usage. page_url is origin plus a bounded route pattern (/[handle], /app/dashboard/…); claim, invite, and embed pages are never collected. Release comparison uses the exact 40-character deployed Git SHA.",
         "mode": "markdown"
       },
       "title": "Event-dependent dashboard",
@@ -645,7 +645,7 @@
         "type": "victoriametrics-logs-datasource",
         "uid": "victoria-logs"
       },
-      "description": "Distinct privacy-safe Faro sessions that loaded an authenticated /app workspace page in the selected range. This is a usage proxy, not a count of unique creator accounts.",
+      "description": "Distinct privacy-safe Faro sessions that loaded an authenticated /app workspace page in the selected range. This is a usage proxy, not a count of unique creator accounts. page_url is exported as origin plus route pattern (for example /app/dashboard/donations or /[handle]); records from releases before path normalization can still show raw paths inside the selected range.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -707,7 +707,7 @@
         "type": "victoriametrics-logs-datasource",
         "uid": "victoria-logs"
       },
-      "description": "Distinct authenticated-workspace Faro sessions per hour. One person may create multiple sessions, so the series deliberately describes sessions rather than creator identities.",
+      "description": "Distinct authenticated-workspace Faro sessions per hour. One person may create multiple sessions, so the series deliberately describes sessions rather than creator identities. page_url is exported as origin plus route pattern (for example /app/dashboard/donations or /[handle]); records from releases before path normalization can still show raw paths inside the selected range.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -771,7 +771,7 @@
         "type": "victoriametrics-logs-datasource",
         "uid": "victoria-logs"
       },
-      "description": "Authenticated ZeroCut workspace pages ranked by distinct Faro sessions and total browser signals. Public marketing and creator-profile traffic is excluded.",
+      "description": "Authenticated ZeroCut workspace pages ranked by distinct Faro sessions and total browser signals. Public marketing and creator-profile traffic is excluded. page_url is exported as origin plus route pattern (for example /app/dashboard/donations or /[handle]); records from releases before path normalization can still show raw paths inside the selected range.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -818,6 +818,188 @@
       ],
       "title": "Most-used workspace pages",
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "id": 16,
+      "panels": [],
+      "title": "Routes",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "p75 per route pattern. Soft navigations can attribute a late CLS/INP report to the next route.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 49
+      },
+      "id": 17,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"measurement\" | stats by (page_url) quantile(0.75, lcp) if (lcp:*) as lcp_p75, quantile(0.75, inp) if (inp:*) as inp_p75, quantile(0.75, cls) if (cls:*) as cls_p75, count() as samples | sort by (samples desc) | limit 25",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Web Vitals p75 by route · selected range",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Faro exceptions and the distinct sessions that hit them, per route pattern.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 49
+      },
+      "id": 18,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"exception\" | stats by (page_url) count() as exceptions, count_uniq(session_id) as sessions | sort by (exceptions desc) | limit 20",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Exceptions by route · selected range",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "description": "Faro faro.navigation events (URL change plus DOM update) per destination route pattern.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "collector:\"alloy\" app_name:\"zerocut-web\" kind:\"event\" event_name:\"faro.navigation\" | stats by (_time:1h, page_url) count() as navigations",
+          "queryType": "statsRange",
+          "refId": "A",
+          "legendFormat": "{{page_url}}"
+        }
+      ],
+      "title": "Soft navigations by destination route",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -852,6 +1034,6 @@
   "timezone": "browser",
   "title": "Browser experience",
   "uid": "zerocut-browser",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

@@ -45,7 +45,7 @@
       "targetBlank": true,
       "title": "Repository",
       "type": "link",
-      "url": "https://github.com/DavidIlie/zerocut"
+      "url": "https://github.com/davidapps-org/zerocut"
     },
     {
       "includeVars": false,
@@ -339,7 +339,7 @@
           "refId": "A"
         }
       ],
-      "title": "Restarts \u00b7 selected range",
+      "title": "Restarts · selected range",
       "type": "stat"
     },
     {
@@ -666,7 +666,7 @@
           },
           "editorMode": "code",
           "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:\"zerocut\" | stats by (_time:5m, k_host, k_pod_name) count()",
-          "legendFormat": "{{k_host}} \u00b7 {{k_pod_name}}",
+          "legendFormat": "{{k_host}} · {{k_pod_name}}",
           "queryType": "statsRange",
           "refId": "A"
         }
@@ -1314,6 +1314,83 @@
           "refId": "A"
         }
       ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 65
+      },
+      "id": 107,
+      "panels": [],
+      "title": "Realtime streams per pod",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "description": "Streams each pod holds (service_instance_id is the pod name). During a rollout streams move from old to new pods; a pod stuck at zero while others hold streams is not receiving overlays.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "id": 108,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (service_instance_id, realtime_surface) ({__name__=\"zerocut_realtime_connections\",service_name=\"zerocut\",deployment_environment_name=\"production\"})",
+          "instant": false,
+          "legendFormat": "{{service_instance_id}} · {{realtime_surface}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Open SSE streams by pod",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -1348,6 +1425,6 @@
   "timezone": "browser",
   "title": "Runtime & deployments",
   "uid": "zerocut-runtime",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
