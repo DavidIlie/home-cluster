@@ -417,7 +417,7 @@
     },
     {
       "title": "Payment intent outcomes",
-      "description": "payments.createPaymentIntent results: intent_created, complimentary, already_succeeded, lock_conflict <slot|animator|venue>, rejected <domain error tag>, failed. Rejections are normal customer outcomes, not faults.",
+      "description": "payments.createPaymentIntent results: intent_created, complimentary, already_succeeded, lock_conflict <slot|animator|venue>, rejected <domain error tag, incl. declined card>, failed [closed Stripe fault code such as api_connection_error]. Rejections are normal customer outcomes, not faults.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
