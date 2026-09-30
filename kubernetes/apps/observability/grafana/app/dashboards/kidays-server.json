@@ -73,7 +73,7 @@
     },
     {
       "title": "Server p50 latency",
-      "description": "p50 of Next.js server request spans.",
+      "description": "p50 of Next.js server request spans. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -129,7 +129,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -146,7 +146,7 @@
     },
     {
       "title": "Server p95 latency",
-      "description": "p95 of Next.js server request spans.",
+      "description": "p95 of Next.js server request spans. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -202,7 +202,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -219,7 +219,7 @@
     },
     {
       "title": "Server p99 latency",
-      "description": "p99 of Next.js server request spans.",
+      "description": "p99 of Next.js server request spans. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -275,7 +275,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -292,7 +292,7 @@
     },
     {
       "title": "Server error ratio",
-      "description": "Error-status share of server request spans.",
+      "description": "Error-status share of server request spans. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -348,7 +348,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])), 1e-9)",
+          "expr": "sum (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])), 1e-9)",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -365,7 +365,7 @@
     },
     {
       "title": "Requests / second",
-      "description": "Server request spans per second.",
+      "description": "Server request spans per second. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -413,7 +413,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval]))",
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -503,7 +503,7 @@
     },
     {
       "title": "Request rate by route (top 15)",
-      "description": "Span name is METHOD + app route template; concrete paths never appear.",
+      "description": "Span name is METHOD + app route template; concrete paths never appear. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -549,7 +549,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "topk(15, sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])))",
+          "expr": "topk(15, sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))",
           "legendFormat": "{{span_name}}",
           "range": true,
           "instant": false,
@@ -566,7 +566,7 @@
     },
     {
       "title": "Route p95 latency (top 15)",
-      "description": "p95 per route template.",
+      "description": "p95 per route template. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -612,7 +612,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "topk(15, histogram_quantile(0.95, sum by (le, span_name) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval]))))",
+          "expr": "topk(15, histogram_quantile(0.95, sum by (le, span_name) (rate(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval]))))",
           "legendFormat": "{{span_name}}",
           "range": true,
           "instant": false,
@@ -629,7 +629,7 @@
     },
     {
       "title": "Error throughput by route",
-      "description": "Error-status server spans per second by route template.",
+      "description": "Error-status server spans per second by route template. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -675,7 +675,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
+          "expr": "sum by (span_name) (rate(traces_spanmetrics_calls_total{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
           "legendFormat": "{{span_name}}",
           "range": true,
           "instant": false,
@@ -692,7 +692,7 @@
     },
     {
       "title": "Slowest routes · selected range",
-      "description": "p95 over the selected range, top 20 route templates.",
+      "description": "p95 over the selected range, top 20 route templates. Kubernetes probe endpoints (/api/health*) are excluded.",
       "type": "table",
       "datasource": {
         "type": "prometheus",
@@ -719,7 +719,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sort_desc(topk(20, histogram_quantile(0.95, sum by (le, span_name) (increase(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\"}[$__range])))))",
+          "expr": "sort_desc(topk(20, histogram_quantile(0.95, sum by (le, span_name) (increase(traces_spanmetrics_latency_bucket{service=\"kidays-fr-app\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__range])))))",
           "legendFormat": "",
           "range": false,
           "instant": true,

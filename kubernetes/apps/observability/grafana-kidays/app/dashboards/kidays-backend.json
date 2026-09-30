@@ -1591,6 +1591,925 @@
         "x": 16,
         "y": 77
       }
+    },
+    {
+      "collapsed": false,
+      "panels": [],
+      "title": "Convex runtime (backend /metrics)",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 85
+      },
+      "id": 30
+    },
+    {
+      "title": "Function limit warnings · range",
+      "description": "Executions that hit a Convex limit (TooManyBytesRead, UserTimeout, …). Any value is a function to fix. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "No data",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(convex_local_backend_function_limit_warning_total{namespace=\"kidays-fr\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 86
+      },
+      "id": 31
+    },
+    {
+      "title": "Query cache hit ratio · range",
+      "description": "Share of query executions answered from the backend's query cache. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          },
+          "noValue": "No data",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(convex_local_backend_cache_get_seconds_count{namespace=\"kidays-fr\",cache_status=\"hit\"}[$__range])) / clamp_min(sum(increase(convex_local_backend_cache_get_seconds_count{namespace=\"kidays-fr\"}[$__range])), 1)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 86
+      },
+      "id": 32
+    },
+    {
+      "title": "Scheduler backlog",
+      "description": "Seconds the oldest due scheduled job has waited. Anything above a few seconds means the scheduler is behind. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "noValue": "No data",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max(convex_local_backend_scheduled_job_backlog_seconds{namespace=\"kidays-fr\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 86
+      },
+      "id": 33
+    },
+    {
+      "title": "Function errors · range",
+      "description": "Isolate executions that ended in an error, all function types. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "No data",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(convex_local_backend_application_function_runner_total_seconds_count{namespace=\"kidays-fr\",status=\"error\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 86
+      },
+      "id": 34
+    },
+    {
+      "title": "Function execution p95 by type",
+      "description": "User-code execution time per query, mutation, action and HTTP action. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, udf_type) (rate(convex_local_backend_user_function_execution_seconds_bucket{namespace=\"kidays-fr\"}[$__rate_interval])))",
+          "legendFormat": "{{udf_type}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 91
+      },
+      "id": 35
+    },
+    {
+      "title": "Function executions by type and status",
+      "description": "Executions per second through the function runner. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (udf_type, status) (rate(convex_local_backend_application_function_runner_total_seconds_count{namespace=\"kidays-fr\"}[$__rate_interval]))",
+          "legendFormat": "{{udf_type}} {{status}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 91
+      },
+      "id": 36
+    },
+    {
+      "title": "Runner queue wait p95",
+      "description": "Time a function waits for an isolate before it starts. Rising wait with flat execution time means the backend is saturated. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, udf_type) (rate(convex_local_backend_application_function_runner_wait_seconds_bucket{namespace=\"kidays-fr\"}[$__rate_interval])))",
+          "legendFormat": "{{udf_type}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 91
+      },
+      "id": 37
+    },
+    {
+      "title": "Commit latency p95",
+      "description": "Convex commit (database) and the underlying Postgres commit. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(histogram_quantile(0.95, sum by (le, status) (rate(convex_local_backend_database_commit_seconds_bucket{namespace=\"kidays-fr\"}[$__rate_interval]))), \"stage\", \"convex commit\", \"\", \"\") or label_replace(histogram_quantile(0.95, sum by (le, status) (rate(convex_local_backend_postgres_commit_seconds_bucket{namespace=\"kidays-fr\"}[$__rate_interval]))), \"stage\", \"postgres commit\", \"\", \"\")",
+          "legendFormat": "{{stage}} {{status}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 99
+      },
+      "id": 38
+    },
+    {
+      "title": "Postgres connection acquire p95",
+      "description": "Time to get a pooled Postgres connection. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, status) (rate(convex_local_backend_postgres_get_connection_seconds_bucket{namespace=\"kidays-fr\"}[$__rate_interval])))",
+          "legendFormat": "{{status}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 99
+      },
+      "id": 39
+    },
+    {
+      "title": "Subscription invalidation lag p95",
+      "description": "Delay between a commit and the re-run of the subscriptions it invalidates, i.e. how stale live queries get. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(convex_local_backend_database_subscription_invalidation_lag_seconds_bucket{namespace=\"kidays-fr\"}[$__rate_interval])))",
+          "legendFormat": "lag",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 99
+      },
+      "id": 40
+    },
+    {
+      "title": "HTTP API p95 by endpoint",
+      "description": "Backend handling time per API endpoint, WebSocket sync excluded (long-lived). Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, endpoint) (rate(convex_local_backend_http_handle_duration_seconds_bucket{namespace=\"kidays-fr\",endpoint!~\".*sync\"}[$__rate_interval])))",
+          "legendFormat": "{{endpoint}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 107
+      },
+      "id": 41
+    },
+    {
+      "title": "Isolate recreations by reason",
+      "description": "memory_carry_over and user_timeout are driven by our code; idle_timeout and max_lifetime are normal recycling. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (reason) (increase(convex_local_backend_recreate_isolate_total{namespace=\"kidays-fr\"}[1h]))",
+          "legendFormat": "{{reason}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 107
+      },
+      "id": 42
+    },
+    {
+      "title": "WebSocket (re)connects by reason",
+      "description": "Sync connections opened per hour. InitialConnect is new clients; the rest are reconnects that re-run every subscription. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (reason) (increase(convex_local_backend_sync_connect_total{namespace=\"kidays-fr\"}[1h]))",
+          "legendFormat": "{{reason}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 107
+      },
+      "id": 43
+    },
+    {
+      "title": "Scheduled jobs and crons by result",
+      "description": "Scheduled function and cron outcomes per second; occ is an optimistic-concurrency retry. Source: the backend's own /metrics, scraped in-cluster through kidays-fr-convex-metrics (davidapps-cluster). Counters reset when the backend restarts.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(sum by (status) (rate(convex_local_backend_scheduled_job_result_total{namespace=\"kidays-fr\"}[$__rate_interval])), \"kind\", \"scheduled\", \"\", \"\") or label_replace(sum by (status) (rate(convex_local_backend_cron_job_result_total{namespace=\"kidays-fr\"}[$__rate_interval])), \"kind\", \"cron\", \"\", \"\")",
+          "legendFormat": "{{kind}} {{status}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 115
+      },
+      "id": 44
     }
   ],
   "refresh": "1m",
