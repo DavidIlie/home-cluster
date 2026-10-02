@@ -33,7 +33,7 @@ spec:
     # the pod starts. Bump this when a URL-provisioned dashboard changes so Flux
     # rolls the pod after the merged JSON is live.
     podAnnotations:
-      davidapps.dev/url-dashboards-revision: "2026-09-29-kidays-telemetry"
+      davidapps.dev/url-dashboards-revision: "2026-10-02-kidays-release-query"
     resources:
       requests:
         cpu: 25m

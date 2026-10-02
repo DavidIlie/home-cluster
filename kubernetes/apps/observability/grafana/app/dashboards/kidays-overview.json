@@ -923,8 +923,8 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "max by (service, service_version) (traces_target_info{service=~\"kidays-fr-app|kidays-fr-convex-backend\"})",
-          "legendFormat": "",
+          "expr": "max by (job, service_version) (traces_target_info{davidapps_project_id=\"kidays\",job=~\"kidays/kidays-fr-app|kidays/kidays-fr-convex-backend\",service_version!=\"\"})",
+          "legendFormat": "{{job}} @ {{service_version}}",
           "range": false,
           "instant": true,
           "refId": "A",
