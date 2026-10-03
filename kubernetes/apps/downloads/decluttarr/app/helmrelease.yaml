@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/manimatter/decluttarr
-              tag: v2.2.0
+              tag: v2.2.0@sha256:fd3dc206c17df32190cda1bed2ef3ee1cb9726bd108aa7e97e83e47cb3e72d78
             env:
               TZ: Europe/Bucharest
             resources:

@@ -15,7 +15,7 @@ spec:
       exporter:
         containers:
           app:
-            image: {repository: python, tag: 3.14-alpine}
+            image: {repository: python, tag: 3.14-alpine@sha256:2e740b2c28a426e74f11396c05e38afb3191acced75045b8d62df573c1dc8ce8}
             command: [python3, /scripts/exporter.py]
             resources:
               requests: {cpu: 10m, memory: 32Mi}
