@@ -34,7 +34,7 @@ spec:
           app:
             image:
               repository: docker.io/nginxinc/nginx-unprivileged
-              tag: 1.31.6-alpine
+              tag: 1.31.6-alpine@sha256:26b0bf6fbf07297983cb341998d79c831508787de26627dd2a112321b9c3a4af
             probes:
               liveness: &probes
                 enabled: true

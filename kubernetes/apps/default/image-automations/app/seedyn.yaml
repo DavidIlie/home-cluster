@@ -20,7 +20,7 @@ metadata:
   name: seedyn
   namespace: flux-system
 spec:
-  image: ghcr.io/davidilie/seedyn
+  image: ghcr.io/davidilie/seedyn@sha256:2babc4e0f897b5808713b65cc60a9fef8b57021bc2c226e932996c34dbe57670
   interval: 1m0s
   secretRef:
     name: docker-regcred
