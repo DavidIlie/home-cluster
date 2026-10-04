@@ -1,0 +1,141 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bostan-query-gateway
+  labels:
+    app.kubernetes.io/name: bostan-query-gateway
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bostan-query-gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bostan-query-gateway
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      imagePullSecrets:
+        - name: docker-regcred
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: prepare-secret
+          image: ghcr.io/davidilie/davidapps-auth-query-gateway@sha256:e8a40a8a7329b7d3659669744d3b45a35770de399349be544676a3592ed039e9
+          args:
+            - prepare-secret
+            - --source=/projected
+            - --target=/prepared
+            - --uid=65532
+            - --gid=65532
+          securityContext:
+            runAsNonRoot: false
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN", "FOWNER"]
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          volumeMounts:
+            - name: projected-secret
+              mountPath: /projected
+              readOnly: true
+            - name: secrets
+              mountPath: /prepared
+      containers:
+        - name: gateway
+          image: ghcr.io/davidilie/davidapps-auth-query-gateway@sha256:e8a40a8a7329b7d3659669744d3b45a35770de399349be544676a3592ed039e9
+          args:
+            - --config=/etc/query-gateway/config/config.json
+            - --dashboards=/etc/query-gateway/dashboards
+            - --listen-address=0.0.0.0:8080
+            - --metrics-address=0.0.0.0:9091
+          env:
+            - name: QUERY_GATEWAY_SECRET_DIR
+              value: /etc/query-gateway/secrets
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9091
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/query-gateway/config
+              readOnly: true
+            - name: dashboards
+              mountPath: /etc/query-gateway/dashboards
+              readOnly: true
+            - name: secrets
+              mountPath: /etc/query-gateway/secrets
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: bostan-query-gateway-config
+        - name: dashboards
+          configMap:
+            name: bostan-query-gateway-dashboards
+        - name: projected-secret
+          secret:
+            secretName: bostan-query-gateway-secret
+            defaultMode: 0400
+            items:
+              - key: bearer.token
+                path: bearer.token
+        - name: secrets
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bostan-query-gateway
+  labels:
+    app.kubernetes.io/name: bostan-query-gateway
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: bostan-query-gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP

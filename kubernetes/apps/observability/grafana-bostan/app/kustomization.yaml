@@ -1,0 +1,22 @@
+# Inactive until the approved mover supplies three SOPS secrets. See ../README.md.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: observability
+resources:
+- ./helmrelease.yaml
+- ./query-gateway.yaml
+- ./networkpolicy.yaml
+configMapGenerator:
+- name: grafana-bostan-dashboards
+  files:
+  - ./dashboards/libertos-overview.json
+  - ./dashboards/libertos-browser.json
+  options:
+    disableNameSuffixHash: true
+- name: bostan-query-gateway-dashboards
+  files:
+  - ./dashboards/libertos-overview.json
+  - ./dashboards/libertos-browser.json
+- name: bostan-query-gateway-config
+  files:
+  - config.json=./gateway/config.json
