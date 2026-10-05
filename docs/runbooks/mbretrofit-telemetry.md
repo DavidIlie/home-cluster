@@ -34,13 +34,21 @@ instrumentation. The separate MB Retrofit landing service and its
 | --- | --- | --- |
 | Replica availability, restarts, CPU, memory, images | `prometheus-davidapps-cluster` | `personal-projects`, two named deployments |
 | Browser gateway outcomes | `prometheus-davidapps-cluster` | `telemetry_gateway_requests_total{project="mbretrofit-tools"}` |
-| Server span rate, errors, p50 and p95 | `prometheus-home-cluster` | `service="mbretrofit-tools"`, `span_kind="SPAN_KIND_SERVER"` |
+| Server span rate, errors, p50 and p95 | `prometheus-home-cluster` | `service="mbretrofit-tools"`, `span_kind="SPAN_KIND_SERVER"`, `span_name!~"GET /api/health.*"` |
+| Node runtime: event-loop delay and utilization, heap, GC, active resources | `prometheus-davidapps-cluster` | `service_name="mbretrofit-tools"`, by per-process `instance` |
 | Resource releases | `prometheus-home-cluster` | `traces_target_info`, project ID, full SHA only |
 | Server errors | `victoria-logs` | Exact application names in `personal-projects` |
 | Browser error classifications, LCP, INP, CLS | `victoria-logs` | Alloy Faro `app_name="mbretrofit-tools-web"` |
 | Traces | `tempo` | Explicit service allowlist in TraceQL |
 
 Span throughput counts sampled server spans, not billable requests or people.
+Kubernetes probes `GET /api/health`, and every server-span panel excludes that
+span name. Until the cluster probe change lands, probes hit `/` and still count
+as `GET /` page requests. Request errors are internal-kind spans
+(`mbretrofit.request_error`), so they never inflate the server-span counts.
+Runtime panels use the closed metric set in the application's
+`runtime-metrics.ts`, remote-written by Alloy with unit suffixes; each process
+has a random `service.instance.id`, shown as `instance`.
 Latency panels use histogram buckets grouped by service and `le`. Gateway
 outcomes group only by route and result; acceptance confirms the upstream
 receiver response, not backend persistence. Web Vitals use the established

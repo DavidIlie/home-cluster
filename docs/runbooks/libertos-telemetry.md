@@ -48,7 +48,14 @@ product autocapture, or credentials belong in client configuration.
 5. Open a non-empty `trace_id` with the shared Grafana datasource link. Tempo's
    reverse link searches that trace in VictoriaLogs. A scoped TraceQL search is
    `{ resource.service.name = "libertos-web" }`.
-6. Query releases using the target-info `job` label, not the span metric's
+6. For backend outcomes, the Convex span name carries the closed operation and
+   outcome: `eve.job.<capability> <outcome>` and
+   `stripe.webhook <event type> <outcome>`. The `Backend outcomes` tables sum
+   `traces_spanmetrics_calls_total{service="libertos-convex"}` by `span_name`
+   over the selected range. They are bounded by the closed vocabularies in
+   `packages/convex/convex/telemetryContract.ts`. They are not a job or payment
+   ledger; use Convex and Stripe for a single job or payment.
+7. Query releases using the target-info `job` label, not the span metric's
    `service` label:
 
 ```promql
