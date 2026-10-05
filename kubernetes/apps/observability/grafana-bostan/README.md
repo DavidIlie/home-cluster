@@ -13,7 +13,18 @@ group is `Bostan Enterprise Employees`; see
 `docs/runbooks/grafana-project-access.md`. Read-only access/audit catalog calls
 returned insufficient scope during preparation, and Grafana's Viewer service
 account could not read teams. The live group ID, membership, org placement,
-domain-sync policy, and grants remain unverified. No membership is inferred
+domain-sync policy, and grants remain unverified.
+
+A second read-only attempt on 2026-10-05 also found no opaque ID. The
+`davidapps-auth` runbooks and `cross-org-organization-split.sql` select the
+group only by name (`t.name = 'Bostan Enterprise Employees'`). No repository
+records its `group_...` ID. The DavidApps MCP connection closed before any
+catalog call, and no Kubernetes context was available to read the identity
+database. The group restriction therefore stays inactive: there is no
+`allowed_groups`, no app grant and no membership change. Do not substitute
+the group name, an email domain or a guessed ID for it. An operator with
+catalog read scope must resolve the ID read-only from the existing group and
+record it in the activation PR. No membership is inferred
 from `bostanenterprise.com`, and no group or grant has been changed.
 
 Before activation, an authorized operator must resolve the existing group and
@@ -78,7 +89,9 @@ pinned query gateway with `--check --config=app/gateway/config.json
 --dashboards=app/dashboards`. It must accept every target and refuse a dashboard
 that replaces a Libertos selector with a foreign project or an unscoped query.
 Refresh the dedicated copies when shared queries change; never hand-maintain a
-second query contract. Helm rendering does not prove login or live policy
+second query contract. The copies differ from the shared dashboards only in being
+read-only, dropping the shared Explore trace link and rewording the error-panel
+description. Helm rendering does not prove login or live policy
 behavior. After an authorized deployment, test the OIDC round trip, member and
 non-member access, session expiry, backend isolation, and plugin readiness.
 

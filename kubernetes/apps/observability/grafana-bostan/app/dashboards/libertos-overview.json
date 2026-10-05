@@ -501,6 +501,151 @@
       }
     },
     {
+      "type": "row",
+      "title": "Backend outcomes",
+      "collapsed": false,
+      "panels": [],
+      "id": 40,
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "title": "Eve job outcomes \u00b7 range",
+      "description": "Requires Convex telemetry. Finished Eve jobs by capability and outcome (span `eve.job.<capability> <outcome>`), estimated from span metrics over the selected range. Duration runs from job creation, so it includes queue time. A missing span is not a missing job; use Convex for one job's state.",
+      "type": "table",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Value",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (span_name) (increase(traces_spanmetrics_calls_total{service=\"libertos-convex\",span_name=~\"eve[.]job[.].+\"}[$__range]))",
+          "legendFormat": "{{span_name}}",
+          "range": false,
+          "instant": true,
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "span_name": "Operation and outcome",
+              "Value": "Count"
+            }
+          }
+        }
+      ],
+      "id": 41,
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "title": "Stripe webhook outcomes \u00b7 range",
+      "description": "Requires Convex telemetry. Stripe webhook deliveries by closed event type and outcome (span `stripe.webhook <type> <outcome>`): processed, duplicate, rejected, retry_requested. Not a payment ledger; use Stripe and Convex for money.",
+      "type": "table",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Value",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (span_name) (increase(traces_spanmetrics_calls_total{service=\"libertos-convex\",span_name=~\"stripe[.]webhook .+\"}[$__range]))",
+          "legendFormat": "{{span_name}}",
+          "range": false,
+          "instant": true,
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "span_name": "Operation and outcome",
+              "Value": "Count"
+            }
+          }
+        }
+      ],
+      "id": 42,
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
       "title": "CPU by pod",
       "description": "CPU cores used per web, Convex and PDF pod.",
       "type": "timeseries",
@@ -558,7 +703,7 @@
       "id": 12,
       "gridPos": {
         "x": 0,
-        "y": 13,
+        "y": 22,
         "w": 12,
         "h": 7
       }
@@ -621,7 +766,7 @@
       "id": 13,
       "gridPos": {
         "x": 12,
-        "y": 13,
+        "y": 22,
         "w": 12,
         "h": 7
       }
@@ -683,7 +828,7 @@
       "id": 14,
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 29,
         "w": 12,
         "h": 8
       }
@@ -698,7 +843,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 20,
+        "y": 29,
         "w": 12,
         "h": 8
       },
@@ -772,7 +917,7 @@
       "id": 16,
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 37,
         "w": 24,
         "h": 7
       }
@@ -836,7 +981,7 @@
       "id": 17,
       "gridPos": {
         "x": 0,
-        "y": 35,
+        "y": 44,
         "w": 24,
         "h": 7
       }
