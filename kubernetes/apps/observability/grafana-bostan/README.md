@@ -3,13 +3,12 @@
 Prepared, inactive GitOps configuration for Libertos operational dashboards.
 `ks.yaml` is suspended and is not referenced by the observability aggregate.
 There is no tunnel route, DNS record, access grant, or secret in this change.
-The reserved `.example.invalid` hostname must be replaced with the approved
-production hostname before activation.
+The approved production hostname is `monitoring.bostanenterprise.com`.
 
 ## Authorization and data access
 
 Use a dedicated closed DavidApps OIDC application, slug `grafana-bostan`, with
-callback `https://APPROVED_HOST/login/generic_oauth`. The existing recorded
+callback `https://monitoring.bostanenterprise.com/login/generic_oauth`. The existing recorded
 group is `Bostan Enterprise Employees`; see
 `docs/runbooks/grafana-project-access.md`. Read-only access/audit catalog calls
 returned insufficient scope during preparation, and Grafana's Viewer service
@@ -61,9 +60,9 @@ approved hostname. Its output must be these encrypted files:
 
 No plaintext placeholders or copied Kidays ciphertext are committed. These
 files are intentionally absent from `app/kustomization.yaml` until the mover
-creates them. A future activation PR must add those resources, update the
-hostname in Grafana root URL/Ingress/Gatus, add the home cloudflared route and
-DNS target, add a Homepage entry, unsuspend `ks.yaml`, and reference it in the
+creates them. A future activation PR must add those resources, add the home
+cloudflared route and DNS target for `monitoring.bostanenterprise.com`, add a
+Homepage entry, unsuspend `ks.yaml`, and reference it in the
 observability aggregate. Do not activate only part of that configuration.
 
 Application telemetry and public ingest live in separate repository PRs.

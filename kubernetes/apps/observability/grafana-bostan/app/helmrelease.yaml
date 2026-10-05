@@ -82,7 +82,7 @@ spec:
       userKey: admin-user
       passwordKey: admin-password
     env:
-      GF_SERVER_ROOT_URL: "https://bostan-monitoring.example.invalid"
+      GF_SERVER_ROOT_URL: "https://monitoring.bostanenterprise.com"
     envValueFrom:
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID:
         secretKeyRef:
@@ -241,10 +241,10 @@ spec:
         gatus.home-operations.com/endpoint: |-
           name: Bostan Monitoring
           group: Monitoring
-          url: https://bostan-monitoring.example.invalid
+          url: https://monitoring.bostanenterprise.com
           interval: 1m
           conditions: ["[STATUS] == 200"]
-      hosts: ["bostan-monitoring.example.invalid"]
+      hosts: ["monitoring.bostanenterprise.com"]
     persistence:
       enabled: true
       type: pvc
