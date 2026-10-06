@@ -107,7 +107,9 @@ for personal data before quoting them elsewhere.
 The application bakes the full SHA from `GIT_COMMIT_SHA` into server and browser
 resources. GitOps must not override that build identity. The operational browser
 collector skips Global Privacy Control, Do Not Track and credential-bearing
-pages. Its owner consent decision remains flagged in the application PR.
+pages. On 2026-10-06 the owner authorized this operational browser collection
+without a new consent banner in the merge-all release instruction, recorded in
+application PR #159. The existing privacy guards remain required.
 Browser telemetry must preserve redaction and consent, with no replay, product
 autocapture, identifiers, form contents or secrets. An empty panel can reflect
 absent instrumentation, denied consent, sampling, an idle service or retention.
