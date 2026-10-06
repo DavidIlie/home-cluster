@@ -1,0 +1,256 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana-bostan
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: grafana
+      version: 10.5.15
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    fullnameOverride: grafana-bostan
+    nameOverride: grafana-bostan
+    image:
+      tag: 12.3.10
+      sha: 91032506559aa7477105b5835c5a17475b4909635fbe240bd6aff50512717a5b
+    deploymentStrategy:
+      type: Recreate
+    initChownData:
+      enabled: true
+      image:
+        registry: docker.io
+        repository: grafana/grafana
+        tag: 12.3.10
+        sha: 91032506559aa7477105b5835c5a17475b4909635fbe240bd6aff50512717a5b
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop: ["ALL"]
+          add: ["CHOWN"]
+    rbac:
+      create: false
+    serviceAccount:
+      create: true
+      automountServiceAccountToken: false
+    automountServiceAccountToken: false
+    enableServiceLinks: false
+    readinessProbe:
+      httpGet: null
+      exec:
+        command:
+          - sh
+          - -c
+          - >-
+            grep -Eq '"id"[[:space:]]*:[[:space:]]*"victoriametrics-logs-datasource"'
+            /var/lib/grafana/plugins/victoriametrics-logs-datasource/plugin.json
+            && grep -Eq '"version"[[:space:]]*:[[:space:]]*"0\.32\.0"'
+            /var/lib/grafana/plugins/victoriametrics-logs-datasource/plugin.json
+            && timeout 5 wget -q -O /dev/null
+            http://127.0.0.1:3000/public/plugins/victoriametrics-logs-datasource/module.js
+            && timeout 5 wget -q -O /dev/null http://127.0.0.1:3000/api/health
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 12
+      failureThreshold: 3
+    resources:
+      requests:
+        cpu: 25m
+        memory: 192Mi
+      limits:
+        memory: 512Mi
+    admin:
+      existingSecret: grafana-bostan-admin-secret
+      userKey: admin-user
+      passwordKey: admin-password
+    env:
+      GF_SERVER_ROOT_URL: "https://monitoring.bostanenterprise.com"
+    envValueFrom:
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID:
+        secretKeyRef:
+          name: grafana-bostan-oidc-secret
+          key: client-id
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+        secretKeyRef:
+          name: grafana-bostan-oidc-secret
+          key: client-secret
+      BOSTAN_QUERY_GATEWAY_BEARER:
+        secretKeyRef:
+          name: bostan-query-gateway-secret
+          key: bearer.token
+    grafana.ini:
+      analytics:
+        check_for_updates: false
+        check_for_plugin_updates: false
+        reporting_enabled: false
+        feedback_links_enabled: false
+      news:
+        news_feed_enabled: false
+      auth:
+        disable_login_form: true
+        oauth_allow_insecure_email_lookup: false
+        login_maximum_lifetime_duration: 10m
+        login_maximum_inactive_lifetime_duration: 10m
+        token_rotation_interval_minutes: 2
+      auth.basic:
+        enabled: false
+      auth.anonymous:
+        enabled: false
+      auth.generic_oauth:
+        name: DavidApps
+        enabled: true
+        allow_sign_up: true
+        auto_login: true
+        auth_url: https://id.davidapps.dev/api/auth/oauth2/authorize
+        token_url: https://id.davidapps.dev/api/auth/oauth2/token
+        api_url: https://id.davidapps.dev/api/auth/oauth2/userinfo
+        scopes: "openid profile email offline_access"
+        auth_style: InHeader
+        use_pkce: true
+        use_refresh_token: true
+        validate_id_token: true
+        jwk_set_url: https://id.davidapps.dev/api/auth/jwks
+        login_attribute_path: sub
+        name_attribute_path: name
+        email_attribute_path: email
+        role_attribute_path: "'Viewer'"
+        role_attribute_strict: true
+        allow_assign_grafana_admin: false
+        skip_org_role_sync: false
+      users:
+        allow_sign_up: false
+        allow_org_create: false
+        auto_assign_org: true
+        auto_assign_org_role: Viewer
+        viewers_can_edit: false
+        editors_can_admin: false
+      explore:
+        enabled: false
+      public_dashboards:
+        enabled: false
+      snapshots:
+        enabled: false
+        external_enabled: false
+      unified_alerting:
+        enabled: false
+      live:
+        max_connections: 0
+      feature_toggles:
+        sqlExpressions: false
+      plugins:
+        preinstall: victoriametrics-logs-datasource@0.32.0
+        disable_plugins: grafana-lokiexplore-app,grafana-pyroscope-app,grafana-exploretraces-app,grafana-metricsdrilldown-app,grafana-advisor-app,grafana-pathfinder-app
+        plugin_admin_enabled: false
+        public_key_retrieval_disabled: true
+      security:
+        cookie_secure: true
+        cookie_samesite: lax
+        disable_gravatar: true
+      dashboards:
+        min_refresh_interval: 30s
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: prometheus-davidapps-cluster
+            type: prometheus
+            uid: prometheus-davidapps-cluster
+            access: proxy
+            editable: false
+            url: http://bostan-query-gateway.observability.svc.cluster.local:8080/ds/prometheus-davidapps-cluster
+            isDefault: true
+            jsonData:
+              httpMethod: POST
+              timeInterval: 15s
+              prometheusType: Prometheus
+              httpHeaderName1: Authorization
+            secureJsonData:
+              httpHeaderValue1: "Bearer ${BOSTAN_QUERY_GATEWAY_BEARER}"
+          - name: prometheus-home-cluster
+            type: prometheus
+            uid: prometheus-home-cluster
+            access: proxy
+            editable: false
+            url: http://bostan-query-gateway.observability.svc.cluster.local:8080/ds/prometheus-home-cluster
+            isDefault: false
+            jsonData:
+              httpMethod: POST
+              timeInterval: 15s
+              prometheusType: Prometheus
+              httpHeaderName1: Authorization
+            secureJsonData:
+              httpHeaderValue1: "Bearer ${BOSTAN_QUERY_GATEWAY_BEARER}"
+          - name: VictoriaLogs
+            type: victoriametrics-logs-datasource
+            uid: victoria-logs
+            access: proxy
+            editable: false
+            url: http://bostan-query-gateway.observability.svc.cluster.local:8080/ds/victoria-logs
+            isDefault: false
+            jsonData:
+              maxLines: "1000"
+              httpHeaderName1: Authorization
+            secureJsonData:
+              httpHeaderValue1: "Bearer ${BOSTAN_QUERY_GATEWAY_BEARER}"
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: apps-bostan
+            orgId: 1
+            folder: Apps / Bostan
+            folderUid: apps-bostan
+            type: file
+            disableDeletion: true
+            allowUiUpdates: false
+            editable: false
+            options:
+              path: /var/lib/grafana/dashboards/apps-bostan
+    dashboardsConfigMaps:
+      apps-bostan: grafana-bostan-dashboards
+    sidecar:
+      dashboards:
+        enabled: false
+      datasources:
+        enabled: false
+    serviceMonitor:
+      enabled: false
+    ingress:
+      enabled: true
+      ingressClassName: external
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+        gatus.home-operations.com/endpoint: |-
+          name: Bostan Monitoring
+          group: Monitoring
+          url: https://monitoring.bostanenterprise.com
+          interval: 1m
+          conditions: ["[STATUS] == 200"]
+      hosts: ["monitoring.bostanenterprise.com"]
+    persistence:
+      enabled: true
+      type: pvc
+      storageClassName: openebs-hostpath
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
+    testFramework:
+      enabled: false
