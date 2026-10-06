@@ -39,7 +39,7 @@
     {
       "type": "link",
       "title": "Trace search",
-      "url": "/explore?schemaVersion=1&panes=%7B%22trace%22:%7B%22datasource%22:%22tempo%22%7D%7D",
+      "url": "/explore?schemaVersion=1&panes=%7B%22trace%22%3A%7B%22datasource%22%3A%22tempo%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22queryType%22%3A%22traceql%22%2C%22query%22%3A%22%7B%20resource.service.name%20%3D%20%5C%22mbretrofit-tools%5C%22%20%7D%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-6h%22%2C%22to%22%3A%22now%22%7D%7D%7D",
       "targetBlank": true,
       "includeVars": false,
       "keepTime": true
@@ -72,15 +72,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "green",
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -116,7 +117,7 @@
     },
     {
       "id": 2,
-      "title": "Restarts",
+      "title": "Restarts in selected range",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -147,7 +148,8 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -173,7 +175,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"personal-projects\",pod=~\"(mbretrofit-tools|mbretrofit-tools-zenzefi)-.*\"}[$__rate_interval]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"personal-projects\",pod=~\"(mbretrofit-tools|mbretrofit-tools-zenzefi)-.*\"}[$__range]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -183,7 +185,7 @@
     },
     {
       "id": 3,
-      "title": "p95 span latency",
+      "title": "Server p95 latency",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -214,7 +216,8 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -240,17 +243,18 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(traces_spanmetrics_latency_bucket{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))",
           "legendFormat": "",
           "range": false,
           "instant": true,
           "refId": "A"
         }
-      ]
+      ],
+      "description": "Sampled server spans only. Empty data can mean absent instrumentation, sampling or an idle service. These are not authoritative request counts. Probe spans matching GET /api/health are excluded."
     },
     {
       "id": 4,
-      "title": "Span error rate",
+      "title": "Server span error ratio",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -281,7 +285,8 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -307,13 +312,14 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(traces_spanmetrics_calls_total{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\"}[$__rate_interval])), 0.000001)",
+          "expr": "(sum(rate(traces_spanmetrics_calls_total{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) or (0 * sum(rate(traces_spanmetrics_calls_total{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))) / sum(rate(traces_spanmetrics_calls_total{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
           "refId": "A"
         }
-      ]
+      ],
+      "description": "Sampled server spans only. Empty data can mean absent instrumentation, sampling or an idle service. These are not authoritative request counts. Returns zero when traffic exists without an error series; idle or absent traffic does not report a healthy zero. Probe spans matching GET /api/health are excluded."
     },
     {
       "id": 5,
@@ -345,7 +351,8 @@
               "mode": "none",
               "group": "A"
             }
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -408,7 +415,8 @@
               "mode": "none",
               "group": "A"
             }
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -443,7 +451,7 @@
     },
     {
       "id": 7,
-      "title": "Request/span throughput",
+      "title": "Server span throughput",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -471,7 +479,8 @@
               "mode": "none",
               "group": "A"
             }
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -496,17 +505,18 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\"}[$__rate_interval]))",
-          "legendFormat": "{{service}} \u00b7 {{span_name}}",
+          "expr": "sum by (service) (rate(traces_spanmetrics_calls_total{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval]))",
+          "legendFormat": "{{service}}",
           "range": true,
           "instant": false,
           "refId": "A"
         }
-      ]
+      ],
+      "description": "Sampled server spans only. Empty data can mean absent instrumentation, sampling or an idle service. These are not authoritative request counts. Probe spans matching GET /api/health are excluded."
     },
     {
       "id": 8,
-      "title": "Error throughput",
+      "title": "Server error throughput",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -534,7 +544,8 @@
               "mode": "none",
               "group": "A"
             }
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -559,13 +570,14 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (service, span_name) (rate(traces_spanmetrics_calls_total{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
-          "legendFormat": "{{service}} \u00b7 {{span_name}}",
+          "expr": "sum by (service) (rate(traces_spanmetrics_calls_total{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
+          "legendFormat": "{{service}}",
           "range": true,
           "instant": false,
           "refId": "A"
         }
-      ]
+      ],
+      "description": "Sampled server spans only. Empty data can mean absent instrumentation, sampling or an idle service. These are not authoritative request counts. Probe spans matching GET /api/health are excluded."
     },
     {
       "id": 9,
@@ -596,7 +608,8 @@
               "mode": "normal",
               "group": "A"
             }
-          }
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -621,7 +634,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:~\"mbretrofit-tools|mbretrofit-tools-zenzefi\" | stats by (app) count()",
+          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:in(\"mbretrofit-tools\",\"mbretrofit-tools-zenzefi\") | stats by (_time:5m, app) count() as lines",
           "legendFormat": "{{app}}",
           "queryType": "statsRange",
           "refId": "A"
@@ -660,19 +673,20 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:~\"mbretrofit-tools|mbretrofit-tools-zenzefi\" _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _msg, _time, app, k_pod_name, k_container_name, trace_id | sort desc | limit 200",
-          "queryType": "range",
+          "expr": "_stream: {k_namespace_name=\"personal-projects\", cluster=\"davidapps-cluster\"} app:in(\"mbretrofit-tools\",\"mbretrofit-tools-zenzefi\") _msg:~\"(?i)(error|exception|fatal|panic)\" | fields _time, app, k_pod_name, k_container_name, trace_id | sort by (_time) desc | limit 200",
+          "queryType": "instant",
           "refId": "A"
         }
-      ]
+      ],
+      "description": "Pod errors. Expand trace_id to use the VictoriaLogs datasource View trace link; Tempo provides the reverse log link. Treat messages as potentially sensitive. Default rows omit raw messages; inspect text only through a separately authorized, redacted investigation."
     },
     {
       "id": 11,
-      "title": "Active release and container image",
+      "title": "Observed telemetry releases (full Git SHA)",
       "type": "table",
       "datasource": {
-        "type": "datasource",
-        "uid": "-- Mixed --"
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
       },
       "gridPos": {
         "h": 7,
@@ -682,20 +696,90 @@
       },
       "fieldConfig": {
         "defaults": {
-          "links": [
-            {
-              "title": "Open active commit",
-              "url": "https://github.com/davidilie/mbretrofit-tools/commit/${__field.labels.service_version}",
-              "targetBlank": true
-            }
-          ],
           "custom": {
             "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
             "inspect": false
+          },
+          "noValue": "No data"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "service_version"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open deployed commit",
+                    "url": "https://github.com/davidilie/mbretrofit-tools/commit/${__value.raw}",
+                    "targetBlank": true
+                  }
+                ]
+              }
+            ]
           }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max by (job, service_version) (traces_target_info{davidapps_project_id=\"mbretrofit-tools\",service_version=~\"[0-9a-f]{40}\"})",
+          "legendFormat": "{{job}} @ {{service_version}}",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "description": "Resource service.version emitted by recently observed services. Old releases can remain until target metadata expires. Compare against running images and deployment time; empty data does not imply a current release."
+    },
+    {
+      "id": 12,
+      "title": "Running container images",
+      "type": "table",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -723,6 +807,71 @@
           "legendFormat": "{{pod}} / {{container}}",
           "range": false,
           "instant": true,
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Server p50 / p95 latency by service",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          },
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.5, sum by (le, service) (rate(traces_spanmetrics_latency_bucket{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))",
+          "legendFormat": "{{service}} p50",
+          "range": true,
+          "instant": false,
           "refId": "A"
         },
         {
@@ -731,13 +880,731 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "max by (service, service_version) (traces_target_info{service=~\"mbretrofit-tools|mbretrofit-tools-zenzefi\"})",
-          "legendFormat": "{{service}} @ {{service_version}}",
-          "range": false,
-          "instant": true,
+          "expr": "histogram_quantile(0.95, sum by (le, service) (rate(traces_spanmetrics_latency_bucket{service=\"mbretrofit-tools\",span_kind=\"SPAN_KIND_SERVER\",span_name!~\"GET /api/health.*\"}[$__rate_interval])))",
+          "legendFormat": "{{service}} p95",
+          "range": true,
+          "instant": false,
           "refId": "B"
         }
-      ]
+      ],
+      "description": "Sampled server spans only. Empty data can mean absent instrumentation, sampling or an idle service. These are not authoritative request counts. Probe spans matching GET /api/health are excluded."
+    },
+    {
+      "title": "Gateway ingest outcomes",
+      "description": "Gateway outcomes for project mbretrofit-tools. Accepted means the Alloy receiver accepted the request, not that every signal reached storage.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (route, result) (rate(telemetry_gateway_requests_total{project=\"mbretrofit-tools\"}[$__rate_interval]))",
+          "legendFormat": "{{route}} {{result}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "id": 14,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 44
+      }
+    },
+    {
+      "title": "LCP p75",
+      "description": "Operational Faro Web Vitals from mbretrofit-tools-web. Collection skips Global Privacy Control, Do Not Track and credential-bearing pages. Empty results are not a zero score.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2500
+              },
+              {
+                "color": "red",
+                "value": 4000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"mbretrofit-tools-web\" kind:\"measurement\" | stats by (_time:15m, app_name) quantile(0.75, lcp) if (lcp:*) as lcp_p75",
+          "legendFormat": "{{app_name}}",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "id": 15,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 52
+      }
+    },
+    {
+      "title": "INP p75",
+      "description": "Operational Faro Web Vitals from mbretrofit-tools-web. Collection skips Global Privacy Control, Do Not Track and credential-bearing pages. Empty results are not a zero score.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"mbretrofit-tools-web\" kind:\"measurement\" | stats by (_time:15m, app_name) quantile(0.75, inp) if (inp:*) as inp_p75",
+          "legendFormat": "{{app_name}}",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "id": 16,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 52
+      }
+    },
+    {
+      "title": "CLS p75",
+      "description": "Operational Faro Web Vitals from mbretrofit-tools-web. Collection skips Global Privacy Control, Do Not Track and credential-bearing pages. Empty results are not a zero score.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.25
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"mbretrofit-tools-web\" kind:\"measurement\" | stats by (_time:15m, app_name) quantile(0.75, cls) if (cls:*) as cls_p75",
+          "legendFormat": "{{app_name}}",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "id": 17,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 52
+      }
+    },
+    {
+      "id": 18,
+      "title": "Recent browser error classifications",
+      "type": "logs",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 60
+      },
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": true,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": true,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "editorMode": "code",
+          "expr": "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"mbretrofit-tools-web\" kind:=\"event\" event_name:=\"mbretrofit.browser_error\" | fields _time, app_version, event_data_error_class, event_data_route | sort by (_time) desc | limit 200",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "description": "Operational error events with bounded classes and route templates. The browser does not emit traces, console logs, exception messages or session identifiers. Public client data is untrusted. Default rows omit raw messages; inspect text only through a separately authorized, redacted investigation."
+    },
+    {
+      "title": "Event-loop delay p99 by process",
+      "description": "Worst event-loop delay per process over each 30 s export window. Sustained values above ~50 ms mean requests queue behind CPU work. Source: the closed OTLP runtime metrics of personal-projects/mbretrofit-tools, one series per process; `instance` is a random per-process id. Requires the telemetry release.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (nodejs_eventloop_delay_p99_seconds{service_name=\"mbretrofit-tools\"})",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "id": 30,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 70
+      }
+    },
+    {
+      "title": "Event-loop utilization",
+      "description": "Share of each export window the event loop was busy. Source: the closed OTLP runtime metrics of personal-projects/mbretrofit-tools, one series per process; `instance` is a random per-process id. Requires the telemetry release.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (nodejs_eventloop_utilization_ratio{service_name=\"mbretrofit-tools\"})",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "id": 31,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 70
+      }
+    },
+    {
+      "title": "Heap used by process",
+      "description": "V8 heap in use per process. A steady climb across deploys points at a leak. Source: the closed OTLP runtime metrics of personal-projects/mbretrofit-tools, one series per process; `instance` is a random per-process id. Requires the telemetry release.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (nodejs_memory_heap_used_bytes{service_name=\"mbretrofit-tools\"})",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "id": 32,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 70
+      }
+    },
+    {
+      "title": "GC pause p95 by type",
+      "description": "95th percentile V8 garbage-collection pause by GC type. Source: the closed OTLP runtime metrics of personal-projects/mbretrofit-tools, one series per process; `instance` is a random per-process id. Requires the telemetry release.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, v8js_gc_type) (rate(v8js_gc_duration_seconds_bucket{service_name=\"mbretrofit-tools\"}[$__rate_interval])))",
+          "legendFormat": "{{v8js_gc_type}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "id": 33,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 78
+      }
+    },
+    {
+      "title": "GC time share",
+      "description": "Seconds spent in GC per second, summed across processes, by GC type. Source: the closed OTLP runtime metrics of personal-projects/mbretrofit-tools, one series per process; `instance` is a random per-process id. Requires the telemetry release.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "sum by (v8js_gc_type) (rate(v8js_gc_duration_seconds_sum{service_name=\"mbretrofit-tools\"}[$__rate_interval]))",
+          "legendFormat": "{{v8js_gc_type}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "id": 34,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 78
+      }
+    },
+    {
+      "title": "Active resources by process",
+      "description": "Handles, sockets and timers keeping each event loop alive. Unbounded growth means a leaked resource. Source: the closed OTLP runtime metrics of personal-projects/mbretrofit-tools, one series per process; `instance` is a random per-process id. Requires the telemetry release.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-davidapps-cluster"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-davidapps-cluster"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (nodejs_active_resources{service_name=\"mbretrofit-tools\"})",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "id": 35,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 78
+      }
     }
   ],
   "refresh": "30s",
@@ -771,5 +1638,5 @@
   "uid": "mbretrofit-overview",
   "version": 1,
   "weekStart": "",
-  "description": "MBRetrofit Tools application overview for the primary and Zenzefi deployments."
+  "description": "MBRetrofit Tools server and browser telemetry, plus deployment health for Tools and Zenzefi. Zenzefi telemetry is outside the application onboarding scope."
 }
