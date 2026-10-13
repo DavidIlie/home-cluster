@@ -33,7 +33,7 @@ spec:
     # the pod starts. Bump this when a URL-provisioned dashboard changes so Flux
     # rolls the pod after the merged JSON is live.
     podAnnotations:
-      davidapps.dev/url-dashboards-revision: "2026-10-02-kidays-release-query"
+      davidapps.dev/url-dashboards-revision: "2026-10-04-libertos-mbretrofit"
     resources:
       requests:
         cpu: 25m
@@ -552,6 +552,15 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/apps-mbretrofit
+          - name: apps-bostan
+            orgId: 1
+            folder: Apps / Bostan
+            folderUid: apps-bostan
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/apps-bostan
           - name: apps-kidays
             orgId: 1
             folder: Apps / Kidays
@@ -741,6 +750,11 @@ spec:
       apps-mbretrofit:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/mbretrofit-overview.json
+      apps-bostan:
+        libertos-overview:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertos-overview.json
+        libertos-browser:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertos-browser.json
       apps-kidays:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-overview.json
