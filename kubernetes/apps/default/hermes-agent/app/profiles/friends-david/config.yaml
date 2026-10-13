@@ -64,7 +64,7 @@ discord:
 platforms:
   discord:
     extra:
-      auto_thread_free_response_channels: true
+      free_response_auto_thread: true
 
 gateway:
   max_concurrent_sessions: 2

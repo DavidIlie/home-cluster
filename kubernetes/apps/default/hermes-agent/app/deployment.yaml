@@ -237,8 +237,8 @@ spec:
             - name: friends-david-env
               mountPath: /friends-david-env
         - name: prepare-runtime
-          # Source: DavidIlie/hermes-agent@4c9e2992b7880f018d98399d897dd27824726a8c
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.4c9e2992b7@sha256:960b74e22e247a37ee5905d742cbab9f3f01b4bd8496cab56e7dd288433d507d
+          # Source: DavidIlie/hermes-agent@89d951541d6e69035d09e94928605ce5fc1a548a
+          image: ghcr.io/davidilie/hermes-agent-fleet:v0.21.7-fleet.89d951541d@sha256:4d976427c2df5740fe2e14d92552dc560d63a5945e60a4e1741ecf77f8ac0348
           command: ["/opt/hermes/.venv/bin/python", "/bootstrap/prepare-runtime.py"]
           args:
             - --home
@@ -279,14 +279,14 @@ spec:
               readOnly: true
       containers:
         - name: app
-          # Source: DavidIlie/hermes-agent@4c9e2992b7880f018d98399d897dd27824726a8c
-          image: ghcr.io/davidilie/hermes-agent-fleet:v2026.8.22-friends.4c9e2992b7@sha256:960b74e22e247a37ee5905d742cbab9f3f01b4bd8496cab56e7dd288433d507d
+          # Source: DavidIlie/hermes-agent@89d951541d6e69035d09e94928605ce5fc1a548a
+          image: ghcr.io/davidilie/hermes-agent-fleet:v0.21.7-fleet.89d951541d@sha256:4d976427c2df5740fe2e14d92552dc560d63a5945e60a4e1741ecf77f8ac0348
           args: ["gateway", "run"]
           env:
             - name: TZ
               value: Europe/Madrid
             - name: PATH
-              value: /opt/xurl:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              value: /opt/xurl:/opt/hermes/bin:/opt/hermes/.venv/bin:/opt/data/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             - name: HERMES_MANAGED_DIR
               value: /etc/hermes
             - name: BOSTAN_AUTOMATIC_ENABLED
