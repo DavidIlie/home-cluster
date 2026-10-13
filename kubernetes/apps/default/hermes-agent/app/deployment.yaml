@@ -286,7 +286,7 @@ spec:
             - name: TZ
               value: Europe/Madrid
             - name: PATH
-              value: /opt/xurl:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              value: /opt/xurl:/opt/hermes/bin:/opt/hermes/.venv/bin:/opt/data/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             - name: HERMES_MANAGED_DIR
               value: /etc/hermes
             - name: BOSTAN_AUTOMATIC_ENABLED
