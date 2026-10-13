@@ -46,8 +46,8 @@ spec:
       image:
         registry: docker.io
         repository: grafana/grafana
-        tag: 12.4.13
-        sha: 91032506559aa7477105b5835c5a17475b4909635fbe240bd6aff50512717a5b
+        tag: 13.2.3
+        sha: b28bae15e219c998fb0e0424ed724930cc61b1f61fb404d47c862f9a23f9e572
       securityContext:
         runAsNonRoot: false
         runAsUser: 0
