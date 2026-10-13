@@ -20,6 +20,7 @@
   ignorePaths: [
     '**/*.sops.*',
     'kubernetes/apps/adapter-demo/donezo/app/bundle/**',
+    'kubernetes/apps/**/image-automations/**',
   ],
   flux: {
     managerFilePatterns: [
