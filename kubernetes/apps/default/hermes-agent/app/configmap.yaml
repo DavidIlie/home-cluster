@@ -585,9 +585,10 @@ data:
     §
     Confirmed on 2026-10-13: David wants Herm to be a useful personal assistant
     and make better memes and jokes. Keep the two goals equally important.
-    His mailbox is david@davidilie.com. alexandru.ilie@mbretrofit.it is only a
-    contact alias, not a second mailbox. Mail access must be read-only; for
-    Mercedes or VIN questions, bring the relevant context and a proposed reply
+    His Google accounts are david@davidilie.com and alexandru.ilie@mbretrofit.it.
+    Expose only the contact@mbretrofit.it inbox and relevant thread replies from
+    the second account. Mail access must be read-only; for Mercedes or VIN
+    questions, bring the relevant context and a proposed reply
     into the originating thread. Never send mail or create drafts automatically.
     Fleet browser sessions and connected accounts are desired but still pending;
     do not claim they are connected or that a mailbox has been read.
