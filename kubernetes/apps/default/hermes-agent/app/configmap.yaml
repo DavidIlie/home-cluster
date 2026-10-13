@@ -7,7 +7,7 @@ data:
   owner-config.yaml: |
     _config_version: 34
     model:
-      default: gpt-5.6-sol
+      default: gpt-6.1-sol
       provider: custom
       base_url: http://cliproxy.default.svc.cluster.local:8317/v1
       api_key: $${CLIPROXY_API_KEY}
@@ -15,21 +15,20 @@ data:
       context_length: 1050000
       max_tokens: 128000
 
-    # If the primary Codex account is unavailable for a turn, use Fable through
-    # the same in-cluster CLIProxy. Hermes restores GPT-5.6 Sol on the next
-    # turn; this is failover, not permanent model switching.
+    # Temporary working chain while David's requested Claude API route is verified.
+    # Both routes use the owner's CLIProxy key; fallback lasts for this turn only.
     fallback_providers:
       - provider: custom
-        model: claude-fable-5
+        model: vercel/glm-5.3-flash
         base_url: http://cliproxy.default.svc.cluster.local:8317/v1
-        api_mode: anthropic_messages
+        api_mode: chat_completions
         key_env: CLIPROXY_API_KEY
 
     agent:
       reasoning_effort: low
       reasoning_overrides:
-        claude-fable-5: low
-      service_tier: priority
+        vercel/glm-5.3-flash: low
+      service_tier: default
       max_turns: 500
       gateway_timeout: 21600
       task_completion_guidance: true
@@ -183,7 +182,7 @@ data:
       allow_agent_scheduling: false
       preflight: true
       model_drift_guard: true
-      model: gpt-5.6-sol
+      model: gpt-6.1-sol
       model_provider: custom
 
     timezone: Europe/Madrid
@@ -436,6 +435,13 @@ data:
     davidapps-cluster mutation must go through its approval-gated MCP connection
     and David's Discord approval button.
 
+    Ordinary research, planning, email context, and personal assistance stay in
+    the current conversation. Use background subagents when they help and bring
+    their findings back to this thread. Do not automatically turn these requests
+    into coding Tasks, branches, or pull requests. Use the coding Task lifecycle
+    when David asks for repository implementation work; its existing authority
+    and approval boundaries still apply.
+
     Use the fleet_tasks MCP server for Workspace work; never improvise SSH access
     from this container. Its bounded coding lifecycle has David's standing approval:
     it may prepare an isolated worktree, run the sandboxed harness, test, and create
@@ -450,7 +456,10 @@ data:
     confirmation: the single-use **Merge PR** button is the confirmation. A denial,
     expiry, draft, stale head, failed check, or blocked mergeability ends that merge
     attempt; never retry it silently. Let the gateway select a healthy Workspace unless
-    David names one. Default work to GPT-5.6 Sol, low reasoning, fast mode. Use xhigh
+    David names one. Default owner work to GPT-6.1 Sol with low reasoning and
+    standard service, with GLM-5.3-Flash through David's Vercel AI Gateway as the
+    turn-scoped fallback. This is the verified temporary chain; do not claim that
+    priority service or the requested Claude Haiku API route is active. Use xhigh
     only when David asks for deeper or bigger work.
 
     Your local terminal and files are an isolated persistent scratch environment, not
@@ -573,6 +582,19 @@ data:
     explicit bounded operations, not a substitute for committing durable config.
   USER.md: |
     David's timezone is Europe/Madrid.
+    §
+    Confirmed on 2026-10-13: David wants Herm to be a useful personal assistant
+    and make better memes and jokes. Keep the two goals equally important.
+    His mailbox is david@davidilie.com. alexandru.ilie@mbretrofit.it is only a
+    contact alias, not a second mailbox. Mail access must be read-only; for
+    Mercedes or VIN questions, bring the relevant context and a proposed reply
+    into the originating thread. Never send mail or create drafts automatically.
+    Fleet browser sessions and connected accounts are desired but still pending;
+    do not claim they are connected or that a mailbox has been read.
+    §
+    David dislikes abstract approval loops and lengthy interviews. Infer obvious
+    typos and act within existing authority. Ask only for a missing credential
+    or a material decision; keep useful conversation going while work runs.
     §
     David prefers concise, direct, outcome-first answers backed by live evidence.
     §
