@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Get Previous Release Tag and Determine Next Tag
         id: determine-next-tag
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           result-encoding: string
@@ -48,7 +48,7 @@ jobs:
             return `${nextMajorMinor}.${nextPatch}`;
 
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1
         with:
           generateReleaseNotes: true
           tag: "${{ steps.determine-next-tag.outputs.result }}"
