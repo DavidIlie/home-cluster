@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: tempo
-      version: 2.4.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: grafana-community
@@ -28,7 +28,6 @@ spec:
     fullnameOverride: tempo
     replicas: 1
     tempo:
-      memBallastSizeMbs: 0
       reportingEnabled: false
       retention: 168h
       queryFrontend:
@@ -37,9 +36,6 @@ spec:
       metricsGenerator:
         enabled: true
         processor:
-          local_blocks:
-            filter_server_spans: false
-            flush_to_storage: true
           service_graphs: {}
           span_metrics:
             enable_target_info: true
@@ -51,13 +47,10 @@ spec:
           remote_write:
             - url: http://prometheus-home-cluster.observability.svc.cluster.local:9090/api/v1/write
               send_exemplars: true
-        traces_storage:
-          path: /var/tempo/metrics-wal
       overrides:
         defaults:
           metrics_generator:
             processors:
-              - local-blocks
               - service-graphs
               - span-metrics
       resources:
