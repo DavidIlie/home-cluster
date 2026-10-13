@@ -91,7 +91,7 @@ data:
         extra:
           # Keep free-response Herm channels thread-first instead of replying
           # inline. This is intentionally independent from mention admission.
-          auto_thread_free_response_channels: true
+          free_response_auto_thread: true
           friend_code_approval:
             enabled: true
             broker_url: http://hermes-friend-broker.default.svc.cluster.local:8080
