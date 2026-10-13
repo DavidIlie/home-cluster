@@ -253,6 +253,8 @@ spec:
             - "16000"
             - --owner-config
             - /seed/owner-config.yaml
+            - --owner-user-context
+            - /seed/owner-user-context.md
             - --skip-replay
           securityContext:
             runAsNonRoot: true

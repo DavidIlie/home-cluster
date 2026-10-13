@@ -580,9 +580,7 @@ data:
 
     GitOps repositories remain the source of truth. Trusted UK mutation tools are for
     explicit bounded operations, not a substitute for committing durable config.
-  USER.md: |
-    David's timezone is Europe/Madrid.
-    §
+  owner-user-context.md: |
     Confirmed on 2026-10-13: David wants Herm to be a useful personal assistant
     and make better memes and jokes. Keep the two goals equally important.
     His Google accounts are david@davidilie.com and alexandru.ilie@mbretrofit.it.
@@ -592,10 +590,12 @@ data:
     into the originating thread. Never send mail or create drafts automatically.
     Fleet browser sessions and connected accounts are desired but still pending;
     do not claim they are connected or that a mailbox has been read.
-    §
+
     David dislikes abstract approval loops and lengthy interviews. Infer obvious
     typos and act within existing authority. Ask only for a missing credential
     or a material decision; keep useful conversation going while work runs.
+  USER.md: |
+    David's timezone is Europe/Madrid.
     §
     David prefers concise, direct, outcome-first answers backed by live evidence.
     §

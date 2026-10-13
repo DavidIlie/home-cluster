@@ -122,6 +122,47 @@ def _deep_merge(base: dict[str, Any], managed: dict[str, Any]) -> dict[str, Any]
     return merged
 
 
+_USER_CONTEXT_START = b"<!-- managed-owner-context:start -->\n"
+_USER_CONTEXT_END = b"<!-- managed-owner-context:end -->"
+
+
+def reconcile_owner_user_context(path: Path, source: Path) -> bool:
+    """Update only the operator-owned block, preserving learned memory bytes."""
+    _regular_file(source)
+    exists = _regular_file(path, required=False)
+    current = path.read_bytes() if exists else b""
+    payload = source.read_bytes().strip()
+    if not payload or _USER_CONTEXT_START in payload or _USER_CONTEXT_END in payload:
+        raise RuntimeError("managed owner context is empty or contains reserved markers")
+    block = _USER_CONTEXT_START + payload + b"\n" + _USER_CONTEXT_END
+    start, end = current.find(_USER_CONTEXT_START), current.find(_USER_CONTEXT_END)
+    if start == -1 and end == -1:
+        updated = current + b"\n\n\xc2\xa7\n" + block + b"\n"
+    elif start >= 0 and end > start and current.count(_USER_CONTEXT_START) == current.count(_USER_CONTEXT_END) == 1:
+        updated = current[:start] + block + current[end + len(_USER_CONTEXT_END):]
+    else:
+        raise RuntimeError("owner memory has malformed managed context markers")
+    if updated == current:
+        return False
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(updated)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+    return True
+
+
 def reconcile_owner_config(config_path: Path, managed_path: Path) -> bool:
     """Apply the owner-only managed config without erasing runtime-only keys."""
     _regular_file(config_path)
@@ -316,6 +357,7 @@ def main() -> None:
     parser.add_argument("--memory-char-limit", type=int, required=True)
     parser.add_argument("--user-char-limit", type=int, required=True)
     parser.add_argument("--owner-config", type=Path)
+    parser.add_argument("--owner-user-context", type=Path)
     parser.add_argument("--replay-thread-id", action="append", default=[])
     parser.add_argument("--skip-replay", action="store_true")
     args = parser.parse_args()
@@ -336,6 +378,12 @@ def main() -> None:
             if owner_changed
             else "Owner-only managed config already current"
         )
+
+    if args.owner_user_context is not None:
+        user_changed = reconcile_owner_user_context(
+            home / "memories" / "USER.md", args.owner_user_context.resolve(strict=True)
+        )
+        print("Reconciled managed owner context" if user_changed else "Managed owner context already current")
 
     changed = configure_runtime_config(
         home / "config.yaml", args.memory_char_limit, args.user_char_limit

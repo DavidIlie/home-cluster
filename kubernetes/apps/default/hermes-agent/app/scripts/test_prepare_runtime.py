@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
+import hermes_yaml as yaml
 
 
 SCRIPT = Path(__file__).with_name("prepare-runtime.py")
@@ -173,6 +173,42 @@ class PrepareRuntimeTests(unittest.TestCase):
                 json.loads(marker.read_text(encoding="utf-8"))["migration"], "old"
             )
 
+
+class OwnerContextTest(unittest.TestCase):
+    def test_preserves_learned_bytes_and_friend_memory_and_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            owner, friend, source = (root / name for name in ("owner.md", "friend.md", "source.md"))
+            learned = "Learned preference with café.\r\n§\nPrivate remembered fact.\n".encode()
+            friend_bytes = b"Friend profile learned memory.\n"
+            owner.write_bytes(learned)
+            friend.write_bytes(friend_bytes)
+            source.write_text("Confirmed context first revision.\n")
+            self.assertTrue(prepare_runtime.reconcile_owner_user_context(owner, source))
+            first = owner.read_bytes()
+            self.assertTrue(first.startswith(learned))
+            self.assertFalse(prepare_runtime.reconcile_owner_user_context(owner, source))
+            self.assertEqual(owner.read_bytes(), first)
+            suffix = b"\nLater learned memory outside the managed block.\n"
+            owner.write_bytes(first + suffix)
+            source.write_text("Confirmed context updated revision.\n")
+            self.assertTrue(prepare_runtime.reconcile_owner_user_context(owner, source))
+            updated = owner.read_bytes()
+            self.assertTrue(updated.startswith(learned))
+            self.assertTrue(updated.endswith(suffix))
+            self.assertEqual(updated.count(prepare_runtime._USER_CONTEXT_START), 1)
+            self.assertEqual(friend.read_bytes(), friend_bytes)
+            self.assertEqual(owner.stat().st_mode & 0o777, 0o600)
+
+    def test_malformed_markers_fail_without_changing_memory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner, source = (Path(directory) / name for name in ("owner.md", "source.md"))
+            original = b"Learned fact.\n" + prepare_runtime._USER_CONTEXT_START
+            owner.write_bytes(original)
+            source.write_text("Confirmed context.\n")
+            with self.assertRaises(RuntimeError):
+                prepare_runtime.reconcile_owner_user_context(owner, source)
+            self.assertEqual(owner.read_bytes(), original)
 
 if __name__ == "__main__":
     unittest.main()
