@@ -31,7 +31,7 @@ spec:
           init-db:
             image:
               repository: ghcr.io/home-operations/postgres-init
-              tag: 18.4
+              tag: 18.6
             envFrom: &envFrom
               - secretRef:
                   name: n8n-secret
@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: docker.io/n8nio/n8n
-              tag: 2.43.3
+              tag: 2.44.0
             env:
               GENERIC_TIMEZONE: Europe/Bucharest
               TZ: Europe/Bucharest

@@ -45,7 +45,7 @@ spec:
           init-db:
             image:
               repository: ghcr.io/home-operations/postgres-init
-              tag: 18.4
+              tag: 18.6
             envFrom: &envFrom
               - secretRef:
                   name: posthog-secret
@@ -54,7 +54,7 @@ spec:
           migrate:
             image: &posthogImage
               repository: posthog/posthog
-              tag: latest@sha256:4c0bc85db5d007d5bb9465f1c3ed3e4c58db621f782cc585124e445acd673d61
+              tag: latest@sha256:85d727166fe3d2c4314da708634987cc69fc19ca4c8e8130e60501b45aa22a01
               pullPolicy: IfNotPresent
             command:
               - /bin/sh
