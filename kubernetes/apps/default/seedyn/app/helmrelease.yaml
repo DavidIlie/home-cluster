@@ -36,14 +36,14 @@ spec:
           init-db:
             image:
               repository: ghcr.io/home-operations/postgres-init
-              tag: 18.4
+              tag: 18.4@sha256:ebd9d30add17acdf935d73eb004758c7dfd9388aaa605fda70ad74378ab92aec
             envFrom: &envFrom
               - secretRef:
                   name: seedyn-secret
           migrate:
             image: &image
               repository: ghcr.io/davidilie/seedyn # {"$imagepolicy": "flux-system:seedyn:name"}
-              tag: master-50974712-1788174439 # {"$imagepolicy": "flux-system:seedyn:tag"}
+              tag: master-50974712-1788174439@sha256:2babc4e0f897b5808713b65cc60a9fef8b57021bc2c226e932996c34dbe57670 # {"$imagepolicy": "flux-system:seedyn:tag"}
             command:
               - node
               - node_modules/prisma/build/index.js
