@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-import yaml
+import hermes_yaml as yaml
 
 
 MIGRATION_ID = "operator-replay-20260816-v11"
