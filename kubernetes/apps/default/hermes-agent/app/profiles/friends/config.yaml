@@ -71,7 +71,7 @@ discord:
 platforms:
   discord:
     extra:
-      auto_thread_free_response_channels: true
+      free_response_auto_thread: true
       # The component gate reads PlatformConfig.extra directly; this cannot be
       # expressed only in the top-level Discord tool policy above.
       require_admin_for_exec_approval: true

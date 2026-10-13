@@ -150,7 +150,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/cliproxyapi # {"$imagepolicy": "flux-system:cliproxy:name"}
-              tag: e12e0a894c80e2d4ddd425246f216c5eae4b40fa
+              tag: b1c910e89df7fbbdf6870749426d496f81334065
             command: ["/CLIProxyAPI/CLIProxyAPI"]
             args: ["-config", "/config-data/config.yaml"]
             env:
@@ -345,6 +345,8 @@ spec:
                 pathType: Exact
                 service: *appService
               - path: /v0/management
+                service: *appService
+              - path: /v8/management
                 service: *appService
               - path: /v0/resource/plugins
                 pathType: Prefix

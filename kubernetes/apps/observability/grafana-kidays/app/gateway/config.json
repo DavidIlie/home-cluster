@@ -18,6 +18,9 @@
   ],
   "scope": {
     "prometheusMatchers": {
+      "davidapps_project_id": [
+        "kidays"
+      ],
       "namespace": [
         "kidays-fr"
       ],
@@ -34,6 +37,10 @@
       ],
       "host": [
         "app.kidays.fr"
+      ],
+      "service_name": [
+        "kidays-fr-app",
+        "kidays-fr-convex-backend"
       ]
     },
     "logsStreamPrefixes": [
