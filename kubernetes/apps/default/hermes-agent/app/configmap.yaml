@@ -7,17 +7,22 @@ data:
   owner-config.yaml: |
     _config_version: 34
     model:
-      default: gpt-6.1-sol
+      default: claude-haiku-5-5
       provider: custom
       base_url: http://cliproxy.default.svc.cluster.local:8317/v1
       api_key: $${CLIPROXY_API_KEY}
-      api_mode: codex_responses
-      context_length: 1050000
+      api_mode: anthropic_messages
+      context_length: 1000000
       max_tokens: 128000
 
-    # Temporary working chain while David's requested Claude API route is verified.
-    # Both routes use the owner's CLIProxy key; fallback lasts for this turn only.
+    # Use David's existing personal Claude Code OAuth connection through CLIProxy.
+    # Respect its quota; ordered fallbacks apply for this turn, never reset cooldowns.
     fallback_providers:
+      - provider: custom
+        model: gpt-6.1-sol
+        base_url: http://cliproxy.default.svc.cluster.local:8317/v1
+        api_mode: codex_responses
+        key_env: CLIPROXY_API_KEY
       - provider: custom
         model: vercel/glm-5.3-flash
         base_url: http://cliproxy.default.svc.cluster.local:8317/v1
@@ -27,6 +32,7 @@ data:
     agent:
       reasoning_effort: low
       reasoning_overrides:
+        claude-haiku-5-5: low
         vercel/glm-5.3-flash: low
       service_tier: default
       max_turns: 500
@@ -182,7 +188,7 @@ data:
       allow_agent_scheduling: false
       preflight: true
       model_drift_guard: true
-      model: gpt-6.1-sol
+      model: claude-haiku-5-5
       model_provider: custom
 
     timezone: Europe/Madrid
@@ -456,11 +462,14 @@ data:
     confirmation: the single-use **Merge PR** button is the confirmation. A denial,
     expiry, draft, stale head, failed check, or blocked mergeability ends that merge
     attempt; never retry it silently. Let the gateway select a healthy Workspace unless
-    David names one. Default owner work to GPT-6.1 Sol with low reasoning and
-    standard service, with GLM-5.3-Flash through David's Vercel AI Gateway as the
-    turn-scoped fallback. This is the verified temporary chain; do not claim that
-    priority service or the requested Claude Haiku API route is active. Use xhigh
-    only when David asks for deeper or bigger work.
+    David names one. Owner conversation starts with Claude Haiku 5.5 through
+    David's existing personal Claude Code OAuth connection in CLIProxy, with low
+    adaptive reasoning. Respect that connection's quota and cooldowns; never reset
+    them to force a request through. If unavailable, use GPT-6.1 Sol with standard
+    service, then GLM-5.3-Flash through David's Vercel AI Gateway. These fallbacks
+    last for the turn; retry the configured primary on a later eligible turn.
+    Do not claim priority service is active. Use xhigh only when David asks for
+    deeper or bigger work.
 
     Your local terminal and files are an isolated persistent scratch environment, not
     a fleet node and not a Kubernetes administrator. You have no Docker socket,
