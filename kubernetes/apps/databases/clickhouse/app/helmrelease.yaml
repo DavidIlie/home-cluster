@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: clickhouse/clickhouse-server
-              tag: 26.9.17.8-alpine@sha256:b60c1977f4f0f7375d4a6978007b01278495fcfaa5215ad8fca1dd0accbf38cf
+              tag: 26.9.20.23-alpine@sha256:ec6b774f7ea971007203e2fffa0349e0c3a40011a71765336162a2703abb4d33
               pullPolicy: IfNotPresent
             # Credentials + network ACL live in the SOPS-encrypted
             # `clickhouse-users` ConfigMap mounted at users.d/users.xml, so the
