@@ -44,7 +44,7 @@ spec:
             fsGroup: 101
           containers:
             - name: clickhouse-keeper
-              image: clickhouse/clickhouse-keeper:26.9@sha256:e91b1b37cbaadf47b952f4942824763acde08a26bf78302d2f00065e68ae9e04
+              image: clickhouse/clickhouse-keeper:26.9@sha256:13ffde8de91a7f960678ae63c56f6ae5b46e4fd57783ca017e5ae549153abe81
               imagePullPolicy: IfNotPresent
               resources:
                 requests:
