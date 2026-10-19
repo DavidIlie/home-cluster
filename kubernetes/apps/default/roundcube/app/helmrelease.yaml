@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: docker.io/roundcube/roundcubemail
-              tag: 1.7.4-apache@sha256:23d2bf8c125ca92d7fb6f1be17f1077b3d662f1a01791253ceb7364a7913270a
+              tag: 1.7.5-apache@sha256:fea690452cad870440eb231ef2a0c019a46fc5ba5afb069a2edcbf1ce6ab22ab
             env:
               TZ: Europe/Bucharest
               ROUNDCUBEMAIL_DEFAULT_HOST: ssl://192.168.100.95
