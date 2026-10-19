@@ -4,3 +4,8 @@ machine:
     fs.inotify.max_user_instances: "8192"  # Watchdog
     net.core.rmem_max: "7500000" # Cloudflared | QUIC
     net.core.wmem_max: "7500000" # Cloudflared | QUIC
+    # Flush dirty pages in small batches. Under the ratio defaults (10%/20% of
+    # 64GiB) bursts reached 2.9GB before flushing, and etcd's WAL fsync stalled
+    # behind them (341 fsyncs over 1s in 7 days).
+    vm.dirty_background_bytes: "268435456" # 256MiB
+    vm.dirty_bytes: "536870912" # 512MiB
