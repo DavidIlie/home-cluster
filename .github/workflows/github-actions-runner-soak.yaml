@@ -1,0 +1,61 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: GitHub Actions Runner Soak
+
+# Fleet capacity test: short jobs with mixed disk, image and CPU load, so pod
+# and volume churn resembles real CI. Run from several repositories at once
+# to fill the davidapps-cluster fleet quota (DavidIlie/davidapps-cluster has
+# the same workflow); jobs above a repository's tier maximum queue.
+on:
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: Number of soak jobs (1-60)
+        default: "40"
+      minutes:
+        description: Minutes of load per job
+        default: "5"
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan soak matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
+    steps:
+      - id: plan
+        env:
+          JOBS: ${{ inputs.jobs }}
+        run: |
+          [[ "$JOBS" =~ ^[0-9]+$ ]] && (( JOBS >= 1 && JOBS <= 60 ))
+          echo "shards=[$(seq -s, 1 "$JOBS")]" >> "$GITHUB_OUTPUT"
+
+  soak:
+    name: soak ${{ matrix.shard }}
+    needs: plan
+    runs-on: davidapps-ubuntu
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - name: Mixed CI load
+        env:
+          MINUTES: ${{ inputs.minutes }}
+        run: |
+          end=$(( $(date +%s) + MINUTES * 60 ))
+          docker pull --quiet node:24-alpine >/dev/null
+          rounds=0
+          while [ "$(date +%s)" -lt "$end" ]; do
+            dd if=/dev/urandom of="$RUNNER_TEMP/blob" bs=1M count=512 conv=fdatasync status=none
+            docker run --rm -v "$RUNNER_TEMP:/w" node:24-alpine \
+              sh -c 'sha256sum /w/blob >/dev/null && node -e "let x = 0; for (let i = 0; i < 3e8; i++) x += i"'
+            rm -f "$RUNNER_TEMP/blob"
+            rounds=$((rounds + 1))
+          done
+          echo "rounds=$rounds on $(hostname)"
