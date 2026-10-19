@@ -3,6 +3,67 @@ cluster:
   controllerManager:
     extraArgs:
       bind-address: 0.0.0.0
+  apiServer:
+    # The default logs every request at Metadata. Drop the RequestReceived
+    # duplicate, leases, events, node status, control-plane reads,
+    # health/discovery URLs and service-account/node reads. Keep writes, secret
+    # and token access, exec/attach/port-forward and auth reviews.
+    auditPolicy:
+      apiVersion: audit.k8s.io/v1
+      kind: Policy
+      omitStages:
+        - RequestReceived
+      rules:
+        - level: None
+          resources:
+            - group: coordination.k8s.io
+              resources: ["leases"]
+            - group: ""
+              resources: ["events"]
+            - group: events.k8s.io
+              resources: ["events"]
+        - level: None
+          userGroups: ["system:nodes"]
+          verbs: ["get", "list", "watch", "patch", "update"]
+          resources:
+            - group: ""
+              resources: ["nodes", "nodes/status"]
+        - level: None
+          users:
+            - system:kube-controller-manager
+            - system:kube-scheduler
+            - system:apiserver
+          verbs: ["get", "list", "watch"]
+        - level: None
+          nonResourceURLs:
+            - /healthz*
+            - /livez*
+            - /readyz*
+            - /version
+            - /metrics
+            - /openapi*
+            - /api
+            - /apis
+            - /apis/*
+        - level: Metadata
+          resources:
+            - group: ""
+              resources:
+                - secrets
+                - serviceaccounts
+                - serviceaccounts/token
+                - pods/exec
+                - pods/attach
+                - pods/portforward
+                - pods/proxy
+                - services/proxy
+                - nodes/proxy
+            - group: authentication.k8s.io
+            - group: authorization.k8s.io
+        - level: None
+          userGroups: ["system:serviceaccounts", "system:nodes"]
+          verbs: ["get", "list", "watch"]
+        - level: Metadata
   coreDNS:
     disabled: true
   etcd:
