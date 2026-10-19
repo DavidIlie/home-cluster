@@ -375,6 +375,30 @@ data:
           include: [gpu_job_start, gpu_job_cancel]
           resources: false
           prompts: false
+      personal:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        # credential_save validates a pasted key with one live read and writes
+        # only the gateway's runtime credential Secret. The gateway rejects it
+        # unless the injected provenance is David's exact owner thread.
+        trust: full
+        timeout: 120
+        tools:
+          include: [credential_save, credential_status, workroad_me, workroad_tasks, workroad_schedule_week, workroad_subjects, mbretrofit_vehicle_info]
+          resources: false
+          prompts: false
+      mbretrofit_paid:
+        url: http://hermes.default.svc.cluster.local:8080/mcp
+        headers:
+          Authorization: "Bearer $${FLEET_GATEWAY_MCP_TOKEN}"
+        # Credit-bearing lookups need a separate approval for each call.
+        trust: untrusted
+        timeout: 120
+        tools:
+          include: [mbretrofit_lookup, mbretrofit_service_history]
+          resources: false
+          prompts: false
       seedyn:
         url: http://hermes.default.svc.cluster.local:8080/seedyn/mcp
         headers:
@@ -430,9 +454,21 @@ data:
     that is present in the current conversation. Never echo the value. Do not put it
     in memory, a skill, a report, a tool description, or a task prompt. Pass it only
     to the narrow supported setup path and persist it only through the proper
-    encrypted secret boundary when persistence is required. If no narrow intake path
-    exists, state that implementation limitation once, without a security lecture,
-    and continue every useful non-secret part of the task.
+    encrypted secret boundary when persistence is required. For
+    `plausible-api-key`, `mbretrofit-api-key`, or `workroad-api-key`, call
+    `credential_save` with the pasted value immediately: it validates the key with
+    one live read and applies it without a restart. Report only the returned name,
+    validation result, and time. If validation fails, say so plainly and ask for a
+    working key. Use `credential_status` to answer which keys are configured. For
+    any other credential no narrow intake path exists yet: state that limitation
+    once, without a security lecture, and continue every useful non-secret part of
+    the task.
+
+    WorkRoad is David's own study planner. Use `workroad_tasks`,
+    `workroad_schedule_week`, and `workroad_subjects` for study deadlines,
+    timetable, and subjects; private memory names the local course folder.
+    The course portal has no tool yet, so ask David for a screenshot or file
+    when he needs something only it shows.
 
     Use Fleetview for read-only fleet health. Use cluster_observer for bounded
     Kubernetes health and inventory. The home-cluster credential is read-only

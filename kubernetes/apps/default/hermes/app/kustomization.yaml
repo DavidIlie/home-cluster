@@ -8,6 +8,7 @@ resources:
   - ./configmap.yaml
   - ./secret.sops.yaml
   - ./seedyn-secret.sops.yaml
+  - ./runtime-credentials.yaml
   - ./networkpolicy.yaml
   - ./servicemonitor.yaml
   - ./prometheusrule.yaml

@@ -43,3 +43,28 @@ subjects:
   - kind: ServiceAccount
     name: hermes-fleet-operator
     namespace: default
+---
+# credential_save persists validated keys David pastes in his owner thread.
+# Flux creates the Secret once and never overwrites it.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hermes-runtime-credentials
+rules:
+  - apiGroups: [""]
+    resources: [secrets]
+    resourceNames: [hermes-runtime-credentials]
+    verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hermes-runtime-credentials
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hermes-runtime-credentials
+subjects:
+  - kind: ServiceAccount
+    name: hermes-fleet-operator
+    namespace: default

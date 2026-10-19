@@ -33,8 +33,8 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              # Source: DavidIlie/hermes@234119ca29e965c734cd86f141d57fbe190b8191
-              tag: sha-234119ca29e965c734cd86f141d57fbe190b8191@sha256:2f2524e4547cc2a1dbaf02183d67eea85d179c01fe024e93e1f21e82acbfab7e
+              # Source: DavidIlie/hermes@d03b92b6c885b870507790b4e5329253b5bb46cb
+              tag: sha-d03b92b6c885b870507790b4e5329253b5bb46cb@sha256:6345199f85162a22a1c7503817888baad4b8ac2dea40d2b11ec6fa921123f04a
             command: ["/bin/sh", "-ec"]
             args:
               - |
@@ -115,6 +115,7 @@ spec:
               HERMES_PLEX_TOKEN_FILE: /run/secrets/hermes/plex-token
               HERMES_GRAFANA_URL: http://grafana.observability.svc.cluster.local
               HERMES_GRAFANA_TOKEN_FILE: /run/secrets/hermes/grafana-token
+              HERMES_RUNTIME_CREDENTIALS_SECRET: hermes-runtime-credentials
               HERMES_PLAUSIBLE_URL: https://plausible.davidapps.dev
               HERMES_PLAUSIBLE_TOKEN_FILE: /run/secrets/hermes/plausible-api-key
               HERMES_PLAUSIBLE_SITE_IDS: anaxax.tv,app.kidays.fr,brainbuzzapp.com,controlfits.com,createidol.io,davidilie.com,docs.workroad.app,en.mbretrofit.ro,kidays.fr,mbretrofit.es,mbretrofit.it,mbretrofit.ro,plexo.davidhome.ro,quickgoon.com,ro.davidinfra.co.uk,store.workroad.app,t3.gurt.ing,workroad.app,zerocut.gg
