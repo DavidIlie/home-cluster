@@ -29,12 +29,13 @@ spec:
       enabled: true
       # The default "helm" method issues Hubble's TLS certs once and never
       # renews them; they expired on 2026-09-29 and hubble-relay has failed
-      # every handshake since. certgen re-issues them every four months.
+      # every handshake since. certgen re-issues the 365-day leaf certs every
+      # four months. It refuses to sign leaves that outlive the cilium-ca
+      # secret, so a failing hubble-generate-certs Job means: rotate the CA.
       tls:
         auto:
           enabled: true
           method: cronJob
-          certValidityDuration: 1095
           schedule: "0 0 1 */4 *"
       metrics:
         enabled:
