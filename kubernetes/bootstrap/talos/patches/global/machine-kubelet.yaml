@@ -2,6 +2,9 @@ machine:
   kubelet:
     extraConfig:
       maxPods: 200
+      # Drop images no pod has used for a week. Size-based GC alone keeps the
+      # EPHEMERAL disk (shared with etcd) at up to 85% with old app tags.
+      imageMaximumGCAge: 168h
     extraMounts:
       - destination: /var/openebs/local
         type: bind
