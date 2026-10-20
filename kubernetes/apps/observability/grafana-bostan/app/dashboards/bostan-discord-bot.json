@@ -485,43 +485,6 @@
         "x": 0,
         "y": 13
       }
-    },
-    {
-      "type": "logs",
-      "title": "Bot log",
-      "datasource": {
-        "type": "victoriametrics-logs-datasource",
-        "uid": "victoria-logs"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-logs-datasource",
-            "uid": "victoria-logs"
-          },
-          "editorMode": "code",
-          "expr": "_stream:{cluster=\"home-cluster\",k_namespace_name=\"default\",app=\"bostan-discord-bot\"}",
-          "queryType": "instant",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "wrapLogMessage": true,
-        "sortOrder": "Descending",
-        "enableLogDetails": true,
-        "dedupStrategy": "none",
-        "prettifyLogMessage": false,
-        "showLabels": false,
-        "showCommonLabels": false
-      },
-      "id": 9,
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      }
     }
   ]
 }
