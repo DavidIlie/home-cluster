@@ -848,7 +848,7 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-enterprise\",app=\"bostan-enterprise-cloudflared\"}",
+          "expr": "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-enterprise\",app=\"bostan-enterprise-cloudflared\"} | replace_regexp (\"\\\\?[^ \\\"]*\", \"?\u2026\") at _msg",
           "queryType": "instant",
           "refId": "A"
         }

@@ -1642,8 +1642,8 @@
       }
     },
     {
-      "type": "logs",
-      "title": "Recent errors",
+      "type": "table",
+      "title": "Recent error lines",
       "datasource": {
         "type": "victoriametrics-logs-datasource",
         "uid": "victoria-logs"
@@ -1655,20 +1655,28 @@
             "uid": "victoria-logs"
           },
           "editorMode": "code",
-          "expr": "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-libertos\"} app:in(\"bostan-libertos-app\",\"bostan-libertos-convex\",\"bostan-libertos-pdf\") _msg:~\"(?i)(error|exception|fatal|panic|unhandled)\"",
+          "expr": "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-libertos\"} app:in(\"bostan-libertos-app\",\"bostan-libertos-convex\",\"bostan-libertos-pdf\") _msg:~\"(?i)(error|exception|fatal|panic|unhandled)\" | fields _time, app, k_pod_name, trace_id, span_id | sort by (_time) desc | limit 200",
           "queryType": "instant",
           "refId": "A"
         }
       ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "showTime": true,
-        "wrapLogMessage": true,
-        "sortOrder": "Descending",
-        "enableLogDetails": true,
-        "dedupStrategy": "none",
-        "prettifyLogMessage": false,
-        "showLabels": false,
-        "showCommonLabels": false
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
       },
       "id": 30,
       "gridPos": {
