@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+# Failures the chart's rules miss. Hubble's TLS certs expired here on
+# 2026-09-29 and stayed broken for three weeks because nothing told anyone.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cluster-health
+spec:
+  groups:
+    - name: cluster-health
+      rules:
+        - alert: FluxResourceNotReady
+          expr: max by (kind, exported_namespace, name) (flux_resource_info{ready!="True", suspended="False"}) > 0
+          for: 45m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Flux {{ $labels.kind }} {{ $labels.exported_namespace }}/{{ $labels.name }} has not been Ready for 45 minutes"
+        - alert: PostgresClusterDown
+          expr: kube_cnpg_cluster_ready_instances == 0 and kube_cnpg_cluster_instances > 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Postgres {{ $labels.namespace }}/{{ $labels.cluster }} has no ready instance"
+        - alert: CertificateNotReady
+          expr: max by (exported_namespace, name) (certmanager_certificate_ready_status{condition="False"}) == 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} has not been Ready for an hour"
+        - alert: CertificateExpiringSoon
+          expr: (max by (exported_namespace, name) (certmanager_certificate_expiration_timestamp_seconds) - time()) < 10 * 86400
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires in under 10 days; renewal is failing"

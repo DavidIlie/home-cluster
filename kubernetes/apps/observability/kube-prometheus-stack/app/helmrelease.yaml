@@ -32,7 +32,46 @@ spec:
       enabled: false
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
-      enabled: false
+      enabled: true
+      # Merged over the chart's config, which keeps its inhibit rules.
+      config:
+        global:
+          smtp_smarthost: smtp.resend.com:587
+          smtp_from: home-cluster <alerts@infra.davidapps.dev>
+          smtp_auth_username: resend
+          # Send-only Resend key for infra.davidapps.dev.
+          smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-resend/api-key
+          smtp_require_tls: true
+        route:
+          receiver: email
+          group_by: ["alertname", "namespace"]
+          routes:
+            - receiver: "null"
+              matchers: ['alertname =~ "Watchdog|InfoInhibitor"']
+            - receiver: "null"
+              matchers: ['severity =~ "info|none"']
+        receivers:
+          - name: "null"
+          - name: email
+            email_configs:
+              - to: david@davidilie.com
+                send_resolved: true
+      alertmanagerSpec:
+        secrets: ["alertmanager-resend"]
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: openebs-hostpath
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 1Gi
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
     kubeApiServer:
       serviceMonitor:
         selector:
@@ -100,6 +139,40 @@ spec:
               targetLabel: kubernetes_node
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
+      # Desired and ready instances of every CNPG Cluster, for
+      # PostgresClusterDown in prometheusrule.yaml.
+      rbac:
+        extraRules:
+          - apiGroups: ["postgresql.cnpg.io"]
+            resources: ["clusters"]
+            verbs: ["list", "watch"]
+      customResourceState:
+        enabled: true
+        config:
+          kind: CustomResourceStateMetrics
+          spec:
+            resources:
+              - groupVersionKind:
+                  group: postgresql.cnpg.io
+                  version: v1
+                  kind: Cluster
+                metricNamePrefix: kube_cnpg_cluster
+                labelsFromPath:
+                  namespace: [metadata, namespace]
+                  cluster: [metadata, name]
+                metrics:
+                  - name: instances
+                    help: Instances the CNPG Cluster asks for.
+                    each:
+                      type: Gauge
+                      gauge:
+                        path: [spec, instances]
+                  - name: ready_instances
+                    help: Ready instances of the CNPG Cluster.
+                    each:
+                      type: Gauge
+                      gauge:
+                        path: [status, readyInstances]
       resources:
         requests:
           cpu: 10m

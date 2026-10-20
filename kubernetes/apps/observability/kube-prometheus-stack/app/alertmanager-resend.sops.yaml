@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-resend
+type: Opaque
+stringData:
+  api-key: ENC[AES256_GCM,data:ABAkxenH0nEAbU5EOvrrYMKHp+sLiyR+aGvpY4hPyTSjtW2M,iv:vae1/T+y+7OONILwg7xlZp2/+Ap2Z6zwLaS7wj0GYjc=,tag:R1Zgae3dK7xso7Mx+c5ADw==,type:str]
+sops:
+  age:
+    - recipient: age1a62pe7lp5xdm2f5v8lhcdsvglht6hr7qvduc6ap2w79r8rqn09tq0fgjcn
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBlVnpKUExjZ2l0R1Jaakdq
+        SkNvZEJOVlhwcnU1dzgzVmZ1ZmdXRUFsVVhvCjVhbEUvdzIwdlRJRFNQdmVYY1ph
+        c2pPNUh5cVdpemU2bG9XbmdxMjN2TXcKLS0tIGZKZmJ1M2ovV1JwOGhIS0VWb0xK
+        VS80QlZ6dXRYZDdBeVVyNVBTV3VKaHMKcSKcsI+lx2vmzFnbnPpgFMoS4/3g5Ru1
+        mcf6XGEucZ54PXrviVx44z9/p5sL4Sx7mVFezkD8aH/iiqHpiFLdaA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-10-20T21:27:18Z"
+  mac: ENC[AES256_GCM,data:lVB9vcxDciZ4F0vwrQ6QlCfiY2fbij8OAh7F744/X8IBa/OHi5zAm/Z1F1SsU+R4bQDsENzbJXMyQ7kRjGxsj/SxjpSwo4g3p8Du4xbX+2h6SNNe79rw8kwGsAlUPxhzug0E9ibMfe/DjiiB9ifuDyx3ibyqAOBVoj4fn4Y4VxY=,iv:3pnl4eSPxgSYkgPfcmuUnmIlp9To4OPXwSCG5wVpUSM=,tag:TD2peDzMzVd0KbXSbWXcFQ==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.1
