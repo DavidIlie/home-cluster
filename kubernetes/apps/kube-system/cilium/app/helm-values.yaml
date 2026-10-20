@@ -29,6 +29,12 @@ kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
   enabled: true
+  # Defaults are 15s/5s/2s. Retrying every 5s cuts lease writes to etcd by 60%, and a
+  # 10s renew deadline rides out etcd fsync stalls instead of moving the IP. Failover
+  # after a node dies takes 10-30s instead of 10-20s.
+  leaseDuration: 20s
+  leaseRenewDeadline: 10s
+  leaseRetryPeriod: 5s
 loadBalancer:
   algorithm: maglev
   mode: "dsr"
