@@ -27,6 +27,15 @@ spec:
   values:
     hubble:
       enabled: true
+      # The default "helm" method issues Hubble's TLS certs once and never
+      # renews them; they expired on 2026-09-29 and hubble-relay has failed
+      # every handshake since. certgen re-issues them every four months.
+      tls:
+        auto:
+          enabled: true
+          method: cronJob
+          certValidityDuration: 1095
+          schedule: "0 0 1 */4 *"
       metrics:
         enabled:
           - dns:query
