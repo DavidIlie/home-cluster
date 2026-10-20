@@ -10,6 +10,14 @@ spec:
   # interfaces:
   #   - ^eno[0-9]+
   #   - ^eth[0-9]+
+  # Labelling a node maintenance.davidapps.dev/exclude-from-l2=true moves its
+  # L2 leases elsewhere before a drain. Never select on
+  # node.kubernetes.io/exclude-from-external-load-balancers: Talos sets it on
+  # every control-plane node, and excluding it stopped all announcements here
+  # on 2026-10-20 (#853).
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
+    matchExpressions:
+      - key: maintenance.davidapps.dev/exclude-from-l2
+        operator: DoesNotExist
