@@ -106,6 +106,10 @@
           url: https://monitoring.davidapps.dev
           username: "{{HOMEPAGE_VAR_GRAFANA_USERNAME}}"
           password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+    - Bostan Monitoring:
+        icon: grafana.png
+        href: https://bostan-monitoring.davidapps.dev
+        description: Bostan Enterprise dashboards
     - VictoriaLogs:
         icon: victoriametrics.png
         href: https://vlogs.davidhome.ro
