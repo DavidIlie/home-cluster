@@ -349,7 +349,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])), 0.000001)",
+          "expr": "(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])), 0.000001)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -899,7 +899,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_CLIENT\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_CLIENT\"}[$__rate_interval])), 0.000001)",
+          "expr": "(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_CLIENT\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_CLIENT\"}[$__rate_interval])), 0.000001)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -1052,22 +1052,6 @@
       ],
       "title": "Dependency calls / second",
       "type": "stat"
-    },
-    {
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 35
-      },
-      "id": 18,
-      "options": {
-        "content": "Per-procedure and per-table panels below come from Tempo span metrics on bounded span names: `trpc.<type> <procedure>` (internal) and `clickhouse.<operation> <table>` (client). Only tRPC codes that map to HTTP 5xx set an error status, so 4xx such as UNAUTHORIZED are not faults. Dependency stats include ClickHouse and outbound fetch client spans; Prisma/Postgres calls are not traced. Raw SQL, inputs, URLs, IDs, and messages are never labels.",
-        "mode": "markdown"
-      },
-      "title": "Query instrumentation contract",
-      "transparent": true,
-      "type": "text"
     },
     {
       "collapsed": false,

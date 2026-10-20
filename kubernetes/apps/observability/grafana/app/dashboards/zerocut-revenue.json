@@ -1084,26 +1084,6 @@
       ],
       "title": "Ledger snapshot",
       "type": "stat"
-    },
-    {
-      "gridPos": {
-        "h": 5,
-        "w": 24,
-        "x": 0,
-        "y": 54
-      },
-      "id": 20,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "**Platform** rows are ZeroCut's own revenue (app purchases, Premium, seats, custom domains). **Creator donation** rows are supporter money moving to creators through ZeroCut; they are not ZeroCut revenue and must never be added to platform rows. Amounts are integer minor units per currency and mode (live/test); never add currencies or modes. Revenue events are counters (increase/sum over the range) emitted once per durable transition and are best-effort: a crash between commit and export loses a point. The legacy inventory gauges read only the one-time AppPurchasePayment ledger (max across replicas) and exclude subscriptions and seats. Use Stripe/PayPal and the durable stores for accounting.",
-        "mode": "markdown"
-      },
-      "title": "How to read these numbers",
-      "type": "text"
     }
   ],
   "refresh": "30s",

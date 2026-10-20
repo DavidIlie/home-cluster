@@ -316,7 +316,7 @@
         "type": "victoriametrics-logs-datasource",
         "uid": "victoria-logs"
       },
-      "description": "Measurement volume by exact browser release. An empty panel means no browser measurement has reached the gateway in the selected range.",
+      "description": "Measurement volume by exact browser release.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -610,22 +610,6 @@
       ],
       "title": "Browser trace release",
       "type": "table"
-    },
-    {
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 35
-      },
-      "id": 11,
-      "options": {
-        "content": "Browser panels are event-dependent: an empty range means no matching Faro signals were received, not zero usage. page_url is origin plus a bounded route pattern (/[handle], /app/dashboard/…); claim, invite, and embed pages are never collected. Release comparison uses the exact 40-character deployed Git SHA.",
-        "mode": "markdown"
-      },
-      "title": "Event-dependent dashboard",
-      "transparent": true,
-      "type": "text"
     },
     {
       "collapsed": false,
