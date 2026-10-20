@@ -10,6 +10,12 @@ spec:
   # interfaces:
   #   - ^eno[0-9]+
   #   - ^eth[0-9]+
+  # Label a node node.kubernetes.io/exclude-from-external-load-balancers=true
+  # before maintenance and its L2 leases move to another node while it is still
+  # forwarding, instead of after it disappears.
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
+    matchExpressions:
+      - key: node.kubernetes.io/exclude-from-external-load-balancers
+        operator: DoesNotExist
