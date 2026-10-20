@@ -33,8 +33,8 @@ spec:
           prepare-secrets:
             image: &image
               repository: ghcr.io/davidilie/hermes
-              # Source: DavidIlie/hermes@d03b92b6c885b870507790b4e5329253b5bb46cb
-              tag: sha-d03b92b6c885b870507790b4e5329253b5bb46cb@sha256:6345199f85162a22a1c7503817888baad4b8ac2dea40d2b11ec6fa921123f04a
+              # Source: DavidIlie/hermes@05e0caa072b27be03fcbbdbc51ea2d812cbe2394
+              tag: sha-05e0caa072b27be03fcbbdbc51ea2d812cbe2394@sha256:bdd28f1dc970518a9da41616e9d505d0cee68e1934bdca5c1cd435d46ce080e1
             command: ["/bin/sh", "-ec"]
             args:
               - |
