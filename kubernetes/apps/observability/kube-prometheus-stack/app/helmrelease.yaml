@@ -31,6 +31,11 @@ spec:
     crds:
       enabled: false
     cleanPrometheusOperatorObjectNames: true
+    defaultRules:
+      disabled:
+        # Replaced in prometheusrule.yaml, which says why for each.
+        etcdHighNumberOfFailedGRPCRequests: true
+        KubeClientCertificateExpiration: true
     alertmanager:
       enabled: true
       # Merged over the chart's config, which keeps its inhibit rules.

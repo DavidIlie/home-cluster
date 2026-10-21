@@ -123,11 +123,16 @@ spec:
         # a scope simply had no traffic: costAvailable() is
         # `totalTokens > 0 && unpricedTokens == 0`, so an EMPTY scope reports
         # false. Only a scope that is actually being used can be "incomplete".
+        # The lifetime summary misses a scrape every hour or two, and each
+        # one-minute gap resolved the alert and restarted its hour, which sent
+        # a FIRING/RESOLVED pair every 1-3h on 2026-10-20 while the condition
+        # held throughout. keep_firing_for bridges those gaps.
         - alert: CLIProxyCostIncomplete
           expr: |
             (min by (scope) (cliproxy_usage_cost_available) == 0)
               and on (scope) (sum by (scope) (cliproxy_usage_requests_total) > 0)
           for: 1h
+          keep_firing_for: 15m
           labels:
             severity: warning
           annotations:

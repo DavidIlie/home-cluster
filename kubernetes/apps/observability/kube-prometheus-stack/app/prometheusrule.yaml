@@ -38,3 +38,60 @@ spec:
             severity: warning
           annotations:
             summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires in under 10 days; renewal is failing"
+        # etcd counts a LeaseKeepAlive or Watch stream as handled only when it
+        # closes, so the chart's rule reads 100% failures whenever a client
+        # reconnects, e.g. on every Talos config apply (davidapps-cluster,
+        # 2026-10-20). Count unary requests only; a rebooting member still trips it.
+        - alert: etcdHighNumberOfFailedGRPCRequests
+          expr: |
+            100 * sum by (job, instance, grpc_service, grpc_method) (rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary", grpc_code=~"Unknown|FailedPrecondition|ResourceExhausted|Internal|Unavailable|DataLoss|DeadlineExceeded"}[5m]))
+              / sum by (job, instance, grpc_service, grpc_method) (rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary"}[5m]))
+              > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "etcd {{ $labels.instance }}: {{ $value | humanize }}% of {{ $labels.grpc_method }} requests failing"
+        - alert: etcdHighNumberOfFailedGRPCRequests
+          expr: |
+            100 * sum by (job, instance, grpc_service, grpc_method) (rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary", grpc_code=~"Unknown|FailedPrecondition|ResourceExhausted|Internal|Unavailable|DataLoss|DeadlineExceeded"}[5m]))
+              / sum by (job, instance, grpc_service, grpc_method) (rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary"}[5m]))
+              > 5
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "etcd {{ $labels.instance }}: {{ $value | humanize }}% of {{ $labels.grpc_method }} requests failing"
+        # Talos calls the API server with a talos:admin certificate that is
+        # valid for 10 minutes and reissued on every use (NewTemporaryClientFromPKI
+        # in siderolabs/talos pkg/kubernetes). The chart's 1st-percentile check
+        # counts those as "expiring within a day" whenever the API server has
+        # little other traffic; it mailed davidapps-cluster on 2026-10-20.
+        # Drop the under-30-minute bucket: a certificate that is really running
+        # out spends its last day in the buckets above it.
+        - alert: KubeClientCertificateExpiration
+          expr: |
+            histogram_quantile(0.01, sum without (namespace, service, endpoint) (
+              rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver", le!~"0(\\.0)?|1800(\\.0)?"}[5m])
+                - ignoring (le) group_left ()
+              rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver", le=~"1800(\\.0)?"}[5m])
+            )) < 7 * 86400
+              and on (job, cluster, instance) apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "A client of API server {{ $labels.instance }} uses a certificate that expires within 7 days"
+        - alert: KubeClientCertificateExpiration
+          expr: |
+            histogram_quantile(0.01, sum without (namespace, service, endpoint) (
+              rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver", le!~"0(\\.0)?|1800(\\.0)?"}[5m])
+                - ignoring (le) group_left ()
+              rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver", le=~"1800(\\.0)?"}[5m])
+            )) < 86400
+              and on (job, cluster, instance) apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "A client of API server {{ $labels.instance }} uses a certificate that expires within 24 hours"
