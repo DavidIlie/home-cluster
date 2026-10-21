@@ -849,7 +849,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])), 0.000001)",
+          "expr": "(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(traces_spanmetrics_calls_total{service=\"zerocut\",span_kind=\"SPAN_KIND_SERVER\"}[$__rate_interval])), 0.000001)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -2503,7 +2503,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range]))",
+          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])) or vector(0)",
           "instant": true,
           "legendFormat": "attempts",
           "range": false,
@@ -2576,7 +2576,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",webhook_outcome!=\"delivered\"}[$__range])) / clamp_min(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])), 1)",
+          "expr": "(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",webhook_outcome!=\"delivered\"}[$__range])) or vector(0)) / clamp_min(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])) or vector(0), 1)",
           "instant": true,
           "legendFormat": "failure ratio",
           "range": false,

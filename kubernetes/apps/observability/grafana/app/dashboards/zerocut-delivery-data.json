@@ -229,7 +229,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "100 * sum(rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\",status=~\"5..\"}[$__rate_interval])) / clamp_min(sum(rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])), 0.001)",
+          "expr": "100 * (sum(rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\",status=~\"5..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(nginx_ingress_controller_requests{exported_namespace=\"personal-projects\",ingress=~\"zerocut.*\"}[$__rate_interval])), 0.001)",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -361,7 +361,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
+          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval])) or vector(0)",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -851,7 +851,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
+          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval])) or vector(0)",
           "legendFormat": "errors",
           "range": true,
           "instant": false,
@@ -2476,7 +2476,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range]))",
+          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])) or vector(0)",
           "instant": true,
           "legendFormat": "attempts",
           "range": false,
@@ -2549,7 +2549,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",webhook_outcome!=\"delivered\"}[$__range])) / clamp_min(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])), 1)",
+          "expr": "(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\",webhook_outcome!=\"delivered\"}[$__range])) or vector(0)) / clamp_min(sum(increase({__name__=~\"webhook_delivery_duration(_seconds)?_count\",service_name=\"zerocut\",deployment_environment_name=\"production\"}[$__range])) or vector(0), 1)",
           "instant": true,
           "legendFormat": "failure ratio",
           "range": false,
@@ -2564,7 +2564,7 @@
         "type": "prometheus",
         "uid": "prometheus-davidapps-cluster"
       },
-      "description": "p95 time until the forwarder answered, from explicit buckets 0.1 to 11 seconds (the attempt timeout).",
+      "description": "1 to 11 seconds (the attempt timeout).",
       "fieldConfig": {
         "defaults": {
           "color": {

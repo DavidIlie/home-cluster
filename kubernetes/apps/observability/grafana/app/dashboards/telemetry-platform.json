@@ -164,7 +164,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(telemetry_gateway_requests_total{project=~\"${project:regex}\",result=~\"forbidden_origin|invalid_key|rate_limited|upstream_error|unavailable\"}[$__rate_interval])) / clamp_min(sum(rate(telemetry_gateway_requests_total{project=~\"${project:regex}\"}[$__rate_interval])), 0.000001)",
+          "expr": "(sum(rate(telemetry_gateway_requests_total{project=~\"${project:regex}\",result=~\"forbidden_origin|invalid_key|rate_limited|upstream_error|unavailable\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(telemetry_gateway_requests_total{project=~\"${project:regex}\"}[$__rate_interval])), 0.000001)",
           "instant": true,
           "legendFormat": "rejected or failed",
           "range": false,
@@ -294,7 +294,7 @@
             "uid": "prometheus-home-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(tempo_receiver_refused_spans[$__rate_interval])) + sum(rate(tempo_discarded_spans_total[$__rate_interval]))",
+          "expr": "(sum(rate(tempo_receiver_refused_spans[$__rate_interval])) or vector(0)) + (sum(rate(tempo_discarded_spans_total[$__rate_interval])) or vector(0))",
           "instant": true,
           "legendFormat": "refused or discarded",
           "range": false,
