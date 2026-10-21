@@ -10,6 +10,7 @@ resources:
   - ./dcgm-exporter/ks.yaml
   - ./grafana/ks.yaml
   - ./grafana-kidays/ks.yaml
+  - ./grafana-bostan/ks.yaml
   - ./tempo/ks.yaml
   - ./idrac-exporter/ks.yaml
   - ./geoip/ks.yaml

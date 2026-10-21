@@ -19,7 +19,25 @@
   "scope": {
     "prometheusMatchers": {
       "namespace": [
-        "bostan-libertos"
+        "bostan-enterprise",
+        "bostan-libertos",
+        "bostan-swish"
+      ],
+      "exported_namespace": [
+        "bostan-enterprise",
+        "bostan-libertos",
+        "bostan-swish"
+      ],
+      "host": [
+        "bostanenterprise.com",
+        "employee.bostanenterprise.com",
+        "libertos.org",
+        "server.libertos.org",
+        "actions.libertos.org",
+        "swishshop.net",
+        "www.swishshop.net",
+        "api.swishshop.net",
+        "auth.swishshop.net"
       ],
       "service": [
         "libertos-web",
@@ -28,13 +46,21 @@
       "davidapps_project_id": [
         "libertos"
       ],
-      "project": [
-        "libertos"
+      "deployment": [
+        "bostan-discord-bot"
+      ],
+      "tunnel_id": [
+        "dd1a83cb-2105-442d-972a-97d0f4c0623f"
       ]
     },
     "logsStreamPrefixes": [
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-enterprise\"}",
       "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-libertos\"}",
-      "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"libertos-browser\""
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-swish\"}",
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-enterprise\",app=\"bostan-enterprise-cloudflared\"}",
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-enterprise\",app=\"external-dns\"}",
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"network\",app=\"ingress-nginx\"} vhost:in(\"bostanenterprise.com\",\"employee.bostanenterprise.com\",\"libertos.org\",\"server.libertos.org\",\"actions.libertos.org\",\"swishshop.net\",\"www.swishshop.net\",\"api.swishshop.net\",\"auth.swishshop.net\")",
+      "_stream:{cluster=\"home-cluster\",k_namespace_name=\"default\",app=\"bostan-discord-bot\"}"
     ]
   },
   "limits": {

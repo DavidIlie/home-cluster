@@ -1,22 +1,41 @@
-# Inactive until the approved mover supplies three SOPS secrets. See ../README.md.
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: observability
 resources:
-- ./helmrelease.yaml
-- ./query-gateway.yaml
-- ./networkpolicy.yaml
+  - ./helmrelease.yaml
+  - ./query-gateway.yaml
+  - ./networkpolicy.yaml
+  # Written by the audited non-model mover (davidapps-auth
+  # scripts/davidapps-sops-import.mjs); never edit or decrypt by hand.
+  - ./oidc-secret.sops.yaml
+  - ./admin-secret.sops.yaml
+  - ./gateway-secret.sops.yaml
 configMapGenerator:
-- name: grafana-bostan-dashboards
-  files:
-  - ./dashboards/libertos-overview.json
-  - ./dashboards/libertos-browser.json
-  options:
-    disableNameSuffixHash: true
-- name: bostan-query-gateway-dashboards
-  files:
-  - ./dashboards/libertos-overview.json
-  - ./dashboards/libertos-browser.json
-- name: bostan-query-gateway-config
-  files:
-  - config.json=./gateway/config.json
+  # Grafana and the gateway read the same files. Grafana's copy keeps a stable
+  # name because the HelmRelease references it by name; the gateway's copy is
+  # content-hashed so any dashboard change rolls the gateway and reloads the
+  # allowlist.
+  - name: grafana-bostan-dashboards
+    files:
+      - ./dashboards/bostan-overview.json
+      - ./dashboards/bostan-edge.json
+      - ./dashboards/bostan-front.json
+      - ./dashboards/bostan-employee-hub.json
+      - ./dashboards/bostan-swish.json
+      - ./dashboards/libertos-overview.json
+      - ./dashboards/bostan-discord-bot.json
+    options:
+      disableNameSuffixHash: true
+  - name: bostan-query-gateway-dashboards
+    files:
+      - ./dashboards/bostan-overview.json
+      - ./dashboards/bostan-edge.json
+      - ./dashboards/bostan-front.json
+      - ./dashboards/bostan-employee-hub.json
+      - ./dashboards/bostan-swish.json
+      - ./dashboards/libertos-overview.json
+      - ./dashboards/bostan-discord-bot.json
+  - name: bostan-query-gateway-config
+    files:
+      - config.json=./gateway/config.json

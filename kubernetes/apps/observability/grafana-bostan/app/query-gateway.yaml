@@ -1,4 +1,9 @@
 ---
+# The only datasource endpoint the Bostan Grafana has. It forwards a query only
+# when the text is byte-identical to a template in the same dashboard files
+# Grafana provisions (bostan-query-gateway-dashboards is generated from
+# ./dashboards, the files grafana-bostan-dashboards is generated from).
+# Source: davidapps-auth apps/query-gateway, docs/runbooks/query-gateway.md.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,6 +29,9 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       initContainers:
+        # Kubernetes projects Secret files owned by root, and fsGroup would make
+        # them group-readable, which the gateway refuses. This root step copies
+        # the bearer into a memory emptyDir as 0400 owned by 65532.
         - name: prepare-secret
           image: ghcr.io/davidilie/davidapps-auth-query-gateway@sha256:e8a40a8a7329b7d3659669744d3b45a35770de399349be544676a3592ed039e9
           args:
