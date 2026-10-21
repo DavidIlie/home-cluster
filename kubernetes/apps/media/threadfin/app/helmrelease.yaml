@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/volschin/threadfin
-              tag: v3.3.0@sha256:43613add776897b2cc7236abb11bcf7f0412a651af066a35d28c7beb82310f16
+              tag: v3.4.0@sha256:79ba430d81feccaa36865cc9ecc905e5cb5d16f593965e30cb2feda128b43216
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Bucharest
