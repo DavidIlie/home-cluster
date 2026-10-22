@@ -69,7 +69,8 @@ same pattern as `monitoring.davidapps.dev`.
 ## Image pin
 
 Both gateway containers use the published immutable image
-`ghcr.io/davidilie/davidapps-auth-query-gateway@sha256:e8a40a8a7329b7d3659669744d3b45a35770de399349be544676a3592ed039e9`.
-It was published from the merged davidapps-auth PR215 by its isolated query-gateway workflow.
+`ghcr.io/davidapps-org/auth-query-gateway@sha256:1afadcd4b67100f20696019036d69e6debc3356f2bdb71eaefdd3ec7299309bc`.
+It was published by davidapps-auth's isolated query-gateway workflow from commit 2169752 (PR262),
+after the repository moved to davidapps-org; the gateway source is unchanged since PR215.
 
 Readiness also checks the public plugin module route. In Grafana v12.3.10 this route returns 404 until the plugin exists in the registry; merely finding plugin.json on disk is insufficient during extraction. This check uses no authenticated API or credentials.

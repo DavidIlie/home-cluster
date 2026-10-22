@@ -33,7 +33,7 @@ spec:
         # them group-readable, which the gateway refuses. This root step copies
         # the bearer into a memory emptyDir as 0400 owned by 65532.
         - name: prepare-secret
-          image: ghcr.io/davidilie/davidapps-auth-query-gateway@sha256:e8a40a8a7329b7d3659669744d3b45a35770de399349be544676a3592ed039e9
+          image: ghcr.io/davidapps-org/auth-query-gateway@sha256:1afadcd4b67100f20696019036d69e6debc3356f2bdb71eaefdd3ec7299309bc
           args:
             - prepare-secret
             - --source=/projected
@@ -63,7 +63,7 @@ spec:
               mountPath: /prepared
       containers:
         - name: gateway
-          image: ghcr.io/davidilie/davidapps-auth-query-gateway@sha256:e8a40a8a7329b7d3659669744d3b45a35770de399349be544676a3592ed039e9
+          image: ghcr.io/davidapps-org/auth-query-gateway@sha256:1afadcd4b67100f20696019036d69e6debc3356f2bdb71eaefdd3ec7299309bc
           args:
             - --config=/etc/query-gateway/config/config.json
             - --dashboards=/etc/query-gateway/dashboards
