@@ -161,7 +161,9 @@ spec:
         email_attribute_path: email
         # Everyone is Viewer, the owner included. Nothing here is edited in
         # the UI; dashboards and datasources are provisioned from Git.
-        role_attribute_path: "'Viewer'"
+        # The ini needs `"'Viewer'"`: Grafana's ini loader strips one layer
+        # of quotes, and JMESPath must still see the 'Viewer' literal.
+        role_attribute_path: "\"'Viewer'\""
         role_attribute_strict: true
         allow_assign_grafana_admin: false
         skip_org_role_sync: false
