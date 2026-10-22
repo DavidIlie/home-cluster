@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/uber-item-viewer # {"$imagepolicy": "flux-system:uber-item-viewer:name"}
-              tag: master-fa613312-1787007249 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
+              tag: github-hosted-2b0f004f-1792711957 # {"$imagepolicy": "flux-system:uber-item-viewer:tag"}
             env:
               UBER_ENDPOINT: "https://uberapi.davidhome.ro"
               APP_URL: "https://uber.gurt.ing"
