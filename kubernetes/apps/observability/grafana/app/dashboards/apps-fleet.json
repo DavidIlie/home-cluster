@@ -1609,7 +1609,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (service) (rate(cloudflared_tunnel_total_requests{cluster=\"davidapps-cluster\",namespace=~\"network|kidays-fr\"}[$__rate_interval]))",
+          "expr": "sum by (service) (rate(cloudflared_tunnel_total_requests{cluster=\"davidapps-cluster\",namespace=~\"network|kidays-fr\"}[5m]))",
           "legendFormat": "{{service}}",
           "range": true,
           "instant": false,
@@ -1673,7 +1673,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (service) (rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",namespace=~\"network|kidays-fr\"}[$__rate_interval]))",
+          "expr": "sum by (service) (rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",namespace=~\"network|kidays-fr\"}[5m]))",
           "legendFormat": "{{service}}",
           "range": true,
           "instant": false,
@@ -1736,7 +1736,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (service, status_code) (rate(cloudflared_tunnel_response_by_code{cluster=\"davidapps-cluster\",namespace=~\"network|kidays-fr\"}[$__rate_interval]))",
+          "expr": "sum by (service, status_code) (rate(cloudflared_tunnel_response_by_code{cluster=\"davidapps-cluster\",namespace=~\"network|kidays-fr\"}[5m]))",
           "legendFormat": "{{service}} / {{status_code}}",
           "range": true,
           "instant": false,

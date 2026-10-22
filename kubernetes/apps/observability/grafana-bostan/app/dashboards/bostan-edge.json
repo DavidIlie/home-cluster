@@ -125,7 +125,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[$__rate_interval]))",
+          "expr": "sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[5m]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -188,7 +188,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "((sum(rate(cloudflared_tunnel_request_errors{namespace=\"bostan-enterprise\"}[$__rate_interval])) or (0 * sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[$__rate_interval])))) / sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[$__rate_interval]))) or vector(0)",
+          "expr": "((sum(rate(cloudflared_tunnel_request_errors{namespace=\"bostan-enterprise\"}[5m])) or (0 * sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[5m])))) / sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[5m]))) or vector(0)",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -565,7 +565,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[$__rate_interval]))",
+          "expr": "sum(rate(cloudflared_tunnel_total_requests{namespace=\"bostan-enterprise\"}[5m]))",
           "legendFormat": "requests",
           "range": true,
           "instant": false,
@@ -577,7 +577,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_request_errors{namespace=\"bostan-enterprise\"}[$__rate_interval]))",
+          "expr": "sum(rate(cloudflared_tunnel_request_errors{namespace=\"bostan-enterprise\"}[5m]))",
           "legendFormat": "errors",
           "range": true,
           "instant": false,
