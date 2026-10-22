@@ -22,7 +22,7 @@ metadata:
   name: davidapps-auth-gate
   namespace: flux-system
 spec:
-  image: ghcr.io/davidilie/davidapps-auth-gate
+  image: ghcr.io/davidapps-org/auth-gate
   interval: 1m0s
   secretRef:
     name: docker-regcred
