@@ -361,7 +361,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval])) or vector(0)",
+          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[5m])) or vector(0)",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -839,7 +839,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_total_requests{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
+          "expr": "sum(rate(cloudflared_tunnel_total_requests{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[5m]))",
           "legendFormat": "requests",
           "range": true,
           "instant": false,
@@ -851,7 +851,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval])) or vector(0)",
+          "expr": "sum(rate(cloudflared_tunnel_request_errors{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[5m])) or vector(0)",
           "legendFormat": "errors",
           "range": true,
           "instant": false,
@@ -914,7 +914,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum by (status_code) (rate(cloudflared_tunnel_response_by_code{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
+          "expr": "sum by (status_code) (rate(cloudflared_tunnel_response_by_code{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[5m]))",
           "legendFormat": "{{status_code}}",
           "range": true,
           "instant": false,
@@ -1052,7 +1052,7 @@
             "uid": "prometheus-davidapps-cluster"
           },
           "editorMode": "code",
-          "expr": "sum(rate(cloudflared_tunnel_tunnel_register_fail{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[$__rate_interval]))",
+          "expr": "sum(rate(cloudflared_tunnel_tunnel_register_fail{cluster=\"davidapps-cluster\",service=\"zerocut-cloudflared\"}[5m])) or vector(0)",
           "legendFormat": "registration failures",
           "range": true,
           "instant": false,
