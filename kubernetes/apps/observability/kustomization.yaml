@@ -15,7 +15,6 @@ resources:
   - ./idrac-exporter/ks.yaml
   - ./geoip/ks.yaml
   - ./plausible/ks.yaml
-  - ./posthog/ks.yaml
   - ./prometheus/ks.yaml
   - ./proxmox-exporter/ks.yaml
   - ./unpoller/ks.yaml
