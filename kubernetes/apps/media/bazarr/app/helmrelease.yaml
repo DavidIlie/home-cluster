@@ -79,6 +79,7 @@ spec:
               GITSYNC_REF: master
               GITSYNC_PERIOD: 24h
               GITSYNC_ROOT: /subcleaner
+              GITSYNC_GIT_CONFIG: safe.directory:/subcleaner
             resources:
               requests:
                 cpu: 10m
