@@ -1,0 +1,307 @@
+{
+  "id": null,
+  "uid": "libertos-engine-pipeline",
+  "title": "Libertos / Engine pipeline",
+  "description": "Libertos engine operations. TODO panels identify telemetry that is not exported. No data is not zero.",
+  "tags": [
+    "libertos",
+    "engine"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 40,
+  "version": 1,
+  "editable": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "Engine pipeline",
+      "url": "/d/libertos-engine-pipeline",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Archive sweep",
+      "url": "/d/libertos-archive-sweep",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Cost",
+      "url": "/d/libertos-cost",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Briefing drill-down",
+      "url": "/d/libertos-briefing-drilldown",
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Telemetry coverage",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Completed jobs are exported today. Job duration includes queue time and retries. These charts do not prove that a briefing was delivered.\n\n**TODO · engineOtel:** per-step spans, stuck state, delivery outcome and deadline metrics. Empty charts mean no matching exported samples. Check the drill-down before treating silence as health."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Briefing job completions per rolling hour",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "description": "Completed briefing jobs, grouped by the outcome encoded in the current span name. Counter extrapolation can produce fractional counts. Does not count deliveries.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "expr": "sum by (outcome) (label_replace(increase(traces_spanmetrics_calls_total{service=\"libertos-convex\",span_name=~\"eve[.]job[.]briefing (succeeded|failed|cancelled)\"}[1h]), \"outcome\", \"$1\", \"span_name\", \".* (succeeded|failed|cancelled)\"))",
+          "legendFormat": "{{outcome}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Completed job failures per rolling hour",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "description": "Completed job errors. Detailed step and error-code breakdown awaits engineOtel; current error.type is only job_failed.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "expr": "sum by (span_name) (increase(traces_spanmetrics_calls_total{service=\"libertos-convex\",span_name=~\"eve[.]job[.].*\",status_code=\"STATUS_CODE_ERROR\"}[1h]))",
+          "legendFormat": "{{span_name}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "TODO · Step duration p50 / p95",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Waiting for engineOtel's step spans or histogram. Existing job spans cannot measure individual engine steps.\n\nTempo's current histogram ends at 16.384 seconds and would understate long jobs."
+      }
+    },
+    {
+      "id": 5,
+      "title": "TODO · Failures by step and error code",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Blocked on bounded step and error-code attributes. The existing job_failed error classification does not identify the failing step. No raw error messages, reader text or private lane names belong in metric labels."
+      }
+    },
+    {
+      "id": 6,
+      "title": "TODO · Briefings stuck over 15 minutes",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires a periodically exported active-job count and age since last progress, cleared on completion or cancellation. Terminal spans alone cannot detect a job that never finishes. Alert blocked on engineOtel / stuckWatch."
+      }
+    },
+    {
+      "id": 7,
+      "title": "TODO · On-time delivery per reader morning",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 17,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires delivery outcomes against the reader's onboarding/profile timezone and scheduled deadline. A succeeded job is not an on-time delivery. Export counts and lateness, never reader timezone guesses or preferences. Late/short delivery alert is blocked."
+      }
+    },
+    {
+      "id": 8,
+      "title": "Recent engine job traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"eve[.]job[.].*\" }",
+          "limit": 30,
+          "tableType": "traces"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traceID"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Briefing drill-down",
+                    "url": "/d/libertos-briefing-drilldown?var-traceId=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      }
+    }
+  ]
+}

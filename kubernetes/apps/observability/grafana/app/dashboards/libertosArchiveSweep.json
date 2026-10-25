@@ -1,0 +1,250 @@
+{
+  "id": null,
+  "uid": "libertos-archive-sweep",
+  "title": "Libertos / Archive sweep",
+  "description": "Libertos engine operations. TODO panels identify telemetry that is not exported. No data is not zero.",
+  "tags": [
+    "libertos",
+    "engine"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 40,
+  "version": 1,
+  "editable": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "Engine pipeline",
+      "url": "/d/libertos-engine-pipeline",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Archive sweep",
+      "url": "/d/libertos-archive-sweep",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Cost",
+      "url": "/d/libertos-cost",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Briefing drill-down",
+      "url": "/d/libertos-briefing-drilldown",
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Archive telemetry coverage",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "The existing archive_sweep span is emitted when the job terminates. Duration includes queue time and retries. It does not carry feed/article counts, completeness or the sweep deadline.\n\nAll times on this dashboard are UTC. **04:00Z is the archive deadline**, independent of reader delivery timezones."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Archive job completions per rolling hour",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "description": "Terminal archive jobs. A missing series is not a successful sweep.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "expr": "sum by (span_name) (increase(traces_spanmetrics_calls_total{service=\"libertos-convex\",span_name=~\"eve[.]job[.]archive_sweep .*\"}[1h]))",
+          "legendFormat": "{{span_name}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "TODO · Feeds polled and articles stored",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires completed-sweep feed and article counts. Do not count ingest spans as articles: one job can handle multiple items and retries."
+      }
+    },
+    {
+      "id": 4,
+      "title": "TODO · Full-text share",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires articles with usable full text divided by articles stored in the same sweep. Export both counts; no data and a zero denominator must remain unknown."
+      }
+    },
+    {
+      "id": 5,
+      "title": "TODO · Short cells",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires a count of cells below the required coverage target at sweep completion, with bounded reason codes. Private lane names must stay out of telemetry."
+      }
+    },
+    {
+      "id": 6,
+      "title": "TODO · Sweep duration and 04:00Z deadline",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 17,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires start, completion and last-success timestamps plus a daily heartbeat, including days when no run starts. Alert when today's sweep is still incomplete after 04:00 UTC. Terminal spans cannot prove a missing run; alert blocked on engineOtel."
+      }
+    },
+    {
+      "id": 7,
+      "title": "Recent archive sweep traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"eve[.]job[.]archive_sweep .*\" }",
+          "limit": 30,
+          "tableType": "traces"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traceID"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Briefing drill-down",
+                    "url": "/d/libertos-briefing-drilldown?var-traceId=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      }
+    }
+  ]
+}

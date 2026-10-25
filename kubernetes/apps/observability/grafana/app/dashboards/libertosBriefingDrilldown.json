@@ -1,0 +1,156 @@
+{
+  "id": null,
+  "uid": "libertos-briefing-drilldown",
+  "title": "Libertos / Briefing drill-down",
+  "description": "Libertos engine operations. TODO panels identify telemetry that is not exported. No data is not zero.",
+  "tags": [
+    "libertos",
+    "engine"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 40,
+  "version": 1,
+  "editable": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "Engine pipeline",
+      "url": "/d/libertos-engine-pipeline",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Archive sweep",
+      "url": "/d/libertos-archive-sweep",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Cost",
+      "url": "/d/libertos-cost",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Briefing drill-down",
+      "url": "/d/libertos-briefing-drilldown",
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "traceId",
+        "label": "Trace ID",
+        "type": "textbox",
+        "query": "00000000000000000000000000000000",
+        "current": {
+          "text": "00000000000000000000000000000000",
+          "value": "00000000000000000000000000000000"
+        },
+        "options": [],
+        "hide": 0,
+        "skipUrlSync": false
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Find a briefing trace",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Paste the 32-character hexadecimal trace id from the admin or a trace link. Set the time range to the run for matching logs. The all-zero default selects no real trace.\n\n**TODO · engineOtel:** current jobs use independent trace ids and do not emit correlated engine log records. Until the briefing-wide trace and log contract lands, this shows the selected job only. Missing logs do not prove no work happened."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Tempo trace",
+      "type": "traces",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 14
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "query": "$traceId"
+        }
+      ],
+      "options": {}
+    },
+    {
+      "id": 3,
+      "title": "Trace-correlated log fields",
+      "description": "Exact trace id match. Show only diagnostic ids and closed fields; do not display raw log bodies or reader content. Empty until engineOtel emits correlated logs.",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "victoria-logs"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "victoria-logs"
+          },
+          "expr": "trace_id:=${traceId:json} | fields _time, trace_id, span_id, service.name, libertos.step, libertos.outcome, error.type | sort desc | limit 200",
+          "queryType": "range",
+          "maxLines": 200
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      }
+    }
+  ]
+}

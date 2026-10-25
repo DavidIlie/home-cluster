@@ -1,0 +1,124 @@
+{
+  "id": null,
+  "uid": "libertos-cost",
+  "title": "Libertos / Cost",
+  "description": "Libertos engine operations. TODO panels identify telemetry that is not exported. No data is not zero.",
+  "tags": [
+    "libertos",
+    "engine"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 40,
+  "version": 1,
+  "editable": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "Engine pipeline",
+      "url": "/d/libertos-engine-pipeline",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Archive sweep",
+      "url": "/d/libertos-archive-sweep",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Cost",
+      "url": "/d/libertos-cost",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Briefing drill-down",
+      "url": "/d/libertos-briefing-drilldown",
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Cost telemetry is not available",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**TODO · engineOtel:** publish the canonical cost contract before enabling spend charts or alerts. No cost series exist in either Prometheus datasource today. These panels deliberately show no invented totals.\n\nRecord costs once at the accounting boundary, include a bounded layer and tier, and exclude private prompts or reader interests."
+      }
+    },
+    {
+      "id": 2,
+      "title": "TODO · Cost per UTC day by layer",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 7
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires USD costs attributed to the canonical engine layers, including shared sweep cost without duplicating it across readers. Calendar-day totals must reset at UTC midnight; a rolling 24-hour sum is not today's spend."
+      }
+    },
+    {
+      "id": 3,
+      "title": "TODO · Cost per briefing by tier",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 5,
+        "w": 12,
+        "h": 7
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires settled briefing cost and tier from the canonical standardModels/proModels plan. Show standard and pro separately. Keep briefing ids in traces or structured logs, not Prometheus labels."
+      }
+    },
+    {
+      "id": 4,
+      "title": "TODO · Daily spend over ceiling",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 6
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Blocked on today's spend and the configured daily ceiling in the same currency and UTC window. Read the ceiling from engine accounting rather than hard-coding a second budget. A missing ceiling is unknown, not unlimited or zero."
+      }
+    }
+  ]
+}

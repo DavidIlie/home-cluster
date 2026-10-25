@@ -745,6 +745,14 @@ spec:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/mbretrofit-overview.json
       apps-bostan:
+        libertosEnginePipeline:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosEnginePipeline.json
+        libertosArchiveSweep:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosArchiveSweep.json
+        libertosCost:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosCost.json
+        libertosBriefingDrilldown:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosBriefingDrilldown.json
         bostan-overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/bostan-overview.json
         bostan-edge:
