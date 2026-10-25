@@ -214,7 +214,7 @@
             "uid": "tempo"
           },
           "queryType": "traceql",
-          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"eve[.]job[.]archive_sweep .*\" }",
+          "query": "{ resource.service.name = \"libertos-convex\" && (name = \"libertos.engine.archive_sweep\" || name =~ \"eve[.]job[.]archive_sweep .*\") }",
           "limit": 30,
           "tableType": "traces"
         }

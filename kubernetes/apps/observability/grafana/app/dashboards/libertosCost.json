@@ -98,7 +98,7 @@
   "panels": [
     {
       "id": 1,
-      "title": "Provisional cost contract",
+      "title": "Cost coverage",
       "type": "text",
       "gridPos": {
         "x": 0,
@@ -108,12 +108,12 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "The step-cost counter name is provisional. The step and tier labels, accounting boundaries and shared-sweep attribution await engineOtel's contract.\n\nThe default range shows complete UTC days. No matching series means unknown cost, not $0."
+        "content": "The cost counter uses the canonical step and tier labels. Direct metrics need the Alloy ingestion fix. Accounting boundaries and shared-sweep attribution still require producer verification.\n\nThe default range shows complete UTC days. No matching series means unknown cost, not $0."
       }
     },
     {
       "id": 2,
-      "title": "Cost per completed UTC day by step · provisional",
+      "title": "Cost per completed UTC day by step",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -125,7 +125,7 @@
         "type": "prometheus",
         "uid": "${engineMetrics}"
       },
-      "description": "Counter increases estimate the preceding UTC day at each midnight point. Keep the default UTC-aligned range and 1-day interval. Step is the provisional layer label; costs must be emitted once, without allocating the same shared cost repeatedly.",
+      "description": "Counter increases estimate the preceding UTC day at each midnight point. Keep the default UTC-aligned range and 1-day interval. Costs must be emitted once. Direct metrics need the ingestion fix.",
       "fieldConfig": {
         "defaults": {
           "unit": "currencyUSD",

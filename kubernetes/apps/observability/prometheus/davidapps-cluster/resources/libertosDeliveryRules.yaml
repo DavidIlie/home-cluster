@@ -2,7 +2,7 @@ groups:
   - name: libertos.delivery
     interval: 1m
     rules:
-      # Provisional producer contract. Confirm obs/engineSpans before merging.
+      # Blocked on delta-to-cumulative ingestion and delivery emission verification.
       - alert: LibertosBriefingLateOrShort
         expr: >-
           sum by (outcome) (
@@ -18,7 +18,7 @@ groups:
             The delivery outcome counter increased in the last fifteen minutes.
             Inspect the delivery in the admin and its trace. The producer must
             compare delivery time against the reader's profile schedule and
-            classify short content at the delivery boundary. This metric contract
-            is provisional until engineOtel confirms it.
+            classify short content at the delivery boundary. Direct metrics need
+            the Alloy ingestion fix before this rule can observe deliveries.
           dashboard_url: https://monitoring.davidapps.dev/d/libertos-engine-pipeline
           runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md

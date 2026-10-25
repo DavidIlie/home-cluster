@@ -86,7 +86,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Paste the 32-character hexadecimal trace id from the admin or a trace link. Set the time range to the run for matching logs. The all-zero default selects no real trace.\n\n**TODO · engineOtel:** current jobs use independent trace ids and do not emit correlated engine log records. Until the briefing-wide trace and log contract lands, this shows the selected job only. Missing logs do not prove no work happened."
+        "content": "Paste the 32-character hexadecimal trace id from the admin or a trace link. Set the time range to the run for matching logs. The all-zero default selects no real trace.\n\nThe engine contract correlates attempts and resumed jobs by delivery. Current job exports still have independent ids until that producer is deployed. Missing logs do not prove no activity."
       }
     },
     {
@@ -138,7 +138,7 @@
             "type": "victoriametrics-logs-datasource",
             "uid": "victoria-logs"
           },
-          "expr": "trace_id:=${traceId:json} | fields _time, trace_id, span_id, service.name, libertos.step, libertos.outcome, error.type | sort desc | limit 200",
+          "expr": "trace_id:=${traceId:json} | fields _time, trace_id, span_id, service.name, libertos.engine.step, libertos.engine.status, libertos.engine.error_code | sort desc | limit 200",
           "queryType": "range",
           "maxLines": 200
         }

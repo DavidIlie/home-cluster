@@ -65,12 +65,11 @@ completed jobs. It excludes Stripe and web spans. Open failed engine traces,
 identify the capability, and inspect its job in the admin before retrying.
 Absence of traffic does not trigger this rate alert.
 
-## Blocked on engine telemetry
+## Engine contract and ingestion blocker
 
-The task owner supplied provisional names while `obs/engineSpans` is being
-published. The pipeline and cost dashboards keep them in constant variables;
-the engine datasource is selectable. Confirm these names and labels against
-`docs/telemetryEngine.md` before merging:
+Names and labels match the [engine contract at 38d58b5](https://github.com/BostanEnterprise/libertos/blob/38d58b5a1bc3e6a821b704cc1ea9ed43172f1d02/docs/telemetryEngine.md).
+The pipeline and cost dashboards keep the names in constant variables;
+the engine datasource is selectable:
 
 - `libertos_engine_step_duration_seconds`, with `_bucket` for quantiles
 - `libertos_engine_step_failures_total`
@@ -78,19 +77,36 @@ the engine datasource is selectable. Confirm these names and labels against
 - `libertos_engine_briefings_total`, with `outcome=on_time|late|short`
 - `libertos_engine_stuck_total`, with `step` and `reason`
 
-Step and error-code label names are provisional. Cost uses step as a provisional
-layer label. Its default UTC-aligned range and one-day query interval show the
+Duration labels are step/status/tier, failures and cost use step/tier, and
+briefing outcomes use outcome/tier. Failure counters have no error_code label;
+the Tempo breakdown groups `libertos.engine.step` and
+`libertos.engine.error_code` span attributes. Engine spans are named
+`libertos.engine.<step>`. The duration histogram has buckets through 3600 seconds.
+
+Cost uses step as the layer label. Its default UTC-aligned range and one-day query interval show the
 counter increase for the day preceding each midnight point. Counter increases
 are estimates, not the accounting ledger. The on-time chart is a rolling
 24-hour share, not yet a per-reader-morning view. Confirm whether late and short
 are mutually exclusive before treating their sum as a delivery denominator.
 
-`LibertosBriefingLateOrShort` uses the provisional outcome counter. It is
+`LibertosBriefingLateOrShort` uses the canonical outcome counter. It is
 evaluated by the standalone `prometheus-davidapps-cluster` in home-cluster,
 which receives Alloy's direct metrics, and routes to the same existing email
-receiver. `libertosDeliveryRules.yaml` holds this provisional rule in one place.
-The draft PR must not merge until this producer contract is confirmed or the
-owner explicitly accepts it.
+receiver. `libertosDeliveryRules.yaml` holds this rule in one place.
+
+**Direct metrics are blocked on ingestion.** The contract emits delta sums;
+the live Alloy pipeline goes directly from batch processing to
+`otelcol.exporter.prometheus`. Prometheus conversion needs cumulative data.
+[Grafana documents a delta-to-cumulative processor](https://grafana.com/docs/alloy/latest/reference/components/otelcol/otelcol.processor.deltatocumulative/),
+but adding it alone to the three load-balanced Alloy replicas is insufficient:
+each metric stream needs one cumulative writer or stable per-writer identity,
+plus appropriate state retention for sparse daily traffic. Without that,
+replicas can emit conflicting samples or reset away initial events. Coordinate
+the producer and collector contract; do not silently enable a shared
+experimental processor as a dashboard change. No collector changes are included
+here. Keep this PR draft until ingestion and emission boundaries are verified or
+the owner accepts the stated gaps. Tempo-based job charts and trace lookup do
+not depend on this metrics conversion.
 
 The following missing semantics still block their corresponding panels and
 alerts. TODO panels remain visible. Do not substitute completed jobs for

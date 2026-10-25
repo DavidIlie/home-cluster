@@ -130,12 +130,12 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**Provisional:** engine metric names and step/tier/error labels await engineOtel's contract. An empty panel means missing telemetry, not zero.\n\nThe completed-job charts and trace table below use verified current data. Job success does not prove delivery. Metric-name variables keep the provisional contract replaceable."
+        "content": "Metric names and closed labels match engineOtel's published contract. Direct metrics are blocked on delta-to-cumulative ingestion in Alloy; empty panels mean unavailable telemetry, not zero.\n\nThe completed-job charts and Tempo trace table use the current export. Engine spans will appear after the producer is deployed."
       }
     },
     {
       "id": 2,
-      "title": "Briefing outcomes per rolling hour · provisional",
+      "title": "Briefing delivery outcomes per rolling hour",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -147,7 +147,7 @@
         "type": "prometheus",
         "uid": "${engineMetrics}"
       },
-      "description": "Provisional metric supplied by engineOtel coordination; outcome labels on_time, late and short. Confirm mutually exclusive outcomes and exactly-once emission before using as a delivery count.",
+      "description": "Canonical outcomes are on_time, late and short, grouped by tier. Emission boundaries and overlap semantics still require producer verification. Direct metrics need the ingestion fix.",
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -182,8 +182,8 @@
             "type": "prometheus",
             "uid": "${engineMetrics}"
           },
-          "expr": "sum by (outcome) (increase(${briefingOutcomes}[1h]))",
-          "legendFormat": "{{outcome}}",
+          "expr": "sum by (outcome, tier) (increase(${briefingOutcomes}[1h]))",
+          "legendFormat": "{{tier}} · {{outcome}}",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -192,7 +192,7 @@
     },
     {
       "id": 3,
-      "title": "Step duration p50 / p95 · provisional",
+      "title": "Step duration p50 / p95",
       "type": "timeseries",
       "gridPos": {
         "x": 12,
@@ -204,7 +204,7 @@
         "type": "prometheus",
         "uid": "${engineMetrics}"
       },
-      "description": "Requires engineOtel's direct histogram, covering multi-minute engine steps. This does not use Tempo's short default buckets.",
+      "description": "Direct engine histogram with buckets through 3600 seconds. Terminal steps only; held and started observations are excluded. Direct metrics need the ingestion fix.",
       "fieldConfig": {
         "defaults": {
           "unit": "s",
@@ -239,8 +239,8 @@
             "type": "prometheus",
             "uid": "${engineMetrics}"
           },
-          "expr": "histogram_quantile(0.50, sum by (le, step) (rate(${stepDuration}_bucket[$__rate_interval])))",
-          "legendFormat": "{{step}} p50",
+          "expr": "histogram_quantile(0.50, sum by (le, step, tier) (rate(${stepDuration}_bucket{status=~\"succeeded|failed|cancelled\"}[$__rate_interval])))",
+          "legendFormat": "{{tier}} · {{step}} p50",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -251,8 +251,8 @@
             "type": "prometheus",
             "uid": "${engineMetrics}"
           },
-          "expr": "histogram_quantile(0.95, sum by (le, step) (rate(${stepDuration}_bucket[$__rate_interval])))",
-          "legendFormat": "{{step}} p95",
+          "expr": "histogram_quantile(0.95, sum by (le, step, tier) (rate(${stepDuration}_bucket{status=~\"succeeded|failed|cancelled\"}[$__rate_interval])))",
+          "legendFormat": "{{tier}} · {{step}} p95",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -261,7 +261,7 @@
     },
     {
       "id": 4,
-      "title": "Failures by step and error code · provisional",
+      "title": "Failures by step and tier",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -273,7 +273,7 @@
         "type": "prometheus",
         "uid": "${engineMetrics}"
       },
-      "description": "The metric name is provisional; step and error_code label names remain unconfirmed. Only bounded codes are permitted.",
+      "description": "The failure counter has step and tier labels. Error codes are span attributes and appear in the Tempo breakdown below.",
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -308,8 +308,8 @@
             "type": "prometheus",
             "uid": "${engineMetrics}"
           },
-          "expr": "sum by (step, error_code) (increase(${stepFailures}[1h]))",
-          "legendFormat": "{{step}} · {{error_code}}",
+          "expr": "sum by (step, tier) (increase(${stepFailures}[1h]))",
+          "legendFormat": "{{tier}} · {{step}}",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -318,7 +318,7 @@
     },
     {
       "id": 5,
-      "title": "Stuck detections per rolling hour · provisional",
+      "title": "Stuck detections per rolling hour",
       "type": "timeseries",
       "gridPos": {
         "x": 12,
@@ -330,7 +330,7 @@
         "type": "prometheus",
         "uid": "${engineMetrics}"
       },
-      "description": "Incident detections, not currently stuck jobs. Retries and repeated emissions must be deduplicated at the producer. Reasons: lease_expired, no_step_progress, retries_exhausted, research_deadline, writing_deadline, delivery_overdue.",
+      "description": "Detections, not active stuck jobs. Canonical reasons: lease_expired, no_step_progress, retries_exhausted, research_deadline, writing_deadline, delivery_overdue. Direct metrics need the ingestion fix.",
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -472,7 +472,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "The completed-job error-rate alert uses verified Tempo metrics. The late/short delivery rule is provisional. Fixed 15-minute stuck age, sweep completion after 04:00Z and daily-ceiling alerts still lack required signals. No data is not healthy."
+        "content": "Completed-job error rate uses verified Tempo metrics. Late/short delivery needs the direct-metric ingestion fix. Fixed 15-minute stuck age, sweep completion after 04:00Z and daily-ceiling alerts lack the required signals."
       }
     },
     {
@@ -642,6 +642,52 @@
         "showHeader": true,
         "cellHeight": "sm"
       }
+    },
+    {
+      "id": 13,
+      "title": "Step failures by error code · Tempo",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 53,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "description": "Count of failed engine spans per query interval, grouped by the canonical step and error_code attributes. Independent of direct OTLP metric ingestion.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "metricsQueryType": "range",
+          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"libertos[.]engine[.].*\" && span.libertos.engine.status = \"failed\" } | count_over_time() by (span.libertos.engine.step, span.libertos.engine.error_code)"
+        }
+      ]
     }
   ]
 }
