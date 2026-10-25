@@ -1,0 +1,24 @@
+groups:
+  - name: libertos.delivery
+    interval: 1m
+    rules:
+      # Provisional producer contract. Confirm obs/engineSpans before merging.
+      - alert: LibertosBriefingLateOrShort
+        expr: >-
+          sum by (outcome) (
+            increase(libertos_engine_briefings_total{outcome=~"late|short"}[15m])
+          ) > 0
+        labels:
+          severity: warning
+          service: libertos-convex
+          namespace: bostan
+        annotations:
+          summary: Libertos reported a {{ $labels.outcome }} briefing
+          description: >-
+            The delivery outcome counter increased in the last fifteen minutes.
+            Inspect the delivery in the admin and its trace. The producer must
+            compare delivery time against the reader's profile schedule and
+            classify short content at the delivery boundary. This metric contract
+            is provisional until engineOtel confirms it.
+          dashboard_url: https://monitoring.davidapps.dev/d/libertos-engine-pipeline
+          runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md

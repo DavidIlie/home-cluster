@@ -54,7 +54,65 @@
     }
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "engineMetrics",
+        "label": "Engine metrics",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "text": "prometheus-davidapps-cluster",
+          "value": "prometheus-davidapps-cluster"
+        },
+        "options": [],
+        "hide": 0,
+        "refresh": 1
+      },
+      {
+        "name": "stepDuration",
+        "type": "constant",
+        "query": "libertos_engine_step_duration_seconds",
+        "current": {
+          "text": "libertos_engine_step_duration_seconds",
+          "value": "libertos_engine_step_duration_seconds"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "stepFailures",
+        "type": "constant",
+        "query": "libertos_engine_step_failures_total",
+        "current": {
+          "text": "libertos_engine_step_failures_total",
+          "value": "libertos_engine_step_failures_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "briefingOutcomes",
+        "type": "constant",
+        "query": "libertos_engine_briefings_total",
+        "current": {
+          "text": "libertos_engine_briefings_total",
+          "value": "libertos_engine_briefings_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "stuckDetections",
+        "type": "constant",
+        "query": "libertos_engine_stuck_total",
+        "current": {
+          "text": "libertos_engine_stuck_total",
+          "value": "libertos_engine_stuck_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      }
+    ]
   },
   "annotations": {
     "list": []
@@ -68,20 +126,362 @@
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 4
+        "h": 5
       },
       "options": {
         "mode": "markdown",
-        "content": "Completed jobs are exported today. Job duration includes queue time and retries. These charts do not prove that a briefing was delivered.\n\n**TODO · engineOtel:** per-step spans, stuck state, delivery outcome and deadline metrics. Empty charts mean no matching exported samples. Check the drill-down before treating silence as health."
+        "content": "**Provisional:** engine metric names and step/tier/error labels await engineOtel's contract. An empty panel means missing telemetry, not zero.\n\nThe completed-job charts and trace table below use verified current data. Job success does not prove delivery. Metric-name variables keep the provisional contract replaceable."
       }
     },
     {
       "id": 2,
+      "title": "Briefing outcomes per rolling hour · provisional",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Provisional metric supplied by engineOtel coordination; outcome labels on_time, late and short. Confirm mutually exclusive outcomes and exactly-once emission before using as a delivery count.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (outcome) (increase(${briefingOutcomes}[1h]))",
+          "legendFormat": "{{outcome}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Step duration p50 / p95 · provisional",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Requires engineOtel's direct histogram, covering multi-minute engine steps. This does not use Tempo's short default buckets.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "histogram_quantile(0.50, sum by (le, step) (rate(${stepDuration}_bucket[$__rate_interval])))",
+          "legendFormat": "{{step}} p50",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, step) (rate(${stepDuration}_bucket[$__rate_interval])))",
+          "legendFormat": "{{step}} p95",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Failures by step and error code · provisional",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "The metric name is provisional; step and error_code label names remain unconfirmed. Only bounded codes are permitted.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (step, error_code) (increase(${stepFailures}[1h]))",
+          "legendFormat": "{{step}} · {{error_code}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Stuck detections per rolling hour · provisional",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 13,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Incident detections, not currently stuck jobs. Retries and repeated emissions must be deduplicated at the producer. Reasons: lease_expired, no_step_progress, retries_exhausted, research_deadline, writing_deadline, delivery_overdue.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (step, reason) (increase(${stuckDetections}[1h]))",
+          "legendFormat": "{{step}} · {{reason}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "On-time share of delivery outcomes · provisional",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Rolling 24-hour share, pending the canonical per-morning contract. Outcome must be evaluated against the reader's profile schedule. An absent or zero denominator stays unknown.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "100 * sum(increase(${briefingOutcomes}{outcome=\"on_time\"}[1d])) / sum(increase(${briefingOutcomes}[1d]))",
+          "legendFormat": "on time",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "TODO · Active briefings stuck over 15 minutes",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 21,
+        "w": 12,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "A stuck-detection counter cannot measure how many jobs remain stuck or how long. Requires active age since last progress, cleared on terminal state. stuckWatch currently uses adaptive thresholds, so its events do not prove a fixed 15-minute breach."
+      }
+    },
+    {
+      "id": 8,
+      "title": "TODO · On-time rate per reader morning",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 29,
+        "w": 12,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Needs the canonical morning outcome contract. The provisional share above uses a rolling 24-hour window. Confirm that late and short are mutually exclusive before using their sum as the delivery denominator."
+      }
+    },
+    {
+      "id": 9,
+      "title": "Alerts and missing data",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 29,
+        "w": 12,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "The completed-job error-rate alert uses verified Tempo metrics. The late/short delivery rule is provisional. Fixed 15-minute stuck age, sweep completion after 04:00Z and daily-ceiling alerts still lack required signals. No data is not healthy."
+      }
+    },
+    {
+      "id": 10,
       "title": "Briefing job completions per rolling hour",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 37,
         "w": 12,
         "h": 8
       },
@@ -133,12 +533,12 @@
       ]
     },
     {
-      "id": 3,
+      "id": 11,
       "title": "Completed job failures per rolling hour",
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 4,
+        "y": 37,
         "w": 12,
         "h": 8
       },
@@ -190,72 +590,12 @@
       ]
     },
     {
-      "id": 4,
-      "title": "TODO · Step duration p50 / p95",
-      "type": "text",
-      "gridPos": {
-        "x": 0,
-        "y": 12,
-        "w": 12,
-        "h": 5
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Waiting for engineOtel's step spans or histogram. Existing job spans cannot measure individual engine steps.\n\nTempo's current histogram ends at 16.384 seconds and would understate long jobs."
-      }
-    },
-    {
-      "id": 5,
-      "title": "TODO · Failures by step and error code",
-      "type": "text",
-      "gridPos": {
-        "x": 12,
-        "y": 12,
-        "w": 12,
-        "h": 5
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Blocked on bounded step and error-code attributes. The existing job_failed error classification does not identify the failing step. No raw error messages, reader text or private lane names belong in metric labels."
-      }
-    },
-    {
-      "id": 6,
-      "title": "TODO · Briefings stuck over 15 minutes",
-      "type": "text",
-      "gridPos": {
-        "x": 0,
-        "y": 17,
-        "w": 12,
-        "h": 5
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Requires a periodically exported active-job count and age since last progress, cleared on completion or cancellation. Terminal spans alone cannot detect a job that never finishes. Alert blocked on engineOtel / stuckWatch."
-      }
-    },
-    {
-      "id": 7,
-      "title": "TODO · On-time delivery per reader morning",
-      "type": "text",
-      "gridPos": {
-        "x": 12,
-        "y": 17,
-        "w": 12,
-        "h": 5
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Requires delivery outcomes against the reader's onboarding/profile timezone and scheduled deadline. A succeeded job is not an on-time delivery. Export counts and lateness, never reader timezone guesses or preferences. Late/short delivery alert is blocked."
-      }
-    },
-    {
-      "id": 8,
-      "title": "Recent engine job traces",
+      "id": 12,
+      "title": "Recent engine traces",
       "type": "table",
       "gridPos": {
         "x": 0,
-        "y": 22,
+        "y": 45,
         "w": 24,
         "h": 8
       },
@@ -271,7 +611,7 @@
             "uid": "tempo"
           },
           "queryType": "traceql",
-          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"eve[.]job[.].*\" }",
+          "query": "{ resource.service.name = \"libertos-convex\" && (name =~ \"libertos[.]engine[.].*\" || name =~ \"eve[.]job[.].*\") }",
           "limit": 30,
           "tableType": "traces"
         }

@@ -8,5 +8,6 @@ configMapGenerator:
   - name: prometheus-davidapps-cluster-config
     files:
       - config.yml=./resources/config.yml
+      - libertosDeliveryRules.yaml=./resources/libertosDeliveryRules.yaml
 generatorOptions:
   disableNameSuffixHash: true

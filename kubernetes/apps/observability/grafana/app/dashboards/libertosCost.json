@@ -13,8 +13,8 @@
   "editable": false,
   "refresh": "1m",
   "time": {
-    "from": "now-24h",
-    "to": "now"
+    "from": "now-7d/d",
+    "to": "now/d"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -54,7 +54,43 @@
     }
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "engineMetrics",
+        "label": "Engine metrics",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "text": "prometheus-davidapps-cluster",
+          "value": "prometheus-davidapps-cluster"
+        },
+        "options": [],
+        "hide": 0,
+        "refresh": 1
+      },
+      {
+        "name": "stepCost",
+        "type": "constant",
+        "query": "libertos_engine_step_cost_usd_total",
+        "current": {
+          "text": "libertos_engine_step_cost_usd_total",
+          "value": "libertos_engine_step_cost_usd_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "briefingOutcomes",
+        "type": "constant",
+        "query": "libertos_engine_briefings_total",
+        "current": {
+          "text": "libertos_engine_briefings_total",
+          "value": "libertos_engine_briefings_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      }
+    ]
   },
   "annotations": {
     "list": []
@@ -62,7 +98,7 @@
   "panels": [
     {
       "id": 1,
-      "title": "Cost telemetry is not available",
+      "title": "Provisional cost contract",
       "type": "text",
       "gridPos": {
         "x": 0,
@@ -72,37 +108,81 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**TODO · engineOtel:** publish the canonical cost contract before enabling spend charts or alerts. No cost series exist in either Prometheus datasource today. These panels deliberately show no invented totals.\n\nRecord costs once at the accounting boundary, include a bounded layer and tier, and exclude private prompts or reader interests."
+        "content": "The step-cost counter name is provisional. The step and tier labels, accounting boundaries and shared-sweep attribution await engineOtel's contract.\n\nThe default range shows complete UTC days. No matching series means unknown cost, not $0."
       }
     },
     {
       "id": 2,
-      "title": "TODO · Cost per UTC day by layer",
-      "type": "text",
+      "title": "Cost per completed UTC day by step · provisional",
+      "type": "timeseries",
       "gridPos": {
         "x": 0,
         "y": 5,
-        "w": 12,
-        "h": 7
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Counter increases estimate the preceding UTC day at each midnight point. Keep the default UTC-aligned range and 1-day interval. Step is the provisional layer label; costs must be emitted once, without allocating the same shared cost repeatedly.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
       },
       "options": {
-        "mode": "markdown",
-        "content": "Requires USD costs attributed to the canonical engine layers, including shared sweep cost without duplicating it across readers. Calendar-day totals must reset at UTC midnight; a rolling 24-hour sum is not today's spend."
-      }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (step) (increase(${stepCost}[1d]))",
+          "legendFormat": "{{step}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code",
+          "interval": "1d"
+        }
+      ],
+      "interval": "1d"
     },
     {
       "id": 3,
       "title": "TODO · Cost per briefing by tier",
       "type": "text",
       "gridPos": {
-        "x": 12,
-        "y": 5,
+        "x": 0,
+        "y": 13,
         "w": 12,
         "h": 7
       },
       "options": {
         "mode": "markdown",
-        "content": "Requires settled briefing cost and tier from the canonical standardModels/proModels plan. Show standard and pro separately. Keep briefing ids in traces or structured logs, not Prometheus labels."
+        "content": "Requires settled briefing cost with canonical tier and confirmed attribution. Dividing all step costs by delivery counts would mix shared sweep costs, unfinished work and retries. Keep this panel empty until the contract can answer it accurately."
       }
     },
     {
@@ -110,14 +190,14 @@
       "title": "TODO · Daily spend over ceiling",
       "type": "text",
       "gridPos": {
-        "x": 0,
-        "y": 12,
-        "w": 24,
-        "h": 6
+        "x": 12,
+        "y": 13,
+        "w": 12,
+        "h": 7
       },
       "options": {
         "mode": "markdown",
-        "content": "Blocked on today's spend and the configured daily ceiling in the same currency and UTC window. Read the ceiling from engine accounting rather than hard-coding a second budget. A missing ceiling is unknown, not unlimited or zero."
+        "content": "Requires authoritative spend since UTC midnight and the configured daily USD ceiling. The step-cost counter alone cannot supply the ceiling. A rolling 24-hour increase is not today's spend."
       }
     }
   ]

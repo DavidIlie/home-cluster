@@ -67,9 +67,34 @@ Absence of traffic does not trigger this rate alert.
 
 ## Blocked on engine telemetry
 
-`obs/engineSpans` must publish its canonical contract before the following panels
-and alerts can query real series. TODO panels remain visible until then. Do not
-invent Prometheus metric names or substitute completed jobs for delivery state.
+The task owner supplied provisional names while `obs/engineSpans` is being
+published. The pipeline and cost dashboards keep them in constant variables;
+the engine datasource is selectable. Confirm these names and labels against
+`docs/telemetryEngine.md` before merging:
+
+- `libertos_engine_step_duration_seconds`, with `_bucket` for quantiles
+- `libertos_engine_step_failures_total`
+- `libertos_engine_step_cost_usd_total`
+- `libertos_engine_briefings_total`, with `outcome=on_time|late|short`
+- `libertos_engine_stuck_total`, with `step` and `reason`
+
+Step and error-code label names are provisional. Cost uses step as a provisional
+layer label. Its default UTC-aligned range and one-day query interval show the
+counter increase for the day preceding each midnight point. Counter increases
+are estimates, not the accounting ledger. The on-time chart is a rolling
+24-hour share, not yet a per-reader-morning view. Confirm whether late and short
+are mutually exclusive before treating their sum as a delivery denominator.
+
+`LibertosBriefingLateOrShort` uses the provisional outcome counter. It is
+evaluated by the standalone `prometheus-davidapps-cluster` in home-cluster,
+which receives Alloy's direct metrics, and routes to the same existing email
+receiver. `libertosDeliveryRules.yaml` holds this provisional rule in one place.
+The draft PR must not merge until this producer contract is confirmed or the
+owner explicitly accepts it.
+
+The following missing semantics still block their corresponding panels and
+alerts. TODO panels remain visible. Do not substitute completed jobs for
+delivery state or a stuck-event counter for active-job age.
 
 | Signal | Required semantics | Alert |
 | --- | --- | --- |
