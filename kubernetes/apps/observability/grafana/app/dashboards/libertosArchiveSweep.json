@@ -54,7 +54,32 @@
     }
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "engineMetrics",
+        "label": "Engine metrics",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "text": "prometheus-davidapps-cluster",
+          "value": "prometheus-davidapps-cluster"
+        },
+        "options": [],
+        "hide": 0,
+        "refresh": 1
+      },
+      {
+        "name": "thinCells",
+        "type": "constant",
+        "query": "libertos_engine_thin_cells_ratio",
+        "current": {
+          "text": "libertos_engine_thin_cells_ratio",
+          "value": "libertos_engine_thin_cells_ratio"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      }
+    ]
   },
   "annotations": {
     "list": []
@@ -134,7 +159,7 @@
     },
     {
       "id": 3,
-      "title": "TODO · Feeds polled and articles stored",
+      "title": "TODO \u00b7 Feeds polled and articles stored",
       "type": "text",
       "gridPos": {
         "x": 0,
@@ -149,7 +174,7 @@
     },
     {
       "id": 4,
-      "title": "TODO · Full-text share",
+      "title": "TODO \u00b7 Full-text share",
       "type": "text",
       "gridPos": {
         "x": 12,
@@ -164,22 +189,65 @@
     },
     {
       "id": 5,
-      "title": "TODO · Short cells",
-      "type": "text",
+      "title": "Short cells by kind and primary reason \u00b7 provisional",
+      "type": "timeseries",
       "gridPos": {
         "x": 0,
         "y": 17,
         "w": 12,
         "h": 5
       },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Audit snapshots from noThinCells. Alloy normalizes this unit=1 gauge to a _ratio suffix; values are cell counts. Gaps mean no fresh audit, not zero short cells. No extension of stale snapshots across days. Producer deployment remains unverified.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 0,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "always"
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "mode": "markdown",
-        "content": "Requires a count of cells below the required coverage target at sweep completion, with bounded reason codes. Private lane names must stay out of telemetry."
-      }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "${thinCells}",
+          "legendFormat": "{{kind}} \u00b7 {{reason}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
     },
     {
       "id": 6,
-      "title": "TODO · Sweep duration and 04:00Z deadline",
+      "title": "TODO \u00b7 Sweep completion by 04:00Z",
       "type": "text",
       "gridPos": {
         "x": 12,
@@ -189,7 +257,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Requires start, completion and last-success timestamps plus a daily heartbeat, including days when no run starts. Alert when today's sweep is still incomplete after 04:00 UTC. Terminal spans cannot prove a missing run; alert blocked on engineOtel."
+        "content": "Duration is available below from completed spans. Deadline detection still needs last-success time and a daily heartbeat, including days when no run starts. Alert when today\u2019s sweep is incomplete after 04:00 UTC. Terminal spans cannot prove a missing run."
       }
     },
     {
@@ -245,6 +313,52 @@
         "showHeader": true,
         "cellHeight": "sm"
       }
+    },
+    {
+      "id": 8,
+      "title": "Completed sweep duration p50 / p95 \u00b7 Tempo",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 30,
+        "w": 24,
+        "h": 9
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "description": "Duration in seconds from terminal archive spans. Existing job spans include queue time and retries; new engine spans describe instrumented work. Neither proves completion before the 04:00Z deadline.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "metricsQueryType": "range",
+          "query": "{ resource.service.name = \"libertos-convex\" && (name =~ \"eve[.]job[.]archive_sweep .*\" || (name = \"libertos.engine.archive_sweep\" && span.libertos.engine.status =~ \"succeeded|failed|cancelled\" && span.libertos.engine.reason = nil)) } | quantile_over_time(duration, .5, .95) by (name)"
+        }
+      ]
     }
   ]
 }

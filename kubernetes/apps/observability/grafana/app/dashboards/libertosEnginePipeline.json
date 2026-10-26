@@ -130,12 +130,12 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Metric names and closed labels match engineOtel's published contract. Direct metrics are blocked on delta-to-cumulative ingestion in Alloy; empty panels mean unavailable telemetry, not zero.\n\nThe completed-job charts and Tempo trace table use the current export. Engine spans will appear after the producer is deployed."
+        "content": "Metric names and closed labels match engineOtel\u2019s published contract. Direct metrics require the dedicated Alloy collector in davidapps-cluster PR #527. Empty panels mean unavailable telemetry, not zero.\n\nTempo charts and trace lookup work independently of direct metric conversion. Engine step spans appear after producer deployment."
       }
     },
     {
       "id": 2,
-      "title": "Briefing delivery outcomes per rolling hour",
+      "title": "Briefing publication outcomes per rolling hour",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -183,7 +183,7 @@
             "uid": "${engineMetrics}"
           },
           "expr": "sum by (outcome, tier) (increase(${briefingOutcomes}[1h]))",
-          "legendFormat": "{{tier}} · {{outcome}}",
+          "legendFormat": "{{tier}} \u00b7 {{outcome}}",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -240,7 +240,7 @@
             "uid": "${engineMetrics}"
           },
           "expr": "histogram_quantile(0.50, sum by (le, step, tier) (rate(${stepDuration}_bucket{status=~\"succeeded|failed|cancelled\"}[$__rate_interval])))",
-          "legendFormat": "{{tier}} · {{step}} p50",
+          "legendFormat": "{{tier}} \u00b7 {{step}} p50",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -252,7 +252,7 @@
             "uid": "${engineMetrics}"
           },
           "expr": "histogram_quantile(0.95, sum by (le, step, tier) (rate(${stepDuration}_bucket{status=~\"succeeded|failed|cancelled\"}[$__rate_interval])))",
-          "legendFormat": "{{tier}} · {{step}} p95",
+          "legendFormat": "{{tier}} \u00b7 {{step}} p95",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -309,7 +309,7 @@
             "uid": "${engineMetrics}"
           },
           "expr": "sum by (step, tier) (increase(${stepFailures}[1h]))",
-          "legendFormat": "{{tier}} · {{step}}",
+          "legendFormat": "{{tier}} \u00b7 {{step}}",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -366,7 +366,7 @@
             "uid": "${engineMetrics}"
           },
           "expr": "sum by (step, reason) (increase(${stuckDetections}[1h]))",
-          "legendFormat": "{{step}} · {{reason}}",
+          "legendFormat": "{{step}} \u00b7 {{reason}}",
           "range": true,
           "instant": false,
           "editorMode": "code"
@@ -375,7 +375,7 @@
     },
     {
       "id": 6,
-      "title": "On-time share of delivery outcomes · provisional",
+      "title": "On-time share of publication outcomes",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -387,7 +387,7 @@
         "type": "prometheus",
         "uid": "${engineMetrics}"
       },
-      "description": "Rolling 24-hour share, pending the canonical per-morning contract. Outcome must be evaluated against the reader's profile schedule. An absent or zero denominator stays unknown.",
+      "description": "Rolling 24-hour share at web publication. Outcomes are exclusive: short takes precedence over late. Manual runs with enough items count as on_time. This is not email delivery or a per-reader-morning rate.",
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
@@ -432,7 +432,7 @@
     },
     {
       "id": 7,
-      "title": "TODO · Active briefings stuck over 15 minutes",
+      "title": "TODO \u00b7 Active briefings stuck over 15 minutes",
       "type": "text",
       "gridPos": {
         "x": 12,
@@ -447,7 +447,7 @@
     },
     {
       "id": 8,
-      "title": "TODO · On-time rate per reader morning",
+      "title": "TODO \u00b7 On-time rate per reader morning",
       "type": "text",
       "gridPos": {
         "x": 0,
@@ -457,7 +457,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Needs the canonical morning outcome contract. The provisional share above uses a rolling 24-hour window. Confirm that late and short are mutually exclusive before using their sum as the delivery denominator."
+        "content": "Needs a morning cohort and scheduled/manual distinction in the metric contract. The share above covers all web publications over a rolling 24 hours, including manual runs. Email and push delivery are separate from this outcome."
       }
     },
     {
@@ -472,7 +472,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Completed-job error rate uses verified Tempo metrics. Late/short delivery needs the direct-metric ingestion fix. Fixed 15-minute stuck age, sweep completion after 04:00Z and daily-ceiling alerts lack the required signals."
+        "content": "Completed-job error rate uses verified Tempo metrics. Late/short publication uses direct metrics after collector PR #527. Fixed 15-minute stuck age, sweep completion after 04:00Z and daily-ceiling alerts still lack the required signals."
       }
     },
     {
@@ -645,7 +645,7 @@
     },
     {
       "id": 13,
-      "title": "Step failures by error code · Tempo",
+      "title": "Step failures by error code \u00b7 Tempo",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -685,7 +685,53 @@
           },
           "queryType": "traceql",
           "metricsQueryType": "range",
-          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"libertos[.]engine[.].*\" && span.libertos.engine.status = \"failed\" } | count_over_time() by (span.libertos.engine.step, span.libertos.engine.error_code)"
+          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"libertos[.]engine[.].*\" && span.libertos.engine.status = \"failed\" && span.libertos.engine.reason = nil } | count_over_time() by (span.libertos.engine.step, span.libertos.engine.error_code)"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Step duration p50 / p95 \u00b7 Tempo",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 61,
+        "w": 24,
+        "h": 9
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "description": "Completed execution spans, excluding watchdog incident spans. TraceQL calculates approximate duration quantiles in seconds directly from stored spans; no direct metric counters required.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "metricsQueryType": "range",
+          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"libertos[.]engine[.].*\" && span.libertos.engine.status =~ \"succeeded|failed|cancelled\" && span.libertos.engine.reason = nil } | quantile_over_time(duration, .5, .95) by (span.libertos.engine.step, span.libertos.engine.tier)"
         }
       ]
     }

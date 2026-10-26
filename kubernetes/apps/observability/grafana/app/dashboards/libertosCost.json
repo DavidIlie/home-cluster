@@ -108,7 +108,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "The cost counter uses the canonical step and tier labels. Direct metrics need the Alloy ingestion fix. Accounting boundaries and shared-sweep attribution still require producer verification.\n\nThe default range shows complete UTC days. No matching series means unknown cost, not $0."
+        "content": "The cost counter records committed ledger entries and first settlements with step and tier labels. Shared sweep costs stay under tier=shared. Direct metrics require collector PR #527.\n\nThe default range shows complete UTC days. Counter increases are monitoring estimates; billing ledgers remain authoritative. No matching series means unknown cost, not $0."
       }
     },
     {
@@ -172,7 +172,7 @@
     },
     {
       "id": 3,
-      "title": "TODO · Cost per briefing by tier",
+      "title": "TODO \u00b7 Cost per briefing by tier",
       "type": "text",
       "gridPos": {
         "x": 0,
@@ -187,7 +187,7 @@
     },
     {
       "id": 4,
-      "title": "TODO · Daily spend over ceiling",
+      "title": "TODO \u00b7 Daily spend over ceiling",
       "type": "text",
       "gridPos": {
         "x": 12,

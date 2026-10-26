@@ -33,7 +33,7 @@ spec:
     # the pod starts. Bump this when a URL-provisioned dashboard changes so Flux
     # rolls the pod after the merged JSON is live.
     podAnnotations:
-      davidapps.dev/url-dashboards-revision: "2026-10-22-cloudflared-rate-window"
+      davidapps.dev/url-dashboards-revision: "2026-10-26-libertos-engine-collector"
     resources:
       requests:
         cpu: 25m

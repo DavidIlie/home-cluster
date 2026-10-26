@@ -2,7 +2,7 @@ groups:
   - name: libertos.delivery
     interval: 1m
     rules:
-      # Blocked on delta-to-cumulative ingestion and delivery emission verification.
+      # Requires the singleton delta converter in davidapps-cluster PR #527.
       - alert: LibertosBriefingLateOrShort
         expr: >-
           sum by (outcome) (
@@ -13,12 +13,12 @@ groups:
           service: libertos-convex
           namespace: bostan
         annotations:
-          summary: Libertos reported a {{ $labels.outcome }} briefing
+          summary: Libertos published a {{ $labels.outcome }} briefing
           description: >-
-            The delivery outcome counter increased in the last fifteen minutes.
-            Inspect the delivery in the admin and its trace. The producer must
-            compare delivery time against the reader's profile schedule and
-            classify short content at the delivery boundary. Direct metrics need
-            the Alloy ingestion fix before this rule can observe deliveries.
+            The web-publication outcome counter increased in the last fifteen
+            minutes. Short means fewer than the target items and takes precedence
+            over late. Late means a scheduled publication after its profile
+            deadline. Inspect the delivery in the admin and its trace; email
+            and push delivery are separate outcomes.
           dashboard_url: https://monitoring.davidapps.dev/d/libertos-engine-pipeline
           runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md

@@ -65,9 +65,9 @@ completed jobs. It excludes Stripe and web spans. Open failed engine traces,
 identify the capability, and inspect its job in the admin before retrying.
 Absence of traffic does not trigger this rate alert.
 
-## Engine contract and ingestion blocker
+## Engine contract and collector dependency
 
-Names and labels match the [engine contract at 38d58b5](https://github.com/BostanEnterprise/libertos/blob/38d58b5a1bc3e6a821b704cc1ea9ed43172f1d02/docs/telemetryEngine.md).
+Names and labels match the [engine contract at 4f0f30a](https://github.com/BostanEnterprise/libertos/blob/4f0f30aebbaf6966a721ca1e916b91fa3ae755da/docs/telemetryEngine.md).
 The pipeline and cost dashboards keep the names in constant variables;
 the engine datasource is selectable:
 
@@ -86,27 +86,41 @@ the Tempo breakdown groups `libertos.engine.step` and
 Cost uses step as the layer label. Its default UTC-aligned range and one-day query interval show the
 counter increase for the day preceding each midnight point. Counter increases
 are estimates, not the accounting ledger. The on-time chart is a rolling
-24-hour share, not yet a per-reader-morning view. Confirm whether late and short
-are mutually exclusive before treating their sum as a delivery denominator.
+24-hour share at web publication, not a per-reader-morning view. Outcomes are
+mutually exclusive: short takes precedence over late. Manual publications with
+enough items count as on_time. Email and push delivery are separate. Cost counters
+come from committed ledgers and first settlements; shared costs use tier=shared.
 
 `LibertosBriefingLateOrShort` uses the canonical outcome counter. It is
 evaluated by the standalone `prometheus-davidapps-cluster` in home-cluster,
 which receives Alloy's direct metrics, and routes to the same existing email
 receiver. `libertosDeliveryRules.yaml` holds this rule in one place.
 
-**Direct metrics are blocked on ingestion.** The contract emits delta sums;
-the live Alloy pipeline goes directly from batch processing to
-`otelcol.exporter.prometheus`. Prometheus conversion needs cumulative data.
-[Grafana documents a delta-to-cumulative processor](https://grafana.com/docs/alloy/latest/reference/components/otelcol/otelcol.processor.deltatocumulative/),
-but adding it alone to the three load-balanced Alloy replicas is insufficient:
-each metric stream needs one cumulative writer or stable per-writer identity,
-plus appropriate state retention for sparse daily traffic. Without that,
-replicas can emit conflicting samples or reset away initial events. Coordinate
-the producer and collector contract; do not silently enable a shared
-experimental processor as a dashboard change. No collector changes are included
-here. Keep this PR draft until ingestion and emission boundaries are verified or
-the owner accepts the stated gaps. Tempo-based job charts and trace lookup do
-not depend on this metrics conversion.
+Direct metrics depend on [davidapps-cluster PR #527](https://github.com/DavidIlie/davidapps-cluster/pull/527).
+The producer stays on delta. The three Alloy frontends route metrics with
+`service.namespace=libertos` to one dedicated Alloy replica. Its `Recreate`
+strategy prevents overlapping accumulators. A delta-to-cumulative processor
+retains inactive streams for 72 hours, bounded to 20,000 streams, before the
+Prometheus exporter. Start-timestamp zero ingestion preserves the first delta
+and the first sample after a reset. Only the dedicated writer enables
+experimental components. Traces, logs and other applications keep their paths.
+
+The singleton trades availability for one cumulative writer. Frontend queues
+retry for up to five minutes, but queues, converter state and the remote-write
+WAL are ephemeral. Concurrent or delayed actions can still arrive out of order;
+monitor converter error labels. These are monitoring estimates, not accounting
+records. Keep both PRs draft pending review and verify actual ingestion after
+Flux deploys them. No cluster changes were applied by hand.
+
+Tempo duration and error-code panels query stored spans directly and do not
+need OTLP metric conversion. The archive short-cell panel uses the gauge from
+[noThinCells at ea293d0](https://github.com/BostanEnterprise/libertos/blob/ea293d003ea6919fdf7642b8007b4cba7ea4c3bf/packages/convex/convex/archiveCoverageTelemetry.ts).
+It remains provisional until that producer is deployed. The OTLP name is
+`libertos_engine_thin_cells`, but Alloy 1.21.2 exports
+`libertos_engine_thin_cells_ratio` because its unit is `1`. A local end-to-end
+probe verified that name. Values are cell counts grouped by kind and primary
+reason. The chart shows audit samples without extending them across days;
+missing samples do not mean zero short cells.
 
 The following missing semantics still block their corresponding panels and
 alerts. TODO panels remain visible. Do not substitute completed jobs for
@@ -114,13 +128,12 @@ delivery state or a stuck-event counter for active-job age.
 
 | Signal | Required semantics | Alert |
 | --- | --- | --- |
-| Steps | Bounded step/outcome/error code; histogram covering multi-minute steps | Failure breakdown and step p50/p95 |
 | Stuck work | Active job age since last progress, refreshed periodically and cleared on terminal state | Active briefing older than 900 seconds; do not add a second 15-minute hold |
 | Morning sweep | Daily UTC deadline and last successful completion, including a heartbeat when no sweep starts | At or after 04:00Z, today's sweep has not completed; distinguish missing telemetry |
-| Delivery | Completed deliveries with lateness and short-content classification against the profile's delivery schedule | Any late or short delivery; never derive the schedule from passive activity |
+| Delivery mornings | Scheduled/manual distinction and reader-morning cohorts; email/push outcomes separate from web publication | Exact morning on-time rate beyond the implemented publication alert |
 | Spend | Authoritative USD spend since UTC midnight and configured ceiling, plus layer/tier | Today's spend above the same day's ceiling; missing ceiling remains unknown |
-| Archive coverage | Feeds polled, articles stored, usable full-text articles, short cells, start/completion times | Sweep completeness and deadline diagnosis |
-| Trace correlation | Briefing-wide trace id and diagnostic structured log fields | Per-briefing step and log inspection |
+| Archive coverage | Feeds polled, articles stored, usable full-text articles, start/completion times; short-cell gauge deployment still unverified | Sweep completeness and deadline diagnosis |
+| Trace logs | Diagnostic structured log fields sharing the deterministic delivery/generation trace id | Logs alongside the implemented trace inspection |
 
 Keep ids in traces/logs, not metric labels. Never export reader text, email,
 interests, prompts, or private lane wording. Costs must be counted once at the
@@ -132,8 +145,8 @@ reader. Tiers come from the canonical model plan.
 Build the Grafana app and standalone Prometheus home-cluster directories with
 `kustomize build`. Run the pinned Flux Local command from
 `.github/workflows/flux-local.yaml` and `promtool check config` with the mounted
-rule file. Preview the four JSON dashboards in a disposable local Grafana using
-the deployed Grafana version. This repository has no pnpm lint command.
+rule file. Validate dashboard JSON and query syntax against the configured datasource
+versions. This repository has no pnpm lint command.
 
 Merge through normal review and let Flux reconcile. Never apply these files by
 hand. After reconciliation, verify dashboard provisioning, rule health and the
