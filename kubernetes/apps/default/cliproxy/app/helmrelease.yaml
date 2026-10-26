@@ -155,6 +155,7 @@ spec:
             args: ["-config", "/config-data/config.yaml"]
             env:
               TZ: Europe/Bucharest
+              GOMEMLIMIT: 6GiB
               DAVIDAPPS_ASSERTION_ISSUER:
                 valueFrom:
                   configMapKeyRef:
@@ -235,10 +236,10 @@ spec:
               readiness: *probes
             resources:
               requests:
-                cpu: 10m
-                memory: 256Mi
+                cpu: "2"
+                memory: 2Gi
               limits:
-                memory: 1Gi
+                memory: 8Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
