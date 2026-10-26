@@ -62,6 +62,9 @@ spec:
           - path: /etc/prometheus/prometheus.yml
             subPath: config.yml
             readOnly: true
+          - path: /etc/prometheus/rules/libertosDeliveryRules.yaml
+            subPath: libertosDeliveryRules.yaml
+            readOnly: true
       data:
         enabled: true
         type: hostPath

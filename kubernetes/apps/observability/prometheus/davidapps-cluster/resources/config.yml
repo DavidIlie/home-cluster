@@ -1,6 +1,16 @@
 global:
   scrape_interval: 15s
 
+# Alloy sends Libertos OTLP metrics to this receiving Prometheus.
+rule_files:
+  - /etc/prometheus/rules/libertosDeliveryRules.yaml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093
+
 # remote_write:
 #   - url: "http://prometheus-davidapps-cluster.observability.svc.cluster.local:9090/api/v1/write"
 

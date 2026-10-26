@@ -33,7 +33,7 @@ spec:
     # the pod starts. Bump this when a URL-provisioned dashboard changes so Flux
     # rolls the pod after the merged JSON is live.
     podAnnotations:
-      davidapps.dev/url-dashboards-revision: "2026-10-22-cloudflared-rate-window"
+      davidapps.dev/url-dashboards-revision: "2026-10-26-libertos-engine-collector"
     resources:
       requests:
         cpu: 25m
@@ -745,6 +745,14 @@ spec:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/mbretrofit-overview.json
       apps-bostan:
+        libertosEnginePipeline:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosEnginePipeline.json
+        libertosArchiveSweep:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosArchiveSweep.json
+        libertosCost:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosCost.json
+        libertosBriefingDrilldown:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/libertosBriefingDrilldown.json
         bostan-overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/bostan-overview.json
         bostan-edge:

@@ -1,0 +1,739 @@
+{
+  "id": null,
+  "uid": "libertos-engine-pipeline",
+  "title": "Libertos / Engine pipeline",
+  "description": "Libertos engine operations. TODO panels identify telemetry that is not exported. No data is not zero.",
+  "tags": [
+    "libertos",
+    "engine"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 40,
+  "version": 1,
+  "editable": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "Engine pipeline",
+      "url": "/d/libertos-engine-pipeline",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Archive sweep",
+      "url": "/d/libertos-archive-sweep",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Cost",
+      "url": "/d/libertos-cost",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Briefing drill-down",
+      "url": "/d/libertos-briefing-drilldown",
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "engineMetrics",
+        "label": "Engine metrics",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "text": "prometheus-davidapps-cluster",
+          "value": "prometheus-davidapps-cluster"
+        },
+        "options": [],
+        "hide": 0,
+        "refresh": 1
+      },
+      {
+        "name": "stepDuration",
+        "type": "constant",
+        "query": "libertos_engine_step_duration_seconds",
+        "current": {
+          "text": "libertos_engine_step_duration_seconds",
+          "value": "libertos_engine_step_duration_seconds"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "stepFailures",
+        "type": "constant",
+        "query": "libertos_engine_step_failures_total",
+        "current": {
+          "text": "libertos_engine_step_failures_total",
+          "value": "libertos_engine_step_failures_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "briefingOutcomes",
+        "type": "constant",
+        "query": "libertos_engine_briefings_total",
+        "current": {
+          "text": "libertos_engine_briefings_total",
+          "value": "libertos_engine_briefings_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "stuckDetections",
+        "type": "constant",
+        "query": "libertos_engine_stuck_total",
+        "current": {
+          "text": "libertos_engine_stuck_total",
+          "value": "libertos_engine_stuck_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Telemetry coverage",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Metric names and closed labels match engineOtel\u2019s published contract. Direct metrics require the dedicated Alloy collector in davidapps-cluster PR #527. Empty panels mean unavailable telemetry, not zero.\n\nTempo charts and trace lookup work independently of direct metric conversion. Engine step spans appear after producer deployment."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Briefing publication outcomes per rolling hour",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Canonical outcomes are on_time, late and short, grouped by tier. Emission boundaries and overlap semantics still require producer verification. Direct metrics need the ingestion fix.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (outcome, tier) (increase(${briefingOutcomes}[1h]))",
+          "legendFormat": "{{tier}} \u00b7 {{outcome}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Step duration p50 / p95",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Direct engine histogram with buckets through 3600 seconds. Terminal steps only; held and started observations are excluded. Direct metrics need the ingestion fix.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "histogram_quantile(0.50, sum by (le, step, tier) (rate(${stepDuration}_bucket{status=~\"succeeded|failed|cancelled\"}[$__rate_interval])))",
+          "legendFormat": "{{tier}} \u00b7 {{step}} p50",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, step, tier) (rate(${stepDuration}_bucket{status=~\"succeeded|failed|cancelled\"}[$__rate_interval])))",
+          "legendFormat": "{{tier}} \u00b7 {{step}} p95",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Failures by step and tier",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "The failure counter has step and tier labels. Error codes are span attributes and appear in the Tempo breakdown below.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (step, tier) (increase(${stepFailures}[1h]))",
+          "legendFormat": "{{tier}} \u00b7 {{step}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Stuck detections per rolling hour",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 13,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Detections, not active stuck jobs. Canonical reasons: lease_expired, no_step_progress, retries_exhausted, research_deadline, writing_deadline, delivery_overdue. Direct metrics need the ingestion fix.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (step, reason) (increase(${stuckDetections}[1h]))",
+          "legendFormat": "{{step}} \u00b7 {{reason}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "On-time share of publication outcomes",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Rolling 24-hour share at web publication. Outcomes are exclusive: short takes precedence over late. Manual runs with enough items count as on_time. This is not email delivery or a per-reader-morning rate.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "100 * sum(increase(${briefingOutcomes}{outcome=\"on_time\"}[1d])) / sum(increase(${briefingOutcomes}[1d]))",
+          "legendFormat": "on time",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "TODO \u00b7 Active briefings stuck over 15 minutes",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 21,
+        "w": 12,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "A stuck-detection counter cannot measure how many jobs remain stuck or how long. Requires active age since last progress, cleared on terminal state. stuckWatch currently uses adaptive thresholds, so its events do not prove a fixed 15-minute breach."
+      }
+    },
+    {
+      "id": 8,
+      "title": "TODO \u00b7 On-time rate per reader morning",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 29,
+        "w": 12,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Needs a morning cohort and scheduled/manual distinction in the metric contract. The share above covers all web publications over a rolling 24 hours, including manual runs. Email and push delivery are separate from this outcome."
+      }
+    },
+    {
+      "id": 9,
+      "title": "Alerts and missing data",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 29,
+        "w": 12,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Completed-job error rate uses verified Tempo metrics. Late/short publication uses direct metrics after collector PR #527. Fixed 15-minute stuck age, sweep completion after 04:00Z and daily-ceiling alerts still lack the required signals."
+      }
+    },
+    {
+      "id": 10,
+      "title": "Briefing job completions per rolling hour",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 37,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "description": "Completed briefing jobs, grouped by the outcome encoded in the current span name. Counter extrapolation can produce fractional counts. Does not count deliveries.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "expr": "sum by (outcome) (label_replace(increase(traces_spanmetrics_calls_total{service=\"libertos-convex\",span_name=~\"eve[.]job[.]briefing (succeeded|failed|cancelled)\"}[1h]), \"outcome\", \"$1\", \"span_name\", \".* (succeeded|failed|cancelled)\"))",
+          "legendFormat": "{{outcome}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Completed job failures per rolling hour",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 37,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-home-cluster"
+      },
+      "description": "Completed job errors. Detailed step and error-code breakdown awaits engineOtel; current error.type is only job_failed.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-home-cluster"
+          },
+          "expr": "sum by (span_name) (increase(traces_spanmetrics_calls_total{service=\"libertos-convex\",span_name=~\"eve[.]job[.].*\",status_code=\"STATUS_CODE_ERROR\"}[1h]))",
+          "legendFormat": "{{span_name}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Recent engine traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 45,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"libertos-convex\" && (name =~ \"libertos[.]engine[.].*\" || name =~ \"eve[.]job[.].*\") }",
+          "limit": 30,
+          "tableType": "traces"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traceID"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Briefing drill-down",
+                    "url": "/d/libertos-briefing-drilldown?var-traceId=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      }
+    },
+    {
+      "id": 13,
+      "title": "Step failures by error code \u00b7 Tempo",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 53,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "description": "Count of failed engine spans per query interval, grouped by the canonical step and error_code attributes. Independent of direct OTLP metric ingestion.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "metricsQueryType": "range",
+          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"libertos[.]engine[.].*\" && span.libertos.engine.status = \"failed\" && span.libertos.engine.reason = nil } | count_over_time() by (span.libertos.engine.step, span.libertos.engine.error_code)"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Step duration p50 / p95 \u00b7 Tempo",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 61,
+        "w": 24,
+        "h": 9
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "description": "Completed execution spans, excluding watchdog incident spans. TraceQL calculates approximate duration quantiles in seconds directly from stored spans; no direct metric counters required.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "metricsQueryType": "range",
+          "query": "{ resource.service.name = \"libertos-convex\" && name =~ \"libertos[.]engine[.].*\" && span.libertos.engine.status =~ \"succeeded|failed|cancelled\" && span.libertos.engine.reason = nil } | quantile_over_time(duration, .5, .95) by (span.libertos.engine.step, span.libertos.engine.tier)"
+        }
+      ]
+    }
+  ]
+}

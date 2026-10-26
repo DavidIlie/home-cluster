@@ -8,5 +8,6 @@ configMapGenerator:
   - name: prometheus-home-cluster-config
     files:
       - config.yml=./resources/config.yml
+      - libertosRules.yaml=./resources/libertosRules.yaml
 generatorOptions:
   disableNameSuffixHash: true
