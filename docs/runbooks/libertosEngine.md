@@ -140,6 +140,31 @@ interests, prompts, or private lane wording. Costs must be counted once at the
 accounting boundary, including shared sweep costs without copying them onto each
 reader. Tiers come from the canonical model plan.
 
+## Postgres volumes
+
+The Libertos and Swish databases share the CNPG cluster `bostan-postgres` in
+davidapps-cluster's `bostan-enterprise` namespace, one `superfastzfs` volume per
+instance. On 26 Oct 2026 the volumes reached their 20Gi ZFS quota at 22:32Z,
+Postgres failed writes with "disk quota exceeded", and Libertos was down for
+ten hours. davidapps-cluster #530 raised them to 100Gi.
+
+`bostanPostgresRules.yaml`, evaluated by the standalone
+`prometheus-davidapps-cluster`, fires `BostanPostgresVolumeFilling` when any
+`bostan-postgres-*` volume passes 70% (warning, after ten minutes) or 85%
+(critical, after five minutes). Alertmanager's chart inhibit rule mutes the
+warning while the critical fires. The ratio is
+`kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes`, which
+davidapps-cluster's kube-prometheus-stack remote-writes here. The OpenEBS ZFS
+driver reports both from the dataset, so capacity is the quota Postgres hits.
+Do not alert on `cnpg_pg_database_size_bytes`: it reports logical file sizes,
+which were 26.9GB for `bostan_libertos` while the volume held 22.2GB.
+
+To make room, raise `spec.storage.size` in davidapps-cluster
+`kubernetes/apps/bostan-enterprise/data/postgres/cluster.yaml` through a PR.
+`superfastzfs` allows online expansion. Also check for a WAL backlog with
+`cnpg_collector_pg_wal{namespace="bostan-enterprise",value="size"}` and for
+failed archiving. Never delete files from a Postgres volume by hand.
+
 ## Validate and roll back
 
 Build the Grafana app and standalone Prometheus home-cluster directories with
