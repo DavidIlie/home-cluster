@@ -65,6 +65,9 @@ spec:
           - path: /etc/prometheus/rules/libertosDeliveryRules.yaml
             subPath: libertosDeliveryRules.yaml
             readOnly: true
+          - path: /etc/prometheus/rules/bostanPostgresRules.yaml
+            subPath: bostanPostgresRules.yaml
+            readOnly: true
       data:
         enabled: true
         type: hostPath

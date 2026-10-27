@@ -1,0 +1,45 @@
+groups:
+  - name: bostan.postgres
+    interval: 1m
+    rules:
+      # davidapps-cluster's kube-prometheus-stack remote-writes these kubelet
+      # series here. OpenEBS ZFS reports them from the dataset, so capacity is
+      # the ZFS quota behind the 26 Oct 2026 "disk quota exceeded" outage.
+      - alert: BostanPostgresVolumeFilling
+        expr: >-
+          kubelet_volume_stats_used_bytes{namespace="bostan-enterprise",persistentvolumeclaim=~"bostan-postgres-.*"}
+          /
+          kubelet_volume_stats_capacity_bytes{namespace="bostan-enterprise",persistentvolumeclaim=~"bostan-postgres-.*"}
+          > 0.70
+        for: 10m
+        labels:
+          severity: warning
+          service: bostan-postgres
+        annotations:
+          summary: Postgres volume {{ $labels.persistentvolumeclaim }} is {{ $value | humanizePercentage }} full
+          description: >-
+            The Libertos and Swish databases share the three bostan-postgres
+            volumes. Postgres stops writing when one reaches its ZFS quota,
+            which took Libertos down for ten hours on 26 Oct 2026. Grow the
+            Cluster storage in davidapps-cluster before it reaches 85 percent.
+          dashboard_url: https://monitoring.davidapps.dev/d/peR80gTGk?var-datasource=prometheus-davidapps-cluster&var-k8s_namespace=bostan-enterprise
+          runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md#postgres-volumes
+      - alert: BostanPostgresVolumeFilling
+        expr: >-
+          kubelet_volume_stats_used_bytes{namespace="bostan-enterprise",persistentvolumeclaim=~"bostan-postgres-.*"}
+          /
+          kubelet_volume_stats_capacity_bytes{namespace="bostan-enterprise",persistentvolumeclaim=~"bostan-postgres-.*"}
+          > 0.85
+        for: 5m
+        labels:
+          severity: critical
+          service: bostan-postgres
+        annotations:
+          summary: Postgres volume {{ $labels.persistentvolumeclaim }} is {{ $value | humanizePercentage }} full
+          description: >-
+            The Libertos and Swish databases share the three bostan-postgres
+            volumes. Postgres stops writing when one reaches its ZFS quota,
+            which took Libertos down for ten hours on 26 Oct 2026. Grow the
+            Cluster storage in davidapps-cluster now.
+          dashboard_url: https://monitoring.davidapps.dev/d/peR80gTGk?var-datasource=prometheus-davidapps-cluster&var-k8s_namespace=bostan-enterprise
+          runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md#postgres-volumes

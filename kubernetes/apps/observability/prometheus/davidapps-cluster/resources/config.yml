@@ -1,9 +1,11 @@
 global:
   scrape_interval: 15s
 
-# Alloy sends Libertos OTLP metrics to this receiving Prometheus.
+# Alloy sends Libertos OTLP metrics to this receiving Prometheus, and
+# davidapps-cluster's kube-prometheus-stack remote-writes what it scrapes.
 rule_files:
   - /etc/prometheus/rules/libertosDeliveryRules.yaml
+  - /etc/prometheus/rules/bostanPostgresRules.yaml
 
 alerting:
   alertmanagers:

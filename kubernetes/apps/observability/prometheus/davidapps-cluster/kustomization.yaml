@@ -9,5 +9,6 @@ configMapGenerator:
     files:
       - config.yml=./resources/config.yml
       - libertosDeliveryRules.yaml=./resources/libertosDeliveryRules.yaml
+      - bostanPostgresRules.yaml=./resources/bostanPostgresRules.yaml
 generatorOptions:
   disableNameSuffixHash: true
