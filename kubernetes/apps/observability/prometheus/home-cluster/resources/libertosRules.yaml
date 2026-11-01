@@ -1,0 +1,29 @@
+groups:
+  - name: libertos.engine
+    interval: 1m
+    rules:
+      - alert: LibertosEngineErrorRateHigh
+        expr: >-
+          (
+            sum(increase(traces_spanmetrics_calls_total{service="libertos-convex",span_name=~"eve[.]job[.].*",status_code="STATUS_CODE_ERROR"}[10m]))
+            /
+            sum(increase(traces_spanmetrics_calls_total{service="libertos-convex",span_name=~"eve[.]job[.].*"}[10m]))
+          ) > 0.1
+          and
+          sum(increase(traces_spanmetrics_calls_total{service="libertos-convex",span_name=~"eve[.]job[.].*",status_code="STATUS_CODE_ERROR"}[10m])) >= 5
+          and
+          sum(increase(traces_spanmetrics_calls_total{service="libertos-convex",span_name=~"eve[.]job[.].*"}[10m])) >= 10
+        for: 5m
+        labels:
+          severity: warning
+          service: libertos-convex
+          namespace: bostan
+        annotations:
+          summary: Libertos engine job failures exceed 10 percent
+          description: >-
+            At least five failed jobs and ten completed jobs occurred in a rolling
+            ten-minute window, with an error rate above 10 percent for five minutes.
+            These are terminal job spans, not delivery outcomes. Inspect recent
+            failed traces before retrying work. No data does not mean healthy.
+          dashboard_url: https://monitoring.davidapps.dev/d/libertos-engine-pipeline
+          runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md

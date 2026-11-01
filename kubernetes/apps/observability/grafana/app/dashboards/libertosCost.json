@@ -1,0 +1,204 @@
+{
+  "id": null,
+  "uid": "libertos-cost",
+  "title": "Libertos / Cost",
+  "description": "Libertos engine operations. TODO panels identify telemetry that is not exported. No data is not zero.",
+  "tags": [
+    "libertos",
+    "engine"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 40,
+  "version": 1,
+  "editable": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-7d/d",
+    "to": "now/d"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "Engine pipeline",
+      "url": "/d/libertos-engine-pipeline",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Archive sweep",
+      "url": "/d/libertos-archive-sweep",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Cost",
+      "url": "/d/libertos-cost",
+      "includeVars": true,
+      "keepTime": true
+    },
+    {
+      "type": "link",
+      "title": "Briefing drill-down",
+      "url": "/d/libertos-briefing-drilldown",
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "engineMetrics",
+        "label": "Engine metrics",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "text": "prometheus-davidapps-cluster",
+          "value": "prometheus-davidapps-cluster"
+        },
+        "options": [],
+        "hide": 0,
+        "refresh": 1
+      },
+      {
+        "name": "stepCost",
+        "type": "constant",
+        "query": "libertos_engine_step_cost_usd_total",
+        "current": {
+          "text": "libertos_engine_step_cost_usd_total",
+          "value": "libertos_engine_step_cost_usd_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "briefingOutcomes",
+        "type": "constant",
+        "query": "libertos_engine_briefings_total",
+        "current": {
+          "text": "libertos_engine_briefings_total",
+          "value": "libertos_engine_briefings_total"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Cost coverage",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "The cost counter records committed ledger entries and first settlements with step and tier labels. Shared sweep costs stay under tier=shared. Direct metrics require collector PR #527.\n\nThe default range shows complete UTC days. Counter increases are monitoring estimates; billing ledgers remain authoritative. No matching series means unknown cost, not $0."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Cost per completed UTC day by step",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${engineMetrics}"
+      },
+      "description": "Counter increases estimate the preceding UTC day at each midnight point. Keep the default UTC-aligned range and 1-day interval. Costs must be emitted once. Direct metrics need the ingestion fix.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${engineMetrics}"
+          },
+          "expr": "sum by (step) (increase(${stepCost}[1d]))",
+          "legendFormat": "{{step}}",
+          "range": true,
+          "instant": false,
+          "editorMode": "code",
+          "interval": "1d"
+        }
+      ],
+      "interval": "1d"
+    },
+    {
+      "id": 3,
+      "title": "TODO \u00b7 Cost per briefing by tier",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 12,
+        "h": 7
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires settled briefing cost with canonical tier and confirmed attribution. Dividing all step costs by delivery counts would mix shared sweep costs, unfinished work and retries. Keep this panel empty until the contract can answer it accurately."
+      }
+    },
+    {
+      "id": 4,
+      "title": "TODO \u00b7 Daily spend over ceiling",
+      "type": "text",
+      "gridPos": {
+        "x": 12,
+        "y": 13,
+        "w": 12,
+        "h": 7
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Requires authoritative spend since UTC midnight and the configured daily USD ceiling. The step-cost counter alone cannot supply the ceiling. A rolling 24-hour increase is not today's spend."
+      }
+    }
+  ]
+}

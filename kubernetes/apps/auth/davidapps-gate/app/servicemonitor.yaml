@@ -2,14 +2,14 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: hermes
+  name: davidapps-gate
 spec:
-  jobLabel: app.kubernetes.io/name
   selector:
     matchLabels:
-      app.kubernetes.io/name: hermes
+      app.kubernetes.io/name: davidapps-gate
+      app.kubernetes.io/component: gate
   endpoints:
-    - port: health
+    - port: http
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s

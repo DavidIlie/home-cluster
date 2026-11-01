@@ -1,6 +1,16 @@
 global:
   scrape_interval: 15s
 
+# Tempo writes span metrics here, not to the operator-managed Prometheus.
+rule_files:
+  - /etc/prometheus/rules/libertosRules.yaml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093
+
 # remote_write:
 #   - url: "http://prometheus-home-cluster.observability.svc.cluster.local:9090/api/v1/write"
 

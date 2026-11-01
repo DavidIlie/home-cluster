@@ -150,11 +150,12 @@ spec:
           app:
             image:
               repository: ghcr.io/davidilie/cliproxyapi # {"$imagepolicy": "flux-system:cliproxy:name"}
-              tag: b1c910e89df7fbbdf6870749426d496f81334065
+              tag: 86a72e5ff29e682c1268e231cf0b6702a508c276
             command: ["/CLIProxyAPI/CLIProxyAPI"]
             args: ["-config", "/config-data/config.yaml"]
             env:
               TZ: Europe/Bucharest
+              GOMEMLIMIT: 6GiB
               DAVIDAPPS_ASSERTION_ISSUER:
                 valueFrom:
                   configMapKeyRef:
@@ -235,10 +236,10 @@ spec:
               readiness: *probes
             resources:
               requests:
-                cpu: 10m
-                memory: 256Mi
+                cpu: "2"
+                memory: 2Gi
               limits:
-                memory: 1Gi
+                memory: 8Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

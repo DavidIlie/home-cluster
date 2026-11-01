@@ -1,0 +1,24 @@
+groups:
+  - name: libertos.delivery
+    interval: 1m
+    rules:
+      # Requires the singleton delta converter in davidapps-cluster PR #527.
+      - alert: LibertosBriefingLateOrShort
+        expr: >-
+          sum by (outcome) (
+            increase(libertos_engine_briefings_total{outcome=~"late|short"}[15m])
+          ) > 0
+        labels:
+          severity: warning
+          service: libertos-convex
+          namespace: bostan
+        annotations:
+          summary: Libertos published a {{ $labels.outcome }} briefing
+          description: >-
+            The web-publication outcome counter increased in the last fifteen
+            minutes. Short means fewer than the target items and takes precedence
+            over late. Late means a scheduled publication after its profile
+            deadline. Inspect the delivery in the admin and its trace; email
+            and push delivery are separate outcomes.
+          dashboard_url: https://monitoring.davidapps.dev/d/libertos-engine-pipeline
+          runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md
