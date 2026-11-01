@@ -19,7 +19,6 @@ resources:
   - ./bostan-discord-bot/ks.yaml
   - ./paperless/ks.yaml
   - ./stirling-pdf/ks.yaml
-  # - ./n8n/ks.yaml
   - ./seedyn/ks.yaml
   - ./error-pages/ks.yaml
   - ./image-automations/ks.yaml
