@@ -175,14 +175,25 @@ spec:
               {{"{{$labels.status}}"}} for 30m. Requests routed to it will fail.
 
         - alert: CLIProxyQuotaNearExhaustion
-          expr: cliproxy_account_primary_used_percent >= 90
+          # Ignore exporter pod churn and bridge brief failed scrapes. Keep the
+          # latest observation rather than retaining a pre-reset maximum.
+          expr: |
+            max by (namespace, provider, email, auth_index) (
+              last_over_time(cliproxy_account_primary_used_percent[5m])
+            ) >= 90
           for: 10m
+          keep_firing_for: 30m
           labels:
             severity: warning
           annotations:
             summary: 'CLIProxy account {{"{{$labels.email}}"}} at {{"{{$value}}"}}% primary quota'
             description: >-
-              Codex primary quota for {{"{{$labels.email}}"}} is at {{"{{$value}}"}}%.
+              Codex primary quota for {{"{{$labels.email}}"}} (account
+              {{"{{$labels.auth_index}}"}}) was last observed at {{"{{$value}}"}}% used.
+              Fires after 10m at or above 90%; clears after 30m below the
+              threshold or without quota data. Brief scrape gaps are tolerated.
+              Check CLIProxyExporterDown if quota data is unavailable.
+            dashboard_url: https://grafana.davidhome.ro/d/cliproxy-usage
 
     resources:
       requests:

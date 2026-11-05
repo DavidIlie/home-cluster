@@ -64,3 +64,22 @@ panel recipes. Before deploying:
 - verify Claude and Codex quota/account panels are children of the collapsed
   quota row, not merely positioned after it;
 - verify missing Claude quota windows are described as unavailable, never zero.
+
+## Quota alert notifications
+
+`CLIProxyQuotaNearExhaustion` groups by provider, email, and credential index,
+not the exporter pod. It uses the latest sample within five minutes to bridge
+brief scrape failures, waits ten minutes before firing, and keeps firing for
+30 minutes after the condition clears. A prolonged loss of quota data can
+therefore clear this warning; check `CLIProxyExporterDown` before treating a
+resolved notification as confirmed quota recovery.
+
+The quota-only Alertmanager route includes the account in the email subject,
+waits one minute to group initial notifications, batches changes for 30 minutes,
+and repeats unchanged warnings every 12 hours. Other alert routes retain their
+existing settings. The email body includes the observed utilization, account
+ID, and dashboard link.
+
+Run `python3 hack/test-cliproxy-quota-alert.py` with PyYAML and Docker installed.
+The promtool tests cover missing samples during the pending and firing phases,
+short spikes, sustained recovery, and exporter pod replacement.

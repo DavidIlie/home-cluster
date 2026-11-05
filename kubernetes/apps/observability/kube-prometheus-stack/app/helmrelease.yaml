@@ -51,12 +51,26 @@ spec:
           receiver: email
           group_by: ["alertname", "namespace"]
           routes:
+            - receiver: cliproxy-quota
+              matchers: ['alertname = "CLIProxyQuotaNearExhaustion"']
+              group_by: ["alertname", "namespace", "provider", "email", "auth_index"]
+              group_wait: 1m
+              group_interval: 30m
+              repeat_interval: 12h
             - receiver: "null"
               matchers: ['alertname =~ "Watchdog|InfoInhibitor"']
             - receiver: "null"
               matchers: ['severity =~ "info|none"']
         receivers:
           - name: "null"
+          - name: cliproxy-quota
+            email_configs:
+              - to: david@davidilie.com
+                send_resolved: true
+                headers:
+                  Subject: '[{{ .Status | toUpper }}] CLIProxy {{ .GroupLabels.provider }} quota: {{ .GroupLabels.email }} ({{ .GroupLabels.auth_index }})'
+                html: >-
+                  {{ range .Alerts }}<h3>{{ .Annotations.summary }}</h3><p>{{ .Annotations.description }}</p><p>Provider: {{ .Labels.provider }}<br>Account: {{ .Labels.email }}<br>Account ID: {{ .Labels.auth_index }}</p>{{ if .Annotations.dashboard_url }}<p><a href="{{ .Annotations.dashboard_url }}">Open quota dashboard</a></p>{{ end }}{{ end }}
           - name: email
             email_configs:
               - to: david@davidilie.com
