@@ -27,3 +27,27 @@ groups:
             failed traces before retrying work. No data does not mean healthy.
           dashboard_url: https://monitoring.davidapps.dev/d/libertos-engine-pipeline
           runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md
+      - alert: LibertosEditorialRejectionRateHigh
+        expr: >-
+          (
+            sum(increase(traces_spanmetrics_calls_total{service="libertos-convex",span_name=~"eve[.]job[.](shared_article|translation) rejected"}[1h]))
+            /
+            sum(increase(traces_spanmetrics_calls_total{service="libertos-convex",span_name=~"eve[.]job[.](shared_article|translation) (succeeded|failed|rejected)"}[1h]))
+          ) > 0.6
+          and
+          sum(increase(traces_spanmetrics_calls_total{service="libertos-convex",span_name=~"eve[.]job[.](shared_article|translation) rejected"}[1h])) >= 10
+        for: 15m
+        labels:
+          severity: warning
+          service: libertos-convex
+          namespace: bostan
+        annotations:
+          summary: Libertos editorial checks refuse most shared articles or translations
+          description: >-
+            More than 60 percent of the last hour's shared-article and translation
+            jobs ended rejected by the editorial checks, with at least ten
+            rejections. A normal morning batch rejects 20 to 40 percent. Read the
+            rejection reasons in the failed jobs' diagnostics; a checker or writer
+            change may be refusing good copy.
+          dashboard_url: https://monitoring.davidapps.dev/d/libertos-engine-pipeline
+          runbook_url: https://github.com/DavidIlie/home-cluster/blob/main/docs/runbooks/libertosEngine.md

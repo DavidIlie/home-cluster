@@ -35,7 +35,7 @@ The current Convex contract is
 `BostanEnterprise/libertos/packages/convex/convex/telemetryContract.ts`.
 It emits terminal job spans named `eve.job.<capability> <outcome>`, including
 `eve.job.briefing succeeded`, `eve.job.briefing failed`, and
-`eve.job.archive_sweep succeeded`. `libertos.outcome` carries the outcome;
+`eve.job.archive_sweep succeeded` and `eve.job.shared_article rejected`. `libertos.outcome` carries the outcome;
 `error.type=job_failed` marks failed jobs. Job duration begins at creation and
 includes queue time and retries. Each job export currently has its own trace id.
 
@@ -64,6 +64,15 @@ jobs in a rolling ten-minute window, at least five failures, and at least ten
 completed jobs. It excludes Stripe and web spans. Open failed engine traces,
 identify the capability, and inspect its job in the admin before retrying.
 Absence of traffic does not trigger this rate alert.
+
+A shared article or translation that the editorial checks refuse ends as
+`eve.job.<capability> rejected` with no error status, so it does not count
+toward `LibertosEngineErrorRateHigh`: the briefing fills its place, and a
+normal morning batch rejects 20 to 40 percent of shared drafts. A briefing
+that fails validation still ends `failed`. `LibertosEditorialRejectionRateHigh`
+fires when rejections pass 60 percent of an hour's shared-article and
+translation jobs, with at least ten rejections, for fifteen minutes. Read the
+rejection reasons in those jobs' failure diagnostics before changing a checker.
 
 ## Engine contract and collector dependency
 
