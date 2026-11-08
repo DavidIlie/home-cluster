@@ -40,6 +40,8 @@ spec:
             args:
               - --enable-service
               - --enable-ingress
+              - --enable-httproute
+              - --gateway-name=envoy-internal
             resources:
               requests:
                 cpu: 10m

@@ -65,7 +65,10 @@ spec:
       - --txt-wildcard-replacement=wildcard
       - --gateway-name=envoy-internal
       - --gateway-namespace=network
-      - --dry-run
+      # Legacy TXT ownership records collide with CNAMEs in UniFi.
+      # Existing LAN CNAME aliases remain unmanaged by this controller.
+      - --managed-record-types=A
+      - --managed-record-types=AAAA
     policy: sync
     sources: ["service", "ingress", "gateway-httproute"]
     domainFilters: ["davidhome.ro"]
