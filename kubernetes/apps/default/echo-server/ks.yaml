@@ -7,6 +7,9 @@ metadata:
   namespace: &namespace default
 spec:
   targetNamespace: *namespace
+  dependsOn:
+    - name: envoy-gateways
+      namespace: network
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
