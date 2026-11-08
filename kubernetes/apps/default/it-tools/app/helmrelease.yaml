@@ -75,13 +75,9 @@ spec:
       app:
         className: internal
         annotations:
+          external-dns.alpha.kubernetes.io/controller: none
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: IT Tools
-            group: Utilities
-            url: https://it-tools.davidhome.ro
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "it-tools.davidhome.ro"
             paths:
@@ -92,17 +88,17 @@ spec:
         tls:
           - hosts: [*host]
     route:
-      canary:
+      app:
         annotations:
           gatus.home-operations.com/enabled: "true"
           gatus.home-operations.com/endpoint: |-
-            name: IT Tools (Envoy canary)
+            name: IT Tools
             group: Utilities
-            url: https://it-tools-envoy.davidhome.ro
+            url: https://it-tools.davidhome.ro
             interval: 1m
             conditions: ["[STATUS] == 200"]
         hostnames:
-          - it-tools-envoy.davidhome.ro
+          - it-tools.davidhome.ro
         parentRefs:
           - name: envoy-internal
             namespace: network
