@@ -57,17 +57,13 @@ spec:
       app:
         className: internal
         annotations:
+          external-dns.alpha.kubernetes.io/controller: none
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Services
           gethomepage.dev/name: Shlink Web
           gethomepage.dev/icon: shlink.png
           gethomepage.dev/description: URL Shortener Admin
-          gatus.home-operations.com/endpoint: |-
-            name: Shlink Web
-            group: Services
-            url: https://shlink.davidhome.ro
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "shlink.davidhome.ro"
             paths:
@@ -78,3 +74,23 @@ spec:
         tls:
           - hosts:
               - *host
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Shlink Web (Envoy)
+            group: Services
+            url: https://shlink.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - shlink.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: shlink-web
+                port: 8080

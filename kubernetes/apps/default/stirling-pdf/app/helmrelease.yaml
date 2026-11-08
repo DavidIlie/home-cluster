@@ -60,13 +60,9 @@ spec:
       app:
         className: internal
         annotations:
+          external-dns.alpha.kubernetes.io/controller: none
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: Stirling PDF
-            group: Utilities
-            url: https://pdf.davidhome.ro
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "pdf.davidhome.ro"
             paths:
@@ -76,6 +72,26 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Stirling PDF (Envoy)
+            group: Utilities
+            url: https://pdf.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - pdf.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: stirling-pdf
+                port: 8080
     persistence:
       configs:
         type: emptyDir
