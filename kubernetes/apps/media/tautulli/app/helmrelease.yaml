@@ -81,12 +81,8 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: Tautulli
-            group: Media
-            url: https://tautulli.davidhome.ro/status
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "tautulli.davidhome.ro"
             paths:
@@ -96,6 +92,26 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Tautulli (Envoy)
+            group: Media
+            url: https://tautulli.davidhome.ro/status
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - tautulli.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: tautulli
+                port: 80
     persistence:
       config:
         existingClaim: tautulli
