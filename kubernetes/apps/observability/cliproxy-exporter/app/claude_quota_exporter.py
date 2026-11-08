@@ -56,11 +56,15 @@ def collect():
         key = handle.read().strip()
     auths = request_json(f"{CLIPROXY}/v0/management/auth-files", key).get("files", [])
     output = []
+    collected_accounts = set()
     for auth in auths:
         if str(auth.get("provider", auth.get("type", ""))).lower() != "claude":
             continue
         index = auth.get("auth_index")
         if not index:
+            continue
+        account = str(auth.get("email") or auth.get("label") or index)
+        if account in collected_accounts:
             continue
         response = request_json(f"{CLIPROXY}/v0/management/api-call", key, {
             "auth_index": index, "method": "GET", "url": "https://api.anthropic.com/api/oauth/usage",
@@ -72,8 +76,10 @@ def collect():
             payload = json.loads(response.get("body", ""))
         except (TypeError, json.JSONDecodeError):
             continue
-        account = str(auth.get("email") or auth.get("label") or index)
-        for metric, window, value in parse_usage(payload):
+        samples = parse_usage(payload)
+        if samples:
+            collected_accounts.add(account)
+        for metric, window, value in samples:
             output.append((metric, account, window, value))
     return output
 

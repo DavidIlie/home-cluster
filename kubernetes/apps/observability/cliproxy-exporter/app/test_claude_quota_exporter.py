@@ -1,6 +1,7 @@
 import importlib.util
 import pathlib
 import unittest
+from unittest.mock import patch, mock_open
 
 PATH = pathlib.Path(__file__).with_name("claude_quota_exporter.py")
 SPEC = importlib.util.spec_from_file_location("exporter", PATH)
@@ -8,6 +9,20 @@ exporter = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(export
 
 
 class ClaudeQuotaTest(unittest.TestCase):
+    def test_shared_account_credentials_emit_one_quota_series(self):
+        auths = {"files": [
+            {"provider": "claude", "auth_index": "first", "label": "shared-account"},
+            {"provider": "claude", "auth_index": "second", "label": "shared-account"},
+        ]}
+        usage = {"status_code": 200, "body": '{"five_hour":{"utilization":12}}'}
+        with patch("builtins.open", mock_open(read_data="test-key")), patch.object(
+            exporter, "request_json", side_effect=[auths, usage, usage]
+        ):
+            text = exporter.prometheus(exporter.collect())
+        series = [line.split(" ")[0] for line in text.splitlines() if not line.startswith("#")]
+        self.assertEqual(len(series), 2)
+        self.assertEqual(len(series), len(set(series)))
+
     def test_parses_bounded_usage_and_reset(self):
         samples = exporter.parse_usage({"five_hour": {"utilization": 23.5, "resets_at": "2026-08-20T12:00:00Z"}, "seven_day": {"utilization": 150}})
         self.assertIn(("used_percent", "five_hour", 23.5), samples)
