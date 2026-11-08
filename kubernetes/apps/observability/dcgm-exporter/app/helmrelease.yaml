@@ -31,8 +31,10 @@ spec:
       repository: nvcr.io/nvidia/k8s/dcgm-exporter
       # tag intentionally unset: use the chart's default image for this chart version
     extraEnv:
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
+      - name: NVIDIA_DRIVER_CAPABILITIES
+        value: all
+      - name: NVIDIA_VISIBLE_DEVICES
+        value: all
     runtimeClassName: nvidia
     resources:
       requests:
