@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: davidhome-ro
+spec:
+  secretName: davidhome-ro-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - davidhome.ro
+    - "*.davidhome.ro"

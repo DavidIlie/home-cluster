@@ -1,0 +1,20 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: envoy-proxy
+spec:
+  namespaceSelector:
+    matchNames:
+      - envoy-gateway-system
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy
+      app.kubernetes.io/component: proxy
+      gateway.envoyproxy.io/owning-gateway-namespace: network
+  podTargetLabels:
+    - gateway.envoyproxy.io/owning-gateway-name
+  podMetricsEndpoints:
+    - port: metrics
+      path: /stats/prometheus
+      honorLabels: true

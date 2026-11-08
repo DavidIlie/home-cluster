@@ -281,7 +281,9 @@ Present the created files for review before committing. Ask: **"Here are the fil
 - **Service CIDR:** 10.24.0.0/16
 - **Ingress External:** 192.168.100.92 (`external-ingress-nginx-controller`, `network`)
 - **Ingress Internal:** 192.168.100.91 (`internal-ingress-nginx-controller`, `network`)
-- **Envoy Gateway:** 192.168.100.90 (`nextjs-envoy`, `envoy-gateway-system`) - GatewayClass `eg`, used by `nextjs-adapter-test` only for now
+- **Envoy Internal:** 192.168.100.90 (`envoy-internal`, `envoy-gateway-system`), GatewayClass `envoy`; staged alongside nginx.
+- **Envoy External:** ClusterIP (`envoy-external`, `envoy-gateway-system`); no tunnel traffic yet.
+- **Dormant Next.js gateway:** GatewayClass `eg` and `nextjs-shared-proxy` remain, but no testbed Gateway is running. Assign it a different IP before restoring it: its old `.90` pin now belongs to `envoy-internal`.
 
 ### Ingress Classes
 - `external` - Public-facing via Cloudflare tunnel
