@@ -82,6 +82,28 @@ spec:
             path: /metrics
             interval: 1m
             scrapeTimeout: 10s
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Echo Server (Envoy canary)
+            group: Services
+            url: https://echo-server-envoy.davidhome.ro
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - echo-server-envoy.davidhome.ro
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: echo-server
+                port: 8080
     ingress:
       app:
         className: external

@@ -3,6 +3,10 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "echo-server-envoy.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "echo-server-envoy.davidhome.ro"
   - hostname: "davidhome.ro"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "nextjs-control.davidhome.ro"

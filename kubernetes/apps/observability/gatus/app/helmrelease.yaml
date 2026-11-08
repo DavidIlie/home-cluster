@@ -42,6 +42,7 @@ spec:
               - --enable-ingress
               - --enable-httproute
               - --gateway-name=envoy-internal
+              - --gateway-name=envoy-external
             resources:
               requests:
                 cpu: 10m

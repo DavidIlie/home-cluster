@@ -1,0 +1,21 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: envoy-external
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-external
+  clientIPDetection:
+    customHeader:
+      name: CF-Connecting-IP
+      failClosed: true
+  headers:
+    earlyRequestHeaders:
+      remove:
+        - X-Forwarded-For
+        - X-Real-IP
+        - Forwarded
+        - True-Client-IP
