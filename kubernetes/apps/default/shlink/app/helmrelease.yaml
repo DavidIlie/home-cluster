@@ -73,10 +73,47 @@ spec:
         ports:
           http:
             port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Shlink (Envoy)
+            group: Services
+            url: https://dave.tips/rest/health
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - dave.tips
+          - gurt.ing
+          - childpizza.com
+          - retrofit.to
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: "max-age=31449600; includeSubDomains"
+            backendRefs:
+              - name: shlink
+                port: 80
     ingress:
       app:
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gatus.home-operations.com/endpoint: |-
             name: Shlink

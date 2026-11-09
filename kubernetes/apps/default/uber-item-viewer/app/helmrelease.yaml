@@ -58,10 +58,44 @@ spec:
         ports:
           http:
             port: 3000
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Uber Item Viewer (Envoy)
+            group: Services
+            url: https://uber.gurt.ing
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - uber.gurt.ing
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: "max-age=31449600; includeSubDomains"
+            backendRefs:
+              - name: uber-item-viewer
+                port: 3000
     ingress:
       app:
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
         hosts:
           - host: "uber.gurt.ing"

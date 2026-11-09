@@ -1,0 +1,14 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: plex
+spec:
+  type: KubernetesService
+  appProtocols:
+    - gateway.envoyproxy.io/wss
+  kubernetesService:
+    name: plex
+    port: 32400
+  tls:
+    alpnProtocols: ["http/1.1"]
+    insecureSkipVerify: true

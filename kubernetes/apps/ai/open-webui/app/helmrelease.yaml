@@ -156,11 +156,45 @@ spec:
         ports:
           http:
             port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Open WebUI (Envoy)
+            group: AI
+            url: https://chat.davidhome.ro
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - chat.davidhome.ro
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: "max-age=31449600; includeSubDomains"
+            backendRefs:
+              - name: open-webui
+                port: 8080
     ingress:
       app:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: AI

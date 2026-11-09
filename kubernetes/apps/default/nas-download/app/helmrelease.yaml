@@ -109,11 +109,77 @@ spec:
         ports:
           http:
             port: *port
+    route:
+      public:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: NAS Download (Envoy)
+            group: Services
+            url: https://dl.davidhome.ro
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == any(200, 403)"]
+        hostnames:
+          - dl.davidhome.ro
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: "max-age=31449600; includeSubDomains"
+            backendRefs:
+              - name: nas-download
+                port: 8080
+      temp:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: NAS Download (mbretrofit) (Envoy)
+            group: Services
+            url: https://dl.mbretrofit.it
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == any(200, 403)"]
+        hostnames:
+          - dl.mbretrofit.it
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: "max-age=31449600; includeSubDomains"
+            backendRefs:
+              - name: nas-download
+                port: 8080
     ingress:
       public:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Services
@@ -141,6 +207,7 @@ spec:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           gatus.home-operations.com/endpoint: |-
             name: NAS Download (mbretrofit)
             group: Services
