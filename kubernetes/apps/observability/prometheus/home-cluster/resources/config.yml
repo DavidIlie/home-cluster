@@ -22,6 +22,8 @@ scrape_configs:
         labels:
           cluster: home-cluster
   - job_name: idrac
+    scrape_interval: 5m
+    scrape_timeout: 60s
     static_configs:
       - targets:
           ["192.168.10.50", "192.168.10.51", "192.168.10.52", "192.168.10.53"]
