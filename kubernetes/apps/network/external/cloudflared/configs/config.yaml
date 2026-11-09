@@ -3,6 +3,10 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "hass.davidapps.dev"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "hass.davidhome.ro"
   - hostname: "hass.davidhome.ro"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:

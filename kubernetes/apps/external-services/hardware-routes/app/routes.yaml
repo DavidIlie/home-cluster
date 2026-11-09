@@ -153,7 +153,7 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       name: Home Assistant (Envoy)
       group: Infrastructure
-      url: https://hass.davidhome.ro
+      url: https://hass.davidapps.dev
       interval: 1m
       client:
         dns-resolver: tcp://1.1.1.1:53
@@ -161,6 +161,7 @@ metadata:
 spec:
   hostnames:
     - hass.davidhome.ro
+    - hass.davidapps.dev
   parentRefs:
     - name: envoy-external
       namespace: network
