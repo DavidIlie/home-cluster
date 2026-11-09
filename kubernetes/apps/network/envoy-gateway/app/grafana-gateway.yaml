@@ -60,11 +60,25 @@ spec:
     connectionLimit:
       value: 64
   tls:
-    # HTTP/1.1 keeps the 64-connection cap a bound on active request buffers.
-    alpnProtocols: [http/1.1]
+    alpnProtocols:
+      - http/1.1
   headers:
     earlyRequestHeaders:
-      remove: [X-Forwarded-For, X-Real-IP, Forwarded, True-Client-IP]
+      remove:
+        - X-Forwarded-For
+        - X-Real-IP
+        - Forwarded
+        - True-Client-IP
+        - X-DA-Assertion
+        - X-DA-User
+        - X-DA-Email
+        - X-DA-Name
+        - X-DA-Kind
+        - X-DA-Rol
+        - X-DA-Epoch
+        - X-DA-Tid
+        - X-DA-Email*
+        - X-DA-Name*
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
@@ -77,7 +91,8 @@ spec:
       name: envoy-grafana
   retry:
     retryOn:
-      triggers: [reset-before-request]
+      triggers:
+        - reset-before-request
   timeout:
     http:
       requestTimeout: 0s

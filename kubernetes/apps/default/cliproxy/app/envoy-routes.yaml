@@ -1,0 +1,382 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cliproxy-open-api
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+      sectionName: https
+  hostnames:
+    - cliproxy.davidhome.ro
+    - cliproxyapi.davidhome.ro
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /v1
+        - path:
+            type: PathPrefix
+            value: /v1beta
+        - path:
+            type: PathPrefix
+            value: /openai/v1
+        - path:
+            type: PathPrefix
+            value: /backend-api/codex
+        - path:
+            type: PathPrefix
+            value: /healthz
+        - path:
+            type: Exact
+            value: /backend-api/wham/usage
+        - path:
+            type: Exact
+            value: /api/oauth/usage
+        - path:
+            type: Exact
+            value: /internal/employee-hub/v1/usage
+        - path:
+            type: Exact
+            value: /internal/employee-hub/v1/api-key/reveal
+        - path:
+            type: Exact
+            value: /internal/employee-hub/v1/api-key/owner-binding
+        - path:
+            type: Exact
+            value: /internal/employee-hub/v1/api-key/provision
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: '%REQ(cf-connecting-ip)%'
+              - name: X-Real-IP
+                value: '%REQ(cf-connecting-ip)%'
+            remove:
+              - X-Davidapps-Protection-Bypass
+              - X-Davidapps-Set-Bypass-Cookie
+              - X-Original-Host
+              - X-Original-Method
+              - X-Original-URL
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Strict-Transport-Security
+                value: max-age=31449600; includeSubDomains
+      backendRefs:
+        - name: cliproxy
+          port: 8317
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cliproxy-management
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  parentRefs:
+    - name: envoy-grafana
+      namespace: network
+      sectionName: https
+  hostnames:
+    - cliproxy.davidhome.ro
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /
+        - path:
+            type: Exact
+            value: /management.html
+        - path:
+            type: Exact
+            value: /anthropic/callback
+        - path:
+            type: Exact
+            value: /codex/callback
+        - path:
+            type: Exact
+            value: /antigravity/callback
+        - path:
+            type: PathPrefix
+            value: /v0/management
+        - path:
+            type: PathPrefix
+            value: /v8/management
+        - path:
+            type: PathPrefix
+            value: /v0/resource/plugins
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: '%REQ(cf-connecting-ip)%'
+              - name: X-Real-IP
+                value: '%REQ(cf-connecting-ip)%'
+            remove:
+              - X-Davidapps-Protection-Bypass
+              - X-Davidapps-Set-Bypass-Cookie
+              - X-Original-Host
+              - X-Original-Method
+              - X-Original-URL
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Strict-Transport-Security
+                value: max-age=31449600; includeSubDomains
+      backendRefs:
+        - name: cliproxy
+          port: 8317
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cliproxy-gate
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+      sectionName: https
+  hostnames:
+    - cliproxy.davidhome.ro
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /_da/gate/start
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: '%REQ(cf-connecting-ip)%'
+              - name: X-Real-IP
+                value: '%REQ(cf-connecting-ip)%'
+            remove:
+              - X-Davidapps-Protection-Bypass
+              - X-Davidapps-Set-Bypass-Cookie
+              - X-Original-Host
+              - X-Original-Method
+              - X-Original-URL
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Strict-Transport-Security
+                value: max-age=31449600; includeSubDomains
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /start
+      backendRefs:
+        - name: davidapps-gate
+          namespace: auth
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /_da/callback
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: '%REQ(cf-connecting-ip)%'
+              - name: X-Real-IP
+                value: '%REQ(cf-connecting-ip)%'
+            remove:
+              - X-Davidapps-Protection-Bypass
+              - X-Davidapps-Set-Bypass-Cookie
+              - X-Original-Host
+              - X-Original-Method
+              - X-Original-URL
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Strict-Transport-Security
+                value: max-age=31449600; includeSubDomains
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /callback
+      backendRefs:
+        - name: davidapps-gate
+          namespace: auth
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /_da/gate/password
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: '%REQ(cf-connecting-ip)%'
+              - name: X-Real-IP
+                value: '%REQ(cf-connecting-ip)%'
+            remove:
+              - X-Davidapps-Protection-Bypass
+              - X-Davidapps-Set-Bypass-Cookie
+              - X-Original-Host
+              - X-Original-Method
+              - X-Original-URL
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Strict-Transport-Security
+                value: max-age=31449600; includeSubDomains
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /_da/gate/password
+      backendRefs:
+        - name: davidapps-gate
+          namespace: auth
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /_da/gate/redeem
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: '%REQ(cf-connecting-ip)%'
+              - name: X-Real-IP
+                value: '%REQ(cf-connecting-ip)%'
+            remove:
+              - X-Davidapps-Protection-Bypass
+              - X-Davidapps-Set-Bypass-Cookie
+              - X-Original-Host
+              - X-Original-Method
+              - X-Original-URL
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Strict-Transport-Security
+                value: max-age=31449600; includeSubDomains
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /_da/gate/redeem
+      backendRefs:
+        - name: davidapps-gate
+          namespace: auth
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /_da/gate/bypass
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: '%REQ(cf-connecting-ip)%'
+              - name: X-Real-IP
+                value: '%REQ(cf-connecting-ip)%'
+            remove:
+              - X-Davidapps-Protection-Bypass
+              - X-Davidapps-Set-Bypass-Cookie
+              - X-Original-Host
+              - X-Original-Method
+              - X-Original-URL
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Strict-Transport-Security
+                value: max-age=31449600; includeSubDomains
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /_da/gate/bypass
+      backendRefs:
+        - name: davidapps-gate
+          namespace: auth
+          port: 8080
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: cliproxy-management
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: cliproxy-management
+  extAuth:
+    failOpen: false
+    headersToExtAuth:
+      - cookie
+      - authorization
+      - x-davidapps-protection-bypass
+      - x-davidapps-set-bypass-cookie
+      - x-forwarded-proto
+      - sec-fetch-dest
+      - accept
+    http:
+      backendRefs:
+        - name: davidapps-gate
+          namespace: auth
+          port: 8080
+      path: /gate/ext-authz
+      headersToBackend:
+        - x-da-assertion
+        - x-da-user
+        - x-da-email
+        - x-da-name
+        - x-da-kind
+        - x-da-rol
+        - x-da-epoch
+        - x-da-tid
+    timeout: 5s
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: cliproxy-management
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: cliproxy-management
+  mergeType: StrategicMerge
+  requestBuffer:
+    mode: BufferAndLimit
+    limit: 2Mi
+  timeout:
+    tcp:
+      connectTimeout: 5s
+    http:
+      streamIdleTimeout: 15s
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: cliproxy-gate
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: cliproxy-gate
+  mergeType: StrategicMerge
+  requestBuffer:
+    mode: BufferAndLimit
+    limit: 4Ki
+  timeout:
+    tcp:
+      connectTimeout: 5s
+    http:
+      streamIdleTimeout: 15s

@@ -1,4 +1,3 @@
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -7,7 +6,9 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/name: davidapps-gate
-  policyTypes: [Ingress, Egress]
+  policyTypes:
+    - Ingress
+    - Egress
   ingress:
     - from:
         - namespaceSelector:
@@ -19,6 +20,24 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: prometheus
+      ports:
+        - port: 8080
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+          podSelector:
+            matchLabels:
+              gateway.envoyproxy.io/owning-gateway-name: envoy-external
+              gateway.envoyproxy.io/owning-gateway-namespace: network
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+          podSelector:
+            matchLabels:
+              gateway.envoyproxy.io/owning-gateway-name: envoy-grafana
+              gateway.envoyproxy.io/owning-gateway-namespace: network
       ports:
         - port: 8080
           protocol: TCP
@@ -39,12 +58,9 @@ spec:
       ports:
         - port: 6379
           protocol: TCP
-    # Standard NetworkPolicy cannot select an FQDN. The central database load
-    # balancer must separately restrict TCP 5432 by regional source address.
     - ports:
         - port: 5432
           protocol: TCP
-    # Public JWKS and revocation polling both use HTTPS.
     - ports:
         - port: 443
           protocol: TCP
@@ -57,7 +73,9 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/name: davidapps-replay
-  policyTypes: [Ingress, Egress]
+  policyTypes:
+    - Ingress
+    - Egress
   ingress:
     - from:
         - podSelector:

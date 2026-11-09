@@ -19,3 +19,13 @@ spec:
         - X-Real-IP
         - Forwarded
         - True-Client-IP
+        - X-DA-Assertion
+        - X-DA-User
+        - X-DA-Email
+        - X-DA-Name
+        - X-DA-Kind
+        - X-DA-Rol
+        - X-DA-Epoch
+        - X-DA-Tid
+        - X-DA-Email*
+        - X-DA-Name*
