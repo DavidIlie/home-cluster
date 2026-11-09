@@ -16,3 +16,4 @@ resources:
   - ./unifi.yaml
 components:
   - ../../flux/components/namespace
+  - ../../flux/components/sops
