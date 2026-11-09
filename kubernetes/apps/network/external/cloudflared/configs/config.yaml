@@ -130,11 +130,20 @@ ingress:
   - hostname: "*.retrofit.to"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "monitoring.davidapps.dev"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-grafana.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+      http2Origin: false
   - hostname: "kidays-monitoring.davidapps.dev"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-grafana.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+      http2Origin: false
   - hostname: "bostan-monitoring.davidapps.dev"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-grafana.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+      http2Origin: false
   - hostname: "plausible.davidapps.dev"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:
