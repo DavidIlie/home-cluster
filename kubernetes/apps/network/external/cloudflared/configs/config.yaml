@@ -3,6 +3,18 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "plexo.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "plexo.davidhome.ro"
+  - hostname: "status.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "status.davidhome.ro"
+  - hostname: "kromgo.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "kromgo.davidhome.ro"
   - hostname: "hass.davidapps.dev"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:
