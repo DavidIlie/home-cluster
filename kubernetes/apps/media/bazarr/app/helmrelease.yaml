@@ -104,12 +104,8 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: Bazarr
-            group: Media
-            url: https://bazarr.davidhome.ro/health
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "bazarr.davidhome.ro"
             paths:
@@ -119,6 +115,26 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Bazarr (Envoy)
+            group: Media
+            url: https://bazarr.davidhome.ro/health
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - bazarr.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: bazarr
+                port: 6767
     persistence:
       config:
         existingClaim: bazarr

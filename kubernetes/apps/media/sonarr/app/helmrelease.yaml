@@ -93,12 +93,8 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: Sonarr
-            group: Media
-            url: https://sonarr.davidhome.ro/ping
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "sonarr.davidhome.ro"
             paths:
@@ -108,6 +104,26 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Sonarr (Envoy)
+            group: Media
+            url: https://sonarr.davidhome.ro/ping
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - sonarr.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: sonarr
+                port: 80
     persistence:
       config:
         existingClaim: sonarr
