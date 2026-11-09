@@ -88,6 +88,69 @@ spec:
         - path:
             type: Exact
             value: /
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+        - path:
+            type: Exact
+            value: /management.html
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+        - path:
+            type: Exact
+            value: /anthropic/callback
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+        - path:
+            type: Exact
+            value: /codex/callback
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+        - path:
+            type: Exact
+            value: /antigravity/callback
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+        - path:
+            type: PathPrefix
+            value: /v0/management
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+        - path:
+            type: PathPrefix
+            value: /v8/management
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+        - path:
+            type: PathPrefix
+            value: /v0/resource/plugins
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{7,}|[3-9][0-9]{6}|2[1-9][0-9]{5}|209[8-9][0-9]{3}|2097[2-9][0-9]{2}|20971[6-9][0-9]|209715[3-9])
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: cliproxy-payload-too-large
+    - matches:
+        - path:
+            type: Exact
+            value: /
         - path:
             type: Exact
             value: /management.html
@@ -146,6 +209,48 @@ spec:
   hostnames:
     - cliproxy.davidhome.ro
   rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /_da/gate/start
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{4,}|[5-9][0-9]{3}|4[1-9][0-9]{2}|409[7-9])
+        - path:
+            type: Exact
+            value: /_da/callback
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{4,}|[5-9][0-9]{3}|4[1-9][0-9]{2}|409[7-9])
+        - path:
+            type: Exact
+            value: /_da/gate/password
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{4,}|[5-9][0-9]{3}|4[1-9][0-9]{2}|409[7-9])
+        - path:
+            type: Exact
+            value: /_da/gate/redeem
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{4,}|[5-9][0-9]{3}|4[1-9][0-9]{2}|409[7-9])
+        - path:
+            type: Exact
+            value: /_da/gate/bypass
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: 0*(?:[1-9][0-9]{4,}|[5-9][0-9]{3}|4[1-9][0-9]{2}|409[7-9])
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: cliproxy-payload-too-large
     - matches:
         - path:
             type: Exact
@@ -380,3 +485,15 @@ spec:
       connectTimeout: 5s
     http:
       streamIdleTimeout: 15s
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: HTTPRouteFilter
+metadata:
+  name: cliproxy-payload-too-large
+spec:
+  directResponse:
+    statusCode: 413
+    contentType: application/json
+    body:
+      type: Inline
+      inline: '{"error":"payload_too_large"}'
