@@ -45,6 +45,8 @@ metadata:
   name: proxmox-nucleus
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-ssl-name: nucleus.davidapps.local
     nginx.ingress.kubernetes.io/proxy-ssl-secret: external-services/proxmox-nucleus-ca
@@ -57,12 +59,6 @@ metadata:
     gethomepage.dev/icon: proxmox.png
     gethomepage.dev/description: Virtualization
     gethomepage.dev/pod-selector: ""
-    gatus.home-operations.com/endpoint: |-
-      name: Proxmox
-      group: Hardware
-      url: https://nucleus.davidhome.ro
-      interval: 1m
-      conditions: ["[STATUS] == any(200, 302, 301)"]
 spec:
   ingressClassName: internal
   rules:
@@ -85,18 +81,14 @@ metadata:
   name: proxmoxmenux-nucleus
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Hardware
     gethomepage.dev/name: Proxmox Menux
     gethomepage.dev/icon: proxmox.png
     gethomepage.dev/description: Proxmox Menux Interface
     gethomepage.dev/pod-selector: ""
-    gatus.home-operations.com/endpoint: |-
-      name: Proxmox Menux
-      group: Hardware
-      url: https://nucleus-menux.davidhome.ro
-      interval: 1m
-      conditions: ["[STATUS] == any(200, 302, 301)"]
 spec:
   ingressClassName: internal
   rules:

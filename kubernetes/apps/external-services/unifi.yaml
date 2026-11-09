@@ -37,16 +37,10 @@ metadata:
   name: &app unifi
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "false"
-    gatus.home-operations.com/endpoint: |-
-      name: Unifi Controller
-      group: Infrastructure
-      url: https://unifi.davidhome.ro
-      interval: 1m
-      client:
-        insecure: true
-      conditions: ["[STATUS] == any(200, 302, 301)"]
 spec:
   ingressClassName: internal
   rules:

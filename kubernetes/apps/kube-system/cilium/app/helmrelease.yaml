@@ -72,6 +72,9 @@ spec:
         ingress:
           enabled: true
           className: internal
+          annotations:
+            external-dns.alpha.kubernetes.io/controller: none
+            gatus.home-operations.com/enabled: "false"
           hosts: ["hubble.davidhome.ro"]
     operator:
       resources:

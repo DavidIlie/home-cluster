@@ -1,0 +1,141 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: proxmox-nucleus
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: Proxmox (Envoy)
+      group: Hardware
+      url: https://nucleus.davidhome.ro
+      interval: 1m
+      conditions: ["[STATUS] == any(200, 302, 301)"]
+spec:
+  hostnames:
+    - nucleus.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: proxmox-nucleus
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: proxmox-nucleus
+spec:
+  type: KubernetesService
+  kubernetesService:
+    name: proxmox-nucleus
+    port: 8006
+  tls:
+    sni: nucleus.davidapps.local
+    caCertificateRefs:
+      - group: ""
+        kind: Secret
+        name: proxmox-nucleus-ca
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: proxmoxmenux-nucleus
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: Proxmox Menux (Envoy)
+      group: Hardware
+      url: https://nucleus-menux.davidhome.ro
+      interval: 1m
+      conditions: ["[STATUS] == any(200, 302, 301)"]
+spec:
+  hostnames:
+    - nucleus-menux.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - name: proxmox-nucleus
+          port: 8008
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: truenas
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: TrueNAS (Envoy)
+      group: Infrastructure
+      url: https://truenas.davidhome.ro
+      interval: 1m
+      conditions: ["[STATUS] == any(200, 302)"]
+spec:
+  hostnames:
+    - truenas.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: truenas
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: truenas
+spec:
+  type: KubernetesService
+  kubernetesService:
+    name: truenas
+    port: 443
+  tls:
+    # Preserve the existing nginx policy for these self-signed appliance certificates.
+    insecureSkipVerify: true
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: unifi
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: Unifi Controller (Envoy)
+      group: Infrastructure
+      url: https://unifi.davidhome.ro
+      interval: 1m
+      conditions: ["[STATUS] == any(200, 302, 301)"]
+spec:
+  hostnames:
+    - unifi.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: unifi
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: unifi
+spec:
+  type: KubernetesService
+  kubernetesService:
+    name: unifi
+    port: 443
+  tls:
+    # Preserve the existing nginx policy for these self-signed appliance certificates.
+    insecureSkipVerify: true
