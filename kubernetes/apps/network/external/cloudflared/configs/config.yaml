@@ -3,6 +3,22 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "uber.gurt.ing"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "chat.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "plex.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "dl.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "flux-webhook.davidhome.ro"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:
@@ -46,15 +62,21 @@ ingress:
   - hostname: "*.davidhome.ro"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "dave.tips"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "*.dave.tips"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "gurt.ing"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "*.gurt.ing"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "childpizza.com"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "*.childpizza.com"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "anaxax.tv"
@@ -62,7 +84,9 @@ ingress:
   - hostname: "*.anaxax.tv"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "retrofit.to"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "*.retrofit.to"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "monitoring.davidapps.dev"
@@ -78,5 +102,7 @@ ingress:
   - hostname: "mail.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "dl.mbretrofit.it"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - service: http_status:404
