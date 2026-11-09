@@ -5,12 +5,8 @@ metadata:
   name: tempo-query
   annotations:
     external-dns.alpha.kubernetes.io/hostname: tempo.davidhome.ro
-    gatus.home-operations.com/endpoint: |-
-      name: Tempo
-      group: Monitoring
-      url: https://tempo.davidhome.ro/ready
-      interval: 1m
-      conditions: ["[STATUS] == 200"]
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
 spec:
   ingressClassName: internal
   rules:

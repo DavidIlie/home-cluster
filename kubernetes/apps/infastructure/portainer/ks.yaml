@@ -7,6 +7,8 @@ metadata:
   namespace: &namespace infastructure
 spec:
   dependsOn:
+    - name: envoy-gateways
+      namespace: network
     - name: volsync
       namespace: volsync-system
   targetNamespace: *namespace
