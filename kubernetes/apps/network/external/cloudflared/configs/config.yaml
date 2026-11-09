@@ -3,6 +3,18 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "i.gurt.ing"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "i.dave.tips"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "seedyn.dave.tips"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "map.anaxax.tv"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:
