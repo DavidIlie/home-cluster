@@ -1,0 +1,45 @@
+---
+# nginx proxy-body-size "65m" parity for DECLARED lengths only (Content-Length > 68157440).
+# Chunked bodies carry no Content-Length and fall through to the app's own streaming caps.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: HTTPRouteFilter
+metadata:
+  name: seedyn-payload-too-large
+spec:
+  directResponse:
+    statusCode: 413
+    contentType: application/json
+    body:
+      type: Inline
+      inline: '{"error":{"code":"payload_too_large","message":"The request exceeds the permitted size."}}'
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: seedyn-body-limit
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  hostnames:
+    - seedyn.dave.tips
+    - i.dave.tips
+    - i.gurt.ing
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+      sectionName: https
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+          headers:
+            - name: Content-Length
+              type: RegularExpression
+              value: '0*(?:[1-9][0-9]{8,}|[7-9][0-9]{7}|69[0-9]{6}|68[2-9][0-9]{5}|681[6-9][0-9]{4}|6815[89][0-9]{3}|68157[5-9][0-9]{2}|681574[5-9][0-9]|6815744[1-9])'
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: seedyn-payload-too-large
