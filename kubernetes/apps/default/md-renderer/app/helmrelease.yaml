@@ -82,10 +82,39 @@ spec:
         ports:
           http:
             port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Home Cluster (Envoy)
+            group: Services
+            url: https://davidhome.ro
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - davidhome.ro
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: "%REQ(cf-connecting-ip)%"
+            backendRefs:
+              - name: md-renderer
+                port: 8080
     ingress:
       app:
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Utilities

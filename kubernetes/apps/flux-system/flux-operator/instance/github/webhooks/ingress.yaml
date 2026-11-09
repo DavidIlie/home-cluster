@@ -4,6 +4,7 @@ kind: Ingress
 metadata:
   name: flux-webhook
   annotations:
+    gatus.home-operations.com/enabled: "false"
     external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
     # GET /hook/ is answered by the notification-controller receiver with 404
     # (it only serves POST on /hook/<id>) - proves the tunnel + ingress path works.
@@ -26,3 +27,39 @@ spec:
                 name: webhook-receiver
                 port:
                   number: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: flux-webhook
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: Flux Webhook (Envoy)
+      group: Infrastructure
+      url: https://flux-webhook.davidhome.ro/hook/
+      interval: 1m
+      client:
+        dns-resolver: tcp://1.1.1.1:53
+      conditions: ["[STATUS] == 404"]
+spec:
+  hostnames:
+    - flux-webhook.davidhome.ro
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+      sectionName: https
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /hook/
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: "%REQ(cf-connecting-ip)%"
+      backendRefs:
+        - name: webhook-receiver
+          port: 80
