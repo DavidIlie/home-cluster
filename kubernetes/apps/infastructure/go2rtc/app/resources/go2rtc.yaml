@@ -1,5 +1,0 @@
----
-streams:
-log:
-  format: text
-  level: "trace"

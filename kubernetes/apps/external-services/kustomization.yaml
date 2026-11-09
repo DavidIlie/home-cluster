@@ -5,7 +5,6 @@ kind: Kustomization
 namespace: external-services
 resources:
   - ./hardware-routes/ks.yaml
-  - ./homeassistant.yaml
   - ./proxmox-nucleus-ca.sops.yaml
   - ./proxmox-nucleus.yaml
   - ./truenas.yaml

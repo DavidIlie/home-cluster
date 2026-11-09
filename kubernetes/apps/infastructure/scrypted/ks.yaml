@@ -10,8 +10,6 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: envoy-gateways
-      namespace: network
     - name: volsync
       namespace: volsync-system
   interval: 30m
