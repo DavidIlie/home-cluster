@@ -136,12 +136,8 @@ spec:
           gethomepage.dev/name: MinimServer
           gethomepage.dev/icon: mdi-music-box
           gethomepage.dev/description: DLNA Music Server
-          gatus.home-operations.com/endpoint: |-
-            name: MinimServer
-            group: Media
-            url: https://dlna.davidhome.ro/readyz
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "dlna.davidhome.ro"
             paths:
@@ -152,3 +148,23 @@ spec:
         tls:
           - hosts:
               - *host
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: MinimServer (Envoy)
+            group: Media
+            url: https://dlna.davidhome.ro/readyz
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - dlna.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: minimserver
+                port: 9790

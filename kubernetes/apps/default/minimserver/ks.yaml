@@ -9,6 +9,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: envoy-gateways
+      namespace: network
   path: ./kubernetes/apps/default/minimserver/app
   prune: true
   sourceRef:
