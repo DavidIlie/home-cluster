@@ -43,6 +43,7 @@ spec:
               - --enable-httproute
               - --gateway-name=envoy-internal
               - --gateway-name=envoy-external
+              - --gateway-name=envoy-grafana
             resources:
               requests:
                 cpu: 10m

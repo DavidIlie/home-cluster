@@ -805,6 +805,7 @@ spec:
       enabled: true
       ingressClassName: external
       annotations:
+        gatus.home-operations.com/enabled: "false"
         nginx.ingress.kubernetes.io/proxy-body-size: "10m"
         gethomepage.dev/enabled: "true"
         gethomepage.dev/group: Monitoring

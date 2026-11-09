@@ -1,0 +1,85 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy-grafana
+spec:
+  mergeType: StrategicMerge
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        name: envoy-grafana
+        replicas: 1
+        container:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 2Gi
+      envoyService:
+        name: envoy-grafana
+        type: ClusterIP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: envoy-grafana
+spec:
+  gatewayClassName: envoy
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: envoy-grafana
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - name: davidhome-ro-tls
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: envoy-grafana
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-grafana
+  clientIPDetection:
+    customHeader:
+      name: CF-Connecting-IP
+      failClosed: true
+  connection:
+    connectionLimit:
+      value: 64
+  tls:
+    # HTTP/1.1 keeps the 64-connection cap a bound on active request buffers.
+    alpnProtocols: [http/1.1]
+  headers:
+    earlyRequestHeaders:
+      remove: [X-Forwarded-For, X-Real-IP, Forwarded, True-Client-IP]
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: envoy-grafana
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-grafana
+  retry:
+    retryOn:
+      triggers: [reset-before-request]
+  timeout:
+    http:
+      requestTimeout: 0s
+      streamIdleTimeout: 1h
+      connectionIdleTimeout: 4s

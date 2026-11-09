@@ -283,6 +283,7 @@ spec:
       enabled: true
       ingressClassName: external
       annotations:
+        gatus.home-operations.com/enabled: "false"
         nginx.ingress.kubernetes.io/proxy-body-size: "1m"
         gatus.home-operations.com/endpoint: |-
           name: Bostan Monitoring

@@ -51,7 +51,7 @@ spec:
           protocol: TCP
 ---
 # The Bostan Grafana has no route to any shared backend: only the external
-# ingress-nginx controller may reach it, and it may reach only the gateway and DNS here. HTTPS egress
+# nginx and Envoy ingress proxies may reach it, and it may reach only the gateway and DNS here. HTTPS egress
 # is a separate FQDN allowlist below.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -63,8 +63,7 @@ spec:
       app.kubernetes.io/name: grafana-bostan
   policyTypes: [Ingress, Egress]
   ingress:
-    # Only the external ingress-nginx controller pods, and only in the network
-    # namespace (namespace AND pod selector in one peer).
+    # Keep nginx for rollback and admit only the external Envoy gateway.
     - from:
         - namespaceSelector:
             matchLabels:
@@ -74,6 +73,13 @@ spec:
               app.kubernetes.io/name: ingress-nginx
               app.kubernetes.io/instance: external-ingress-nginx
               app.kubernetes.io/component: controller
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+          podSelector:
+            matchLabels:
+              gateway.envoyproxy.io/owning-gateway-name: envoy-grafana
+              gateway.envoyproxy.io/owning-gateway-namespace: network
       ports:
         - port: 3000
           protocol: TCP
