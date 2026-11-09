@@ -77,6 +77,8 @@ metadata:
       interval: 1m
       conditions: ["[STATUS] == any(200, 302)"]
 spec:
+  appProtocols:
+    - gateway.envoyproxy.io/wss
   hostnames:
     - truenas.davidhome.ro
   parentRefs:
@@ -94,6 +96,8 @@ kind: Backend
 metadata:
   name: truenas
 spec:
+  appProtocols:
+    - gateway.envoyproxy.io/wss
   type: KubernetesService
   kubernetesService:
     name: truenas
