@@ -99,6 +99,7 @@ spec:
     name: truenas
     port: 443
   tls:
+    alpnProtocols: ["http/1.1"]
     # Preserve the existing nginx policy for these self-signed appliance certificates.
     insecureSkipVerify: true
 ---
