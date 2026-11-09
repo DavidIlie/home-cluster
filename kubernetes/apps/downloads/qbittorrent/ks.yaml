@@ -11,6 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: envoy-gateways
+      namespace: network
     - name: volsync
       namespace: volsync-system
   path: ./kubernetes/apps/downloads/qbittorrent/app

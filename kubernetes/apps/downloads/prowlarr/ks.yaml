@@ -10,6 +10,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: envoy-gateways
+      namespace: network
     - name: cloudnative-pg-cluster
       namespace: databases
   path: ./kubernetes/apps/downloads/prowlarr/app

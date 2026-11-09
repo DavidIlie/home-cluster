@@ -93,12 +93,8 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: Prowlarr
-            group: Downloads
-            url: https://prowlarr.davidhome.ro/ping
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "prowlarr.davidhome.ro"
             paths:
@@ -108,6 +104,26 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Prowlarr (Envoy)
+            group: Downloads
+            url: https://prowlarr.davidhome.ro/ping
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - prowlarr.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: prowlarr
+                port: 80
     persistence:
       config:
         type: emptyDir
