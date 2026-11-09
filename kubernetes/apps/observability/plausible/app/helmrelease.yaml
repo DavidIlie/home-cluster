@@ -135,11 +135,204 @@ spec:
         ports:
           http:
             port: 8000
+    route:
+      plausible:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible (Envoy)
+            group: Monitoring
+            url: https://plausible.davidapps.dev
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - plausible.davidapps.dev
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+            backendRefs:
+              - name: plausible
+                port: 8000
+      metrics:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Events (Envoy)
+            group: Monitoring
+            url: https://e.davidhome.ro/api/event
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 404"]
+        hostnames:
+          - e.davidhome.ro
+          - e.gurt.ing
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /api/event
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+            backendRefs:
+              - name: plausible
+                port: 8000
+      backupevents:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Events (Backup) (Envoy)
+            group: Monitoring
+            url: https://e.dave.tips/api/event
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 404"]
+        hostnames:
+          - e.dave.tips
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /api/event
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+            backendRefs:
+              - name: plausible
+                port: 8000
+      manualscript:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Script (Manual) (Envoy)
+            group: Monitoring
+            url: https://manualjs.dave.tips/
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - manualjs.dave.tips
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+              - type: URLRewrite
+                urlRewrite:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /js/script.manual.revenue.js
+            backendRefs:
+              - name: plausible
+                port: 8000
+      script:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Plausible Script (Envoy)
+            group: Monitoring
+            url: https://js.dave.tips/
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - js.dave.tips
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+              - type: URLRewrite
+                urlRewrite:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /js/script.file-downloads.outbound-links.pageview-props.revenue.tagged-events.js
+            backendRefs:
+              - name: plausible
+                port: 8000
     ingress:
       plausible:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Monitoring
           gethomepage.dev/name: Plausible
@@ -162,6 +355,7 @@ spec:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           # GET on the ingest path is answered by Plausible itself with 404
           # (it only accepts POST) - proves the ingress reaches the app.
@@ -188,6 +382,7 @@ spec:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           gatus.home-operations.com/endpoint: |-
             name: Plausible Events (Backup)
             group: Monitoring
@@ -205,6 +400,7 @@ spec:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           nginx.ingress.kubernetes.io/use-regex: "true"
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.manual.revenue.js
           gatus.home-operations.com/endpoint: |-
@@ -225,6 +421,7 @@ spec:
         enabled: true
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           nginx.ingress.kubernetes.io/use-regex: "true"
           nginx.ingress.kubernetes.io/rewrite-target: /js/script.file-downloads.outbound-links.pageview-props.revenue.tagged-events.js
           gatus.home-operations.com/endpoint: |-

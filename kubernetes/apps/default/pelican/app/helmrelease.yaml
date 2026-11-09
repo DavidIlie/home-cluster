@@ -90,10 +90,48 @@ spec:
             port: *port
           https:
             port: 443
+    route:
+      pelican:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Pelican Panel (Envoy)
+            group: Gaming
+            url: https://panel.davidapps.dev
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == any(200, 302)"]
+        hostnames:
+          - panel.davidapps.dev
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: '%REQ(cf-connecting-ip)%'
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+            backendRefs:
+              - name: pelican
+                port: 80
     ingress:
       pelican:
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Gaming
           gethomepage.dev/name: Pelican
