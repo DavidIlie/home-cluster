@@ -3,6 +3,14 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "flux-webhook.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "flux-webhook.davidhome.ro"
+  - hostname: "dash.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "dash.davidhome.ro"
   - hostname: "plexo.davidhome.ro"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:
@@ -28,7 +36,9 @@ ingress:
     originRequest:
       originServerName: "echo-server.davidhome.ro"
   - hostname: "davidhome.ro"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "nextjs-control.davidhome.ro"
     service: https://nextjs-envoy.envoy-gateway-system.svc.cluster.local:443
     originRequest:
