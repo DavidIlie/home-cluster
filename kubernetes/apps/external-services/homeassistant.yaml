@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &app home-assistant
+  namespace: external-services
+  labels:
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/instance: *app
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: &port 8123
+      targetPort: *port
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: home-assistant
+  namespace: external-services
+  labels:
+    kubernetes.io/service-name: home-assistant
+addressType: IPv4
+ports:
+  - name: http
+    appProtocol: http
+    protocol: TCP
+    port: 8123
+endpoints:
+  - addresses:
+      - "192.168.30.10"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &app home-assistant
+  namespace: external-services
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.davidhome.ro
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Infrastructure
+    gethomepage.dev/name: Home Assistant
+    gethomepage.dev/icon: home-assistant.png
+    gethomepage.dev/description: Smart Home
+    gethomepage.dev/pod-selector: ""
+    gatus.home-operations.com/enabled: "false"
+    gatus.home-operations.com/endpoint: |-
+      name: Home Assistant
+      group: Infrastructure
+      url: https://hass.davidhome.ro
+      interval: 1m
+      conditions: ["[STATUS] == 200"]
+spec:
+  ingressClassName: external
+  rules:
+    - host: &host hass.davidhome.ro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-assistant
+                port:
+                  number: 8123
+  tls:
+    - hosts:
+        - *host

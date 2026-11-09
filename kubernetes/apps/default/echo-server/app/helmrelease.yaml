@@ -98,7 +98,13 @@ spec:
             namespace: network
             sectionName: https
         rules:
-          - backendRefs:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: "%REQ(cf-connecting-ip)%"
+            backendRefs:
               - name: echo-server
                 port: 8080
     ingress:

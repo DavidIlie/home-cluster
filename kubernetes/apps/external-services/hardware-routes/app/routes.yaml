@@ -142,3 +142,36 @@ spec:
   tls:
     # Preserve the existing nginx policy for these self-signed appliance certificates.
     insecureSkipVerify: true
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: home-assistant
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: Home Assistant (Envoy)
+      group: Infrastructure
+      url: https://hass.davidhome.ro
+      interval: 1m
+      client:
+        dns-resolver: tcp://1.1.1.1:53
+      conditions: ["[STATUS] == 200"]
+spec:
+  hostnames:
+    - hass.davidhome.ro
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+      sectionName: https
+  rules:
+    - filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-For
+                value: "%REQ(cf-connecting-ip)%"
+      backendRefs:
+        - name: home-assistant
+          port: 8123
