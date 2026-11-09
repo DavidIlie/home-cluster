@@ -71,14 +71,8 @@ spec:
           gethomepage.dev/name: Scrypted
           gethomepage.dev/icon: scrypted.png
           gethomepage.dev/description: Smart Home Hub
-          gatus.home-operations.com/endpoint: |-
-            name: Scrypted
-            group: Infrastructure
-            url: https://scrypted.infastructure.svc.cluster.local:10443
-            interval: 1m
-            client:
-              insecure: true
-            conditions: ["[STATUS] == any(200, 302)"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: scrypted.davidhome.ro
             paths:

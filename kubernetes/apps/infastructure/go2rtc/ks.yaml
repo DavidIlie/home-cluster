@@ -9,6 +9,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: envoy-gateways
+      namespace: network
   interval: 30m
   retryInterval: 1m
   path: ./kubernetes/apps/infastructure/go2rtc/app

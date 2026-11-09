@@ -1,0 +1,13 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: scrypted
+spec:
+  type: KubernetesService
+  kubernetesService:
+    name: scrypted
+    port: 10443
+  tls:
+    # Match the existing nginx behavior for Scrypted's self-signed, IP-only certificate.
+    insecureSkipVerify: true

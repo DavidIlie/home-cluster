@@ -22,6 +22,10 @@ spec:
       strategy: rollback
       retries: 3
   values:
+    config:
+      envoyGateway:
+        extensionApis:
+          enableBackend: true
     crds:
       enabled: true
     deployment:
