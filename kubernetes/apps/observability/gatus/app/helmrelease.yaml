@@ -106,10 +106,39 @@ spec:
         serviceName: gatus
         endpoints:
           - port: http
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Gatus (Envoy)
+            group: Monitoring
+            url: https://status.davidhome.ro
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - status.davidhome.ro
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Forwarded-For
+                      value: "%REQ(cf-connecting-ip)%"
+            backendRefs:
+              - name: gatus
+                port: 8080
     ingress:
       app:
         className: external
         annotations:
+          gatus.home-operations.com/enabled: "false"
           external-dns.alpha.kubernetes.io/target: "external.davidhome.ro"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Monitoring
