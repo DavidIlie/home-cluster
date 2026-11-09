@@ -3,6 +3,34 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "map.anaxax.tv"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "pelican.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "js.dave.tips"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "manualjs.dave.tips"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "e.dave.tips"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "e.gurt.ing"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "e.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "uber.gurt.ing"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:
@@ -96,9 +124,13 @@ ingress:
   - hostname: "bostan-monitoring.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "plausible.davidapps.dev"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "panel.davidapps.dev"
-    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "mail.davidapps.dev"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
   - hostname: "dl.mbretrofit.it"
