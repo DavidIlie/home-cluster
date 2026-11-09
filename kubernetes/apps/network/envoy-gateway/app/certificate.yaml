@@ -11,3 +11,5 @@ spec:
   dnsNames:
     - davidhome.ro
     - "*.davidhome.ro"
+    - "*.idrac.davidhome.ro"
+    - "*.bohemia.davidhome.ro"

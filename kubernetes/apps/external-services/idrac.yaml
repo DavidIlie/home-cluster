@@ -133,6 +133,8 @@ metadata:
   name: idrac-nucleus
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Hardware
@@ -170,6 +172,8 @@ metadata:
   name: idrac-electron
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Hardware
@@ -207,6 +211,8 @@ metadata:
   name: idrac-proton
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Hardware
@@ -244,6 +250,8 @@ metadata:
   name: idrac-neutron
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Hardware

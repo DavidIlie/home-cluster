@@ -37,6 +37,8 @@ metadata:
   name: idrac-bohemia
   namespace: external-services
   annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+    gatus.home-operations.com/enabled: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: internal

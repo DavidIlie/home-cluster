@@ -176,3 +176,218 @@ spec:
       backendRefs:
         - name: home-assistant
           port: 8123
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: idrac-bohemia
+spec:
+  type: KubernetesService
+  appProtocols:
+    - gateway.envoyproxy.io/wss
+  kubernetesService:
+    name: idrac-bohemia
+    port: 8167
+  tls:
+    alpnProtocols: ["http/1.1"]
+    insecureSkipVerify: true
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: idrac-bohemia
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Bohemia (Envoy)
+      group: Hardware
+      url: https://idrac.bohemia.davidhome.ro/restgui/start.html
+      interval: 5m
+      headers:
+        Accept-Encoding: gzip
+      conditions: ["[STATUS] == 200"]
+spec:
+  hostnames:
+    - idrac.bohemia.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: idrac-bohemia
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: idrac-electron
+spec:
+  type: KubernetesService
+  appProtocols:
+    - gateway.envoyproxy.io/wss
+  kubernetesService:
+    name: idrac-electron
+    port: 443
+  tls:
+    alpnProtocols: ["http/1.1"]
+    insecureSkipVerify: true
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: idrac-electron
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Electron (Envoy)
+      group: Hardware
+      url: https://electron.idrac.davidhome.ro/start.html
+      interval: 5m
+      headers:
+        Accept-Encoding: gzip
+      conditions: ["[STATUS] == 200"]
+spec:
+  hostnames:
+    - electron.idrac.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: idrac-electron
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: idrac-neutron
+spec:
+  type: KubernetesService
+  appProtocols:
+    - gateway.envoyproxy.io/wss
+  kubernetesService:
+    name: idrac-neutron
+    port: 443
+  tls:
+    alpnProtocols: ["http/1.1"]
+    insecureSkipVerify: true
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: idrac-neutron
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Neutron (Envoy)
+      group: Hardware
+      url: https://neutron.idrac.davidhome.ro/start.html
+      interval: 5m
+      headers:
+        Accept-Encoding: gzip
+      conditions: ["[STATUS] == 200"]
+spec:
+  hostnames:
+    - neutron.idrac.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: idrac-neutron
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: idrac-nucleus
+spec:
+  type: KubernetesService
+  appProtocols:
+    - gateway.envoyproxy.io/wss
+  kubernetesService:
+    name: idrac-nucleus
+    port: 443
+  tls:
+    alpnProtocols: ["http/1.1"]
+    insecureSkipVerify: true
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: idrac-nucleus
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Nucleus (Envoy)
+      group: Hardware
+      url: https://nucleus.idrac.davidhome.ro/start.html
+      interval: 5m
+      headers:
+        Accept-Encoding: gzip
+      conditions: ["[STATUS] == 200"]
+spec:
+  hostnames:
+    - nucleus.idrac.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: idrac-nucleus
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: idrac-proton
+spec:
+  type: KubernetesService
+  appProtocols:
+    - gateway.envoyproxy.io/wss
+  kubernetesService:
+    name: idrac-proton
+    port: 443
+  tls:
+    alpnProtocols: ["http/1.1"]
+    insecureSkipVerify: true
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: idrac-proton
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |-
+      name: iDRAC Proton (Envoy)
+      group: Hardware
+      url: https://proton.idrac.davidhome.ro/start.html
+      interval: 5m
+      headers:
+        Accept-Encoding: gzip
+      conditions: ["[STATUS] == 200"]
+spec:
+  hostnames:
+    - proton.idrac.davidhome.ro
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: idrac-proton
