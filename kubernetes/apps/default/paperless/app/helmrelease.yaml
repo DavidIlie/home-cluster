@@ -119,12 +119,8 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: Paperless
-            group: Utilities
-            url: https://paperless.davidhome.ro
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "paperless.davidhome.ro"
             paths:
@@ -134,6 +130,26 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Paperless (Envoy)
+            group: Utilities
+            url: https://paperless.davidhome.ro
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - paperless.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: paperless
+                port: 8000
     persistence:
       data:
         existingClaim: paperless

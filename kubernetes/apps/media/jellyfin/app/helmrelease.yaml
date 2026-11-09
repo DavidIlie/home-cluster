@@ -93,12 +93,8 @@ spec:
         className: internal
         annotations:
           gethomepage.dev/enabled: "false"
-          gatus.home-operations.com/endpoint: |-
-            name: Jellyfin
-            group: Media
-            url: https://jellyfin.davidhome.ro/health
-            interval: 1m
-            conditions: ["[STATUS] == 200"]
+          external-dns.alpha.kubernetes.io/controller: none
+          gatus.home-operations.com/enabled: "false"
         hosts:
           - host: &host "jellyfin.davidhome.ro"
             paths:
@@ -109,6 +105,26 @@ spec:
         tls:
           - hosts:
               - *host
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            name: Jellyfin (Envoy)
+            group: Media
+            url: https://jellyfin.davidhome.ro/health
+            interval: 1m
+            conditions: ["[STATUS] == 200"]
+        hostnames:
+          - jellyfin.davidhome.ro
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: jellyfin
+                port: 8096
     persistence:
       config:
         existingClaim: jellyfin
