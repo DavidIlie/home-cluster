@@ -12,7 +12,7 @@ spec:
     - name: https
       protocol: TCP
       port: &port 8167
-      targetPort: *port
+      targetPort: 443
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -26,10 +26,10 @@ ports:
   - name: https
     appProtocol: https
     protocol: TCP
-    port: 8167
+    port: 443
 endpoints:
   - addresses:
-      - "192.168.10.150"
+      - "192.168.1.207"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

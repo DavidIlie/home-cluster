@@ -163,9 +163,16 @@ spec:
               0.95, which usually means the summary API's `limit` parameter is
               truncating models[]. Raise `limit` on the ServiceMonitor targets.
 
+        # Drop scrape-target labels: they change on every cliproxy/exporter
+        # rollout, which resolved the alert and re-fired it 30m later as a new
+        # series. keep_firing_for bridges failed scrapes of auth-files.
         - alert: CLIProxyCredentialUnhealthy
-          expr: cliproxy_auth_info{status=~"error|disabled"} == 1
+          expr: |
+            max without (pod, instance, container, endpoint, service) (
+              cliproxy_auth_info{status=~"error|disabled"}
+            ) == 1
           for: 30m
+          keep_firing_for: 15m
           labels:
             severity: warning
           annotations:

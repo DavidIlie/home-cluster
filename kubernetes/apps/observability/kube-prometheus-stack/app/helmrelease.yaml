@@ -32,6 +32,13 @@ spec:
       enabled: false
     cleanPrometheusOperatorObjectNames: true
     defaultRules:
+      # A pod in CrashLoopBackOff passes readiness for ~1m between crashes.
+      # Each blip reset the 10-15m `for` of KubePodNotReady,
+      # KubeDeploymentReplicasMismatch and TargetDown, so one broken pod sent a
+      # RESOLVED/FIRING pair every ~20m (~8 emails/h on 2026-11-14 while
+      # network/internal-external-dns crashlooped). Bridge those gaps; a real
+      # recovery still sends RESOLVED, 15m later.
+      keepFiringFor: 15m
       disabled:
         # Replaced in prometheusrule.yaml, which says why for each.
         etcdHighNumberOfFailedGRPCRequests: true

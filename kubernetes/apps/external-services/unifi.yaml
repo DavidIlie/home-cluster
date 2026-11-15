@@ -29,7 +29,7 @@ ports:
     port: 443
 endpoints:
   - addresses:
-      - "192.168.10.1"
+      - "192.168.1.1"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
