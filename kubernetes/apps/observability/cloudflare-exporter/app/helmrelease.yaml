@@ -16,7 +16,7 @@ spec:
   values:
     image:
       repository: ghcr.io/lablabs/cloudflare-exporter
-      tag: latest@sha256:c213cded2db6b49d3199d1cfa660fba5469ca66309596fbc87c24acd269834a7
+      tag: latest@sha256:9b7cf4655d7c28158f6d3b8b18502ac391ae7eeb3acf7dfc0feadcd14074851a
     env:
       - name: CF_API_KEY
         valueFrom:
