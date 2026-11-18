@@ -6,6 +6,7 @@ resources:
   - ./secret.sops.yaml
   - ./employee-hub-reader-secret.sops.yaml
   - ./helmrelease.yaml
+  - ./libertos-retention-cronjob.yaml
 
 configMapGenerator:
   - name: plausible-employee-hub-reader-sql

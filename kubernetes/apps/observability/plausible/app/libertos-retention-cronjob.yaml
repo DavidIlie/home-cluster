@@ -1,0 +1,66 @@
+---
+# Libertos promises readers that its website statistics are deleted 12 months
+# after they are recorded (BostanEnterprise/libertos#1008). Self-hosted
+# Plausible has no retention setting, so the expiry is a ClickHouse TTL scoped
+# to the Libertos site only: other sites share these tables and keep their data.
+# A Plausible upgrade that rebuilds a table drops the TTL, so this job puts it
+# back daily and fails (KubeJobFailed) when either table is missing the rule.
+# Site 21 is libertos.org in Plausible's Postgres `sites` table.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: plausible-libertos-retention
+spec:
+  schedule: "17 4 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile: { type: RuntimeDefault }
+          containers:
+            - name: retention
+              image: clickhouse/clickhouse-server:26.9.17.8-alpine@sha256:b60c1977f4f0f7375d4a6978007b01278495fcfaa5215ad8fca1dd0accbf38cf
+              command: ["sh", "-eu", "-c"]
+              args:
+                - |
+                  server="${CLICKHOUSE_DATABASE_URL%/*}/"
+                  q() { wget -qO- --post-data="$1" "$server"; }
+                  rule() { q "SELECT count() FROM system.tables WHERE database = 'plausible_events_db' AND name = '$1' AND engine_full LIKE '%TTL $2 + toIntervalMonth(12) WHERE site_id = 21 %'"; }
+                  # MODIFY TTL replaces a table's whole TTL and rewrites its
+                  # parts, so only run it when the rule is missing.
+                  if [ "$(rule events_v2 timestamp)" != 1 ]; then
+                    q "ALTER TABLE plausible_events_db.events_v2 MODIFY TTL timestamp + INTERVAL 12 MONTH DELETE WHERE site_id = 21"
+                  fi
+                  if [ "$(rule sessions_v2 start)" != 1 ]; then
+                    q "ALTER TABLE plausible_events_db.sessions_v2 MODIFY TTL start + INTERVAL 12 MONTH DELETE WHERE site_id = 21"
+                  fi
+                  test "$(rule events_v2 timestamp)" = 1
+                  test "$(rule sessions_v2 start)" = 1
+                  echo "Libertos 12-month TTL present on events_v2 and sessions_v2"
+              env:
+                - name: CLICKHOUSE_DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: plausible-secret
+                      key: CLICKHOUSE_DATABASE_URL
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: { drop: ["ALL"] }
