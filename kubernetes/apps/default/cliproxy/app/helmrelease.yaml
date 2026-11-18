@@ -72,8 +72,8 @@ spec:
               - |
                 set -eu
 
-                # renovate: datasource=github-releases depName=zhumengling/codex-token-usage
-                CODEX_TOKEN_USAGE_VERSION=0.1.45
+                # Update the version and both checksums together.
+                CODEX_TOKEN_USAGE_VERSION=0.1.43
                 CODEX_TOKEN_USAGE_ZIP_SHA256=37d9b03f55049d6bd2586cc6acbc495107dfa4a6b679753550711ddb38132ce7
                 CODEX_TOKEN_USAGE_SO_SHA256=c5e36a5a540ba0e075b2c7d26a49ddcd0a6ad1c270147674234da8d846c34bd2
                 PLUGIN_CACHE_DIR=/CLIProxyAPI/plugin-data/plugin-cache
