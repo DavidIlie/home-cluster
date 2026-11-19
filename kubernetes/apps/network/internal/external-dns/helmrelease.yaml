@@ -70,7 +70,7 @@ spec:
       - --managed-record-types=A
       - --managed-record-types=AAAA
     policy: sync
-    sources: ["service", "ingress", "gateway-httproute"]
+    sources: ["service", "gateway-httproute"]
     domainFilters: ["davidhome.ro"]
     serviceMonitor:
       enabled: true
