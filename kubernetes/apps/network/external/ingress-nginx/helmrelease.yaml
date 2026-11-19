@@ -27,6 +27,7 @@ spec:
   values:
     fullnameOverride: external-ingress-nginx
     controller:
+      replicaCount: 0
       service:
         annotations:
           lbipam.cilium.io/ips: "192.168.100.92"
@@ -36,6 +37,7 @@ spec:
         default: false
         controllerValue: k8s.io/external
       admissionWebhooks:
+        enabled: false
         objectSelector:
           matchExpressions:
             - key: ingress-class
@@ -81,7 +83,7 @@ spec:
         ssl-protocols: TLSv1.3 TLSv1.2
         use-forwarded-headers: "true"
       metrics:
-        enabled: true
+        enabled: false
         serviceMonitor:
           enabled: true
           namespaceSelector:
