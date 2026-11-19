@@ -30,9 +30,11 @@ spec:
         existingClaim: victoria-logs-analytics
       retentionPeriod: 30d
       resources:
+        # Requests sized to the observed 1Gi / multi-core peaks before the OOMs,
+        # so the scheduler reserves what multi-day scans actually use.
         requests:
-          cpu: 100m
-          memory: 512Mi
+          cpu: 500m
+          memory: 1Gi
         limits:
           # 1Gi OOM-killed it under concurrent multi-day LogsQL scans (2026-11-19).
           memory: 2Gi
