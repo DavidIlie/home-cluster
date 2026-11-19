@@ -5,6 +5,17 @@ machine:
       # Drop images no pod has used for a week. Size-based GC alone keeps the
       # EPHEMERAL disk (shared with etcd) at up to 85% with old app tags.
       imageMaximumGCAge: 168h
+      # Keep two cores out of pod allocatable for Talos, containerd and the
+      # kubelet, so a busy pod cannot starve them. The memory, pid and
+      # ephemeral values are the Talos defaults, spelled out so setting cpu
+      # here cannot drop them.
+      systemReserved:
+        cpu: 1000m
+        memory: 512Mi
+        ephemeral-storage: 256Mi
+        pid: "100"
+      kubeReserved:
+        cpu: 1000m
     extraMounts:
       - destination: /var/openebs/local
         type: bind
