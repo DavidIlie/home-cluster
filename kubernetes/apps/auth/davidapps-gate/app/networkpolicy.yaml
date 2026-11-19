@@ -38,6 +38,13 @@ spec:
             matchLabels:
               gateway.envoyproxy.io/owning-gateway-name: envoy-grafana
               gateway.envoyproxy.io/owning-gateway-namespace: network
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+          podSelector:
+            matchLabels:
+              gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+              gateway.envoyproxy.io/owning-gateway-namespace: network
       ports:
         - port: 8080
           protocol: TCP
