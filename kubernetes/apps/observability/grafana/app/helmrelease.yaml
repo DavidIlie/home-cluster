@@ -288,7 +288,7 @@ spec:
                 panelId: 64
                 noDataState: OK
                 execErrState: Error
-                for: 5m
+                for: 10m
                 annotations:
                   __dashboardUid__: physical-network-health
                   __panelId__: "64"
@@ -297,7 +297,7 @@ spec:
                   service: physical-network
                   severity: critical
                 isPaused: false
-              # Ring overruns: the NIC had no free rx descriptor during a burst. Tighten to 0.5 once the rx ring is 4078.
+              # Ring overruns: the NIC had no free rx descriptor during a burst.
               - uid: davidapps_node_rx_fifo_overrun_ratio
                 title: Davidapps node RX ring overrun ratio
                 condition: C
@@ -349,7 +349,7 @@ spec:
                     model:
                       conditions:
                         - evaluator:
-                            params: [2]
+                            params: [0.5]
                             type: gt
                           operator:
                             type: and
@@ -375,7 +375,7 @@ spec:
                 annotations:
                   __dashboardUid__: physical-network-health
                   __panelId__: "64"
-                  summary: More than 2% of received packets on a physical 10 GbE member are dropped because the rx ring overflowed.
+                  summary: More than 0.5% of received packets on a physical 10 GbE member are dropped because the rx ring overflowed.
                 labels:
                   service: physical-network
                   severity: warning
