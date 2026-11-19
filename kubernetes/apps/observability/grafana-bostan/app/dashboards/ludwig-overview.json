@@ -612,7 +612,7 @@
         },
         {
           "refId": "C",
-          "expr": "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"ludwig-browser\" kind:=\"exception\" _msg:=\"browser.error\" | fields _time, _msg, event, operation, capability, trace_id, span_id | limit 100",
+          "expr": "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"ludwig-browser\" kind:=\"exception\" value:=\"browser.error\" | fields _time, value, trace_id, span_id | rename value as _msg | limit 100",
           "datasource": {
             "type": "victoriametrics-logs-datasource",
             "uid": "victoria-logs"
