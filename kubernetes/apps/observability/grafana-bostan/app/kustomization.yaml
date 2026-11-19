@@ -28,6 +28,11 @@ configMapGenerator:
       - ./dashboards/bostan-discord-bot.json
     options:
       disableNameSuffixHash: true
+  - name: grafana-bostan-ludwig-dashboard
+    files:
+      - ./dashboards/ludwig-overview.json
+    options:
+      disableNameSuffixHash: true
   - name: bostan-query-gateway-dashboards
     files:
       - ./dashboards/bostan-overview.json
@@ -37,6 +42,7 @@ configMapGenerator:
       - ./dashboards/bostan-swish.json
       - ./dashboards/libertos-overview.json
       - ./dashboards/bostan-discord-bot.json
+      - ./dashboards/ludwig-overview.json
   - name: bostan-query-gateway-config
     files:
       - config.json=./gateway/config.json

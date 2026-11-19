@@ -270,8 +270,19 @@ spec:
             editable: false
             options:
               path: /var/lib/grafana/dashboards/apps-bostan
+          - name: apps-ludwig
+            orgId: 1
+            folder: Apps / Ludwig
+            folderUid: apps-ludwig
+            type: file
+            disableDeletion: false
+            allowUiUpdates: false
+            editable: false
+            options:
+              path: /var/lib/grafana/dashboards/apps-ludwig
     dashboardsConfigMaps:
       apps-bostan: grafana-bostan-dashboards
+      apps-ludwig: grafana-bostan-ludwig-dashboard
     sidecar:
       dashboards:
         enabled: false

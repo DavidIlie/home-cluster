@@ -571,6 +571,15 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/apps-kidays
+          - name: apps-ludwig
+            orgId: 1
+            folder: Apps / Ludwig
+            folderUid: apps-ludwig
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/apps-ludwig
           - name: telemetry-platform
             orgId: 1
             folder: Observability / Telemetry
@@ -776,6 +785,9 @@ spec:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-browser.json
         backend:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/kidays-backend.json
+      apps-ludwig:
+        overview:
+          url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/ludwig-overview.json
       telemetry-platform:
         overview:
           url: https://raw.githubusercontent.com/davidilie/home-cluster/main/kubernetes/apps/observability/grafana/app/dashboards/telemetry-platform.json

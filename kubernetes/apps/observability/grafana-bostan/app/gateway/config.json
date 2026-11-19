@@ -21,7 +21,8 @@
       "namespace": [
         "bostan-enterprise",
         "bostan-libertos",
-        "bostan-swish"
+        "bostan-swish",
+        "ludwig"
       ],
       "exported_namespace": [
         "bostan-enterprise",
@@ -41,10 +42,17 @@
       ],
       "service": [
         "libertos-web",
-        "libertos-convex"
+        "libertos-convex",
+        "ludwig-browser",
+        "ludwig-web",
+        "ludwig-convex"
       ],
       "davidapps_project_id": [
-        "libertos"
+        "libertos",
+        "ludwig"
+      ],
+      "project": [
+        "ludwig"
       ],
       "deployment": [
         "bostan-discord-bot"
@@ -60,7 +68,10 @@
       "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-enterprise\",app=\"bostan-enterprise-cloudflared\"}",
       "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"bostan-enterprise\",app=\"external-dns\"}",
       "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"network\",app=\"ingress-nginx\"} vhost:in(\"bostanenterprise.com\",\"employee.bostanenterprise.com\",\"libertos.org\",\"server.libertos.org\",\"actions.libertos.org\",\"swishshop.net\",\"www.swishshop.net\",\"api.swishshop.net\",\"auth.swishshop.net\")",
-      "_stream:{cluster=\"home-cluster\",k_namespace_name=\"default\",app=\"bostan-discord-bot\"}"
+      "_stream:{cluster=\"home-cluster\",k_namespace_name=\"default\",app=\"bostan-discord-bot\"}",
+      "_stream:{cluster=\"davidapps-cluster\",k_namespace_name=\"ludwig\"} k_container_name:=\"stream\"",
+      "_stream:{\"davidapps.project.id\"=\"ludwig\",\"service.name\"=\"ludwig-convex\"}",
+      "_stream:{cluster=\"davidapps-cluster\",collector=\"alloy\"} app_name:=\"ludwig-browser\""
     ]
   },
   "limits": {
