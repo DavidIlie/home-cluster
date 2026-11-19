@@ -32,9 +32,10 @@ spec:
       resources:
         requests:
           cpu: 100m
-          memory: 256Mi
+          memory: 512Mi
         limits:
-          memory: 1Gi
+          # 1Gi OOM-killed it under concurrent multi-day LogsQL scans (2026-11-19).
+          memory: 2Gi
       serviceMonitor:
         enabled: true
       extraArgs:
