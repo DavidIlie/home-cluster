@@ -3,6 +3,15 @@ originRequest:
   originServerName: "external.davidhome.ro"
 
 ingress:
+  - hostname: "cliproxyapi.davidhome.ro"
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
+  - hostname: "cliproxy.davidhome.ro"
+    path: '^/(v1(/.*)?|v1beta(/.*)?|openai/v1(/.*)?|backend-api/codex(/.*)?|backend-api/wham/usage|api/oauth/usage|healthz(/.*)?|internal/employee-hub/v1/(usage|api-key/(reveal|owner-binding|provision)))$'
+    service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
+    originRequest:
+      originServerName: "davidhome.ro"
   - hostname: "i.gurt.ing"
     service: https://envoy-external.envoy-gateway-system.svc.cluster.local:443
     originRequest:
