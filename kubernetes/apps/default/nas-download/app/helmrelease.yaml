@@ -40,7 +40,7 @@ spec:
           app:
             image:
               repository: nginx
-              tag: latest@sha256:82f8415479202439f10e5d6885de017d549eab5320d7c5b2dbe29e7eaf5f2a02
+              tag: latest@sha256:6a3df739b6312289e87d70947d900669c1b3087474ece5814b9c01bbf2e6dde3
               pullPolicy: IfNotPresent
             args:
               - nginx
