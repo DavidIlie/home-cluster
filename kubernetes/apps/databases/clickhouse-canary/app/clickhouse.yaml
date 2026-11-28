@@ -69,7 +69,7 @@ spec:
             fsGroup: 101
           containers:
             - name: clickhouse
-              image: clickhouse/clickhouse-server:26.9@sha256:387ebbcca253026def04dc79e83d2323ac7d97bf309ddd090a8a3c702573e01a
+              image: clickhouse/clickhouse-server:26.9@sha256:c9c4e6d42fa3b4ded17c32163c9366cbb4901c027400799d58589532eeca763a
               imagePullPolicy: IfNotPresent
               ports:
                 - name: metrics
