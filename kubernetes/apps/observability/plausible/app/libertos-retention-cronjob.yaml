@@ -30,7 +30,7 @@ spec:
             seccompProfile: { type: RuntimeDefault }
           containers:
             - name: retention
-              image: clickhouse/clickhouse-server:26.9.17.8-alpine@sha256:b60c1977f4f0f7375d4a6978007b01278495fcfaa5215ad8fca1dd0accbf38cf
+              image: clickhouse/clickhouse-server:26.11.5.8-alpine@sha256:34a6a965dee7da10002a122de2f6488032f4da55d68f5b0dbfdadbccf1e925e2
               command: ["sh", "-eu", "-c"]
               args:
                 - |
