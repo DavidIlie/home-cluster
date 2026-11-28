@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: docker.io/mccloud/subgen
-              tag: latest@sha256:baa23e5728057d4d2eafa5720aecfca80b49c89001f5aca81dc056f074cb7686
+              tag: latest@sha256:ef98e8dc44054d7efcd89cf56e52e771a782885cd3a71573483e68e1dcf94dda
             env:
               TZ: Europe/Bucharest
               PUID: "1000"
